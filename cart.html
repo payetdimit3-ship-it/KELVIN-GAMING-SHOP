@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Kikapu — GameHub</title><link rel="stylesheet" href="style.css"></head><body>
+<header class="navbar"><div class="logo">🎮 <span>GAME</span>HUB</div><nav class="nav-links"><a href="index.html">Home</a><a href="shop.html">🛒 Shop</a><a href="cart.html">🛍️ Kikapu (<span id="cartCount">0</span>)</a></nav></header>
+<div class="cart-page"><h1>🛍️ Kikapu Changu</h1><div id="cartContent"></div></div>
+<script>
+function renderCart(){const cart=JSON.parse(localStorage.getItem('gamehubCart')||'[]');const container=document.getElementById('cartContent');const count=document.getElementById('cartCount');if(count)count.textContent=cart.reduce((s,i)=>s+i.qty,0);if(!cart.length){container.innerHTML='<div class="cart-empty"><div style="font-size:48px;">🛒</div><h3>Kikapu kiko tupu</h3><p style="color:#8f8faa;">Weka bidhaa kwenye kikapu kutoka kwenye Shop.</p><a href="shop.html" class="btn-primary" style="margin-top:15px;display:inline-block;">🛒 Nenda Shop</a></div>';return;}
+let html='';let total=0;cart.forEach((item,i)=>{total+=item.price*item.qty;html+=`<div class="cart-item"><div><div class="cart-item-name">${item.emoji||'🎮'} ${item.name}</div><small style="color:#8f8faa;">Kiasi: ${item.qty}</small></div><div><span class="cart-item-price">${(item.price*item.qty).toLocaleString()} TZS</span><button onclick="removeItem(${i})" style="background:rgba(255,61,113,0.15);border:none;color:#ff3d71;border-radius:8px;padding:4px 10px;margin-left:8px;cursor:pointer;">✕</button></div></div>`;});html+=`<div class="cart-total">💰 Jumla: ${total.toLocaleString()} TZS</div>`;
+html+=`<div style="text-align:right;margin-top:15px;"><a href="checkout.html" class="btn-primary">💳 Enda Kulipa</a></div>`;container.innerHTML=html;}
+function removeItem(i){let cart=JSON.parse(localStorage.getItem('gamehubCart')||'[]');cart.splice(i,1);localStorage.setItem('gamehubCart',JSON.stringify(cart));renderCart();}
+renderCart();
+</script>
+</body></html>
