@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malipo Yamefika! — GameHub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">🎮 <span>GAME</span>HUB</div>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="rental.html">Rental</a>
+      <a href="mygames.html">My Games</a>
+      <a href="requests.html">Requests</a>
+      <a href="cart.html">🛒 Kikapu (<span id="cartCount">0</span>)</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <a href="login.html" class="btn-login">🔐 Login</a>
+  </header>
+
+  <section class="success-page">
+    <div class="success-box">
+      <div class="success-icon">✅</div>
+      <h1>MALIPO YAMEFIKA!</h1>
+      <p>Asante! Bidhaa zako zinatumwa automatic kwenye email yako.</p>
+      <div id="orderSummary" class="order-summary"></div>
+      <p class="success-note">💡 Hukupata email? Angalia spam, au wasiliana nasi kwa WhatsApp.</p>
+      <a href="myorders.html" class="btn-primary">📦 My Orders</a>
+      <a href="shop.html" class="btn-secondary">🛒 Endelea Kununua</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <h3>🎮 GameHub</h3>
+        <p>Duka la gaming la Tanzania: game keys, top-ups, gift cards na rental.</p>
+      </div>
+      <div>
+        <h3>Links</h3>
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="cart.html">Kikapu</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <p>📱 +255 700 000 000</p>
+        <p>📧 info@gamehub.co.tz</p>
+        <p>💬 <a href="https://wa.me/255700000000" target="_blank">WhatsApp Support</a></p>
+      </div>
+    </div>
+    <p class="copyright">© 2026 GameHub. Haki zote zimehifadhiwa.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="chat.js"></script>
+
+  <script>
+    const lastOrder = JSON.parse(localStorage.getItem('gamehubLastOrder') || 'null');
+    const summary = document.getElementById('orderSummary');
+    if (lastOrder) {
+      summary.innerHTML = lastOrder.items.map(i =>
+        `<p>${i.emoji} ${i.name} × ${i.qty} — ${(i.num * i.qty).toLocaleString()} TZS</p>`
+      ).join('') + `<p class="order-total">Jumla: ${lastOrder.total.toLocaleString()} TZS</p>`;
+
+      // ⏱️ Kama order ilikuwa na rental — anza timer
+      const rentals = lastOrder.items.filter(i => i.rentalMinutes);
+      if (rentals.length) {
+        let stored = JSON.parse(localStorage.getItem('gamehubRentals') || '[]');
+        rentals.forEach(r => {
+          stored.push({ name: r.name, minutes: r.rentalMinutes, endTime: Date.now() + r.rentalMinutes * 60000 });
+        });
+        localStorage.setItem('gamehubRentals', JSON.stringify(stored));
+        summary.innerHTML += '<p style="color:#00e5ff; margin-top:8px;">⏱️ Timer yako imeanza! Angalia <a href="mygames.html">My Games</a>.</p>';
+      }
+    } else {
+      summary.innerHTML = '<p>Hakuna order mpya.</p>';
+    }
+  </script>
+
+</body>
+</html>

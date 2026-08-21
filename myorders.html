@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders — GameHub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">🎮 <span>GAME</span>HUB</div>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="rental.html">Rental</a>
+      <a href="mygames.html">My Games</a>
+      <a href="myorders.html">My Orders</a>
+      <a href="cart.html">🛒 Kikapu (<span id="cartCount">0</span>)</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <a href="login.html" class="btn-login">🔐 Login</a>
+  </header>
+
+  <section class="cart-page">
+    <h1>📦 My Orders</h1>
+    <p class="section-sub">Bidhaa ulizonunua na hali ya malipo yako</p>
+    <div id="ordersList"><p style="color:#8f8faa; text-align:center;">Inapakia...</p></div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <h3>🎮 GameHub</h3>
+        <p>Duka la gaming la Tanzania: game keys, top-ups, gift cards na rental.</p>
+      </div>
+      <div>
+        <h3>Links</h3>
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="myorders.html">My Orders</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <p>📱 +255 700 000 000</p>
+        <p>📧 info@gamehub.co.tz</p>
+        <p>💬 <a href="https://wa.me/255700000000" target="_blank">WhatsApp Support</a></p>
+      </div>
+    </div>
+    <p class="copyright">© 2026 GameHub. Haki zote zimehifadhiwa.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="chat.js"></script>
+
+  <script>
+    const token = localStorage.getItem('gamehubToken');
+    const box = document.getElementById('ordersList');
+
+    async function loadMyOrders() {
+      if (!token) {
+        box.innerHTML = '<div class="cart-empty"><p>🔐 Ingia kwanza kuona oda zako.</p><a href="login.html" class="btn-primary">Ingia</a></div>';
+        return;
+      }
+      try {
+        const res = await fetch('/api/my-orders', { headers: { 'Authorization': token } });
+        const data = await res.json();
+        if (!data.success) {
+          box.innerHTML = '<div class="cart-empty"><p>🔐 Session imeisha. Ingia tena.</p><a href="login.html" class="btn-primary">Ingia</a></div>';
+          return;
+        }
+        if (!data.orders.length) {
+          box.innerHTML = '<div class="cart-empty"><p>Hujawahi kununua bidhaa yoyote.</p><a href="shop.html" class="btn-primary">🛒 Nenda Dukani</a></div>';
+          return;
+        }
+
+        box.innerHTML = data.orders.map(o => {
+          const statusBadge = o.status === 'successful'
+            ? '<span style="color:#00ff88; font-weight:bold;">✅ Imethibitishwa</span>'
+            : o.status === 'pending_manual'
+              ? '<span style="color:#ffb020; font-weight:bold;">⏳ Inasubiri Uthibitisho (Manual)</span>'
+              : o.status === 'pending_clickpesa'
+                ? '<span style="color:#ffb020; font-weight:bold;">⏳ Inasubiri Malipo (ClickPesa)</span>'
+                : '<span style="color:#8f8faa;">' + o.status + '</span>';
+
+          const itemsHtml = (o.items || []).map(i => {
+            const showDownload = o.status === 'successful' && i.downloadLink;
+            return `
+              <div class="checkout-item">
+                <span>${i.emoji || '🎮'} ${i.name} × ${i.qty}</span>
+                ${showDownload
+                  ? `<a href="${i.downloadLink}" target="_blank" class="btn-buy" style="width:auto; padding:6px 14px;">⬇️ Download</a>`
+                  : `<span>${(i.num * i.qty).toLocaleString()} TZS</span>`}
+              </div>`;
+          }).join('');
+
+          return `
+            <div class="cart-item" style="flex-direction:column; align-items:stretch;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <strong>Order: ${o.tx_ref}</strong>
+                ${statusBadge}
+              </div>
+              <div style="color:#8f8faa; font-size:13px; margin-bottom:8px;">${new Date(o.date).toLocaleString()} • Jumla: ${Number(o.amount).toLocaleString()} TZS</div>
+              ${itemsHtml}
+              ${o.status === 'pending_manual' ? '<p style="color:#8f8faa; font-size:13px; margin-top:8px;">💡 Admin bado hajathibitisha malipo yako. Ukishalipa, subiri au wasiliana WhatsApp.</p>' : ''}
+              ${o.status === 'pending_clickpesa' ? '<p style="color:#8f8faa; font-size:13px; margin-top:8px;" id="check-' + o.tx_ref + '">💡 Tunathibitisha malipo yako...</p>' : ''}
+            </div>`;
+        }).join('');
+
+        // Self-heal: angalia hali ya malipo ya ClickPesa yanayosubiri
+        data.orders.filter(o => o.status === 'pending_clickpesa').forEach(async (o) => {
+          try {
+            const cRes = await fetch('/api/clickpesa-check/' + o.tx_ref, { headers: { 'Authorization': token } });
+            const cData = await cRes.json();
+            if (cData.success && cData.status === 'successful') {
+              loadMyOrders(); // pakia upya kuonyesha download link
+            }
+          } catch (e) {}
+        });
+      } catch (e) {
+        box.innerHTML = '<p style="color:#ff3d71; text-align:center;">Hitilafu ya mtandao.</p>';
+      }
+    }
+
+    loadMyOrders();
+  </script>
+
+</body>
+</html>
