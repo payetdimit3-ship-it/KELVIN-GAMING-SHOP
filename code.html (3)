@@ -1,0 +1,19 @@
+<!DOCTYPE html><html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Malipo — GameHub</title><link rel="stylesheet" href="style.css"></head><body>
+<header class="navbar"><div class="logo">🎮 <span>GAME</span>HUB</div><nav class="nav-links"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="cart.html">Kikapu</a></nav></header>
+<div class="checkout-page"><h1>💳 Malipo</h1><div id="checkoutContent">
+<div class="form-card"><h3>Maelezo ya Mteja</h3><div class="form-group"><label>Jina Kamili</label><input type="text" id="chkName" placeholder="Jina lako"></div><div class="form-group"><label>Email</label><input type="email" id="chkEmail" placeholder="email@example.com"></div><div class="form-group"><label>Namba ya Simu (M-Pesa/Tigo/Airtel)</label><input type="text" id="chkPhone" placeholder="+255 7XX XXX XXX"></div></div>
+<div class="form-card"><h3>Bidhaa Zako</h3><div id="chkItems"></div><div class="cart-total" id="chkTotal"></div></div>
+<button class="btn-primary" onclick="payNow()" style="width:100%;font-size:16px;padding:16px;">💳 Lipa Sasa</button>
+<p id="chkMsg" style="text-align:center;margin-top:12px;font-size:14px;"></p></div></div>
+<script>
+const token=localStorage.getItem('gamehubToken');const user=JSON.parse(localStorage.getItem('gamehubUser')||'null');
+if(user){document.getElementById('chkName').value=user.name||'';document.getElementById('chkEmail').value=user.email||'';}
+const cart=JSON.parse(localStorage.getItem('gamehubCart')||'[]');let total=0;let itemsHtml='';cart.forEach(i=>{total+=i.price*i.qty;itemsHtml+=`<p>${i.emoji||'🎮'} ${i.name} × ${i.qty} = ${(i.price*i.qty).toLocaleString()} TZS</p>`;});
+document.getElementById('chkItems').innerHTML=itemsHtml||'<p style="color:#8f8faa;">Hakuna bidhaa.</p>';document.getElementById('chkTotal').textContent='💰 Jumla: '+total.toLocaleString()+' TZS';
+async function payNow(){const msg=document.getElementById('chkMsg');if(!cart.length){msg.textContent='🛒 Kikapu kiko tupu.';msg.style.color='#ff3d71';return;}
+const name=document.getElementById('chkName').value.trim();const email=document.getElementById('chkEmail').value.trim();const phone=document.getElementById('chkPhone').value.trim();if(!name||!email||!phone){msg.textContent='⚠️ Jaza sehemu zote.';msg.style.color='#ff3d71';return;}
+if(!token){msg.textContent='⚠️ Ingia kwanza kabla ya kulipa.';msg.style.color='#ff3d71';return;}
+msg.textContent='⏳ Inaomba malipo...';msg.style.color='#8f8faa';msg.style.fontWeight='600';
+try{const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json','Authorization':token},body:JSON.stringify({amount:total,items:cart,type:'game',phone,name,email})});const d=await r.json();if(d.link){localStorage.removeItem('gamehubCart');msg.innerHTML=`✅ Umeelekezwa kwenye ukurasa wa malipo. Baada ya kulipa, subiri sekunde chache... <a href="${d.link}" target="_blank" style="color:#00e5ff;">🔗 Fungua</a>`;msg.style.color='#00ff88';window.location.href=d.link;}else{msg.textContent='❌ '+d.error;msg.style.color='#ff3d71';}}catch(e){msg.textContent='❌ Hitilafu ya mtandao.';msg.style.color='#ff3d71';}}
+</script>
+</body></html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Omba Game — GameHub</title><link rel="stylesheet" href="style.css"></head><body>
+<header class="navbar"><div class="logo">🎮 <span>GAME</span>HUB</div><nav class="nav-links"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="requests.html">🔍 Requests</a><a href="account.html">Account</a></nav></header>
+<div class="requests-page"><h1>🔍 Omba Game</h1><p class="section-sub">Game haipo kwenye duka? Omba hapa, wateja wengine wapige kura, tunaiweka haraka!</p>
+<div class="form-card" style="display:flex;gap:10px;"><input type="text" id="requestName" placeholder="Jina la game unalotaka..." style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;color:#fff;font-size:14px;"><button class="btn-primary" onclick="submitRequest()">📤 Tuma Ombi</button></div>
+<p id="reqMsg" style="color:#8f8faa;font-size:13px;margin-bottom:15px;"></p>
+<div id="requestsList"></div></div>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script><script src="supabase.js"></script>
+<script>
+const token=localStorage.getItem('gamehubToken');const user=JSON.parse(localStorage.getItem('gamehubUser')||'null');
+async function loadRequests(){try{const r=await getRequests();const list=document.getElementById('requestsList');if(!r.length){list.innerHTML='<p style="color:#8f8faa;text-align:center;">Hakuna ombi bado. Kuwa wa kwanza kuomba game!</p>';return;}list.innerHTML=r.map(req=>`<div class="request-item"><div><strong>${req.name}</strong></div><div style="display:flex;gap:8px;align-items:center;"><span class="votes">${req.votes} 👍</span><button onclick="voteRequest(${req.id})">👍 Naitaka</button></div></div>`).join('');}catch(e){}}
+async function submitRequest(){const name=document.getElementById('requestName').value.trim();const msg=document.getElementById('reqMsg');if(!name){msg.textContent='⚠️ Andika jina la game.';msg.style.color='#ff3d71';return;}if(!token){msg.textContent='⚠️ Ingia kwanza.';msg.style.color='#ff3d71';return;}try{const r=await fetch('/api/requests',{method:'POST',headers:{'Content-Type':'application/json','Authorization':token},body:JSON.stringify({name})});const d=await r.json();if(d.success){msg.textContent=`✅ "${name}" imeombwa! Wengine wapige kura.`;msg.style.color='#00ff88';document.getElementById('requestName').value='';loadRequests();}else{msg.textContent=d.error||'Hitilafu';msg.style.color='#ff3d71';}}catch(e){msg.textContent='Hitilafu ya mtandao.';msg.style.color='#ff3d71';}}
+async function voteRequest(id){if(!token){alert('Ingia kwanza.');return;}try{const r=await fetch('/api/requests/vote',{method:'POST',headers:{'Content-Type':'application/json','Authorization':token},body:JSON.stringify({id})});const d=await r.json();if(d.success){loadRequests();}else{alert(d.error||'Hitilafu');}}catch(e){}}
+loadRequests();
+</script>
+</body></html>

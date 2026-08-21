@@ -1,0 +1,20 @@
+<!DOCTYPE html><html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Rental — GameHub</title><link rel="stylesheet" href="style.css"></head><body>
+<header class="navbar"><div class="logo">🎮 <span>GAME</span>HUB</div><nav class="nav-links"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="rental.html">⏱️ Rental</a><a href="cart.html">Kikapu</a></nav></header>
+<div class="rental-page"><h1>⏱️ Kodisha Muda wa GeForce NOW</h1><p class="section-sub">Cheza games kwenye cloud bila PC ya gharama</p>
+<div class="pricing-grid"><div class="pricing-card" onclick="selectRental(20,300)"><h3>Dakika 20</h3><div class="price">300 TZS</div><p class="desc">Haraka tu</p></div>
+<div class="pricing-card" onclick="selectRental(50,500)"><h3>Dakika 50</h3><div class="price">500 TZS</div><p class="desc">Muda wa kutosha</p></div>
+<div class="pricing-card" onclick="selectRental(120,1000)"><h3>Saa 2</h3><div class="price">1,000 TZS</div><p class="desc">Muda mrefu</p></div></div>
+<div id="customRental" style="text-align:center;margin:20px 0;"><p style="color:#8f8faa;">Unataka muda zaidi?<br><span style="font-size:12px;">Bei: 8 TZS kwa dakika ya ziada</span></p>
+<div style="display:flex;gap:8px;justify-content:center;margin-top:8px;"><input type="number" id="customMinutes" placeholder="Dakika" style="width:100px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;color:#fff;"><button class="btn-primary" onclick="selectCustom()">⏱️ Kokotoa</button></div>
+<p id="customPrice" style="color:#00e5ff;font-weight:700;margin-top:6px;"></p></div>
+<div id="selectedBox" style="display:none;" class="timer-box"><h3>Umechagua</h3><p id="selectedInfo"></p><button class="btn-primary" onclick="addRentalToCart()">➕ Weka Kwenye Kikapu</button></div>
+<div class="timer-box"><h3>⏱️ Muda Wako</h3><div class="countdown" id="countdownDisplay">00:00:00</div><p class="label">Muda uliobaki</p><p style="font-size:12px;color:#8f8faa;">Muda unaoisha utaondoka moja kwa moja.</p></div></div>
+<script>
+let selectedMinutes=0;let selectedPrice=0;
+function selectRental(min,price){selectedMinutes=min;selectedPrice=price;document.getElementById('selectedBox').style.display='block';document.getElementById('selectedInfo').textContent=`${min} dakika = ${price.toLocaleString()} TZS`;}
+function selectCustom(){const min=parseInt(document.getElementById('customMinutes').value);if(!min||min<1)return;const basePrice=min<=20?300:min<=50?500:min<=120?1000:1000+Math.ceil((min-120)/1)*8;const fair=min<=20?300:min<=50?500:min<=120?1000:1000+(min-120)*8;selectedMinutes=min;selectedPrice=Math.min(basePrice,fair);document.getElementById('customPrice').textContent=`${min} dakika = ${selectedPrice.toLocaleString()} TZS`;document.getElementById('selectedBox').style.display='block';document.getElementById('selectedInfo').textContent=`${min} dakika = ${selectedPrice.toLocaleString()} TZS`;}
+function addRentalToCart(){if(!selectedMinutes||!selectedPrice)return;let cart=JSON.parse(localStorage.getItem('gamehubCart')||'[]');cart.push({id:'rental_'+Date.now(),name:`Rental ${selectedMinutes} min`,price:selectedPrice,emoji:'⏱️',qty:1,minutes:selectedMinutes});localStorage.setItem('gamehubCart',JSON.stringify(cart));alert(`✅ Rental ya ${selectedMinutes} dakika imewekwa kwenye kikapu!`);}
+// Countdown from localStorage
+let rentalEnd=localStorage.getItem('gamehubRentalEnd');if(rentalEnd){setInterval(()=>{const now=Date.now();const end=parseInt(rentalEnd);const diff=Math.max(0,end-now);if(diff<=0){document.getElementById('countdownDisplay').textContent='⏰ Muda Umeishia!';return;}const h=Math.floor(diff/3600000);const m=Math.floor((diff%3600000)/60000);const s=Math.floor((diff%60000)/1000);document.getElementById('countdownDisplay').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;},1000);}
+</script>
+</body></html>
