@@ -1,850 +1,285 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="sw">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>LIFE IS GAME</title>
-
-    <style>
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #05060d;
-            color: white;
-        }
-
-        /* ================= SIDEBAR ================= */
-
-        .sidebar {
-            width: 240px;
-            height: 100vh;
-            background: #080912;
-            border-right: 1px solid #24243a;
-            position: fixed;
-            left: 0;
-            top: 0;
-            padding: 25px 18px;
-        }
-
-        .logo {
-            font-size: 23px;
-            font-weight: bold;
-            margin-bottom: 45px;
-            text-align: center;
-        }
-
-        .logo span {
-            color: #9b35ff;
-        }
-
-        .menu a {
-            display: block;
-            text-decoration: none;
-            color: #ddd;
-            padding: 15px;
-            margin: 5px 0;
-            border-radius: 10px;
-            transition: 0.3s;
-        }
-
-        .menu a:hover {
-            background: #7525d8;
-            color: white;
-        }
-
-        .menu .active {
-            background: linear-gradient(90deg, #7725d8, #9c35ff);
-            color: white;
-        }
-
-        /* PLACE HERE */
-
-        .place-box {
-            margin-top: 35px;
-            border: 1px solid #842cff;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-
-        .place-box h2 {
-            color: #b34cff;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .place-box p {
-            color: #bbb;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .arrow {
-            position: absolute;
-            top: -110px;
-            right: 15px;
-            color: #b83cff;
-            font-size: 55px;
-            transform: rotate(-35deg);
-        }
-
-        /* ================= MAIN ================= */
-
-        .main {
-            margin-left: 240px;
-            padding: 20px 40px;
-        }
-
-        /* TOP BAR */
-
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .search {
-            width: 50%;
-            padding: 14px 20px;
-            background: #0b0d18;
-            border: 1px solid #292940;
-            border-radius: 10px;
-            color: white;
-            outline: none;
-        }
-
-        .login {
-            background: transparent;
-            border: 1px solid #9c35ff;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .login:hover {
-            background: #8b2ee9;
-        }
-
-        /* ================= HERO ================= */
-
-        .hero {
-            min-height: 400px;
-            border-radius: 20px;
-            padding: 65px 55px;
-
-            background:
-            linear-gradient(
-                90deg,
-                rgba(5,6,15,0.98),
-                rgba(40,10,70,0.65),
-                rgba(5,6,15,0.1)
-            ),
-            url("https://images.unsplash.com/photo-1542751371-adc38448a05e")
-            center/cover;
-
-            display: flex;
-            align-items: center;
-        }
-
-        .hero-content {
-            max-width: 650px;
-        }
-
-        .welcome {
-            color: #a63cff;
-            font-size: 20px;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-
-        .hero h1 {
-            font-size: 70px;
-            margin: 10px 0;
-        }
-
-        .hero h1 span {
-            color: #a63cff;
-        }
-
-        .slogan {
-            font-size: 18px;
-            letter-spacing: 8px;
-            margin-bottom: 20px;
-        }
-
-        .hero p {
-            color: #ddd;
-            line-height: 1.7;
-            font-size: 17px;
-            max-width: 600px;
-        }
-
-        .buttons {
-            margin-top: 30px;
-        }
-
-        .btn {
-            display: inline-block;
-            text-decoration: none;
-            padding: 14px 25px;
-            border-radius: 8px;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-
-        .primary {
-            background: linear-gradient(90deg, #7926dc, #a93dff);
-            color: white;
-        }
-
-        .secondary {
-            border: 1px solid #777;
-            color: white;
-        }
-
-        /* ================= FEATURES ================= */
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin: 20px 0 35px;
-        }
-
-        .feature {
-            background: #0b0d18;
-            border: 1px solid #24263a;
-            padding: 20px;
-            border-radius: 12px;
-        }
-
-        .feature h3 {
-            color: #fff;
-            margin-bottom: 8px;
-        }
-
-        .feature p {
-            color: #999;
-            font-size: 13px;
-        }
-
-        .icon {
-            font-size: 25px;
-            margin-bottom: 10px;
-        }
-
-        /* ================= GAMES ================= */
-
-        .section-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .section-title h2 {
-            font-size: 25px;
-        }
-
-        .section-title a {
-            color: #b33cff;
-            text-decoration: none;
-        }
-
-        .games {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 14px;
-        }
-
-        .game {
-            background: #0c0e18;
-            border: 1px solid #25273a;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: 0.3s;
-        }
-
-        .game:hover {
-            transform: translateY(-7px);
-            border-color: #9432ff;
-        }
-
-        .game img {
-            width: 100%;
-            height: 190px;
-            object-fit: cover;
-        }
-
-        .game-info {
-            padding: 12px;
-        }
-
-        .game h3 {
-            font-size: 15px;
-            margin-bottom: 7px;
-        }
-
-        .category {
-            color: #888;
-            font-size: 12px;
-            margin-bottom: 12px;
-        }
-
-        .price {
-            color: #37e65c;
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .buy {
-            display: block;
-            text-align: center;
-            background: #7625dc;
-            color: white;
-            text-decoration: none;
-            padding: 9px;
-            border-radius: 7px;
-            font-size: 13px;
-        }
-
-        .buy:hover {
-            background: #a136ff;
-        }
-
-        .free {
-            color: #35ed62;
-        }
-
-        /* ================= OFFER ================= */
-
-        .offer {
-            margin-top: 35px;
-            padding: 30px;
-            border-radius: 15px;
-
-            background:
-            linear-gradient(
-                90deg,
-                #32105b,
-                #6e1ba9,
-                #210735
-            );
-
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .offer h2 {
-            font-size: 30px;
-        }
-
-        .offer p {
-            color: #ddd;
-            margin-top: 8px;
-        }
-
-        .shop {
-            background: #ff3eb5;
-            padding: 13px 25px;
-            border-radius: 8px;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        /* ================= MOBILE ================= */
-
-        @media(max-width: 1100px) {
-
-            .games {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .features {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-        }
-
-        @media(max-width: 700px) {
-
-            .sidebar {
-                width: 70px;
-                padding: 15px 8px;
-            }
-
-            .logo {
-                font-size: 12px;
-            }
-
-            .menu a {
-                font-size: 0;
-                text-align: center;
-            }
-
-            .main {
-                margin-left: 70px;
-                padding: 15px;
-            }
-
-            .hero {
-                padding: 35px 25px;
-            }
-
-            .hero h1 {
-                font-size: 42px;
-            }
-
-            .games {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .features {
-                grid-template-columns: 1fr;
-            }
-
-            .search {
-                width: 60%;
-            }
-
-        }
-
-    </style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameHub — Duka La Gaming Tanzania</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .loading { text-align: center; padding: 40px; color: #8f8faa; }
+    .error-msg { text-align: center; padding: 20px; color: #ff3d71; }
+  </style>
 </head>
-
-
 <body>
 
+  <!-- ===== NAVBAR ===== -->
+  <header class="navbar">
+    <div class="logo">🎮 <span>GAME</span>HUB</div>
+    <nav class="nav-links" id="mainNav">
+      <a href="index.html">🏠 Home</a>
+      <a href="shop.html">🛒 Shop</a>
+      <a href="rental.html">⏱️ Rental</a>
+      <a href="mygames.html">🎮 My Games</a>
+      <a href="requests.html">🔍 Requests</a>
+      <a href="account.html">👤 Account</a>
+      <a href="cart.html">🛍️ Kikapu (<span id="cartCount">0</span>)</a>
+      <a href="login.html" class="btn-login" id="loginBtn">🔐 Ingia</a>
+    </nav>
+  </header>
 
-    <!-- ================= SIDEBAR ================= -->
-
-    <div class="sidebar">
-
-        <div class="logo">
-            🎮 LIFE IS <span>GAME</span>
-        </div>
-
-
-        <div class="menu">
-
-            <a href="#" class="active">🏠 Home</a>
-
-            <a href="games.html">🎮 All Games →</a>
-
-            <a href="#">▦ Categories</a>
-
-            <a href="#">🎁 Free Games</a>
-
-            <a href="#">☆ Top Rated</a>
-
-            <a href="#">🆕 New Releases</a>
-
-            <a href="#">🏷 Special Offers</a>
-
-            <a href="#">☎ Contact Us</a>
-
-            <a href="#">ⓘ About Us</a>
-
-        </div>
-
-
-        <!-- PLACE HERE -->
-
-        <div class="place-box">
-
-            <div class="arrow">↗</div>
-
-            <h2>PLACE HERE</h2>
-
-            <p>
-                Click on <b>All Games</b>
-                to explore all games
-                available in our store.
-            </p>
-
-        </div>
-
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-badges">
+      <span>🇹🇿 Tanzania</span>
+      <span>⚡ GeForce NOW</span>
+      <span>💰 M-Pesa / Tigo / Airtel</span>
+      <span>🤖 AI 24/7</span>
     </div>
-
-
-
-    <!-- ================= MAIN ================= -->
-
-    <div class="main">
-
-
-        <!-- TOP BAR -->
-
-        <div class="topbar">
-
-            <input
-                type="text"
-                class="search"
-                placeholder="Search for games..."
-            >
-
-            <button class="login">
-                👤 Login / Sign Up
-            </button>
-
-        </div>
-
-
-
-        <!-- ================= HERO / INTRO ================= -->
-
-        <section class="hero">
-
-            <div class="hero-content">
-
-                <div class="welcome">
-                    WELCOME TO
-                </div>
-
-                <h1>
-                    LIFE IS <span>GAME</span>
-                </h1>
-
-                <div class="slogan">
-                    PLAY. ENJOY. WIN.
-                </div>
-
-                <p>
-                    Welcome to LIFE IS GAME, your ultimate
-                    destination for buying, discovering and
-                    playing amazing games.
-                    Explore a wide collection of PC, console
-                    and mobile games at affordable prices.
-                    We also have amazing games that you can
-                    play completely FREE.
-                </p>
-
-
-                <div class="buttons">
-
-                    <a href="games.html" class="btn primary">
-                        Explore All Games →
-                    </a>
-
-                    <a href="#" class="btn secondary">
-                        Learn More
-                    </a>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ================= FEATURES ================= -->
-
-        <div class="features">
-
-            <div class="feature">
-
-                <div class="icon">💰</div>
-
-                <h3>Best Prices</h3>
-
-                <p>
-                    Affordable prices for
-                    every gamer.
-                </p>
-
-            </div>
-
-
-            <div class="feature">
-
-                <div class="icon">⬇️</div>
-
-                <h3>Instant Delivery</h3>
-
-                <p>
-                    Get your games instantly
-                    after purchase.
-                </p>
-
-            </div>
-
-
-            <div class="feature">
-
-                <div class="icon">🛡️</div>
-
-                <h3>100% Secure</h3>
-
-                <p>
-                    Safe payments and
-                    secure transactions.
-                </p>
-
-            </div>
-
-
-            <div class="feature">
-
-                <div class="icon">🎧</div>
-
-                <h3>24/7 Support</h3>
-
-                <p>
-                    We are here to help
-                    you anytime.
-                </p>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- ================= FEATURED GAMES ================= -->
-
-        <div class="section-title">
-
-            <h2>
-                🎮 FEATURED GAMES
-            </h2>
-
-            <a href="games.html">
-                View All →
-            </a>
-
-        </div>
-
-
-
-        <div class="games">
-
-
-            <!-- GAME 1 -->
-
-            <div class="game">
-
-                <img
-                src="https://images.unsplash.com/photo-1550745165-9bc0b252726f"
-                alt="Game">
-
-                <div class="game-info">
-
-                    <h3>God of War</h3>
-
-                    <div class="category">
-                        Action, Adventure
-                    </div>
-
-                    <div class="price">
-                        TZS 80,000
-                    </div>
-
-                    <a href="#" class="buy">
-                        🛒 Buy Now
-                    </a>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- GAME 2 -->
-
-            <div class="game">
-
-                <img
-                src="https://images.unsplash.com/photo-1511512578047-dfb367046420"
-                alt="Game">
-
-                <div class="game-info">
-
-                    <h3>EA SPORTS FC 24</h3>
-
-                    <div class="category">
-                        Sports
-                    </div>
-
-                    <div class="price">
-                        TZS 70,000
-                    </div>
-
-                    <a href="#" class="buy">
-                        🛒 Buy Now
-                    </a>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- GAME 3 -->
-
-            <div class="game">
-
-                <img
-                src="https://images.unsplash.com/photo-1542751371-adc38448a05e"
-                alt="Game">
-
-                <div class="game-info">
-
-                    <h3>Red Dead Redemption 2</h3>
-
-                    <div class="category">
-                        Action, Adventure
-                    </div>
-
-                    <div class="price">
-                        TZS 60,000
-                    </div>
-
-                    <a href="#" class="buy">
-                        🛒 Buy Now
-                    </a>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- GAME 4 -->
-
-            <div class="game">
-
-                <img
-                src="https://images.unsplash.com/photo-1605899435973-ca2b1d58c5e7"
-                alt="Game">
-
-                <div class="game-info">
-
-                    <h3>Hogwarts Legacy</h3>
-
-                    <div class="category">
-                        Adventure, RPG
-                    </div>
-
-                    <div class="price">
-                        TZS 75,000
-                    </div>
-
-                    <a href="#" class="buy">
-                        🛒 Buy Now
-                    </a>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- GAME 5 FREE -->
-
-            <div class="game">
-
-                <img
-                src="https://images.unsplash.com/photo-1560419015-7c427e8ae5ba"
-                alt="Game">
-
-                <div class="game-info">
-
-                    <h3>Fortnite</h3>
-
-                    <div class="category">
-                        Battle Royale
-                    </div>
-
-                    <div class="price free">
-                        FREE
-                    </div>
-
-                    <a href="#" class="buy">
-                        🎮 Play Now
-                    </a>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- GAME 6 -->
-
-            <div class="game">
-
-                <img
-                src="https://images.unsplash.com/photo-1493711662062-fa541adb3fc8"
-                alt="Game">
-
-                <div class="game-info">
-
-                    <h3>Asphalt 9</h3>
-
-                    <div class="category">
-                        Racing
-                    </div>
-
-                    <div class="price">
-                        TZS 25,000
-                    </div>
-
-                    <a href="#" class="buy">
-                        🛒 Buy Now
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- ================= SPECIAL OFFER ================= -->
-
-        <div class="offer">
-
-            <div>
-
-                <h2>
-                    🔥 UP TO 50% OFF
-                </h2>
-
-                <p>
-                    Get amazing discounts on selected games.
-                </p>
-
-            </div>
-
-            <a href="games.html" class="shop">
-                Shop Now
-            </a>
-
-        </div>
-
-
-        <br><br>
-
+    <h1>Nunua au Kodisha <span>Games</span> kwa Bei Nafuu</h1>
+    <p>Duka la gaming la Tanzania — Steam Accounts, Game Keys, na Rental ya GeForce NOW. Lipa kwa M-Pesa, Tigo Pesa, au Airtel Money.</p>
+    <div class="hero-buttons">
+      <a href="shop.html" class="btn-primary">🛒 Nunua Sasa</a>
+      <a href="rental.html" class="btn-secondary">⏱️ Kodisha Muda</a>
     </div>
+  </section>
 
+  <!-- ===== GAMES MAARUFU ===== -->
+  <section id="featuredGames">
+    <h2>🔥 Games Maarufu</h2>
+    <p class="section-sub">Bidhaa zinazouzwa zaidi sasa hivi</p>
+    <div class="games-grid" id="productsGrid">
+      <div class="loading">Inapakia bidhaa...</div>
+    </div>
+  </section>
 
+  <!-- ===== RENTAL (Preview) ===== -->
+  <section class="rental-preview" style="background:#0e0e1c;">
+    <h2>⏱️ Unataka Kucheza Bila Kununua?</h2>
+    <p class="section-sub">Kodisha muda wa GeForce NOW — Cheza kwenye simu au PC yako</p>
+    <div class="pricing-grid" style="max-width:700px; margin:0 auto;">
+      <div class="pricing-card" onclick="window.location='rental.html'">
+        <div class="price">300 TZS</div>
+        <h3>Dakika 20</h3>
+        <p class="desc">Haraka — enda kucheza</p>
+      </div>
+      <div class="pricing-card" onclick="window.location='rental.html'">
+        <div class="price">500 TZS</div>
+        <h3>Dakika 50</h3>
+        <p class="desc">Muda wa kutosha</p>
+      </div>
+      <div class="pricing-card" onclick="window.location='rental.html'">
+        <div class="price">1,000 TZS</div>
+        <h3>Saa 2</h3>
+        <p class="desc">Muda mrefu zaidi</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:15px;">
+      <a href="rental.html" class="btn-primary">⏱️ Anza Kodisha</a>
+    </div>
+  </section>
+
+  <!-- ===== STATS ===== -->
+  <section class="stats-bar">
+    <div class="stat-box"><h3 id="statGames">0</h3><p>Games Zinazopatikana</p></div>
+    <div class="stat-box"><h3 id="statOrders">0</h3><p>Mauzo Yaliyofanyika</p></div>
+    <div class="stat-box"><h3>24/7</h3><p>AI Msaada</p></div>
+    <div class="stat-box"><h3>100%</h3><p>Malipo Salama</p></div>
+  </section>
+
+  <!-- ===== TESTIMONIALS ===== -->
+  <section class="testimonials">
+    <h2>⭐ Wateja Wetu</h2>
+    <p class="section-sub">Maoni kutoka kwa wateja waliotununulia</p>
+    <div class="testimonials-grid">
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"Nilinunua FIFA 25 na key ilifika kwa email ndani ya dakika moja! Huduma ya haraka sana."</p>
+        <div class="author">— Juma, Dar es Salaam</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"Nimekodi muda wa kucheza mara kadhaa. Timer inafanya kazi vizuri na bei ni nafuu sana."</p>
+        <div class="author">— Amina, Arusha</div>
+      </div>
+      <div class="testimonial">
+        <div class="stars">★★★★★</div>
+        <p>"AI inasaidia sana! Niliuliza bei za games usiku na nikajibiwa mara moja. Inaokoa muda."</p>
+        <div class="author">— Baraka, Mwanza</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section class="faq" style="background:#0e0e1c;">
+    <h2>❓ Maswali Yanayoulizwa Sana</h2>
+    <p class="section-sub">Majibu ya haraka kwa maswali ya kawaida</p>
+    <div class="faq-item">
+      <h3 onclick="toggleFaq(this)">▸ Malipo yanafanywaje?</h3>
+      <p>Unaweza kulipa kwa M-Pesa, Tigo Pesa, Airtel Money au Halotel — automatic kupitia Flutterwave. Baada ya malipo kufika, bidhaa zako zinatutumwa kwa email mara moja.</p>
+    </div>
+    <div class="faq-item">
+      <h3 onclick="toggleFaq(this)">▸ Bidhaa zinafikaje?</h3>
+      <p>Game keys na codes zinatutumwa kwa email yako automatic. Steam accounts zinatumwa username + password kwa email. Rentals zinaanza timer mara tu malipo yanapofika.</p>
+    </div>
+    <div class="faq-item">
+      <h3 onclick="toggleFaq(this)">▸ Ninawezaje kucheza GeForce NOW?</h3>
+      <p>Nenda kwenye "My Games" → bonyeza "🚀 Fungua GeForce NOW" → ingia kwenye Steam yako mwenyewe → cheza! Hakikisha una muda wa rental ulio-active.</p>
+    </div>
+    <div class="faq-item">
+      <h3 onclick="toggleFaq(this)">▸ Game haipo kwenye duka?</h3>
+      <p>Nenda kwenye ukurasa wa "Requests" na uombe game yako. Wateja wengi wakiiomba, tunaiweka haraka kwenye duka!</p>
+    </div>
+  </section>
+
+  <!-- ===== NEWSLETTER ===== -->
+  <section class="newsletter">
+    <h2>📬 Jiunge na Newsletter</h2>
+    <p class="section-sub">Pata promo na games mpya kwanza kabisa — moja kwa moja kwenye email yako</p>
+    <div class="newsletter-form">
+      <input type="email" id="newsletterEmail" placeholder="email yako...">
+      <button class="btn-primary" onclick="subscribeNewsletter()">🔔 Jiunge</button>
+    </div>
+    <p class="newsletter-note" id="newsletterMsg">Hakuna spam. Unaweza kuacha wakati wowote.</p>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <h3>🎮 GameHub</h3>
+        <p>Duka la gaming la Tanzania: game keys, top-ups, gift cards na rental ya GeForce NOW.</p>
+      </div>
+      <div>
+        <h3>Links</h3>
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="rental.html">Rental</a>
+        <a href="account.html">Account</a>
+        <a href="mygames.html">My Games</a>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <p>📱 +255 700 000 000</p>
+        <p>📧 info@gamehub.co.tz</p>
+        <p>💬 WhatsApp Support</p>
+      </div>
+    </div>
+    <p class="copyright">© 2026 GameHub. Haki zote zimehifadhiwa.</p>
+  </footer>
+
+  <!-- ===== AI CHAT ===== -->
+  <button class="chat-fab" id="chatFab" onclick="toggleChat()">🤖</button>
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <span>🤖 Msaidizi AI</span>
+      <button onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg ai">👋 Karibu GameHub! Ninawezaje kukusaidia?</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Andika swali lako..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button onclick="sendChat()">Tuma</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script>
+    // ===== CART COUNT =====
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('gamehubCart') || '[]');
+      const el = document.getElementById('cartCount');
+      if (el) el.textContent = cart.reduce((s,i) => s + i.qty, 0);
+    }
+    updateCartCount();
+
+    // ===== STATS =====
+    async function loadStats() {
+      try {
+        const products = await getProducts();
+        document.getElementById('statGames').textContent = products.length;
+        const orders = await getOrders();
+        document.getElementById('statOrders').textContent = Array.isArray(orders) ? orders.length : (orders.orders ? orders.orders.length : 0);
+      } catch(e) {}
+    }
+    loadStats();
+
+    // ===== GAMES GRID =====
+    async function loadProducts() {
+      const grid = document.getElementById('productsGrid');
+      try {
+        const products = await getProducts();
+        if (!products.length) {
+          grid.innerHTML = '<p style="color:#8f8faa;text-align:center;grid-column:1/-1;">Hakuna bidhaa bado. Ingia kama admin kuongeza.</p>';
+          return;
+        }
+        grid.innerHTML = products.slice(0, 8).map(p => `
+          <div class="game-card" onclick="window.location='shop.html?search=${encodeURIComponent(p.name)}'">
+            <span class="emoji">${p.emoji || '🎮'}</span>
+            <h3>${p.name}</h3>
+            <div class="price">${Number(p.price).toLocaleString()} TZS</div>
+            ${p.type !== 'rental' ? '<span class="badge">Nunua</span>' : '<span class="badge" style="background:rgba(0,255,136,0.15);color:#00ff88;">Kodisha</span>'}
+          </div>
+        `).join('');
+      } catch(e) { grid.innerHTML = '<p class="error-msg">Hitilafu kupakia bidhaa.</p>'; }
+    }
+    loadProducts();
+
+    // ===== FAQ =====
+    function toggleFaq(el) {
+      const p = el.nextElementSibling;
+      p.style.display = p.style.display === 'block' ? 'none' : 'block';
+      el.textContent = (p.style.display === 'block' ? '▾ ' : '▸ ') + el.textContent.slice(2);
+    }
+
+    // ===== NEWSLETTER =====
+    function subscribeNewsletter() {
+      const email = document.getElementById('newsletterEmail').value.trim();
+      const msg = document.getElementById('newsletterMsg');
+      if (!email) { msg.textContent = '⚠️ Andika email yako kwanza.'; return; }
+      msg.textContent = '✅ Asante! Umejiunga. Promo zinaanza kufika hivi karibuni!';
+      document.getElementById('newsletterEmail').value = '';
+    }
+
+    // ===== AI CHAT =====
+    function toggleChat() {
+      document.getElementById('chatWindow').classList.toggle('open');
+    }
+
+    async function sendChat() {
+      const input = document.getElementById('chatInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+      input.value = '';
+      const msgs = document.getElementById('chatMessages');
+      msgs.innerHTML += `<div class="chat-msg user">${msg}</div>`;
+      msgs.innerHTML += `<div class="chat-msg ai" style="color:#8f8faa;">✍️ Inaandika...</div>`;
+      msgs.scrollTop = msgs.scrollHeight;
+
+      try {
+        const res = await fetch('/api/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg, isAdmin: false })
+        });
+        const data = await res.json();
+        msgs.innerHTML = msgs.innerHTML.replace('<div class="chat-msg ai" style="color:#8f8faa;">✍️ Inaandika...</div>', '');
+        msgs.innerHTML += `<div class="chat-msg ai">${data.reply}</div>`;
+      } catch(e) {
+        msgs.innerHTML = msgs.innerHTML.replace('<div class="chat-msg ai" style="color:#8f8faa;">✍️ Inaandika...</div>', '');
+        msgs.innerHTML += `<div class="chat-msg ai">Samahani, kuna tatizo. Jaribu tena.</div>`;
+      }
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    // ===== LOGIN BUTTON =====
+    const user = JSON.parse(localStorage.getItem('gamehubUser') || 'null');
+    const loginBtn = document.getElementById('loginBtn');
+    if (user && loginBtn) {
+      loginBtn.textContent = '👤 ' + user.name;
+      loginBtn.href = 'account.html';
+    }
+  </script>
 </body>
-
 </html>
