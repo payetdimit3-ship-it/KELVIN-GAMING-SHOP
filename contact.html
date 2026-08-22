@@ -3,13 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FAQ — GameHub</title>
+  <title>About / Contact — GameHub</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    .faq-item { background:#15152a; border:1px solid #2a2a4a; border-radius:12px; padding:16px; margin-bottom:12px; }
-    .faq-item h3 { font-size:15px; margin-bottom:8px; color:#00e5ff; }
-    .faq-item p { color:#c9c9e0; font-size:14px; line-height:1.6; }
-  </style>
   <style>
     .sidebar { width:240px; height:100vh; background:#080912; border-right:1px solid #24243a; position:fixed; left:0; top:0; padding:25px 18px; overflow-y:auto; z-index:200; }
     .sidebar .logo { font-size:22px; font-weight:bold; margin-bottom:35px; text-align:center; }
@@ -31,6 +26,7 @@
   </style>
 </head>
 <body>
+
   <div class="sidebar">
     <div class="logo">🎮 GAME<span>HUB</span></div>
     <div class="menu">
@@ -45,7 +41,7 @@
       <a href="myorders.html">📦 <span class="label">My Orders</span></a>
       <a href="requests.html">🔍 <span class="label">Requests</span></a>
       <a href="cart.html">🛒 <span class="label">Kikapu</span> <span class="cart-badge" id="cartCount">0</span></a>
-      <a href="contact.html">☎ <span class="label">Contact</span></a>
+      <a href="contact.html" class="active">☎ <span class="label">Contact</span></a>
     </div>
   </div>
 
@@ -55,23 +51,37 @@
     </div>
 
 
-  <section class="product-page" style="max-width:750px;">
-    <h1 style="margin-bottom:20px;">❓ Maswali ya Kawaida (FAQ)</h1>
+  <section class="contact-page">
+    <h1>💬 About / Contact</h1>
+    <p style="color:#c9c9e0; margin-top:10px;">GameHub ni duka la gaming la Tanzania — game keys, top-up, gift cards, Steam accounts, na muda wa kukodi wa GeForce NOW. Malipo ni automatic kupitia M-Pesa, Tigo Pesa, Airtel Money na Halotel.</p>
 
-    <div class="faq-item"><h3>Malipo yanafanya kazi vipi?</h3><p>Unachagua bidhaa, unaenda checkout, unalipa kwa M-Pesa/Tigo/Airtel/HaloPesa au kadi kupitia ukurasa salama wa ClickPesa. Malipo yanathibitika automatic.</p></div>
-    <div class="faq-item"><h3>Nitapata bidhaa yangu lini?</h3><p>Mara moja baada ya malipo kuthibitika — angalia "My Orders" kupata key/account/download link yako.</p></div>
-    <div class="faq-item"><h3>Vipi kama sikupata bidhaa baada ya kulipa?</h3><p>Subiri dakika chache, kisha angalia "My Orders". Kama bado hujapata, wasiliana WhatsApp na tx reference yako.</p></div>
-    <div class="faq-item"><h3>Rental ya GeForce inafanya kazi vipi?</h3><p>Unanunua muda (dakika/masaa), timer inaanza automatic baada ya malipo. Fungua GeForce NOW na Steam account yako mwenyewe kucheza.</p></div>
-    <div class="faq-item"><h3>Naweza kuomba game isiyopo dukani?</h3><p>Ndiyo! Nenda "Requests", ingia, andika jina la game, piga kura — tukiona mahitaji makubwa tunaiongeza haraka.</p></div>
-    <div class="faq-item"><h3>Naweza kupata punguzo (discount)?</h3><p>Tunatoa discount codes mara kwa mara — fuatilia matangazo yetu au uliza AI Msaidizi.</p></div>
-    <div class="faq-item"><h3>Je AI Msaidizi anaweza kunisaidia nini?</h3><p>Bonyeza kitufe cha AI kona ya chini — anaweza kukusaidia na bei, bidhaa, malipo, na maswali mengine 24/7.</p></div>
+    <div class="contact-card">
+      <p>📱 +255 700 000 000</p>
+      <p>📧 info@gamehub.co.tz</p>
+      <p>💬 <a href="https://wa.me/255700000000" target="_blank" style="color:#00e5ff;">Wasiliana kwa WhatsApp</a></p>
+      <a href="#" id="chatBtnLink" class="btn-primary" style="margin-top:16px; display:inline-block;">🤖 Zungumza na Msaidizi wa AI</a>
+    </div>
   </section>
 
   <footer class="footer">
     <div class="footer-grid">
-      <div><h3>🎮 GameHub</h3><p>Duka la gaming la Tanzania.</p></div>
-      <div><h3>Links</h3><a href="terms.html">Terms</a><a href="refund.html">Refund</a><a href="faq.html">FAQ</a></div>
-      <div><h3>Contact</h3><p>📱 +255 700 000 000</p><p>📧 info@gamehub.co.tz</p></div>
+      <div>
+        <h3>🎮 GameHub</h3>
+        <p>Duka la gaming la Tanzania: game keys, top-ups, gift cards na rental.</p>
+      </div>
+      <div>
+        <h3>Links</h3>
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="requests.html">Requests</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <p>📱 +255 700 000 000</p>
+        <p>📧 info@gamehub.co.tz</p>
+        <p>💬 <a href="https://wa.me/255700000000" target="_blank">WhatsApp Support</a></p>
+      </div>
     </div>
     <p class="copyright">© 2026 GameHub. Haki zote zimehifadhiwa.</p>
   </footer>
@@ -80,5 +90,12 @@
 
   <script src="app.js"></script>
   <script src="chat.js"></script>
+  <script>
+    document.getElementById('chatBtnLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('ghChatBtn').click();
+    });
+  </script>
+
 </body>
 </html>
