@@ -26,6 +26,29 @@
     <h2>Inapakia...</h2>
   </section>
 
+  <section class="product-page" style="padding-top:0;">
+    <div style="max-width:1000px; margin:0 auto; background:#15152a; border:1px solid #2a2a4a; border-radius:16px; padding:22px;">
+      <h2 style="font-size:20px; text-align:left; margin-bottom:14px;">⭐ Maoni ya Wateja</h2>
+      <div id="reviewSummary" style="margin-bottom:16px; color:#c9c9e0;">Inapakia...</div>
+
+      <div class="admin-form" style="margin-bottom:18px;">
+        <h3>Acha Maoni Yako</h3>
+        <select id="reviewRating">
+          <option value="5">⭐⭐⭐⭐⭐ Nzuri Sana</option>
+          <option value="4">⭐⭐⭐⭐ Nzuri</option>
+          <option value="3">⭐⭐⭐ Wastani</option>
+          <option value="2">⭐⭐ Si Nzuri</option>
+          <option value="1">⭐ Mbaya</option>
+        </select>
+        <input type="text" id="reviewComment" placeholder="Maoni yako (hiari)">
+        <button class="btn-primary" id="submitReviewBtn">📤 Tuma Maoni</button>
+        <p id="reviewMsg" class="pay-status"></p>
+      </div>
+
+      <div id="reviewsList"></div>
+    </div>
+  </section>
+
   <footer class="footer">
     <div class="footer-grid">
       <div>
@@ -130,6 +153,7 @@
             </ul>
             <div class="product-actions">
               <a href="#" class="btn-primary" id="addToCartBtn">🛒 Ongeza Kwenye Kikapu</a>
+              <button id="wishBtn" class="btn-secondary" style="cursor:pointer;">🤍 Wishlist</button>
               <a href="shop.html" class="btn-secondary">← Rudi Dukani</a>
             </div>
           </div>
@@ -153,6 +177,22 @@
         setTimeout(() => { btn.textContent = '🛒 Ongeza Kwenye Kikapu'; }, 1500);
         window.updateCartBadge();
       });
+
+      // 🤍 WISHLIST
+      const wishBtn = document.getElementById('wishBtn');
+      const isAdminProd = isAdminProduct || !PRODUCTS[id];
+      function refreshWishBtn() {
+        const wish = JSON.parse(localStorage.getItem('gamehubWishlist') || '{}');
+        wishBtn.textContent = wish[id] ? '❤️ Kwenye Wishlist' : '🤍 Wishlist';
+      }
+      wishBtn.addEventListener('click', () => {
+        const wish = JSON.parse(localStorage.getItem('gamehubWishlist') || '{}');
+        if (wish[id]) { delete wish[id]; }
+        else { wish[id] = { id, name: product.name, emoji: product.emoji, imageUrl: product.imageUrl || '', price: product.price, admin: isAdminProd }; }
+        localStorage.setItem('gamehubWishlist', JSON.stringify(wish));
+        refreshWishBtn();
+      });
+      refreshWishBtn();
     }
 
     function renderNotFound() {
@@ -191,6 +231,54 @@
         })
         .catch(renderNotFound);
     }
+
+    // ⭐ REVIEWS
+    async function loadReviews() {
+      try {
+        const res = await fetch('/api/reviews/' + id);
+        const data = await res.json();
+        const summary = document.getElementById('reviewSummary');
+        const list = document.getElementById('reviewsList');
+        if (!data.count) {
+          summary.innerHTML = '<span style="color:#8f8faa;">Hakuna maoni bado — kuwa wa kwanza!</span>';
+          list.innerHTML = '';
+          return;
+        }
+        const stars = '⭐'.repeat(Math.round(data.average));
+        summary.innerHTML = `<strong style="color:#00e5ff; font-size:20px;">${data.average}</strong> ${stars} <span style="color:#8f8faa;">(maoni ${data.count})</span>`;
+        list.innerHTML = data.reviews.map(r => `
+          <div style="border-top:1px solid #2a2a4a; padding:12px 0;">
+            <strong>${r.name}</strong> <span style="color:#ffb020;">${'⭐'.repeat(r.rating)}</span>
+            <p style="color:#c9c9e0; font-size:13px; margin-top:4px;">${r.comment || ''}</p>
+            <small style="color:#5a5a75;">${new Date(r.date).toLocaleDateString()}</small>
+          </div>`).join('');
+      } catch (e) {}
+    }
+
+    document.getElementById('submitReviewBtn').addEventListener('click', async () => {
+      const token = localStorage.getItem('gamehubToken');
+      const msg = document.getElementById('reviewMsg');
+      if (!token) {
+        msg.textContent = '🔐 Ingia kwanza kuacha maoni.';
+        setTimeout(() => { window.location.href = 'login.html'; }, 1200);
+        return;
+      }
+      try {
+        const res = await fetch('/api/reviews/' + id, {
+          method: 'POST',
+          headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            rating: document.getElementById('reviewRating').value,
+            comment: document.getElementById('reviewComment').value.trim()
+          })
+        });
+        const data = await res.json();
+        msg.textContent = data.message || (data.error || 'Hitilafu');
+        if (data.success) { document.getElementById('reviewComment').value = ''; loadReviews(); }
+      } catch (e) { msg.textContent = '❌ Hitilafu ya mtandao.'; }
+    });
+
+    loadReviews();
   </script>
 
 </body>

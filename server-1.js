@@ -22,7 +22,7 @@ if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
   console.log('⚠️ Supabase HAIJAWEKWA — data itapotea kila deploy mpya kwenye Render free tier!');
 }
 
-const TRACKED_FILES = ['users.json', 'sessions.json', 'products.json', 'orders.json', 'requests.json', 'security.json', 'marketplace.json', 'coupons.json'];
+const TRACKED_FILES = ['users.json', 'sessions.json', 'products.json', 'orders.json', 'requests.json', 'security.json', 'marketplace.json', 'coupons.json', 'reviews.json'];
 
 // ═══════════ HIFADHI YA DATA (.data folder) ═══════════
 const DATA_DIR = path.join(__dirname, '.data');
@@ -412,6 +412,31 @@ app.post('/api/coupons/check', (req, res) => {
   c.uses += 1;
   writeJson('coupons.json', coupons);
   res.json({ success: true, percentOff: c.percentOff, code: c.code });
+});
+
+// ═══════════ ⭐ MAONI NA RATING (Reviews) ═══════════
+app.get('/api/reviews/:productId', (req, res) => {
+  const reviews = readJson('reviews.json', {});
+  const list = reviews[req.params.productId] || [];
+  const avg = list.length ? (list.reduce((t, r) => t + r.rating, 0) / list.length) : 0;
+  res.json({ success: true, reviews: list.slice().reverse(), average: Math.round(avg * 10) / 10, count: list.length });
+});
+
+app.post('/api/reviews/:productId', (req, res) => {
+  const user = getUserByToken(req);
+  if (!user) return res.status(401).json({ error: 'Ingia kwanza kuacha maoni' });
+  const { rating, comment } = req.body;
+  const r = Number(rating);
+  if (!r || r < 1 || r > 5) return res.status(400).json({ error: 'Chagua rating ya nyota 1-5' });
+  const reviews = readJson('reviews.json', {});
+  if (!reviews[req.params.productId]) reviews[req.params.productId] = [];
+  const already = reviews[req.params.productId].find(x => x.email === user.email);
+  if (already) return res.json({ success: false, message: 'Umeshaacha maoni kwenye bidhaa hii.' });
+  reviews[req.params.productId].push({
+    name: user.name, email: user.email, rating: r, comment: (comment || '').trim(), date: new Date().toISOString()
+  });
+  writeJson('reviews.json', reviews);
+  res.json({ success: true, message: '✅ Asante kwa maoni yako!' });
 });
 
 app.get('/api/requests', (req, res) => {
