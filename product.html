@@ -152,7 +152,8 @@
               ${(product.features || []).map(f => `<li>✅ ${f}</li>`).join('')}
             </ul>
             <div class="product-actions">
-              <a href="#" class="btn-primary" id="addToCartBtn">🛒 Ongeza Kwenye Kikapu</a>
+              <a href="#" class="btn-primary" id="buyNowBtn" style="background:#00c853;">⚡ Nunua Sasa</a>
+              <a href="#" class="btn-secondary" id="addToCartBtn">🛒 Ongeza Kwenye Kikapu</a>
               <button id="wishBtn" class="btn-secondary" style="cursor:pointer;">🤍 Wishlist</button>
               <a href="shop.html" class="btn-secondary">← Rudi Dukani</a>
             </div>
@@ -165,6 +166,13 @@
         ? product.priceNumber
         : parseInt(String(product.price).replace(/[^\d]/g, ''));
 
+      document.getElementById('buyNowBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        const item = { id, name: product.name, emoji: product.emoji, price: product.price, num: numPrice, qty: 1, downloadLink: product.downloadLink || '' };
+        localStorage.setItem('gamehubQuickBuy', JSON.stringify(item));
+        window.location.href = 'checkout.html?quick=1';
+      });
+
       document.getElementById('addToCartBtn').addEventListener('click', (e) => {
         e.preventDefault();
         let cart = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
@@ -173,7 +181,7 @@
         localStorage.setItem('gamehubCart', JSON.stringify(cart));
 
         const btn = document.getElementById('addToCartBtn');
-        btn.textContent = '✅ Imeongezwa Kwenye Kikapu!';
+        btn.textContent = '✅ Imeongezwa!';
         setTimeout(() => { btn.textContent = '🛒 Ongeza Kwenye Kikapu'; }, 1500);
         window.updateCartBadge();
       });

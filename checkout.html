@@ -52,7 +52,7 @@
 
 
   <section class="checkout-page">
-    <h1>💳 Malipo</h1>
+    <h1>💳 Malipo <span id="quickBadge" style="display:none; font-size:13px; background:#00c853; color:#0a0a14; padding:4px 10px; border-radius:20px; vertical-align:middle;">⚡ Nunua Sasa</span></h1>
 
     <div id="checkoutCart" class="checkout-cart"></div>
 
@@ -148,8 +148,10 @@
   <script src="chat.js"></script>
 
   <script>
+    const isQuickBuy = new URLSearchParams(window.location.search).get('quick') === '1';
+    const quickItem = isQuickBuy ? JSON.parse(localStorage.getItem('gamehubQuickBuy') || 'null') : null;
     const cart = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-    const items = Object.values(cart);
+    const items = quickItem ? [quickItem] : Object.values(cart);
 
     const checkoutCart = document.getElementById('checkoutCart');
     const checkoutTotal = document.getElementById('checkoutTotal');
@@ -207,6 +209,7 @@
     });
 
     function renderCheckout() {
+      if (isQuickBuy && quickItem) document.getElementById('quickBadge').style.display = 'inline-block';
       if (items.length === 0) {
         checkoutEmpty.style.display = 'block';
         document.getElementById('paymentForm').style.display = 'none';
@@ -268,7 +271,8 @@
         });
         const data = await res.json();
         if (data.success) {
-          localStorage.removeItem('gamehubCart');
+          if (isQuickBuy) { localStorage.removeItem('gamehubQuickBuy'); }
+          else { localStorage.removeItem('gamehubCart'); }
           manualStatus.style.color = '#00e5ff';
           manualStatus.textContent = data.message;
           setTimeout(() => { window.location.href = 'myorders.html'; }, 2000);
@@ -327,7 +331,8 @@
         localStorage.setItem('gamehubLastOrder', JSON.stringify({
           tx_ref: data.tx_ref, items: getDiscountedItems(), total, date: new Date().toISOString()
         }));
-        localStorage.removeItem('gamehubCart');
+        if (isQuickBuy) { localStorage.removeItem('gamehubQuickBuy'); }
+        else { localStorage.removeItem('gamehubCart'); }
 
         payStatus.textContent = '↗️ Unaelekezwa kwenye ukurasa wa malipo...';
         window.location.href = data.checkoutLink;
