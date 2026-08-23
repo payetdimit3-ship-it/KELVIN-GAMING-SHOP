@@ -32,6 +32,8 @@
   const input = document.getElementById('ghChatInput');
   const send = document.getElementById('ghChatSend');
 
+  let history = []; // {role: 'user'|'assistant', text: string}
+
   btn.addEventListener('click', () => { box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none'; });
   closeBtn.addEventListener('click', () => { box.style.display = 'none'; });
 
@@ -52,10 +54,13 @@
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text })
+        body: JSON.stringify({ message: text, history: history.slice(-10) })
       });
       const data = await res.json();
-      addMsg(data.reply || 'Samahani, jaribu tena.', 'bot');
+      const reply = data.reply || 'Samahani, jaribu tena.';
+      addMsg(reply, 'bot');
+      history.push({ role: 'user', text });
+      history.push({ role: 'assistant', text: reply });
     } catch (e) {
       addMsg('Hitilafu ya mtandao. Jaribu tena.', 'bot');
     }

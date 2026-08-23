@@ -901,24 +901,37 @@ async function askGemini(prompt) {
 
 // ===== CHAT YA WATEJA (hakuna login inahitajika) =====
 app.post('/api/ai/chat', async (req, res) => {
-  const { message } = req.body;
+  const { message, history } = req.body;
   if (!message || !message.trim()) return res.status(400).json({ error: 'Andika ujumbe' });
 
   const products = Object.values(readJson('products.json', {}));
   const productList = products.length
-    ? products.map(p => p.name + ' (' + (p.type || 'Bidhaa') + ') - ' + Number(p.price).toLocaleString() + ' TZS').join('\n')
+    ? products.map(p => p.name + ' (' + (p.type || 'Bidhaa') + ') - ' + Number(p.price).toLocaleString() + ' TZS' + (p.downloadLink ? ' [inadownload moja kwa moja]' : ' [Steam key/account]')).join('\n')
     : 'Hakuna bidhaa bado kwenye duka';
 
+  let transcript = '';
+  if (Array.isArray(history) && history.length) {
+    transcript = '\n\nMazungumzo ya awali (kwa muktadha, usirudie kujitambulisha):\n' +
+      history.map(h => (h.role === 'user' ? 'Mteja: ' : 'Wewe: ') + h.text).join('\n') + '\n';
+  }
+
   const prompt = 'Wewe ni msaidizi wa duka la gaming la Tanzania liitwalo GameHub.\n' +
-    'Unaweza kusaidia wateja kwa Kiswahili au Kiingereza.\n' +
+    'Unaweza kusaidia wateja kwa Kiswahili au Kiingereza.\n\n' +
+    'MUHIMU — KANUNI ZA USAHIHI:\n' +
+    '- Jibu tu kutokana na taarifa halisi zilizopo hapa chini. Usibuni bei, huduma, au njia za kucheza zisizotajwa.\n' +
+    '- GameHub HAITOI wala HAIPENDEKEZI emulator za watu wengine (kama Winlator, n.k.) au njia nyingine za "kupiga" mfumo wa malipo ya games. Njia PEKEE ya kucheza bila kudownload/kununua PC ni kukodi muda kwenye GeForce NOW (rental yetu).\n' +
+    '- Bidhaa zenye "[inadownload moja kwa moja]" ni games za kudownload wenyewe baada ya malipo (link inatolewa My Orders). Bidhaa zenye "[Steam key/account]" zinahitaji Steam.\n' +
+    '- Kama mteja anauliza kitu nje ya huduma zetu, sema wazi hatutoi hilo, usijaribu "kusaidia" kwa kubuni jibu.\n\n' +
     'Bidhaa zinazopatikana:\n' + productList + '\n\n' +
-    'Bei za kukodi muda wa kucheza (GeForce NOW):\n' +
+    'Bei za kukodi muda wa kucheza (GeForce NOW — njia pekee ya kucheza bila kununua/kudownload):\n' +
     '- Dakika 20 = 300 TZS\n' +
     '- Dakika 50 = 500 TZS\n' +
     '- Masaa 2 = 1,000 TZS\n' +
-    '(Muda mwingine wowote: AI inakokotoa bei kwa kanuni ya bei nafuu zaidi kwa dakika.)\n\n' +
-    'Malipo: M-Pesa (Vodacom), Tigo Pesa, Airtel Money, Halotel - automatic kupitia Flutterwave.\n' +
-    'Jibu kwa ufupi, kirafiki na kwa lugha rahisi. Mteja ameuliza: "' + message + '"';
+    '(Muda mwingine wowote: mfumo unakokotoa bei kwa kanuni ya bei nafuu zaidi kwa dakika — mteja anaweka muda anaotaka kwenye ukurasa wa Rental.)\n\n' +
+    'Malipo: M-Pesa (Vodacom), Tigo Pesa, Airtel Money, HaloPesa kupitia ClickPesa (automatic), au malipo ya moja kwa moja (manual) kwa namba tuliyotoa kwenye checkout.\n' +
+    'Baada ya malipo, bidhaa/download link inapatikana kwenye "My Orders".\n' +
+    transcript +
+    '\nJibu kwa ufupi, kirafiki na kwa lugha rahisi. Mteja anasema sasa: "' + message + '"';
 
   const reply = await askGemini(prompt);
   res.json({ reply });
