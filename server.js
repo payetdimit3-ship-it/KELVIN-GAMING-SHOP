@@ -22,7 +22,7 @@ if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
   console.log('⚠️ Supabase HAIJAWEKWA — data itapotea kila deploy mpya kwenye Render free tier!');
 }
 
-const TRACKED_FILES = ['users.json', 'sessions.json', 'products.json', 'orders.json', 'requests.json', 'security.json', 'marketplace.json', 'coupons.json'];
+const TRACKED_FILES = ['users.json', 'sessions.json', 'products.json', 'orders.json', 'requests.json', 'security.json', 'marketplace.json', 'coupons.json', 'reviews.json'];
 
 // ═══════════ HIFADHI YA DATA (.data folder) ═══════════
 const DATA_DIR = path.join(__dirname, '.data');
@@ -166,7 +166,7 @@ app.post('/api/auth/register', (req, res) => {
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@gamehub.co.tz').toLowerCase();
   users[cleanEmail] = {
     name: name.trim(), email: cleanEmail, phone: phone || '',
-    password: hashPassword(password), isAdmin: cleanEmail === adminEmail,
+    password: hashPassword(password), isAdmin: cleanEmail === adminEmail, isStaff: false,
     created: new Date().toISOString()
   };
   writeJson(usersFile, users);
@@ -176,7 +176,7 @@ app.post('/api/auth/register', (req, res) => {
   sessions[token] = cleanEmail;
   writeJson(sessionsFile, sessions);
 
-  res.json({ success: true, token, user: { name: name.trim(), email: cleanEmail, isAdmin: users[cleanEmail].isAdmin } });
+  res.json({ success: true, token, user: { name: name.trim(), email: cleanEmail, isAdmin: users[cleanEmail].isAdmin, isStaff: false } });
 });
 
 // ===== KUINGIA (na ulinzi wa IP + logSecurity) =====
@@ -206,14 +206,28 @@ app.post('/api/auth/login', (req, res) => {
   sessions[token] = cleanEmail;
   writeJson(sessionsFile, sessions);
 
-  res.json({ success: true, token, user: { name: user.name, email: user.email, isAdmin: user.isAdmin } });
+  res.json({ success: true, token, user: { name: user.name, email: user.email, isAdmin: user.isAdmin, isStaff: !!user.isStaff } });
 });
 
 // ===== NANI ALIYEINGIA =====
 app.get('/api/auth/me', (req, res) => {
   const user = getUserByToken(req);
   if (!user) return res.status(401).json({ error: 'Huna token au token si sahihi' });
-  res.json({ success: true, user: { name: user.name, email: user.email, isAdmin: user.isAdmin } });
+  res.json({ success: true, user: { name: user.name, email: user.email, isAdmin: user.isAdmin, isStaff: !!user.isStaff } });
+});
+
+// ===== ADMIN: fanya mtumiaji kuwa Staff (ruhusa ndogo) au ondoa =====
+app.post('/api/admin/users/staff', (req, res) => {
+  const admin = getUserByToken(req);
+  if (!admin || !admin.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const { email, makeStaff } = req.body;
+  const users = readJson(usersFile, {});
+  const cleanEmail = (email || '').trim().toLowerCase();
+  if (!users[cleanEmail]) return res.status(404).json({ error: 'Mtumiaji hajapatikana' });
+  if (users[cleanEmail].isAdmin) return res.status(400).json({ error: 'Huyu tayari ni Admin kamili' });
+  users[cleanEmail].isStaff = !!makeStaff;
+  writeJson(usersFile, users);
+  res.json({ success: true, message: makeStaff ? '✅ ' + cleanEmail + ' sasa ni Staff (ruhusa ndogo).' : '✅ ' + cleanEmail + ' si Staff tena.' });
 });
 
 // ===== KUTOKA =====
@@ -247,7 +261,7 @@ app.get('/api/products', (req, res) => {
 
 app.post('/api/products', (req, res) => {
   const user = getUserByToken(req);
-  if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  if (!user || (!user.isAdmin && !user.isStaff)) return res.status(403).json({ error: 'Huna ruhusa' });
   const { name, type, price, emoji, desc, downloadLink, imageUrl, trailerUrl, category, section } = req.body;
   if (!name || !price) return res.status(400).json({ error: 'Jaza jina na bei' });
   const products = readJson('products.json', {});
@@ -263,7 +277,7 @@ app.post('/api/products', (req, res) => {
 
 app.put('/api/products/:id', (req, res) => {
   const user = getUserByToken(req);
-  if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  if (!user || (!user.isAdmin && !user.isStaff)) return res.status(403).json({ error: 'Huna ruhusa' });
   const products = readJson('products.json', {});
   const existing = products[req.params.id];
   if (!existing) return res.status(404).json({ error: 'Bidhaa haipatikani' });
@@ -414,6 +428,31 @@ app.post('/api/coupons/check', (req, res) => {
   res.json({ success: true, percentOff: c.percentOff, code: c.code });
 });
 
+// ═══════════ ⭐ MAONI NA RATING (Reviews) ═══════════
+app.get('/api/reviews/:productId', (req, res) => {
+  const reviews = readJson('reviews.json', {});
+  const list = reviews[req.params.productId] || [];
+  const avg = list.length ? (list.reduce((t, r) => t + r.rating, 0) / list.length) : 0;
+  res.json({ success: true, reviews: list.slice().reverse(), average: Math.round(avg * 10) / 10, count: list.length });
+});
+
+app.post('/api/reviews/:productId', (req, res) => {
+  const user = getUserByToken(req);
+  if (!user) return res.status(401).json({ error: 'Ingia kwanza kuacha maoni' });
+  const { rating, comment } = req.body;
+  const r = Number(rating);
+  if (!r || r < 1 || r > 5) return res.status(400).json({ error: 'Chagua rating ya nyota 1-5' });
+  const reviews = readJson('reviews.json', {});
+  if (!reviews[req.params.productId]) reviews[req.params.productId] = [];
+  const already = reviews[req.params.productId].find(x => x.email === user.email);
+  if (already) return res.json({ success: false, message: 'Umeshaacha maoni kwenye bidhaa hii.' });
+  reviews[req.params.productId].push({
+    name: user.name, email: user.email, rating: r, comment: (comment || '').trim(), date: new Date().toISOString()
+  });
+  writeJson('reviews.json', reviews);
+  res.json({ success: true, message: '✅ Asante kwa maoni yako!' });
+});
+
 app.get('/api/requests', (req, res) => {
   const requests = readJson('requests.json', []);
   res.json({ success: true, requests: requests.slice().sort((a, b) => b.votes - a.votes) });
@@ -470,7 +509,7 @@ app.post('/api/requests/:id/vote', (req, res) => {
 
 app.delete('/api/requests/:id', (req, res) => {
   const user = getUserByToken(req);
-  if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  if (!user || (!user.isAdmin && !user.isStaff)) return res.status(403).json({ error: 'Huna ruhusa' });
   const requests = readJson('requests.json', []);
   writeJson('requests.json', requests.filter(r => r.id !== req.params.id));
   res.json({ success: true });
