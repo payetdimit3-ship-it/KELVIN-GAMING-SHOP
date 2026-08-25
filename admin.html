@@ -31,6 +31,8 @@
       <button class="tab-btn" data-tab="customers">👥 Wateja</button>
       <button class="tab-btn" data-tab="products">🎮 Bidhaa</button>
       <button class="tab-btn" data-tab="requests">🔍 Requests</button>
+      <button class="tab-btn" data-tab="marketplace">🏪 Marketplace</button>
+      <button class="tab-btn" data-tab="coupons">🎟️ Coupons</button>
       <button class="tab-btn" data-tab="security">🛡️ Usalama</button>
       <button class="tab-btn" data-tab="ai">🤖 AI</button>
     </div>
@@ -59,29 +61,48 @@
       <div class="admin-form">
         <h3 id="productFormTitle">➕ Ongeza Bidhaa Mpya</h3>
         <input type="hidden" id="pId" value="">
-        <input type="text" id="pName" placeholder="Jina la bidhaa (mfano: FIFA 26)">
-        <input type="text" id="pType" placeholder="Aina (mfano: Game Key • PC)">
-        <input type="number" id="pPrice" placeholder="Bei kwa TZS (mfano: 45000)">
-        <input type="text" id="pEmoji" placeholder="Emoji (mfano: ⚽)">
-        <input type="text" id="pDesc" placeholder="Maelezo mafupi">
-        <input type="text" id="pImage" placeholder="Image URL (link ya picha halisi ya game - mfano kutoka imgbb.com)">
-        <input type="text" id="pTrailer" placeholder="Trailer URL (link ya YouTube - hiari)">
-        <select id="pCategory">
-          <option value="Zote">Category: Zote</option>
-          <option value="Action">Action</option>
-          <option value="Adventure">Adventure</option>
-          <option value="Sports">Sports</option>
-          <option value="RPG">RPG</option>
-          <option value="Racing">Racing</option>
-          <option value="Shooter">Shooter</option>
-          <option value="Strategy">Strategy</option>
-        </select>
+
         <select id="pSection">
           <option value="shop">Sehemu: Duka la Kawaida (Shop)</option>
           <option value="steam">Sehemu: Steam Accounts</option>
           <option value="efootball">Sehemu: eFootball Vikosi</option>
         </select>
-        <input type="text" id="pDownload" placeholder="Link ya Kudownload (hiari - kwa games za kudownload, si GeForce)">
+
+        <input type="text" id="pName" placeholder="Jina la bidhaa (mfano: FIFA 26)">
+        <input type="number" id="pPrice" placeholder="Bei kwa TZS (mfano: 45000)">
+        <input type="text" id="pImage" placeholder="Image URL (link ya picha halisi - mfano kutoka imgbb.com)">
+
+        <!-- Fields za Shop pekee -->
+        <div id="fieldsShop">
+          <input type="text" id="pType" placeholder="Aina (mfano: Game Key • PC)">
+          <input type="text" id="pEmoji" placeholder="Emoji (mfano: ⚽)">
+          <input type="text" id="pDesc" placeholder="Maelezo mafupi">
+          <input type="text" id="pTrailer" placeholder="Trailer URL (link ya YouTube - hiari)">
+          <select id="pCategory">
+            <option value="Zote">Category: Zote</option>
+            <option value="Action">Action</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Sports">Sports</option>
+            <option value="RPG">RPG</option>
+            <option value="Racing">Racing</option>
+            <option value="Shooter">Shooter</option>
+            <option value="Strategy">Strategy</option>
+          </select>
+          <input type="text" id="pDownload" placeholder="Link ya Kudownload (hiari - kwa games za kudownload, si GeForce)">
+        </div>
+
+        <!-- Fields za Steam Accounts -->
+        <div id="fieldsSteam" style="display:none;">
+          <input type="text" id="pAccUserSteam" placeholder="📧 Email ya Akaunti ya Steam">
+          <input type="text" id="pAccPassSteam" placeholder="🔑 Password ya Akaunti">
+        </div>
+
+        <!-- Fields za eFootball -->
+        <div id="fieldsEfootball" style="display:none;">
+          <input type="text" id="pAccUserEf" placeholder="👤 PSN ID / Username">
+          <input type="text" id="pAccPassEf" placeholder="🔑 Password">
+        </div>
+
         <button class="btn-primary" id="addProductBtn">➕ Ongeza</button>
         <button class="btn-secondary" id="cancelEditBtn" type="button" style="display:none;">✖ Ghairi Uhariri</button>
         <p id="productMsg" class="pay-status"></p>
@@ -95,6 +116,36 @@
       <h2>🔍 Game Requests</h2>
       <p style="color:#8f8faa; margin-bottom:12px;">Games zinazoombwa na wateja — zilizopangwa kwa kura nyingi kwanza. Wengi wakiomba = mahitaji makubwa = ongeza dukani!</p>
       <div id="adminRequestsList" class="admin-list"><p style="color:#8f8faa;">Inapakia...</p></div>
+    </div>
+
+    <div class="tab-content" id="tab-marketplace" style="display:none;">
+      <h2>🏪 Marketplace — Biashara Zingine</h2>
+      <div class="admin-form">
+        <h3>➕ Ongeza Biashara Mpya</h3>
+        <input type="text" id="bizName" placeholder="Jina la Biashara">
+        <input type="text" id="bizCategory" placeholder="Category (mfano: Simu, Nguo, Chakula)">
+        <input type="text" id="bizDesc" placeholder="Maelezo mafupi">
+        <input type="text" id="bizImage" placeholder="Image URL (hiari)">
+        <input type="text" id="bizContact" placeholder="Namba ya WhatsApp (mfano 255...) au email">
+        <button class="btn-primary" id="addBizBtn">➕ Ongeza Biashara</button>
+        <p id="bizMsg" class="pay-status"></p>
+      </div>
+      <h3 style="margin-top:20px;">Biashara Zilizopo</h3>
+      <div id="marketplaceList" class="admin-list"><p style="color:#8f8faa;">Inapakia...</p></div>
+    </div>
+
+    <div class="tab-content" id="tab-coupons" style="display:none;">
+      <h2>🎟️ Discount Codes</h2>
+      <div class="admin-form">
+        <h3>➕ Tengeneza Kodi Mpya</h3>
+        <input type="text" id="couponCode" placeholder="Kodi (mfano: KARIBU10)">
+        <input type="number" id="couponPercent" placeholder="Punguzo % (mfano: 10)">
+        <input type="number" id="couponMax" placeholder="Idadi ya matumizi (hiari, acha wazi = bila kikomo)">
+        <button class="btn-primary" id="addCouponBtn">➕ Tengeneza</button>
+        <p id="couponMsg" class="pay-status"></p>
+      </div>
+      <h3 style="margin-top:20px;">Kodi Zilizopo</h3>
+      <div id="couponsList" class="admin-list"><p style="color:#8f8faa;">Inapakia...</p></div>
     </div>
 
     <div class="tab-content" id="tab-security" style="display:none;">
@@ -153,21 +204,42 @@
 
   <script>
     const token = localStorage.getItem('gamehubToken');
+    let currentRole = 'admin'; // 'admin' | 'staff'
 
     async function checkAdmin() {
       if (!token) { document.body.innerHTML = '<div style="text-align:center; padding:60px;"><h2>🔒 Sehemu ya siri</h2><p>Ingia kwanza.</p><a href="login.html" class="btn-primary">Ingia</a></div>'; return false; }
       try {
         const res = await fetch('/api/auth/me', { headers: { 'Authorization': token } });
         const data = await res.json();
-        if (!data.success || !data.user.isAdmin) {
+        if (!data.success || (!data.user.isAdmin && !data.user.isStaff)) {
           document.body.innerHTML = '<div style="text-align:center; padding:60px;"><h2>⛔ Huwezi kufika hapa</h2><p>Ukurasa huu ni wa Admin pekee.</p><a href="index.html" class="btn-primary">← Home</a></div>';
           return false;
         }
+        currentRole = data.user.isAdmin ? 'admin' : 'staff';
+        if (currentRole === 'staff') applyStaffRestrictions();
         return true;
       } catch (e) { return false; }
     }
 
+    // Staff anaona tab za Bidhaa na Requests pekee — kificha vingine
+    function applyStaffRestrictions() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (!['products', 'requests'].includes(btn.dataset.tab)) btn.style.display = 'none';
+      });
+      document.getElementById('adminStats').style.display = 'none';
+      // Onyesha tab ya Bidhaa kwa default kwa Staff
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('[data-tab="products"]').classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+      document.getElementById('tab-products').style.display = 'block';
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:#1a1040; border:1px solid #7b2ff7; border-radius:10px; padding:12px; margin-bottom:16px; color:#c9a3ff; font-size:13px;';
+      banner.textContent = '👤 Umeingia kama Staff — unaweza kuongeza/kuhariri bidhaa na kusimamia Requests pekee.';
+      document.querySelector('.admin-page').insertBefore(banner, document.querySelector('.admin-tabs'));
+    }
+
     async function loadStats() {
+      if (currentRole !== 'admin') return;
       const res = await fetch('/api/admin/stats', { headers: { 'Authorization': token } });
       const data = await res.json();
       if (!data.success) return;
@@ -180,6 +252,7 @@
     }
 
     async function loadAnalytics() {
+      if (currentRole !== 'admin') return;
       try {
         const res = await fetch('/api/admin/analytics', { headers: { 'Authorization': token } });
         const data = await res.json();
@@ -205,6 +278,7 @@
     });
 
     async function loadOrders() {
+      if (currentRole !== 'admin') return;
       const res = await fetch('/api/admin/orders', { headers: { 'Authorization': token } });
       const data = await res.json();
       const box = document.getElementById('ordersList');
@@ -253,6 +327,7 @@
     }
 
     async function loadCustomers() {
+      if (currentRole !== 'admin') return;
       const res = await fetch('/api/admin/users', { headers: { 'Authorization': token } });
       const data = await res.json();
       const box = document.getElementById('customersList');
@@ -260,11 +335,22 @@
       box.innerHTML = data.users.map(u => `
         <div class="admin-row">
           <div>
-            <strong>${u.name}</strong> ${u.isAdmin ? '<span style="color:#ff3d71;">👑 ADMIN</span>' : ''}<br>
+            <strong>${u.name}</strong> ${u.isAdmin ? '<span style="color:#ff3d71;">👑 ADMIN</span>' : ''}${u.isStaff ? '<span style="color:#00e5ff;"> 👤 STAFF</span>' : ''}<br>
             <small>${u.email} ${u.phone ? '• ' + u.phone : ''}</small>
           </div>
-          <div class="admin-amount" style="color:#8f8faa; font-size:12px;">${new Date(u.created).toLocaleDateString()}</div>
+          ${!u.isAdmin ? `<button class="btn-vote" onclick="toggleStaff('${u.email}', ${!u.isStaff})">${u.isStaff ? '➖ Ondoa Staff' : '➕ Fanya Staff'}</button>` : ''}
         </div>`).join('');
+    }
+
+    async function toggleStaff(email, makeStaff) {
+      const res = await fetch('/api/admin/users/staff', {
+        method: 'POST',
+        headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, makeStaff })
+      });
+      const data = await res.json();
+      alert(data.message || data.error || 'Hitilafu');
+      loadCustomers();
     }
 
     async function loadProducts() {
@@ -277,7 +363,7 @@
         <div class="admin-row">
           <div style="display:flex; align-items:center; gap:10px;">
             ${p.imageUrl ? `<img src="${p.imageUrl}" style="width:40px; height:40px; object-fit:cover; border-radius:8px;" onerror="this.style.display='none'">` : `<span style="font-size:26px;">${p.emoji}</span>`}
-            <div><strong>${p.name}</strong><br><small>${p.type || ''} — ${Number(p.price).toLocaleString()} TZS</small>${p.downloadLink ? '<br><small style="color:#00e5ff;">⬇️ Ina download link</small>' : ''}${p.section && p.section !== 'shop' ? '<br><small style="color:#ffb020;">📍 ' + p.section + '</small>' : ''}</div>
+            <div><strong>${p.name}</strong><br><small>${p.type || ''} — ${Number(p.price).toLocaleString()} TZS</small>${p.downloadLink ? '<br><small style="color:#00e5ff;">⬇️ Ina download link</small>' : ''}${p.accountUser ? '<br><small style="color:#00e5ff;">🔑 Ina account credentials</small>' : ''}${p.section && p.section !== 'shop' ? '<br><small style="color:#ffb020;">📍 ' + p.section + '</small>' : ''}</div>
           </div>
           <div style="display:flex; gap:6px;">
             <button class="btn-vote" onclick="editProduct('${p.id}')">✏️ Hariri</button>
@@ -285,6 +371,16 @@
           </div>
         </div>`).join('');
     }
+
+    // ===== FOMU INAYOBADILIKA KULINGANA NA SEHEMU =====
+    function updateFormFields() {
+      const section = document.getElementById('pSection').value;
+      document.getElementById('fieldsShop').style.display = section === 'shop' ? 'block' : 'none';
+      document.getElementById('fieldsSteam').style.display = section === 'steam' ? 'block' : 'none';
+      document.getElementById('fieldsEfootball').style.display = section === 'efootball' ? 'block' : 'none';
+    }
+    document.getElementById('pSection').addEventListener('change', updateFormFields);
+    updateFormFields();
 
     function editProduct(id) {
       const p = (window.__products || []).find(x => x.id === id);
@@ -300,6 +396,11 @@
       document.getElementById('pCategory').value = p.category || 'Zote';
       document.getElementById('pSection').value = p.section || 'shop';
       document.getElementById('pDownload').value = p.downloadLink || '';
+      document.getElementById('pAccUserSteam').value = p.section === 'steam' ? (p.accountUser || '') : '';
+      document.getElementById('pAccPassSteam').value = p.section === 'steam' ? (p.accountPassword || '') : '';
+      document.getElementById('pAccUserEf').value = p.section === 'efootball' ? (p.accountUser || '') : '';
+      document.getElementById('pAccPassEf').value = p.section === 'efootball' ? (p.accountPassword || '') : '';
+      updateFormFields();
       document.getElementById('productFormTitle').textContent = '✏️ Hariri: ' + p.name;
       document.getElementById('addProductBtn').textContent = '💾 Sasisha Bidhaa';
       document.getElementById('cancelEditBtn').style.display = 'inline-block';
@@ -308,9 +409,10 @@
 
     function resetProductForm() {
       document.getElementById('pId').value = '';
-      ['pName','pType','pPrice','pEmoji','pDesc','pImage','pTrailer','pDownload'].forEach(id => document.getElementById(id).value = '');
+      ['pName','pType','pPrice','pEmoji','pDesc','pImage','pTrailer','pDownload','pAccUserSteam','pAccPassSteam','pAccUserEf','pAccPassEf'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('pCategory').value = 'Zote';
       document.getElementById('pSection').value = 'shop';
+      updateFormFields();
       document.getElementById('productFormTitle').textContent = '➕ Ongeza Bidhaa Mpya';
       document.getElementById('addProductBtn').textContent = '➕ Ongeza';
       document.getElementById('cancelEditBtn').style.display = 'none';
@@ -326,17 +428,29 @@
 
     document.getElementById('addProductBtn').addEventListener('click', async () => {
       const editId = document.getElementById('pId').value;
+      const section = document.getElementById('pSection').value;
+
+      let accountUser = '', accountPassword = '';
+      if (section === 'steam') {
+        accountUser = document.getElementById('pAccUserSteam').value.trim();
+        accountPassword = document.getElementById('pAccPassSteam').value.trim();
+      } else if (section === 'efootball') {
+        accountUser = document.getElementById('pAccUserEf').value.trim();
+        accountPassword = document.getElementById('pAccPassEf').value.trim();
+      }
+
       const body = {
         name: document.getElementById('pName').value.trim(),
-        type: document.getElementById('pType').value.trim(),
+        type: section === 'steam' ? 'Steam Account' : section === 'efootball' ? 'eFootball Kikosi' : document.getElementById('pType').value.trim(),
         price: document.getElementById('pPrice').value,
-        emoji: document.getElementById('pEmoji').value.trim() || '🎮',
-        desc: document.getElementById('pDesc').value.trim(),
+        emoji: section === 'steam' ? '👤' : section === 'efootball' ? '⚽' : document.getElementById('pEmoji').value.trim() || '🎮',
+        desc: section === 'shop' ? document.getElementById('pDesc').value.trim() : '',
         imageUrl: document.getElementById('pImage').value.trim(),
-        trailerUrl: document.getElementById('pTrailer').value.trim(),
-        category: document.getElementById('pCategory').value,
-        section: document.getElementById('pSection').value,
-        downloadLink: document.getElementById('pDownload').value.trim()
+        trailerUrl: section === 'shop' ? document.getElementById('pTrailer').value.trim() : '',
+        category: section === 'shop' ? document.getElementById('pCategory').value : 'Zote',
+        section: section,
+        downloadLink: section === 'shop' ? document.getElementById('pDownload').value.trim() : '',
+        accountUser, accountPassword
       };
       const res = await fetch(editId ? '/api/products/' + editId : '/api/products', {
         method: editId ? 'PUT' : 'POST',
@@ -403,8 +517,96 @@
       loadAdminRequests();
     }
 
+    // 🏪 MARKETPLACE
+    async function loadMarketplace() {
+      if (currentRole !== 'admin') return;
+      const box = document.getElementById('marketplaceList');
+      try {
+        const res = await fetch('/api/marketplace');
+        const data = await res.json();
+        if (!data.success || !data.listings.length) { box.innerHTML = '<p style="color:#8f8faa;">Hakuna biashara bado.</p>'; return; }
+        box.innerHTML = data.listings.slice().reverse().map(b => `
+          <div class="admin-row">
+            <div><strong>${b.businessName}</strong> — <small style="color:#00e5ff;">${b.category}</small><br><small>${b.contact}</small></div>
+            <button class="btn-remove" onclick="deleteBiz('${b.id}')">🗑️</button>
+          </div>`).join('');
+      } catch (e) { box.innerHTML = '<p style="color:#ff3d71;">Hitilafu.</p>'; }
+    }
+
+    document.getElementById('addBizBtn').addEventListener('click', async () => {
+      const body = {
+        businessName: document.getElementById('bizName').value.trim(),
+        category: document.getElementById('bizCategory').value.trim(),
+        description: document.getElementById('bizDesc').value.trim(),
+        imageUrl: document.getElementById('bizImage').value.trim(),
+        contact: document.getElementById('bizContact').value.trim()
+      };
+      const res = await fetch('/api/marketplace', {
+        method: 'POST',
+        headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      const msg = document.getElementById('bizMsg');
+      if (data.success) {
+        msg.textContent = '✅ Biashara imeongezwa!';
+        ['bizName','bizCategory','bizDesc','bizImage','bizContact'].forEach(id => document.getElementById(id).value = '');
+        loadMarketplace();
+      } else { msg.textContent = '❌ ' + (data.error || 'Hitilafu'); }
+    });
+
+    async function deleteBiz(id) {
+      if (!confirm('Futa biashara hii?')) return;
+      await fetch('/api/marketplace/' + id, { method: 'DELETE', headers: { 'Authorization': token } });
+      loadMarketplace();
+    }
+
+    // 🎟️ COUPONS
+    async function loadCoupons() {
+      if (currentRole !== 'admin') return;
+      const box = document.getElementById('couponsList');
+      try {
+        const res = await fetch('/api/admin/coupons', { headers: { 'Authorization': token } });
+        const data = await res.json();
+        const coupons = Object.values(data.coupons || {});
+        if (!coupons.length) { box.innerHTML = '<p style="color:#8f8faa;">Hakuna kodi bado.</p>'; return; }
+        box.innerHTML = coupons.map(c => `
+          <div class="admin-row">
+            <div><strong>${c.code}</strong> — <span style="color:#00e5ff;">${c.percentOff}% punguzo</span><br><small>Matumizi: ${c.uses}${c.maxUses ? ' / ' + c.maxUses : ' (bila kikomo)'}</small></div>
+            <button class="btn-remove" onclick="deleteCoupon('${c.code}')">🗑️</button>
+          </div>`).join('');
+      } catch (e) { box.innerHTML = '<p style="color:#ff3d71;">Hitilafu.</p>'; }
+    }
+
+    document.getElementById('addCouponBtn').addEventListener('click', async () => {
+      const body = {
+        code: document.getElementById('couponCode').value.trim(),
+        percentOff: document.getElementById('couponPercent').value,
+        maxUses: document.getElementById('couponMax').value
+      };
+      const res = await fetch('/api/admin/coupons', {
+        method: 'POST',
+        headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      const msg = document.getElementById('couponMsg');
+      if (data.success) {
+        msg.textContent = '✅ Kodi imetengenezwa!';
+        ['couponCode','couponPercent','couponMax'].forEach(id => document.getElementById(id).value = '');
+        loadCoupons();
+      } else { msg.textContent = '❌ ' + (data.error || 'Hitilafu'); }
+    });
+
+    async function deleteCoupon(code) {
+      if (!confirm('Futa kodi hii?')) return;
+      await fetch('/api/admin/coupons/' + code, { method: 'DELETE', headers: { 'Authorization': token } });
+      loadCoupons();
+    }
+
     // 🛡️ SECURITY (HACKERAI)
     async function loadSecurityStats() {
+      if (currentRole !== 'admin') return;
       try {
         const res = await fetch('/api/security/stats', { headers: { 'Authorization': token } });
         const data = await res.json();
@@ -430,6 +632,7 @@
     }
 
     async function loadSecurityEvents() {
+      if (currentRole !== 'admin') return;
       try {
         const res = await fetch('/api/security/events', { headers: { 'Authorization': token } });
         const data = await res.json();
@@ -512,6 +715,8 @@
         document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
         document.getElementById('tab-' + btn.dataset.tab).style.display = 'block';
         if (btn.dataset.tab === 'requests') loadAdminRequests();
+        if (btn.dataset.tab === 'marketplace') loadMarketplace();
+        if (btn.dataset.tab === 'coupons') loadCoupons();
         if (btn.dataset.tab === 'security') { loadSecurityStats(); loadSecurityEvents(); }
       });
     });

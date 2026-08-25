@@ -117,12 +117,21 @@
 
           const itemsHtml = (o.items || []).map(i => {
             const showDownload = o.status === 'successful' && i.downloadLink;
+            const showAccount = o.status === 'successful' && i.accountUser;
             return `
-              <div class="checkout-item">
-                <span>${i.emoji || '🎮'} ${i.name} × ${i.qty}</span>
-                ${showDownload
-                  ? `<a href="${i.downloadLink}" target="_blank" class="btn-buy" style="width:auto; padding:6px 14px;">⬇️ Download</a>`
-                  : `<span>${(i.num * i.qty).toLocaleString()} TZS</span>`}
+              <div class="checkout-item" style="flex-direction:column; align-items:stretch;">
+                <div style="display:flex; justify-content:space-between;">
+                  <span>${i.emoji || '🎮'} ${i.name} × ${i.qty}</span>
+                  ${showDownload
+                    ? `<a href="${i.downloadLink}" target="_blank" class="btn-buy" style="width:auto; padding:6px 14px;">⬇️ Download</a>`
+                    : `<span>${(i.num * i.qty).toLocaleString()} TZS</span>`}
+                </div>
+                ${showAccount ? `
+                  <div style="background:#0a0a14; border:1px solid #2a2a4a; border-radius:8px; padding:10px; margin-top:8px; font-size:13px;">
+                    <div style="color:#00e5ff; font-weight:bold; margin-bottom:4px;">🔑 Taarifa za Account</div>
+                    <div>📧 Email/Username: <strong>${i.accountUser}</strong></div>
+                    <div>🔒 Password: <strong>${i.accountPassword || '—'}</strong></div>
+                  </div>` : ''}
               </div>`;
           }).join('');
 

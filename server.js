@@ -262,14 +262,15 @@ app.get('/api/products', (req, res) => {
 app.post('/api/products', (req, res) => {
   const user = getUserByToken(req);
   if (!user || (!user.isAdmin && !user.isStaff)) return res.status(403).json({ error: 'Huna ruhusa' });
-  const { name, type, price, emoji, desc, downloadLink, imageUrl, trailerUrl, category, section } = req.body;
+  const { name, type, price, emoji, desc, downloadLink, imageUrl, trailerUrl, category, section, accountUser, accountPassword } = req.body;
   if (!name || !price) return res.status(400).json({ error: 'Jaza jina na bei' });
   const products = readJson('products.json', {});
   const id = 'p' + Date.now();
   products[id] = {
     id, name, type: type || 'Bidhaa', price: Number(price), emoji: emoji || '🎮', desc: desc || '',
     downloadLink: downloadLink || '', imageUrl: imageUrl || '', trailerUrl: trailerUrl || '',
-    category: category || 'Zote', section: section || 'shop'
+    category: category || 'Zote', section: section || 'shop',
+    accountUser: accountUser || '', accountPassword: accountPassword || ''
   };
   writeJson('products.json', products);
   res.json({ success: true, id });
@@ -281,7 +282,7 @@ app.put('/api/products/:id', (req, res) => {
   const products = readJson('products.json', {});
   const existing = products[req.params.id];
   if (!existing) return res.status(404).json({ error: 'Bidhaa haipatikani' });
-  const { name, type, price, emoji, desc, downloadLink, imageUrl, trailerUrl, category, section } = req.body;
+  const { name, type, price, emoji, desc, downloadLink, imageUrl, trailerUrl, category, section, accountUser, accountPassword } = req.body;
   products[req.params.id] = {
     ...existing,
     name: name || existing.name,
@@ -293,7 +294,9 @@ app.put('/api/products/:id', (req, res) => {
     imageUrl: imageUrl !== undefined ? imageUrl : existing.imageUrl,
     trailerUrl: trailerUrl !== undefined ? trailerUrl : existing.trailerUrl,
     category: category || existing.category || 'Zote',
-    section: section || existing.section || 'shop'
+    section: section || existing.section || 'shop',
+    accountUser: accountUser !== undefined ? accountUser : existing.accountUser,
+    accountPassword: accountPassword !== undefined ? accountPassword : existing.accountPassword
   };
   writeJson('products.json', products);
   res.json({ success: true, product: products[req.params.id] });

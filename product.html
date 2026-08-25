@@ -168,7 +168,7 @@
 
       document.getElementById('buyNowBtn').addEventListener('click', (e) => {
         e.preventDefault();
-        const item = { id, name: product.name, emoji: product.emoji, price: product.price, num: numPrice, qty: 1, downloadLink: product.downloadLink || '' };
+        const item = { id, name: product.name, emoji: product.emoji, price: product.price, num: numPrice, qty: 1, downloadLink: product.downloadLink || '', accountUser: product.accountUser || '', accountPassword: product.accountPassword || '' };
         localStorage.setItem('gamehubQuickBuy', JSON.stringify(item));
         window.location.href = 'checkout.html?quick=1';
       });
@@ -177,7 +177,7 @@
         e.preventDefault();
         let cart = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
         if (cart[id]) { cart[id].qty += 1; }
-        else { cart[id] = { id, name: product.name, emoji: product.emoji, price: product.price, num: numPrice, qty: 1, downloadLink: product.downloadLink || '' }; }
+        else { cart[id] = { id, name: product.name, emoji: product.emoji, price: product.price, num: numPrice, qty: 1, downloadLink: product.downloadLink || '', accountUser: product.accountUser || '', accountPassword: product.accountPassword || '' }; }
         localStorage.setItem('gamehubCart', JSON.stringify(cart));
 
         const btn = document.getElementById('addToCartBtn');
@@ -227,6 +227,8 @@
               priceNumber: Number(found.price),
               desc: found.desc || 'Bidhaa ya GameHub.',
               downloadLink: found.downloadLink || '',
+              accountUser: found.accountUser || '',
+              accountPassword: found.accountPassword || '',
               imageUrl: found.imageUrl || '',
               trailerUrl: found.trailerUrl || '',
               features: ['Delivery automatic', 'Msaada wa AI 24/7']
