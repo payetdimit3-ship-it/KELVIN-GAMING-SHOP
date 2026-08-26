@@ -13,18 +13,18 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• â˜ï¸ SUPABASE â€” Hifadhi ya kudumu (backup automatic) â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ SUPABASE — Hifadhi ya kudumu (backup automatic) ════════════
 let supabase = null;
 if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
   supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-  console.log('â˜ï¸ Supabase imeunganishwa â€” data itahifadhiwa kudumu.');
+  console.log('☁️ Supabase imeunganishwa — data itahifadhiwa kudumu.');
 } else {
-  console.log('âš ï¸ Supabase HAIJAWEKWA â€” data itapotea kila deploy mpya kwenye Render free tier!');
+  console.log('⚠️ Supabase HAIJAWEKWA — data itapotea kila deploy mpya kwenye Render free tier!');
 }
 
 const TRACKED_FILES = ['users.json', 'sessions.json', 'products.json', 'orders.json', 'requests.json', 'security.json', 'marketplace.json', 'coupons.json', 'reviews.json'];
 
-// â•â•â•â•â•â•â•â•â•â•â• HIFADHI YA DATA (.data folder) â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ HIFADHI YA DATA (.data folder) ════════════
 const DATA_DIR = path.join(__dirname, '.data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 
@@ -36,8 +36,8 @@ function writeJson(file, data) {
   fs.writeFileSync(path.join(DATA_DIR, file), JSON.stringify(data, null, 2));
   if (supabase) {
     supabase.from('kv_store').upsert({ file_name: file, data, updated_at: new Date().toISOString() })
-      .then(({ error }) => { if (error) console.error('â˜ï¸ Supabase backup error (' + file + '):', error.message); })
-      .catch(err => console.error('â˜ï¸ Supabase backup error (' + file + '):', err.message));
+      .then(({ error }) => { if (error) console.error('☁️ Supabase backup error (' + file + '):', error.message); })
+      .catch(err => console.error('☁️ Supabase backup error (' + file + '):', err.message));
   }
 }
 
@@ -49,15 +49,15 @@ async function restoreFromSupabase() {
       const { data, error } = await supabase.from('kv_store').select('data').eq('file_name', file).maybeSingle();
       if (!error && data && data.data !== undefined) {
         fs.writeFileSync(path.join(DATA_DIR, file), JSON.stringify(data.data, null, 2));
-        console.log('â˜ï¸ Imerudishwa kutoka Supabase: ' + file);
+        console.log('☁️ Imerudishwa kutoka Supabase: ' + file);
       }
     } catch (err) {
-      console.error('â˜ï¸ Supabase restore error (' + file + '):', err.message);
+      console.error('☁️ Supabase restore error (' + file + '):', err.message);
     }
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â• PASSWORD SALAMA â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ PASSWORD SALAMA ════════════
 function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = crypto.scryptSync(password, salt, 64).toString('hex');
@@ -68,7 +68,7 @@ function verifyPassword(password, stored) {
   return crypto.scryptSync(password, salt, 64).toString('hex') === hash;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â• ULINZI WA LOGIN (brute-force / rate limiting, kwa email) â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ ULINZI WA LOGIN (brute-force / rate limiting, kwa email) ════════════
 const loginAttempts = new Map();
 const MAX_ATTEMPTS = 5;
 const BLOCK_MINUTES = 10;
@@ -85,7 +85,7 @@ function recordFail(key) {
   loginAttempts.set(key, entry);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â• ðŸ›¡ï¸ HACKERAI â€” SECURITY MODULE (Mlinzi wa Website) â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ 🛡️ HACKERAI — SECURITY MODULE (Mlinzi wa Website) ════════════
 
 const securityFile = 'security.json';
 
@@ -140,7 +140,7 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• USERS + SESSIONS â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ USERS + SESSIONS ════════════
 const usersFile = 'users.json';
 const sessionsFile = 'sessions.json';
 
@@ -227,7 +227,7 @@ app.post('/api/admin/users/staff', (req, res) => {
   if (users[cleanEmail].isAdmin) return res.status(400).json({ error: 'Huyu tayari ni Admin kamili' });
   users[cleanEmail].isStaff = !!makeStaff;
   writeJson(usersFile, users);
-  res.json({ success: true, message: makeStaff ? 'âœ… ' + cleanEmail + ' sasa ni Staff (ruhusa ndogo).' : 'âœ… ' + cleanEmail + ' si Staff tena.' });
+  res.json({ success: true, message: makeStaff ? '✅ ' + cleanEmail + ' sasa ni Staff (ruhusa ndogo).' : '✅ ' + cleanEmail + ' si Staff tena.' });
 });
 
 // ===== KUTOKA =====
@@ -248,10 +248,10 @@ app.get('/api/auth/promote', (req, res) => {
   if (!users[cleanEmail]) return res.status(404).json({ error: 'Mtumiaji huyo hajapatikana. Jisajili kwanza kwenye tovuti.' });
   users[cleanEmail].isAdmin = true;
   writeJson(usersFile, users);
-  res.json({ success: true, message: 'âœ… ' + cleanEmail + ' sasa ni Admin. Toka (logout) na uingie tena ili ibadilike.' });
+  res.json({ success: true, message: '✅ ' + cleanEmail + ' sasa ni Admin. Toka (logout) na uingie tena ili ibadilike.' });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• BIDHAA (PRODUCTS) â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ BIDHAA (PRODUCTS) ════════════
 app.get('/api/products', (req, res) => {
   const products = readJson('products.json', {});
   res.json({ success: true, products: Object.values(products) });
@@ -265,7 +265,7 @@ app.post('/api/products', (req, res) => {
   const products = readJson('products.json', {});
   const id = 'p' + Date.now();
   products[id] = {
-    id, name, type: type || 'Bidhaa', price: Number(price), emoji: emoji || 'ðŸŽ®', desc: desc || '',
+    id, name, type: type || 'Bidhaa', price: Number(price), emoji: emoji || '🎮', desc: desc || '',
     downloadLink: downloadLink || '', imageUrl: imageUrl || '', trailerUrl: trailerUrl || '',
     category: category || 'Zote', section: section || 'shop',
     accountUser: accountUser || '', accountPassword: accountPassword || ''
@@ -309,7 +309,7 @@ app.delete('/api/products/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• ðŸ“Š ANALYTICS â€” Mauzo kwa siku â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ 📊 ANALYTICS — Mauzo kwa siku ════════════
 app.get('/api/admin/analytics', (req, res) => {
   const user = getUserByToken(req);
   if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
@@ -338,7 +338,7 @@ app.get('/api/admin/analytics', (req, res) => {
   res.json({ success: true, days, topProducts });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• ðŸ’¾ BACKUP â€” Pakua data yote â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ 💾 BACKUP — Pakua data yote ════════════
 app.get('/api/admin/backup', (req, res) => {
   const user = getUserByToken(req);
   if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
@@ -355,7 +355,7 @@ app.get('/api/admin/backup', (req, res) => {
   res.send(JSON.stringify(backup, null, 2));
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• ðŸª MARKETPLACE â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ 🏪 MARKETPLACE ════════════
 app.get('/api/marketplace', (req, res) => {
   const listings = readJson('marketplace.json', []);
   res.json({ success: true, listings });
@@ -384,7 +384,7 @@ app.delete('/api/marketplace/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• ðŸŽŸï¸ DISCOUNT CODES â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ 🎟️ DISCOUNT CODES ════════════
 app.get('/api/admin/coupons', (req, res) => {
   const user = getUserByToken(req);
   if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
@@ -424,7 +424,7 @@ app.post('/api/coupons/check', (req, res) => {
   res.json({ success: true, percentOff: c.percentOff, code: c.code });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• â­ MAONI NA RATING (Reviews) â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ ⭐ MAONI NA RATING (Reviews) ════════════
 app.get('/api/reviews/:productId', (req, res) => {
   const reviews = readJson('reviews.json', {});
   const list = reviews[req.params.productId] || [];
@@ -446,7 +446,7 @@ app.post('/api/reviews/:productId', (req, res) => {
     name: user.name, email: user.email, rating: r, comment: (comment || '').trim(), date: new Date().toISOString()
   });
   writeJson('reviews.json', reviews);
-  res.json({ success: true, message: 'âœ… Asante kwa maoni yako!' });
+  res.json({ success: true, message: '✅ Asante kwa maoni yako!' });
 });
 
 app.get('/api/requests', (req, res) => {
@@ -484,7 +484,7 @@ app.post('/api/requests', (req, res) => {
   };
   requests.push(newReq);
   writeJson('requests.json', requests);
-  res.json({ success: true, message: 'âœ… Game yako imeongezwa! Wengine wanaweza kuipigia kura.' });
+  res.json({ success: true, message: '✅ Game yako imeongezwa! Wengine wanaweza kuipigia kura.' });
 });
 
 app.post('/api/requests/:id/vote', (req, res) => {
@@ -500,7 +500,7 @@ app.post('/api/requests/:id/vote', (req, res) => {
   item.voters.push(user.email);
   item.votes += 1;
   writeJson('requests.json', requests);
-  res.json({ success: true, message: 'âœ… Kura yako imeongezwa!' });
+  res.json({ success: true, message: '✅ Kura yako imeongezwa!' });
 });
 
 app.delete('/api/requests/:id', (req, res) => {
@@ -511,7 +511,7 @@ app.delete('/api/requests/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• MAUZO (ORDERS) â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ MAUZO (ORDERS) ════════════
 app.get('/api/admin/orders', (req, res) => {
   const user = getUserByToken(req);
   if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
@@ -543,7 +543,7 @@ app.get('/api/admin/stats', (req, res) => {
   });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• ðŸ›¡ï¸ SECURITY ADMIN ENDPOINTS â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ 🛡️ SECURITY ADMIN ENDPOINTS ════════════
 app.get('/api/security/events', (req, res) => {
   const user = getUserByToken(req);
   if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
@@ -579,7 +579,7 @@ app.post('/api/security/block', (req, res) => {
   const { ip, minutes } = req.body;
   if (!ip) return res.status(400).json({ error: 'Andika IP' });
   blockIP(ip, minutes || 60);
-  res.json({ success: true, message: 'ðŸ›¡ï¸ IP ' + ip + ' imefungwa kwa dakika ' + (minutes || 60) + '.' });
+  res.json({ success: true, message: '🛡️ IP ' + ip + ' imefungwa kwa dakika ' + (minutes || 60) + '.' });
 });
 
 app.post('/api/security/unblock', (req, res) => {
@@ -590,7 +590,7 @@ app.post('/api/security/unblock', (req, res) => {
   delete data.blocked[ip];
   writeJson(securityFile, data);
   logSecurity('IP_UNBLOCKED', 'IP ' + ip + ' imefunguliwa na admin', 'LOW', getIP(req));
-  res.json({ success: true, message: 'âœ… IP ' + ip + ' imefunguliwa.' });
+  res.json({ success: true, message: '✅ IP ' + ip + ' imefunguliwa.' });
 });
 
 app.get('/api/security/report', (req, res) => {
@@ -605,7 +605,7 @@ app.get('/api/security/report', (req, res) => {
   const attacks = events.filter(e => ['SQLI_XSS', 'BRUTE_FORCE', 'BLOCKED_REQUEST'].includes(e.type));
 
   const lines = [
-    'ðŸ›¡ï¸ RIPOTI YA USALAMA â€” GameHub',
+    '🛡️ RIPOTI YA USALAMA — GameHub',
     'Tarehe: ' + new Date().toLocaleString(),
     '----------------------------------',
     'Matukio yote: ' + events.length,
@@ -614,12 +614,12 @@ app.get('/api/security/report', (req, res) => {
     'Mashambulizi yaliyogunduliwa: ' + attacks.length,
     'IP zilizofungwa sasa: ' + blockedCount,
     '----------------------------------',
-    'Hali: ' + (high > 0 ? 'Kuna hatari! Angalia matukio ya HIGH.' : 'Salama. Endelea kufanya kazi nzuri! âœ…')
+    'Hali: ' + (high > 0 ? 'Kuna hatari! Angalia matukio ya HIGH.' : 'Salama. Endelea kufanya kazi nzuri! ✅')
   ];
   res.json({ success: true, report: lines.join('\n') });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• MALIPO YA FLUTTERWAVE â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ MALIPO YA FLUTTERWAVE ════════════
 app.post('/api/pay', async (req, res) => {
   try {
     const { amount, email, phone, name, network, items } = req.body;
@@ -690,7 +690,7 @@ app.get('/api/verify', async (req, res) => {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• âš¡ MALIPO YA CLICKPESA (Automatic â€” M-Pesa/Tigo/Airtel/HaloPesa) â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ ⚡ MALIPO YA CLICKPESA (Automatic — M-Pesa/Tigo/Airtel/HaloPesa) ════════════
 
 async function getClickPesaToken() {
   const res = await fetch('https://api.clickpesa.com/third-parties/generate-token', {
@@ -717,7 +717,7 @@ function clickPesaChecksum(payload) {
   return crypto.createHmac('sha256', process.env.CLICKPESA_CHECKSUM_KEY).update(payloadString).digest('hex');
 }
 
-// Mteja anaanzisha malipo â€” USSD-Push
+// Mteja anaanzisha malipo — USSD-Push
 app.post('/api/clickpesa-pay', async (req, res) => {
   const user = getUserByToken(req);
   if (!user) return res.status(401).json({ error: 'Ingia kwanza kulipa' });
@@ -844,7 +844,7 @@ app.get('/api/clickpesa-check/:ref', async (req, res) => {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â• ðŸ’µ MALIPO YA MANUAL â•â•â•â•â•â•â•â•â•â•â•
+// ════════════ 💵 MALIPO YA MANUAL ════════════
 app.post('/api/manual-pay', (req, res) => {
   const user = getUserByToken(req);
   if (!user) return res.status(401).json({ error: 'Ingia kwanza kutuma ripoti ya malipo' });
@@ -868,7 +868,7 @@ app.post('/api/manual-pay', (req, res) => {
   writeJson('orders.json', orders);
   logSecurity('MANUAL_PAYMENT_SUBMITTED', 'Ripoti ya malipo manual kutoka ' + user.email, 'LOW', getIP(req));
 
-  res.json({ success: true, message: 'âœ… Ripoti imepokelewa! Admin atathibitisha malipo yako hivi karibuni. Angalia "My Orders" baadaye.', tx_ref: orderRef });
+  res.json({ success: true, message: '✅ Ripoti imepokelewa! Admin atathibitisha malipo yako hivi karibuni. Angalia "My Orders" baadaye.', tx_ref: orderRef });
 });
 
 app.post('/api/admin/orders/confirm', (req, res) => {
@@ -882,7 +882,7 @@ app.post('/api/admin/orders/confirm', (req, res) => {
   order.confirmedAt = new Date().toISOString();
   writeJson('orders.json', orders);
   logSecurity('MANUAL_PAYMENT_CONFIRMED', 'Admin amethibitisha malipo: ' + tx_ref, 'LOW', getIP(req));
-  res.json({ success: true, message: 'âœ… Malipo yamethibitishwa. Mteja ataona bidhaa yake kwenye My Orders.' });
+  res.json({ success: true, message: '✅ Malipo yamethibitishwa. Mteja ataona bidhaa yake kwenye My Orders.' });
 });
 
 app.post('/api/admin/orders/reject', (req, res) => {
@@ -903,11 +903,13 @@ app.get('/api/my-orders', (req, res) => {
   res.json({ success: true, orders: mine });
 });
 
+// ════════════ GEMINI AI INTEGRATION (UPDATED) ════════════
 async function askGemini(prompt) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return 'GEMINI_API_KEY haijawekwa kwenye .env. Weka kwanza.';
   try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + key, {
+    // Tumehuisha endpoint kutumia gemini-2.5-flash
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + key, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -945,17 +947,17 @@ app.post('/api/ai/chat', async (req, res) => {
 
   const prompt = 'Wewe ni msaidizi wa duka la gaming la Tanzania liitwalo GameHub.\n' +
     'Unaweza kusaidia wateja kwa Kiswahili au Kiingereza.\n\n' +
-    'MUHIMU â€” KANUNI ZA USAHIHI:\n' +
+    'MUHIMU — KANUNI ZA USAHIHI:\n' +
     '- Jibu tu kutokana na taarifa halisi zilizopo hapa chini. Usibuni bei, huduma, au njia za kucheza zisizotajwa.\n' +
     '- GameHub HAITOI wala HAIPENDEKEZI emulator za watu wengine (kama Winlator, n.k.) au njia nyingine za "kupiga" mfumo wa malipo ya games. Njia PEKEE ya kucheza bila kudownload/kununua PC ni kukodi muda kwenye GeForce NOW (rental yetu).\n' +
     '- Bidhaa zenye "[inadownload moja kwa moja]" ni games za kudownload wenyewe baada ya malipo (link inatolewa My Orders). Bidhaa zenye "[Steam key/account]" zinahitaji Steam.\n' +
     '- Kama mteja anauliza kitu nje ya huduma zetu, sema wazi hatutoi hilo, usijaribu "kusaidia" kwa kubuni jibu.\n\n' +
     'Bidhaa zinazopatikana:\n' + productList + '\n\n' +
-    'Bei za kukodi muda wa kucheza (GeForce NOW â€” njia pekee ya kucheza bila kununua/kudownload):\n' +
+    'Bei za kukodi muda wa kucheza (GeForce NOW — njia pekee ya kucheza bila kununua/kudownload):\n' +
     '- Dakika 20 = 300 TZS\n' +
     '- Dakika 50 = 500 TZS\n' +
     '- Masaa 2 = 1,000 TZS\n' +
-    '(Muda mwingine wowote: mfumo unakokotoa bei kwa kanuni ya bei nafuu zaidi kwa dakika â€” mteja anaweka muda anaotaka kwenye ukurasa wa Rental.)\n\n' +
+    '(Muda mwingine wowote: mfumo unakokotoa bei kwa kanuni ya bei nafuu zaidi kwa dakika — mteja anaweka muda anaotaka kwenye ukurasa wa Rental.)\n\n' +
     'Malipo: M-Pesa (Vodacom), Tigo Pesa, Airtel Money, HaloPesa kupitia ClickPesa (automatic), au malipo ya moja kwa moja (manual) kwa namba tuliyotoa kwenye checkout.\n' +
     'Baada ya malipo, bidhaa/download link inapatikana kwenye "My Orders".\n' +
     transcript +
@@ -982,9 +984,9 @@ app.post('/api/ai/admin', async (req, res) => {
     const price = Number(addMatch[2]);
     const products = readJson('products.json', {});
     const id = 'p' + Date.now();
-    products[id] = { id: id, name: name, type: 'Game', price: price, emoji: 'ðŸŽ®', desc: 'Imeongezwa na AI ya admin' };
+    products[id] = { id: id, name: name, type: 'Game', price: price, emoji: '🎮', desc: 'Imeongezwa na AI ya admin' };
     writeJson('products.json', products);
-    return res.json({ reply: 'âœ… Nimeongeza "' + name + '" kwa bei ' + price.toLocaleString() + ' TZS kwenye duka.' });
+    return res.json({ reply: '✅ Nimeongeza "' + name + '" kwa bei ' + price.toLocaleString() + ' TZS kwenye duka.' });
   }
 
   const delMatch = lower.match(/futa\s+(?:bidhaa|game|product)?\s*(.+)/i);
@@ -995,7 +997,7 @@ app.post('/api/ai/admin', async (req, res) => {
     if (found) {
       delete products[found.id];
       writeJson('products.json', products);
-      return res.json({ reply: 'ðŸ—‘ï¸ Nimefuta "' + found.name + '" kwenye duka.' });
+      return res.json({ reply: '🗑️ Nimefuta "' + found.name + '" kwenye duka.' });
     }
     return res.json({ reply: 'Siipati bidhaa hiyo kwenye duka. Angalia jina.' });
   }
@@ -1003,25 +1005,25 @@ app.post('/api/ai/admin', async (req, res) => {
   if (/(mauzo|sales|mapato|income|orders)/.test(lower)) {
     const orders = readJson('orders.json', []);
     const total = orders.reduce((t, o) => t + (o.amount || 0), 0);
-    return res.json({ reply: 'ðŸ“¦ Mauzo yote: ' + orders.length + ' orders. Jumla ya mapato: ' + total.toLocaleString() + ' TZS.' });
+    return res.json({ reply: '📦 Mauzo yote: ' + orders.length + ' orders. Jumla ya mapato: ' + total.toLocaleString() + ' TZS.' });
   }
 
   if (/(wateja|customers|users)/.test(lower)) {
     const users = readJson(usersFile, {});
-    const list = Object.values(users).map(u => u.name + ' (' + u.email + ')' + (u.isAdmin ? ' ðŸ‘‘' : '')).join('\n') || 'Hakuna wateja bado';
-    return res.json({ reply: 'ðŸ‘¥ Wateja: ' + Object.keys(users).length + '\n' + list });
+    const list = Object.values(users).map(u => u.name + ' (' + u.email + ')' + (u.isAdmin ? ' 👑' : '')).join('\n') || 'Hakuna wateja bado';
+    return res.json({ reply: '👥 Wateja: ' + Object.keys(users).length + '\n' + list });
   }
 
   if (/(bidhaa|products)/.test(lower)) {
     const products = Object.values(readJson('products.json', {}));
     if (!products.length) return res.json({ reply: 'Duka halina bidhaa bado.' });
-    return res.json({ reply: 'ðŸŽ® Bidhaa zote:\n' + products.map(p => p.emoji + ' ' + p.name + ' - ' + Number(p.price).toLocaleString() + ' TZS').join('\n') });
+    return res.json({ reply: '🎮 Bidhaa zote:\n' + products.map(p => p.emoji + ' ' + p.name + ' - ' + Number(p.price).toLocaleString() + ' TZS').join('\n') });
   }
 
   if (/(request|ombi|maombi)/.test(lower)) {
     const requests = readJson('requests.json', []).slice().sort((a, b) => b.votes - a.votes);
     if (!requests.length) return res.json({ reply: 'Hakuna maombi ya games bado.' });
-    return res.json({ reply: 'ðŸ” Maombi ya games (kwa kura):\n' + requests.map(r => r.name + ' â€” kura ' + r.votes).join('\n') });
+    return res.json({ reply: '🔍 Maombi ya games (kwa kura):\n' + requests.map(r => r.name + ' — kura ' + r.votes).join('\n') });
   }
 
   const stats = readJson('orders.json', []);
@@ -1037,9 +1039,9 @@ app.post('/api/ai/admin', async (req, res) => {
 
 // Server inaanza
 restoreFromSupabase()
-  .catch(err => console.error('â˜ï¸ Imeshindwa kurudisha data kutoka Supabase:', err.message))
+  .catch(err => console.error('☁️ Imeshindwa kurudisha data kutoka Supabase:', err.message))
   .finally(() => {
     const listener = app.listen(process.env.PORT || 3000, () => {
-      console.log('ðŸŽ® GameHub iko live kwenye port', listener.address().port);
+      console.log('🎮 GameHub iko live kwenye port', listener.address().port);
     });
   });
