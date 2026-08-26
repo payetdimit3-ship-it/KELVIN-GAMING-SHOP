@@ -112,8 +112,12 @@
             : o.status === 'pending_manual'
               ? '<span style="color:#ffb020; font-weight:bold;">⏳ Inasubiri Uthibitisho (Manual)</span>'
               : o.status === 'pending_clickpesa'
-                ? '<span style="color:#ffb020; font-weight:bold;">⏳ Inasubiri Malipo (ClickPesa)</span>'
-                : '<span style="color:#8f8faa;">' + o.status + '</span>';
+                ? '<span style="color:#ffb020; font-weight:bold;">⏳ Inasubiri Malipo</span>'
+                : o.status === 'failed'
+                  ? '<span style="color:#ff3d71; font-weight:bold;">❌ Imeshindwa</span>'
+                  : o.status === 'amount_mismatch'
+                    ? '<span style="color:#ff3d71; font-weight:bold;">⚠️ Tatizo la Kiasi — Wasiliana Nasi</span>'
+                    : '<span style="color:#8f8faa;">' + o.status + '</span>';
 
           const itemsHtml = (o.items || []).map(i => {
             const showDownload = o.status === 'successful' && i.downloadLink;

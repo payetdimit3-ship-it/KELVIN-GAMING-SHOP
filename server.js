@@ -698,7 +698,9 @@ app.get('/api/verify', async (req, res) => {
   }
 });
 
-// ═══════════ ⚡ MALIPO YA CLICKPESA (Automatic — M-Pesa/Tigo/Airtel/HaloPesa/Kadi) ═══════════
+// ═══════════ ⚡ MALIPO YA CLICKPESA (Automatic — M-Pesa/Tigo/Airtel/HaloPesa) ═══════════
+// USSD-PUSH ya moja kwa moja: mteja anabaki kwenye website yetu, anapata PIN prompt
+// papo hapo kwenye simu yake, hana haja ya kwenda ukurasa wa nje wa ClickPesa.
 
 async function getClickPesaToken() {
   const res = await fetch('https://api.clickpesa.com/third-parties/generate-token', {
@@ -713,22 +715,42 @@ async function getClickPesaToken() {
   return data.token; // tayari ina "Bearer " mwanzoni
 }
 
+// Checksum (hiari — inahitajika tu kama umeiwasha kwenye ClickPesa application yako)
+function canonicalize(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(canonicalize);
+  return Object.keys(obj).sort().reduce((acc, key) => { acc[key] = canonicalize(obj[key]); return acc; }, {});
+}
+function clickPesaChecksum(payload) {
+  if (!process.env.CLICKPESA_CHECKSUM_KEY) return null;
+  const canonical = canonicalize(payload);
+  const payloadString = JSON.stringify(canonical);
+  return crypto.createHmac('sha256', process.env.CLICKPESA_CHECKSUM_KEY).update(payloadString).digest('hex');
+}
+
+// Mteja anaanzisha malipo — USSD-Push inatumwa moja kwa moja kwenye simu yake
 app.post('/api/clickpesa-pay', async (req, res) => {
   const user = getUserByToken(req);
   if (!user) return res.status(401).json({ error: 'Ingia kwanza kulipa' });
 
   try {
-    const { items, total, phone, name, email } = req.body;
+    const { items, total, phone, name } = req.body;
     if (!items || !items.length || !total) return res.status(400).json({ error: 'Kikapu ni tupu' });
+    if (!phone) return res.status(400).json({ error: 'Weka namba ya simu' });
 
     const orderReference = 'CP' + Date.now() + crypto.randomBytes(3).toString('hex');
+    let phoneFull = String(phone).replace(/^\+/, '');
+    if (!phoneFull.startsWith('255')) phoneFull = '255' + phoneFull.replace(/^0/, '');
 
+    // Hifadhi order KWANZA — bei/kiasi HALISI kinachopaswa kulipwa, kwa ulinzi dhidi ya
+    // mtu yeyote "kucheza" na kiasi kwenye upande wa mteja.
     const orders = readJson('orders.json', []);
     orders.push({
       tx_ref: orderReference,
       customer: user.email,
-      customerPhone: phone || '',
-      amount: total,
+      customerPhone: phoneFull,
+      customerName: name || user.name,
+      amount: Number(total),
       items,
       status: 'pending_clickpesa',
       date: new Date().toISOString()
@@ -736,42 +758,50 @@ app.post('/api/clickpesa-pay', async (req, res) => {
     writeJson('orders.json', orders);
 
     const token = await getClickPesaToken();
-    const host = req.protocol + '://' + req.get('host');
+    const payload = { amount: String(total), currency: 'TZS', orderReference, phoneNumber: phoneFull };
+    const checksum = clickPesaChecksum(payload);
+    if (checksum) payload.checksum = checksum;
 
-    const cpRes = await fetch('https://api.clickpesa.com/third-parties/checkout-link/generate-checkout-url', {
+    const cpRes = await fetch('https://api.clickpesa.com/third-parties/payments/initiate-ussd-push-request', {
       method: 'POST',
       headers: { 'Authorization': token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        orderItems: items.map(i => ({ name: i.name, price: String(i.num), quantity: i.qty })),
-        orderReference,
-        orderCurrency: 'TZS',
-        customerName: name || user.name,
-        customerEmail: email || user.email,
-        customerPhone: (phone || '').replace(/^\+/, '').replace(/^0/, '255'),
-        description: 'GameHub Order',
-        callbackUrl: host + '/api/clickpesa-callback'
-      })
+      body: JSON.stringify(payload)
     });
     const cpData = await cpRes.json();
 
-    if (!cpData.checkoutLink) {
-      return res.status(400).json({ error: cpData.message || 'Imeshindwa kutengeneza link ya malipo' });
+    if (!cpData.status || cpData.status === 'FAILED') {
+      return res.status(400).json({ error: cpData.message || 'Imeshindwa kutuma ombi la malipo. Angalia namba ya simu.' });
     }
 
-    res.json({ success: true, checkoutLink: cpData.checkoutLink, tx_ref: orderReference });
+    res.json({ success: true, tx_ref: orderReference, status: cpData.status });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
+// Husaidia kuthibitisha kiasi kilicholipwa kinalingana na bei halisi ya order yetu
+// (ulinzi dhidi ya mtu kujaribu "kucheza" na kiasi kupitia njia za nje)
+function amountMatches(order, collectedAmount) {
+  const collected = Number(collectedAmount);
+  if (isNaN(collected)) return false;
+  // Ruhusu tofauti ndogo ya senti/rounding (chini ya TZS 5)
+  return collected >= (order.amount - 5);
+}
+
 app.post('/api/clickpesa-callback', async (req, res) => {
   try {
-    const { orderReference, status } = req.body;
+    const { orderReference, status, collectedAmount } = req.body;
     if (orderReference && (status === 'SUCCESS' || status === 'SETTLED')) {
       const orders = readJson('orders.json', []);
       const order = orders.find(o => o.tx_ref === orderReference);
       if (order && order.status !== 'successful') {
+        if (!amountMatches(order, collectedAmount)) {
+          logSecurity('AMOUNT_MISMATCH', 'Kiasi kilicholipwa (' + collectedAmount + ') hakilingani na bei halisi (' + order.amount + ') kwa order ' + orderReference, 'HIGH', getIP(req));
+          order.status = 'amount_mismatch';
+          writeJson('orders.json', orders);
+          return res.json({ success: false });
+        }
         order.status = 'successful';
         order.confirmedAt = new Date().toISOString();
         writeJson('orders.json', orders);
@@ -793,18 +823,33 @@ app.get('/api/clickpesa-check/:ref', async (req, res) => {
     const order = orders.find(o => o.tx_ref === req.params.ref && o.customer === user.email);
     if (!order) return res.status(404).json({ error: 'Order haipatikani' });
     if (order.status === 'successful') return res.json({ success: true, status: 'successful' });
+    if (order.status === 'amount_mismatch') return res.json({ success: true, status: 'amount_mismatch' });
 
     const token = await getClickPesaToken();
     const cpRes = await fetch('https://api.clickpesa.com/third-parties/payments/' + req.params.ref, {
       headers: { 'Authorization': token }
     });
     const cpData = await cpRes.json();
-    const found = Array.isArray(cpData) ? cpData.find(p => p.status === 'SUCCESS' || p.status === 'SETTLED') : null;
+    const list = Array.isArray(cpData) ? cpData : [cpData];
+    const found = list.find(p => p.status === 'SUCCESS' || p.status === 'SETTLED');
+    const failed = list.find(p => p.status === 'FAILED');
+
     if (found) {
+      if (!amountMatches(order, found.collectedAmount)) {
+        logSecurity('AMOUNT_MISMATCH', 'Kiasi kilicholipwa (' + found.collectedAmount + ') hakilingani na bei halisi (' + order.amount + ') kwa order ' + req.params.ref, 'HIGH', getIP(req));
+        order.status = 'amount_mismatch';
+        writeJson('orders.json', orders);
+        return res.json({ success: true, status: 'amount_mismatch' });
+      }
       order.status = 'successful';
       order.confirmedAt = new Date().toISOString();
       writeJson('orders.json', orders);
       return res.json({ success: true, status: 'successful' });
+    }
+    if (failed) {
+      order.status = 'failed';
+      writeJson('orders.json', orders);
+      return res.json({ success: true, status: 'failed' });
     }
     res.json({ success: true, status: order.status });
   } catch (err) {

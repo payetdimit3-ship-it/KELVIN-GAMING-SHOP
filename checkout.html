@@ -71,7 +71,7 @@
 
     <form id="paymentForm" class="payment-form">
       <p style="color:#8f8faa; font-size:13px; text-align:center; margin-bottom:6px;">
-        Utapelekwa kwenye ukurasa salama wa malipo — chagua M-Pesa, Tigo Pesa, Airtel Money, HaloPesa au Kadi papo hapo.
+        Utapokea ombi la PIN moja kwa moja kwenye simu yako (M-Pesa/Tigo Pesa/Airtel Money/HaloPesa) — bila kuondoka kwenye website hii.
       </p>
 
       <label>👤 Jina Kamili</label>
@@ -83,7 +83,7 @@
       <label>📱 Namba ya Simu (255 + namba 9)</label>
       <input type="tel" id="phone" required placeholder="2557XXXXXXXX">
 
-      <button type="submit" class="btn-primary" id="payBtn">💳 Endelea Kulipa</button>
+      <button type="submit" class="btn-primary" id="payBtn">📲 Lipa Hapa</button>
       <p id="payStatus" class="pay-status"></p>
     </form>
 
@@ -316,31 +316,60 @@
         const res = await fetch('/api/clickpesa-pay', {
           method: 'POST',
           headers: { 'Authorization': token, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ total, email, phone: phoneFull, name, items: getDiscountedItems() })
+          body: JSON.stringify({ total, phone: phoneFull, name, items: getDiscountedItems() })
         });
         const data = await res.json();
 
         if (!data.success) {
           payStatus.textContent = '❌ ' + (data.error || 'Malipo hayakuanza. Jaribu tena.');
           payBtn.disabled = false;
-          payBtn.textContent = '💳 Endelea Kulipa';
+          payBtn.textContent = '📲 Lipa Hapa';
           return;
         }
 
-        // Hifadhi rejea ya order kabla ya kuondoka kwenye ukurasa
-        localStorage.setItem('gamehubLastOrder', JSON.stringify({
-          tx_ref: data.tx_ref, items: getDiscountedItems(), total, date: new Date().toISOString()
-        }));
-        if (isQuickBuy) { localStorage.removeItem('gamehubQuickBuy'); }
-        else { localStorage.removeItem('gamehubCart'); }
+        payStatus.innerHTML = '📲 Umepokea ombi kwenye simu yako (' + phoneFull + '). <br>Ingiza PIN yako kuthibitisha, kisha subiri hapa...';
+        payBtn.textContent = '⏳ Inasubiri uthibitisho...';
 
-        payStatus.textContent = '↗️ Unaelekezwa kwenye ukurasa wa malipo...';
-        window.location.href = data.checkoutLink;
+        let attempts = 0;
+        const checkInterval = setInterval(async () => {
+          attempts++;
+          try {
+            const vRes = await fetch('/api/clickpesa-check/' + data.tx_ref, { headers: { 'Authorization': token } });
+            const vData = await vRes.json();
+
+            if (vData.success && vData.status === 'successful') {
+              clearInterval(checkInterval);
+              localStorage.setItem('gamehubLastOrder', JSON.stringify({
+                tx_ref: data.tx_ref, items: getDiscountedItems(), total, date: new Date().toISOString()
+              }));
+              if (isQuickBuy) { localStorage.removeItem('gamehubQuickBuy'); }
+              else { localStorage.removeItem('gamehubCart'); }
+              window.location.href = 'success.html';
+            } else if (vData.status === 'amount_mismatch') {
+              clearInterval(checkInterval);
+              payStatus.textContent = '❌ Kiasi kilicholipwa hakikamilika sahihi. Wasiliana WhatsApp na tx ref: ' + data.tx_ref;
+              payBtn.disabled = false;
+              payBtn.textContent = '📲 Lipa Hapa';
+            } else if (vData.status === 'failed') {
+              clearInterval(checkInterval);
+              payStatus.textContent = '❌ Malipo hayakufanikiwa (umekataa au muda umeisha). Jaribu tena.';
+              payBtn.disabled = false;
+              payBtn.textContent = '📲 Lipa Hapa';
+            } else if (attempts >= 36) {
+              clearInterval(checkInterval);
+              payStatus.textContent = '⏰ Muda umeisha. Kama umelipa, wasiliana nasi WhatsApp na tx ref: ' + data.tx_ref;
+              payBtn.disabled = false;
+              payBtn.textContent = '📲 Lipa Hapa';
+            }
+          } catch (err) {
+            console.log('Jaribio limeshindwa, linaendelea...');
+          }
+        }, 5000);
 
       } catch (err) {
         payStatus.textContent = '❌ Hitilafu ya mtandao. Jaribu tena.';
         payBtn.disabled = false;
-        payBtn.textContent = '💳 Endelea Kulipa';
+        payBtn.textContent = '📲 Lipa Hapa';
       }
     });
 
