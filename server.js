@@ -1,6 +1,5 @@
 const express = require('express');
 const crypto = require('crypto');
-const axios = require('axios');
 const app = express();
 
 app.use(express.json());
@@ -31,7 +30,7 @@ let azamPayToken = null;
 let azamPayTokenExpiresAt = 0;
 
 // ═══════════════════════════════════════════════════════════════
-// AZAMPAY TOKEN GENERATOR
+// AZAMPAY TOKEN GENERATOR (NATIVE FETCH)
 // ═══════════════════════════════════════════════════════════════
 
 async function getAzamPayToken() {
@@ -43,39 +42,32 @@ async function getAzamPayToken() {
     throw new Error('AzamPay credentials hazijawekwa kwenye Render Environment Variables.');
   }
 
-  try {
-    const response = await axios.post(
-      AZAMPAY_AUTH_URL,
-      {
-        appName: AZAMPAY_APP_NAME,
-        clientId: AZAMPAY_CLIENT_ID,
-        clientSecret: AZAMPAY_CLIENT_SECRET
-      },
-      {
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+  const response = await fetch(AZAMPAY_AUTH_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      appName: AZAMPAY_APP_NAME,
+      clientId: AZAMPAY_CLIENT_ID,
+      clientSecret: AZAMPAY_CLIENT_SECRET
+    })
+  });
 
-    const data = response.data;
+  const data = await response.json();
 
-    if (!data.success || !data.data?.accessToken) {
-      console.error('AZAMPAY TOKEN ERROR:', JSON.stringify(data));
-      throw new Error(data.message || 'Imeshindikana kupata AzamPay Bearer Token.');
-    }
-
-    azamPayToken = data.data.accessToken;
-    const expireSeconds = Number(data.data.expire) || 300;
-    azamPayTokenExpiresAt = Date.now() + Math.max(60, expireSeconds - 60) * 1000;
-
-    return azamPayToken;
-  } catch (error) {
-    console.error('AZAMPAY TOKEN FETCH ERROR:', error.response ? error.response.data : error.message);
-    throw error;
+  if (!response.ok || !data.success || !data.data?.accessToken) {
+    console.error('AZAMPAY TOKEN ERROR:', JSON.stringify(data));
+    throw new Error(data.message || 'Imeshindikana kupata AzamPay Bearer Token.');
   }
+
+  azamPayToken = data.data.accessToken;
+  const expireSeconds = Number(data.data.expire) || 300;
+  azamPayTokenExpiresAt = Date.now() + Math.max(60, expireSeconds - 60) * 1000;
+
+  return azamPayToken;
 }
 
 // ═══════════════════════════════════════════════════════════════
-// PHONE NUMBER & PROVIDER HELPER FUNCTIONS
+// HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════════
 
 function normalizeTanzaniaPhone(phone) {
@@ -123,7 +115,7 @@ function validPaymentAmount(amount) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// AZAMPAY MNO CHECKOUT API
+// AZAMPAY MNO CHECKOUT (NATIVE FETCH)
 // ═══════════════════════════════════════════════════════════════
 
 async function azamPayMnoCheckout({ accountNumber, amount, provider, externalId }) {
@@ -138,32 +130,30 @@ async function azamPayMnoCheckout({ accountNumber, amount, provider, externalId 
     additionalProperties: {}
   };
 
-  try {
-    const response = await axios.post(
-      AZAMPAY_CHECKOUT_URL + '/azampay/mno/checkout',
-      payload,
-      {
-        headers: {
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    const data = response.data;
-    if (data.success !== true) {
-      console.error('AZAMPAY CHECKOUT ERROR:', JSON.stringify(data));
-      throw new Error(data.message || 'AzamPay imeshindwa kuanzisha malipo.');
+  const response = await fetch(
+    AZAMPAY_CHECKOUT_URL + '/azampay/mno/checkout',
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
     }
-    return data;
-  } catch (error) {
-    console.error('AZAMPAY CHECKOUT FETCH ERROR:', error.response ? error.response.data : error.message);
-    throw error;
+  );
+
+  const data = await response.json();
+
+  if (!response.ok || data.success !== true) {
+    console.error('AZAMPAY CHECKOUT ERROR:', JSON.stringify(data));
+    throw new Error(data.message || 'AzamPay imeshindwa kuanzisha malipo.');
   }
+
+  return data;
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 💳 MAIN PAYMENT ENDPOINT (/api/pay)
+// MAIN ENDPOINTS
 // ═══════════════════════════════════════════════════════════════
 
 app.post('/api/pay', async (req, res) => {
@@ -230,10 +220,6 @@ app.post('/api/pay', async (req, res) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════════════
-// 🔔 AZAMPAY CALLBACK (/api/azampay/callback)
-// ═══════════════════════════════════════════════════════════════
-
 app.post('/api/azampay/callback', async (req, res) => {
   try {
     const body = req.body || {};
@@ -271,10 +257,6 @@ app.post('/api/azampay/callback', async (req, res) => {
     return res.status(500).json({ error: 'Callback error' });
   }
 });
-
-// ═══════════════════════════════════════════════════════════════
-// 🔎 VERIFY PAYMENT (/api/verify)
-// ═══════════════════════════════════════════════════════════════
 
 app.get('/api/verify', async (req, res) => {
   try {
