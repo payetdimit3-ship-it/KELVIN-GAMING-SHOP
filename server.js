@@ -7,6 +7,22 @@ const app = express();
 app.use(express.json());
 
 // ═══════════════════════════════════════════════════════════════
+// 🌐 FRONTEND STATIC FILES & HOME ROUTE
+// ═══════════════════════════════════════════════════════════════
+
+// Kazi hii inafanya Express iserve mafaili kama index.html, style.css, script.js
+app.use(express.static(path.join(__dirname, 'public'))); 
+
+// Kama index.html ipo root (bila public folder), inafungua hii:
+app.get('/', (req, res) => {
+  const rootIndexPath = path.join(__dirname, 'index.html');
+  if (fs.existsSync(rootIndexPath)) {
+    return res.sendFile(rootIndexPath);
+  }
+  res.send('Server ipo Live! Karibu kwenye API za GameHub.');
+});
+
+// ═══════════════════════════════════════════════════════════════
 // 📁 JSON FILE HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════════
 
@@ -31,7 +47,6 @@ function writeJson(fileName, data) {
   }
 }
 
-// Simple authentication token retriever (adjust based on your auth logic)
 function getUserByToken(req) {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.replace('Bearer ', '').trim();
@@ -41,11 +56,10 @@ function getUserByToken(req) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 💳 AZAMPAY — CONFIGURATION
+// 💳 AZAMPAY CONFIGURATION & LOGIC
 // ═══════════════════════════════════════════════════════════════
 
 const AZAMPAY_ENV = String(process.env.AZAMPAY_ENV || 'sandbox').toLowerCase();
-
 const AZAMPAY_APP_NAME = process.env.AZAMPAY_APP_NAME;
 const AZAMPAY_CLIENT_ID = process.env.AZAMPAY_CLIENT_ID;
 const AZAMPAY_CLIENT_SECRET = process.env.AZAMPAY_CLIENT_SECRET;
@@ -62,10 +76,6 @@ const AZAMPAY_CHECKOUT_URL =
 
 let azamPayToken = null;
 let azamPayTokenExpiresAt = 0;
-
-// ═══════════════════════════════════════════════════════════════
-// AZAMPAY TOKEN GENERATOR
-// ═══════════════════════════════════════════════════════════════
 
 async function getAzamPayToken() {
   if (azamPayToken && Date.now() < azamPayTokenExpiresAt) {
@@ -100,23 +110,13 @@ async function getAzamPayToken() {
   return azamPayToken;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// HELPER FUNCTIONS FOR PAYMENTS
-// ═══════════════════════════════════════════════════════════════
-
 function normalizeTanzaniaPhone(phone) {
-  let value = String(phone || '')
-    .trim()
-    .replace(/\s+/g, '')
-    .replace(/-/g, '');
-
+  let value = String(phone || '').trim().replace(/\s+/g, '').replace(/-/g, '');
   if (!value) return null;
-
   if (value.startsWith('+255')) value = value.substring(1);
   if (value.startsWith('255')) return value;
   if (value.startsWith('0')) return '255' + value.substring(1);
   if (/^7\d{8}$/.test(value) || /^6\d{8}$/.test(value)) return '255' + value;
-
   return null;
 }
 
@@ -147,10 +147,6 @@ function validPaymentAmount(amount) {
   const value = Number(amount);
   return Number.isFinite(value) && value >= 100 && Number.isInteger(value);
 }
-
-// ═══════════════════════════════════════════════════════════════
-// AZAMPAY MNO CHECKOUT
-// ═══════════════════════════════════════════════════════════════
 
 async function azamPayMnoCheckout({ accountNumber, amount, provider, externalId }) {
   const token = await getAzamPayToken();
@@ -187,7 +183,7 @@ async function azamPayMnoCheckout({ accountNumber, amount, provider, externalId 
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 💳 MAIN API ENDPOINTS
+// 💳 ENDPOINTS
 // ═══════════════════════════════════════════════════════════════
 
 app.post('/api/pay', async (req, res) => {
@@ -318,7 +314,7 @@ app.get('/api/verify', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// 🚀 START SERVER (PORT CONFIGURATION FOR RENDER)
+// 🚀 START SERVER
 // ═══════════════════════════════════════════════════════════════
 
 const PORT = process.env.PORT || 3000;
