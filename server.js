@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
@@ -41,7 +42,6 @@ function writeJson(file, data) {
   }
 }
 
-// Wakati server inapoanza: rudisha data zote kutoka Supabase (kama zipo)
 async function restoreFromSupabase() {
   if (!supabase) return;
   for (const file of TRACKED_FILES) {
@@ -109,7 +109,7 @@ function blockIP(ip, minutes) {
 
 function isSuspicious(input) {
   if (!input || typeof input !== 'string') return false;
-  const patterns = /('|"|--|;|\/\*|\*\/|union\s+select|select\s+.*\s+from|insert\s+into|drop\s+table|<\s*script|onerror\s*=|javascript:)/i;
+  const patterns = /(--|;|\/\*|\*\/|union\s+select|select\s+.*\s+from|insert\s+into|drop\s+table|<\s*script|onerror\s*=|javascript:)/i;
   return patterns.test(input);
 }
 
@@ -124,10 +124,13 @@ app.use('/api', (req, res, next) => {
     return res.status(403).json({ error: 'IP yako imefungwa. Wasiliana na admin.' });
   }
 
+  // Usikague field za password/token (herufi maalum ni halali hapo)
+  const SKIP_KEYS = ['password', 'newPassword', 'token', 'checksum', 'authorization'];
   const checkItems = [req.body, req.query];
   for (const obj of checkItems) {
     if (!obj) continue;
     for (const key of Object.keys(obj)) {
+      if (SKIP_KEYS.includes(key)) continue;
       const val = obj[key];
       if (typeof val === 'string' && isSuspicious(val)) {
         logSecurity('SQLI_XSS', 'Input ya mashaka katika: "' + key + '"', 'HIGH', ip);
@@ -144,8 +147,9 @@ const usersFile = 'users.json';
 const sessionsFile = 'sessions.json';
 
 function getUserByToken(req) {
-  const token = req.headers.authorization || req.query.token;
+  let token = req.headers.authorization || req.query.token;
   if (!token) return null;
+  token = String(token).replace(/^Bearer\s+/i, '');
   const sessions = readJson(sessionsFile, {});
   const email = sessions[token];
   if (!email) return null;
@@ -226,8 +230,13 @@ app.post('/api/admin/users/staff', (req, res) => {
 });
 
 app.post('/api/auth/logout', (req, res) => {
-  const token = req.headers.authorization;
-  if (token) { const sessions = readJson(sessionsFile, {}); delete sessions[token]; writeJson(sessionsFile, sessions); }
+  let token = req.headers.authorization;
+  if (token) {
+    token = String(token).replace(/^Bearer\s+/i, '');
+    const sessions = readJson(sessionsFile, {});
+    delete sessions[token];
+    writeJson(sessionsFile, sessions);
+  }
   res.json({ success: true });
 });
 
@@ -442,6 +451,7 @@ app.post('/api/reviews/:productId', (req, res) => {
   res.json({ success: true, message: '✅ Asante kwa maoni yako!' });
 });
 
+// ════════════ MAOMBI YA GAMES ════════════
 app.get('/api/requests', (req, res) => {
   const requests = readJson('requests.json', []);
   res.json({ success: true, requests: requests.slice().sort((a, b) => b.votes - a.votes) });
@@ -516,7 +526,12 @@ app.get('/api/admin/users', (req, res) => {
   const user = getUserByToken(req);
   if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
   const users = readJson(usersFile, {});
-  res.json({ success: true, users: Object.values(users) });
+  // Usirudishe password hashes
+  const safe = Object.values(users).map(u => ({
+    name: u.name, email: u.email, phone: u.phone,
+    isAdmin: !!u.isAdmin, isStaff: !!u.isStaff, created: u.created
+  }));
+  res.json({ success: true, users: safe });
 });
 
 app.get('/api/admin/stats', (req, res) => {
@@ -580,7 +595,7 @@ app.post('/api/security/unblock', (req, res) => {
   if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
   const { ip } = req.body;
   const data = readJson(securityFile, { events: [], blocked: {} });
-  delete data.blocked[ip];
+  if (data.blocked) delete data.blocked[ip];
   writeJson(securityFile, data);
   logSecurity('IP_UNBLOCKED', 'IP ' + ip + ' imefunguliwa na admin', 'LOW', getIP(req));
   res.json({ success: true, message: '✅ IP ' + ip + ' imefunguliwa.' });
@@ -615,6 +630,7 @@ app.get('/api/security/report', (req, res) => {
 // ════════════ MALIPO YA FLUTTERWAVE ════════════
 app.post('/api/pay', async (req, res) => {
   try {
+    if (!process.env.FLW_SECRET_KEY) return res.status(503).json({ error: 'Malipo ya Flutterwave hayajawekwa.' });
     const { amount, email, phone, name, network, items } = req.body;
     if (!amount || !email || !phone || !name || !network) {
       return res.status(400).json({ error: 'Jaza taarifa zote za malipo' });
@@ -685,16 +701,20 @@ app.get('/api/verify', async (req, res) => {
 
 // ════════════ ⚡ MALIPO YA CLICKPESA ════════════
 async function getClickPesaToken() {
-  const res = await fetch('https://api.clickpesa.com/third-parties/generate-token', {
+  if (!process.env.CLICKPESA_CLIENT_ID || !process.env.CLICKPESA_API_KEY) {
+    throw new Error('CLICKPESA_CLIENT_ID / CLICKPESA_API_KEY hazijawekwa kwenye .env');
+  }
+  const r = await fetch('https://api.clickpesa.com/third-parties/generate-token', {
     method: 'POST',
     headers: {
       'client-id': process.env.CLICKPESA_CLIENT_ID,
       'api-key': process.env.CLICKPESA_API_KEY
     }
   });
-  const data = await res.json();
-  if (!data.success || !data.token) throw new Error(data.message || 'ClickPesa: imeshindwa kupata token');
-  return data.token;
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || !data.token) throw new Error(data.message || 'ClickPesa: imeshindwa kupata token');
+  // Endpoints nyingine zinataka umbo la "Bearer <token>"
+  return String(data.token).startsWith('Bearer ') ? data.token : 'Bearer ' + data.token;
 }
 
 function canonicalize(obj) {
@@ -709,6 +729,17 @@ function clickPesaChecksum(payload) {
   return crypto.createHmac('sha256', process.env.CLICKPESA_CHECKSUM_KEY).update(payloadString).digest('hex');
 }
 
+// Hii ndiyo hukamata kosa "Application has no access to COLLECTION_API"
+function clickPesaFriendlyError(msg) {
+  const m = String(msg || '');
+  if (/COLLECTION_API|no access/i.test(m)) {
+    return '⚠️ Malipo ya automatic hayapatikani kwa sasa (huduma bado haijawashwa kwenye akaunti ya malipo). Tafadhali tumia "Malipo Manual" au wasiliana na admin.';
+  }
+  if (/checksum/i.test(m)) return '⚠️ Hitilafu ya usalama wa malipo. Wasiliana na admin.';
+  if (/phone|msisdn|number/i.test(m)) return 'Namba ya simu si sahihi. Tumia mfumo 07XXXXXXXX au 2557XXXXXXXX.';
+  return m || 'Imeshindwa kutuma ombi la malipo. Jaribu tena.';
+}
+
 app.post('/api/clickpesa-pay', async (req, res) => {
   const user = getUserByToken(req);
   if (!user) return res.status(401).json({ error: 'Ingia kwanza kulipa' });
@@ -720,10 +751,42 @@ app.post('/api/clickpesa-pay', async (req, res) => {
 
     // Reference chini ya limit ya herufi 20
     const orderReference = 'CP' + Date.now().toString().slice(-8);
-    
-    let phoneFull = String(phone).replace(/^\+/, '');
-    if (!phoneFull.startsWith('255')) phoneFull = '255' + phoneFull.replace(/^0/, '');
 
+    let phoneFull = String(phone).replace(/\D/g, '');
+    if (!phoneFull.startsWith('255')) phoneFull = '255' + phoneFull.replace(/^0/, '');
+    if (phoneFull.length !== 12) {
+      return res.status(400).json({ error: 'Namba ya simu si sahihi. Mfano: 0786095758' });
+    }
+
+    const token = await getClickPesaToken();
+    const payload = { amount: String(total), currency: 'TZS', orderReference, phoneNumber: phoneFull };
+    const checksum = clickPesaChecksum(payload);
+    if (checksum) payload.checksum = checksum;
+
+    // 1) PREVIEW — angalia kama njia ya malipo inapatikana KABLA hujahifadhi order
+    const prevRes = await fetch('https://api.clickpesa.com/third-parties/payments/preview-ussd-push-request', {
+      method: 'POST',
+      headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const prev = await prevRes.json().catch(() => ({}));
+
+    if (!prevRes.ok || (prev && prev.message && !prev.activeMethods)) {
+      console.error('ClickPesa preview:', prev.message || prevRes.status);
+      const friendly = clickPesaFriendlyError(prev.message);
+      logSecurity('CLICKPESA_UNAVAILABLE', 'Preview imeshindwa: ' + (prev.message || prevRes.status), 'MEDIUM', getIP(req));
+      return res.status(/COLLECTION_API|no access/i.test(String(prev.message)) ? 503 : 400).json({ error: friendly });
+    }
+
+    if (Array.isArray(prev.activeMethods)) {
+      const available = prev.activeMethods.find(m => String(m.status).toUpperCase() === 'AVAILABLE');
+      if (!available) {
+        const why = (prev.activeMethods[0] && prev.activeMethods[0].message) || 'Njia hii ya malipo haipatikani kwa namba hii.';
+        return res.status(400).json({ error: why });
+      }
+    }
+
+    // 2) Hifadhi order kama pending
     const orders = readJson('orders.json', []);
     orders.push({
       tx_ref: orderReference,
@@ -737,26 +800,27 @@ app.post('/api/clickpesa-pay', async (req, res) => {
     });
     writeJson('orders.json', orders);
 
-    const token = await getClickPesaToken();
-    const payload = { amount: String(total), currency: 'TZS', orderReference, phoneNumber: phoneFull };
-    const checksum = clickPesaChecksum(payload);
-    if (checksum) payload.checksum = checksum;
-
+    // 3) Tuma ombi la PIN
     const cpRes = await fetch('https://api.clickpesa.com/third-parties/payments/initiate-ussd-push-request', {
       method: 'POST',
       headers: { 'Authorization': token, 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    const cpData = await cpRes.json();
+    const cpData = await cpRes.json().catch(() => ({}));
 
-    if (!cpData.status || cpData.status === 'FAILED') {
-      return res.status(400).json({ error: cpData.message || 'Imeshindwa kutuma ombi la malipo. Angalia namba ya simu.' });
+    if (!cpRes.ok || !cpData.status || String(cpData.status).toUpperCase() === 'FAILED') {
+      console.error('ClickPesa initiate:', cpData.message || cpRes.status);
+      // Ondoa order iliyoshindikana
+      const cur = readJson('orders.json', []);
+      writeJson('orders.json', cur.filter(o => o.tx_ref !== orderReference));
+      const friendly = clickPesaFriendlyError(cpData.message);
+      return res.status(/COLLECTION_API|no access/i.test(String(cpData.message)) ? 503 : 400).json({ error: friendly });
     }
 
     res.json({ success: true, tx_ref: orderReference, status: cpData.status });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error: ' + err.message });
+    console.error('ClickPesa error:', err.message);
+    res.status(500).json({ error: clickPesaFriendlyError(err.message) });
   }
 });
 
@@ -806,10 +870,10 @@ app.get('/api/clickpesa-check/:ref', async (req, res) => {
     const cpRes = await fetch('https://api.clickpesa.com/third-parties/payments/' + req.params.ref, {
       headers: { 'Authorization': token }
     });
-    const cpData = await cpRes.json();
+    const cpData = await cpRes.json().catch(() => ({}));
     const list = Array.isArray(cpData) ? cpData : [cpData];
-    const found = list.find(p => p.status === 'SUCCESS' || p.status === 'SETTLED');
-    const failed = list.find(p => p.status === 'FAILED');
+    const found = list.find(p => p && (p.status === 'SUCCESS' || p.status === 'SETTLED'));
+    const failed = list.find(p => p && p.status === 'FAILED');
 
     if (found) {
       if (!amountMatches(order, found.collectedAmount)) {
@@ -831,7 +895,20 @@ app.get('/api/clickpesa-check/:ref', async (req, res) => {
     res.json({ success: true, status: order.status });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: clickPesaFriendlyError(err.message) });
+  }
+});
+
+// Frontend inaweza kuuliza kama automatic inapatikana, ili ionyeshe Manual tu
+app.get('/api/clickpesa-status', async (req, res) => {
+  if (!process.env.CLICKPESA_CLIENT_ID || !process.env.CLICKPESA_API_KEY) {
+    return res.json({ success: true, available: false, reason: 'Haijawekwa' });
+  }
+  try {
+    await getClickPesaToken();
+    res.json({ success: true, available: true });
+  } catch (err) {
+    res.json({ success: true, available: false, reason: clickPesaFriendlyError(err.message) });
   }
 });
 
@@ -1027,7 +1104,7 @@ app.post('/api/ai/admin', async (req, res) => {
   res.json({ reply });
 });
 
-// Server inaanza
+// ════════════ Server inaanza ════════════
 restoreFromSupabase()
   .catch(err => console.error('☁️ Imeshindwa kurudisha data kutoka Supabase:', err.message))
   .finally(() => {
