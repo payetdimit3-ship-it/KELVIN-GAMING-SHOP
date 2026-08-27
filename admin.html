@@ -17,9 +17,40 @@
   </header>
 
   <section class="admin-page">
-    <h1>👑 Admin Panel</h1>
+    <div class="dash-welcome">
+      <div>
+        <h1 id="welcomeText">👋 Karibu Tena, Admin</h1>
+        <p class="dash-sub">Hii ndiyo hali ya biashara yako leo</p>
+      </div>
+      <div class="dash-date" id="dashDate"></div>
+    </div>
 
-    <div class="admin-stats" id="adminStats">
+    <div class="dash-grid">
+      <div class="dash-hero-card">
+        <div class="dash-hero-top">
+          <span>💳 Jumla ya Mapato</span>
+          <span class="dash-pill">Yote</span>
+        </div>
+        <div class="dash-hero-amount" id="heroRevenue">0 TZS</div>
+        <div class="dash-hero-bottom">
+          <span id="heroOrdersCount">0 mauzo</span>
+          <span id="heroCustomersCount">0 wateja</span>
+        </div>
+      </div>
+
+      <div class="dash-mini-col">
+        <div class="dash-mini-card">
+          <div class="dash-mini-icon">📦</div>
+          <div><div class="dash-mini-num" id="miniOrders">0</div><div class="dash-mini-label">Mauzo (Orders)</div></div>
+        </div>
+        <div class="dash-mini-card">
+          <div class="dash-mini-icon">🎮</div>
+          <div><div class="dash-mini-num" id="miniProducts">0</div><div class="dash-mini-label">Bidhaa</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-stats" id="adminStats" style="display:none;">
       <div class="stat-card"><h3>0</h3><p>Mauzo (Orders)</p></div>
       <div class="stat-card"><h3>0 TZS</h3><p>Jumla ya Mapato</p></div>
       <div class="stat-card"><h3>0</h3><p>Wateja</p></div>
@@ -47,6 +78,10 @@
         <a href="/api/admin/backup" id="backupLink" class="btn-secondary" style="display:inline-block; margin-top:14px; text-align:center;">💾 Pakua Backup ya Data Yote</a>
       </div>
 
+      <div class="dash-recent-header">
+        <h3>🧾 Historia ya Malipo</h3>
+        <span id="recentCustomersStrip" class="dash-avatar-strip"></span>
+      </div>
       <div id="ordersList" class="admin-list"><p style="color:#8f8faa;">Inapakia...</p></div>
     </div>
 
@@ -216,6 +251,7 @@
           return false;
         }
         currentRole = data.user.isAdmin ? 'admin' : 'staff';
+        document.getElementById('welcomeText').textContent = '👋 Karibu Tena, ' + (data.user.name || 'Admin');
         if (currentRole === 'staff') applyStaffRestrictions();
         return true;
       } catch (e) { return false; }
@@ -244,11 +280,17 @@
       const data = await res.json();
       if (!data.success) return;
       const s = data.stats;
-      const cards = document.querySelectorAll('#adminStats .stat-card h3');
-      cards[0].textContent = s.orders;
-      cards[1].textContent = s.total.toLocaleString() + ' TZS';
-      cards[2].textContent = s.customers;
-      cards[3].textContent = s.products;
+      document.getElementById('heroRevenue').textContent = s.total.toLocaleString() + ' TZS';
+      document.getElementById('heroOrdersCount').textContent = s.orders + ' mauzo';
+      document.getElementById('heroCustomersCount').textContent = s.customers + ' wateja';
+      document.getElementById('miniOrders').textContent = s.orders;
+      document.getElementById('miniProducts').textContent = s.products;
+    }
+
+    function setDashDate() {
+      const now = new Date();
+      const opts = { day: '2-digit', month: 'short', year: 'numeric' };
+      document.getElementById('dashDate').textContent = '📅 ' + now.toLocaleDateString('sw', opts);
     }
 
     async function loadAnalytics() {
@@ -283,11 +325,14 @@
       const data = await res.json();
       const box = document.getElementById('ordersList');
       if (!data.success || data.orders.length === 0) { box.innerHTML = '<p style="color:#8f8faa;">Hakuna mauzo bado.</p>'; return; }
+      const dotColor = { successful: '#00ff88', pending_manual: '#ffb020', pending_clickpesa: '#ffb020', failed: '#ff3d71', amount_mismatch: '#ff3d71' };
+      const statusLabel = { successful: 'Imekamilika', pending_manual: 'Inasubiri (Manual)', pending_clickpesa: 'Inasubiri', failed: 'Imeshindwa', amount_mismatch: 'Tatizo la Kiasi' };
       box.innerHTML = data.orders.map(o => `
         <div class="admin-row">
           <div>
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${dotColor[o.status] || '#8f8faa'}; margin-right:6px;"></span>
             <strong>${o.customer || 'Mteja'}</strong>
-            ${o.status === 'pending_manual' ? '<span style="color:#ffb020;"> ⏳ Inasubiri Uthibitisho (Manual)</span>' : ''}
+            <span style="color:${dotColor[o.status] || '#8f8faa'}; font-size:12px;"> ${statusLabel[o.status] || o.status}</span>
             <br>
             <small>${new Date(o.date).toLocaleString()}</small><br>
             <small>${(o.items || []).map(i => i.name + ' × ' + i.qty).join(', ') || '—'}</small>
@@ -340,6 +385,15 @@
           </div>
           ${!u.isAdmin ? `<button class="btn-vote" onclick="toggleStaff('${u.email}', ${!u.isStaff})">${u.isStaff ? '➖ Ondoa Staff' : '➕ Fanya Staff'}</button>` : ''}
         </div>`).join('');
+
+      // Avatar strip ya wateja wa hivi karibuni (kwenye tab ya Mauzo)
+      const strip = document.getElementById('recentCustomersStrip');
+      if (strip) {
+        const recent = data.users.slice().reverse().slice(0, 5);
+        const colors = ['#7b2ff7','#00c853','#ff3eb5','#00e5ff','#ffb020'];
+        strip.innerHTML = recent.map((u, i) => `
+          <span class="dash-avatar" style="background:${colors[i % colors.length]};" title="${u.name}">${(u.name || '?').charAt(0).toUpperCase()}</span>`).join('');
+      }
     }
 
     async function toggleStaff(email, makeStaff) {
@@ -731,6 +785,7 @@
     (async () => {
       const ok = await checkAdmin();
       if (!ok) return;
+      setDashDate();
       loadStats(); loadOrders(); loadCustomers(); loadProducts(); loadAdminRequests(); loadAnalytics();
       loadSecurityStats(); loadSecurityEvents();
     })();
