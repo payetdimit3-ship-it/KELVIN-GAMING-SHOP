@@ -1,8 +1,44 @@
 const express = require('express');
 const crypto = require('crypto');
-const app = express();
+const fs = require('fs');
+const path = require('path');
 
+const app = express();
 app.use(express.json());
+
+// ═══════════════════════════════════════════════════════════════
+// 📁 JSON FILE HELPER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════
+
+function readJson(fileName, fallback = []) {
+  try {
+    const filePath = path.join(__dirname, fileName);
+    if (!fs.existsSync(filePath)) return fallback;
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    console.error(`Error reading ${fileName}:`, err.message);
+    return fallback;
+  }
+}
+
+function writeJson(fileName, data) {
+  try {
+    const filePath = path.join(__dirname, fileName);
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error(`Error writing ${fileName}:`, err.message);
+  }
+}
+
+// Simple authentication token retriever (adjust based on your auth logic)
+function getUserByToken(req) {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '').trim();
+  if (!token) return null;
+  const users = readJson('users.json', []);
+  return users.find(u => u.token === token || u.email === token) || null;
+}
 
 // ═══════════════════════════════════════════════════════════════
 // 💳 AZAMPAY — CONFIGURATION
@@ -14,7 +50,6 @@ const AZAMPAY_APP_NAME = process.env.AZAMPAY_APP_NAME;
 const AZAMPAY_CLIENT_ID = process.env.AZAMPAY_CLIENT_ID;
 const AZAMPAY_CLIENT_SECRET = process.env.AZAMPAY_CLIENT_SECRET;
 
-// URLs za Sandbox / Production
 const AZAMPAY_AUTH_URL =
   AZAMPAY_ENV === 'production'
     ? 'https://authenticator.azampay.co.tz/AppRegistration/GenerateToken'
@@ -25,12 +60,11 @@ const AZAMPAY_CHECKOUT_URL =
     ? 'https://checkout.azampay.co.tz'
     : 'https://sandbox.azampay.co.tz';
 
-// Token cache
 let azamPayToken = null;
 let azamPayTokenExpiresAt = 0;
 
 // ═══════════════════════════════════════════════════════════════
-// AZAMPAY TOKEN GENERATOR (NATIVE FETCH)
+// AZAMPAY TOKEN GENERATOR
 // ═══════════════════════════════════════════════════════════════
 
 async function getAzamPayToken() {
@@ -67,7 +101,7 @@ async function getAzamPayToken() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// HELPER FUNCTIONS
+// HELPER FUNCTIONS FOR PAYMENTS
 // ═══════════════════════════════════════════════════════════════
 
 function normalizeTanzaniaPhone(phone) {
@@ -115,7 +149,7 @@ function validPaymentAmount(amount) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// AZAMPAY MNO CHECKOUT (NATIVE FETCH)
+// AZAMPAY MNO CHECKOUT
 // ═══════════════════════════════════════════════════════════════
 
 async function azamPayMnoCheckout({ accountNumber, amount, provider, externalId }) {
@@ -153,7 +187,7 @@ async function azamPayMnoCheckout({ accountNumber, amount, provider, externalId 
 }
 
 // ═══════════════════════════════════════════════════════════════
-// MAIN ENDPOINTS
+// 💳 MAIN API ENDPOINTS
 // ═══════════════════════════════════════════════════════════════
 
 app.post('/api/pay', async (req, res) => {
@@ -281,4 +315,14 @@ app.get('/api/verify', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 🚀 START SERVER (PORT CONFIGURATION FOR RENDER)
+// ═══════════════════════════════════════════════════════════════
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server ina-run kwenye port ${PORT}`);
 });
