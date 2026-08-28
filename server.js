@@ -698,49 +698,90 @@ app.get('/api/verify', async (req, res) => {
   }
 });
 
-// ═══════════ ⚡ MALIPO YA CLICKPESA (Automatic — M-Pesa/Tigo/Airtel/HaloPesa) ═══════════
-// USSD-PUSH ya moja kwa moja: mteja anabaki kwenye website yetu, anapata PIN prompt
-// papo hapo kwenye simu yake, hana haja ya kwenda ukurasa wa nje wa ClickPesa.
+// ═══════════ ⚡ MALIPO YA AZAMPAY (Automatic — M-Pesa/Tigo/Airtel/HaloPesa) ═══════════
+// MNO Checkout: mteja anabaki kwenye website yetu, anapata PIN prompt papo hapo
+// kwenye simu yake. Uthibitisho unakuja kupitia callback ya AzamPay.
 
-async function getClickPesaToken() {
-  const res = await fetch('https://api.clickpesa.com/third-parties/generate-token', {
+const AZAM_ENV = (process.env.AZAMPAY_ENV || 'sandbox').toLowerCase();
+const AZAM_AUTH_BASE = AZAM_ENV === 'production'
+  ? 'https://authenticator.azampay.co.tz'
+  : 'https://authenticator-sandbox.azampay.co.tz';
+const AZAM_API_BASE = AZAM_ENV === 'production'
+  ? 'https://checkout.azampay.co.tz'
+  : 'https://sandbox.azampay.co.tz';
+
+function azamConfigured() {
+  return !!(process.env.AZAMPAY_APP_NAME && process.env.AZAMPAY_CLIENT_ID && process.env.AZAMPAY_CLIENT_SECRET);
+}
+
+// Token ina-cache ili tusiombe token kila muamala
+let azamTokenCache = { token: null, expiresAt: 0 };
+
+async function getAzamPayToken() {
+  if (azamTokenCache.token && Date.now() < azamTokenCache.expiresAt - 60_000) {
+    return azamTokenCache.token;
+  }
+  const r = await fetch(AZAM_AUTH_BASE + '/AppRegistration/GenerateToken', {
     method: 'POST',
-    headers: {
-      'client-id': process.env.CLICKPESA_CLIENT_ID,
-      'api-key': process.env.CLICKPESA_API_KEY
-    }
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      appName: process.env.AZAMPAY_APP_NAME,
+      clientId: process.env.AZAMPAY_CLIENT_ID,
+      clientSecret: process.env.AZAMPAY_CLIENT_SECRET
+    })
   });
-  const data = await res.json();
-  if (!data.success || !data.token) throw new Error(data.message || 'ClickPesa: imeshindwa kupata token');
-  return data.token; // tayari ina "Bearer " mwanzoni
+  const raw = await r.text();
+  let data = {};
+  try { data = JSON.parse(raw); } catch (e) { /* si JSON */ }
+
+  const token = data?.data?.accessToken || data?.accessToken;
+  if (!r.ok || !token) {
+    throw new Error('AzamPay: imeshindwa kupata token — ' + (data?.message || raw.slice(0, 200)));
+  }
+  const expire = data?.data?.expire ? Date.parse(data.data.expire) : 0;
+  azamTokenCache = {
+    token: token.startsWith('Bearer ') ? token : 'Bearer ' + token,
+    expiresAt: expire && !isNaN(expire) ? expire : Date.now() + 50 * 60 * 1000
+  };
+  return azamTokenCache.token;
 }
 
-// Checksum (hiari — inahitajika tu kama umeiwasha kwenye ClickPesa application yako)
-function canonicalize(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (Array.isArray(obj)) return obj.map(canonicalize);
-  return Object.keys(obj).sort().reduce((acc, key) => { acc[key] = canonicalize(obj[key]); return acc; }, {});
-}
-function clickPesaChecksum(payload) {
-  if (!process.env.CLICKPESA_CHECKSUM_KEY) return null;
-  const canonical = canonicalize(payload);
-  const payloadString = JSON.stringify(canonical);
-  return crypto.createHmac('sha256', process.env.CLICKPESA_CHECKSUM_KEY).update(payloadString).digest('hex');
+// Kutambua mtandao kutoka namba ya simu (255XXXXXXXXX)
+function detectAzamProvider(phoneFull) {
+  const p = String(phoneFull).replace(/\D/g, '');
+  const prefix = p.slice(3, 5); // baada ya 255
+  if (['74', '75', '76'].includes(prefix)) return 'Mpesa';      // Vodacom
+  if (['71', '65', '67', '77'].includes(prefix)) return 'Tigo';  // Tigo / Yas
+  if (['78', '68', '69'].includes(prefix)) return 'Airtel';      // Airtel
+  if (['62', '61'].includes(prefix)) return 'Halopesa';          // Halotel
+  if (['73'].includes(prefix)) return 'Azampesa';                // TTCL
+  return null;
 }
 
-// Mteja anaanzisha malipo — USSD-Push inatumwa moja kwa moja kwenye simu yake
-app.post('/api/clickpesa-pay', async (req, res) => {
+const AZAM_PROVIDERS = ['Mpesa', 'Tigo', 'Airtel', 'Halopesa', 'Azampesa'];
+
+// Mteja anaanzisha malipo — PIN prompt inatumwa moja kwa moja kwenye simu yake
+app.post('/api/azampay-pay', async (req, res) => {
   const user = getUserByToken(req);
   if (!user) return res.status(401).json({ error: 'Ingia kwanza kulipa' });
 
+  if (!azamConfigured()) {
+    return res.status(503).json({ error: 'Malipo ya automatic hayapatikani kwa sasa — tafadhali tumia Malipo Manual hapa chini.' });
+  }
+
   try {
-    const { items, total, phone, name } = req.body;
+    const { items, total, phone, name, provider } = req.body;
     if (!items || !items.length || !total) return res.status(400).json({ error: 'Kikapu ni tupu' });
     if (!phone) return res.status(400).json({ error: 'Weka namba ya simu' });
 
-    const orderReference = 'CP' + Date.now() + crypto.randomBytes(3).toString('hex');
-    let phoneFull = String(phone).replace(/^\+/, '');
+    let phoneFull = String(phone).replace(/\D/g, '');
     if (!phoneFull.startsWith('255')) phoneFull = '255' + phoneFull.replace(/^0/, '');
+    if (phoneFull.length !== 12) return res.status(400).json({ error: 'Namba ya simu si sahihi. Mfano: 0786095758' });
+
+    const mno = AZAM_PROVIDERS.includes(provider) ? provider : detectAzamProvider(phoneFull);
+    if (!mno) return res.status(400).json({ error: 'Hatujaweza kutambua mtandao wa namba hii. Chagua mtandao mwenyewe.' });
+
+    const orderReference = 'AZ' + Date.now() + crypto.randomBytes(3).toString('hex');
 
     // Hifadhi order KWANZA — bei/kiasi HALISI kinachopaswa kulipwa, kwa ulinzi dhidi ya
     // mtu yeyote "kucheza" na kiasi kwenye upande wa mteja.
@@ -752,28 +793,55 @@ app.post('/api/clickpesa-pay', async (req, res) => {
       customerName: name || user.name,
       amount: Number(total),
       items,
-      status: 'pending_clickpesa',
+      provider: mno,
+      status: 'pending_azampay',
       date: new Date().toISOString()
     });
     writeJson('orders.json', orders);
 
-    const token = await getClickPesaToken();
-    const payload = { amount: String(total), currency: 'TZS', orderReference, phoneNumber: phoneFull };
-    const checksum = clickPesaChecksum(payload);
-    if (checksum) payload.checksum = checksum;
+    const token = await getAzamPayToken();
+    const payload = {
+      accountNumber: phoneFull,
+      amount: String(total),
+      currency: 'TZS',
+      externalId: orderReference,
+      provider: mno,
+      additionalProperties: { customerEmail: user.email }
+    };
 
-    const cpRes = await fetch('https://api.clickpesa.com/third-parties/payments/initiate-ussd-push-request', {
+    const apiRes = await fetch(AZAM_API_BASE + '/azampay/mno/checkout', {
       method: 'POST',
-      headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+        'X-API-Key': process.env.AZAMPAY_API_KEY || ''
+      },
       body: JSON.stringify(payload)
     });
-    const cpData = await cpRes.json();
+    const rawBody = await apiRes.text();
+    let apiData = {};
+    try { apiData = JSON.parse(rawBody); } catch (e) { /* si JSON */ }
 
-    if (!cpData.status || cpData.status === 'FAILED') {
-      return res.status(400).json({ error: cpData.message || 'Imeshindwa kutuma ombi la malipo. Angalia namba ya simu.' });
+    if (!apiRes.ok || apiData.success === false) {
+      // Order iliyoshindwa kuanza isibaki ikining'inia
+      const all = readJson('orders.json', []);
+      const idx = all.findIndex(o => o.tx_ref === orderReference);
+      if (idx > -1) { all[idx].status = 'failed_to_start'; writeJson('orders.json', all); }
+
+      const msg = apiData?.message
+        || (apiData?.errors && JSON.stringify(apiData.errors))
+        || rawBody.slice(0, 200)
+        || 'Imeshindwa kuanzisha malipo';
+      console.error('AzamPay checkout error:', apiRes.status, msg);
+      return res.status(400).json({ error: 'AzamPay: ' + msg + ' (Unaweza kutumia Malipo Manual hapa chini.)' });
     }
 
-    res.json({ success: true, tx_ref: orderReference, status: cpData.status });
+    res.json({
+      success: true,
+      tx_ref: orderReference,
+      provider: mno,
+      transactionId: apiData.transactionId || null
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error: ' + err.message });
@@ -789,10 +857,28 @@ function amountMatches(order, collectedAmount) {
   return collected >= (order.amount - 5);
 }
 
-app.post('/api/clickpesa-callback', async (req, res) => {
+// AzamPay inapiga hapa baada ya mteja kuingiza PIN.
+// Callback URL ya kuweka kwenye AzamPay dashboard:
+//   https://<domain-yako>/api/azampay-callback
+app.post('/api/azampay-callback', async (req, res) => {
   try {
-    const { orderReference, status, collectedAmount } = req.body;
-    if (orderReference && (status === 'SUCCESS' || status === 'SETTLED')) {
+    // Ulinzi: ni AzamPay tu wanaoruhusiwa kuthibitisha order
+    const expected = process.env.AZAMPAY_CALLBACK_TOKEN;
+    if (expected) {
+      const got = req.headers['authorization'] || req.headers['x-callback-token'] || '';
+      const clean = String(got).replace(/^Bearer\s+/i, '');
+      if (clean !== expected) {
+        logSecurity('AZAMPAY_CALLBACK_UNAUTHORIZED', 'Callback ya AzamPay yenye token isiyo sahihi', 'HIGH', getIP(req));
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+    }
+
+    const body = req.body || {};
+    const orderReference = body.utilityref || body.externalId || body.reference;
+    const status = String(body.transactionstatus || body.transactionStatus || body.status || '').toLowerCase();
+    const collectedAmount = body.amount ?? body.collectedAmount;
+
+    if (orderReference && (status === 'success' || status === 'settled' || status === 'completed')) {
       const orders = readJson('orders.json', []);
       const order = orders.find(o => o.tx_ref === orderReference);
       if (order && order.status !== 'successful') {
@@ -804,10 +890,19 @@ app.post('/api/clickpesa-callback', async (req, res) => {
         }
         order.status = 'successful';
         order.confirmedAt = new Date().toISOString();
+        order.azamTransactionId = body.transactionId || body.operatorreference || null;
         writeJson('orders.json', orders);
-        logSecurity('CLICKPESA_PAYMENT_CONFIRMED', 'Malipo ya ClickPesa yamethibitishwa: ' + orderReference, 'LOW', getIP(req));
+        logSecurity('AZAMPAY_PAYMENT_CONFIRMED', 'Malipo ya AzamPay yamethibitishwa: ' + orderReference, 'LOW', getIP(req));
+      }
+    } else if (orderReference && (status === 'failed' || status === 'cancelled')) {
+      const orders = readJson('orders.json', []);
+      const order = orders.find(o => o.tx_ref === orderReference);
+      if (order && order.status !== 'successful') {
+        order.status = 'failed';
+        writeJson('orders.json', orders);
       }
     }
+
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -815,43 +910,21 @@ app.post('/api/clickpesa-callback', async (req, res) => {
   }
 });
 
-app.get('/api/clickpesa-check/:ref', async (req, res) => {
+// Checkout page inapiga hapa kila sekunde chache kuangalia kama callback imefika
+app.get('/api/azampay-check/:ref', (req, res) => {
   const user = getUserByToken(req);
   if (!user) return res.status(401).json({ error: 'Ingia kwanza' });
   try {
     const orders = readJson('orders.json', []);
     const order = orders.find(o => o.tx_ref === req.params.ref && o.customer === user.email);
     if (!order) return res.status(404).json({ error: 'Order haipatikani' });
+
     if (order.status === 'successful') return res.json({ success: true, status: 'successful' });
     if (order.status === 'amount_mismatch') return res.json({ success: true, status: 'amount_mismatch' });
-
-    const token = await getClickPesaToken();
-    const cpRes = await fetch('https://api.clickpesa.com/third-parties/payments/' + req.params.ref, {
-      headers: { 'Authorization': token }
-    });
-    const cpData = await cpRes.json();
-    const list = Array.isArray(cpData) ? cpData : [cpData];
-    const found = list.find(p => p.status === 'SUCCESS' || p.status === 'SETTLED');
-    const failed = list.find(p => p.status === 'FAILED');
-
-    if (found) {
-      if (!amountMatches(order, found.collectedAmount)) {
-        logSecurity('AMOUNT_MISMATCH', 'Kiasi kilicholipwa (' + found.collectedAmount + ') hakilingani na bei halisi (' + order.amount + ') kwa order ' + req.params.ref, 'HIGH', getIP(req));
-        order.status = 'amount_mismatch';
-        writeJson('orders.json', orders);
-        return res.json({ success: true, status: 'amount_mismatch' });
-      }
-      order.status = 'successful';
-      order.confirmedAt = new Date().toISOString();
-      writeJson('orders.json', orders);
-      return res.json({ success: true, status: 'successful' });
-    }
-    if (failed) {
-      order.status = 'failed';
-      writeJson('orders.json', orders);
+    if (order.status === 'failed' || order.status === 'failed_to_start') {
       return res.json({ success: true, status: 'failed' });
     }
-    res.json({ success: true, status: order.status });
+    res.json({ success: true, status: 'pending' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -976,7 +1049,7 @@ app.post('/api/ai/chat', async (req, res) => {
     '- Dakika 50 = 500 TZS\n' +
     '- Masaa 2 = 1,000 TZS\n' +
     '(Muda mwingine wowote: mfumo unakokotoa bei kwa kanuni ya bei nafuu zaidi kwa dakika — mteja anaweka muda anaotaka kwenye ukurasa wa Rental.)\n\n' +
-    'Malipo: M-Pesa (Vodacom), Tigo Pesa, Airtel Money, HaloPesa kupitia ClickPesa (automatic), au malipo ya moja kwa moja (manual) kwa namba tuliyotoa kwenye checkout.\n' +
+    'Malipo: M-Pesa (Vodacom), Tigo Pesa, Airtel Money, HaloPesa kupitia AzamPay (automatic), au malipo ya moja kwa moja (manual) kwa namba tuliyotoa kwenye checkout.\n' +
     'Baada ya malipo, bidhaa/download link inapatikana kwenye "My Orders".\n' +
     transcript +
     '\nJibu kwa ufupi, kirafiki na kwa lugha rahisi. Mteja anasema sasa: "' + message + '"';
