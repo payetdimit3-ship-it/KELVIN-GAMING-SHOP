@@ -1,6 +1,6 @@
-// ============ GAMEHUB APP.JS (AZAMPAY INTEGRATION) ============
+// ============ GAMEHUB APP.JS (AZAMPAY + ADMIN STATE) ============
 
-// 1. KUSIMAMIA KIKAPU (CART MANAGEMENT)
+// 1. KUSIMAMIA CART (KIKAPU)
 function getCart() {
   return JSON.parse(localStorage.getItem('gamehubCart') || '[]');
 }
@@ -18,7 +18,30 @@ function updateCartBadge() {
   }
 }
 
-// 2. KUTAMBUA MTANDAO WENYE NAMBA YA SIMU AUTOMATIC
+// 2. KUSIMAMIA ADMIN & USER LOGIN STATE (LUDISHA SEHEMU YA ADMIN)
+function checkUserLoginState() {
+  const user = JSON.parse(localStorage.getItem('gamehubUser') || 'null');
+  const loginBtn = document.getElementById('topLoginBtn');
+
+  if (loginBtn) {
+    if (user) {
+      if (user.isAdmin || user.role === 'admin' || user.email === 'payetdimit3@gmail.com') {
+        loginBtn.textContent = '⚙️ Admin Panel (' + (user.name || 'Kelvin') + ')';
+        loginBtn.href = 'admin.html';
+        loginBtn.style.borderColor = '#ff3eb5';
+        loginBtn.style.color = '#ff3eb5';
+      } else {
+        loginBtn.textContent = '👤 ' + user.name;
+        loginBtn.href = 'mygames.html';
+      }
+    } else {
+      loginBtn.textContent = '👤 Login / Sign Up';
+      loginBtn.href = 'login.html';
+    }
+  }
+}
+
+// 3. KUTAMBUA MTANDAO WENYE NAMBA YA SIMU
 function detectNetwork(phone) {
   const cleanPhone = phone.replace(/[^0-9]/g, '');
   let prefix = '';
@@ -31,36 +54,30 @@ function detectNetwork(phone) {
     prefix = cleanPhone.substring(0, 2);
   }
 
-  // Tigo Pesa
-  if (['65', '67', '71', '68'].includes(prefix)) return 'Tigo';
-  // M-Pesa (Vodacom)
-  if (['74', '75', '76', '79'].includes(prefix)) return 'Vodacom';
-  // Airtel Money
-  if (['78', '69', '68'].includes(prefix)) return 'Airtel';
-  // HaloPesa
-  if (['62'].includes(prefix)) return 'Halotel';
+  if (['65', '67', '71', '68'].includes(prefix)) return 'tigo';
+  if (['74', '75', '76', '79'].includes(prefix)) return 'vodacom';
+  if (['78', '69'].includes(prefix)) return 'airtel';
+  if (['62'].includes(prefix)) return 'halotel';
 
-  return 'Airtel'; // Default fallback
+  return 'airtel';
 }
 
-// 3. PROCESSHOUOUT / MALIPO KUPITIA AZAMPAY
+// 4. AZAMPAY CHECKOUT FUNCTION
 async function processAzamPayCheckout(event) {
   if (event) event.preventDefault();
 
-  const nameInput = document.getElementById('checkoutName') || { value: 'Kelvin' };
-  const emailInput = document.getElementById('checkoutEmail') || { value: '' };
   const phoneInput = document.getElementById('checkoutPhone');
+  const nameInput = document.getElementById('checkoutName');
+  const emailInput = document.getElementById('checkoutEmail');
   const errorBox = document.getElementById('checkoutError') || document.querySelector('.error-msg');
   const payBtn = document.getElementById('payBtn') || document.querySelector('.buy-btn');
 
   if (!phoneInput || !phoneInput.value.trim()) {
-    showError("Tafadhali weka namba ya simu ya malipo.", errorBox);
+    showError("Tafadhali weka namba ya simu.", errorBox);
     return;
   }
 
   let phone = phoneInput.value.trim().replace(/\s+/g, '');
-  
-  // Hakikisha namba ipo kwenye muundo wa 255...
   if (phone.startsWith('0')) {
     phone = '255' + phone.substring(1);
   } else if (!phone.startsWith('255') && phone.length === 9) {
@@ -68,7 +85,6 @@ async function processAzamPayCheckout(event) {
   }
 
   const cart = getCart();
-  // Kama kikapu kipo wazi, angalia kama kuna product_id kwenye URL au dataset
   let amount = 0;
   let items = [];
 
@@ -76,15 +92,12 @@ async function processAzamPayCheckout(event) {
     amount = cart.reduce((sum, item) => sum + (Number(item.price) * (item.quantity || 1)), 0);
     items = cart;
   } else {
-    // Mfano wa ununuzi wa bidhaa moja kwa moja (Single Product Page / Rental)
-    const singlePrice = window.currentProductPrice || 1000; 
-    amount = singlePrice;
+    amount = window.currentProductPrice || 1000; 
     items = [{ name: window.currentProductName || 'GameHub Purchase', price: amount }];
   }
 
-  const networkProvider = detectNetwork(phone);
+  const provider = detectNetwork(phone);
 
-  // Badilisha muonekano wa kitufe wakati inaload
   if (payBtn) {
     payBtn.disabled = true;
     payBtn.textContent = '⏳ Inatuma ombi la PIN...';
@@ -94,16 +107,14 @@ async function processAzamPayCheckout(event) {
   try {
     const response = await fetch('/api/azampay/pay', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         amount: amount,
         phone: phone,
-        provider: networkProvider,
+        provider: provider,
         items: items,
-        name: nameInput.value,
-        email: emailInput.value
+        name: nameInput ? nameInput.value : 'Kelvin',
+        email: emailInput ? emailInput.value : 'payetdimit3@gmail.com'
       })
     });
 
@@ -115,11 +126,11 @@ async function processAzamPayCheckout(event) {
       updateCartBadge();
       window.location.href = 'myorders.html';
     } else {
-      showError(data.error || "Hitilafu ya mtandao. Jaribu tena.", errorBox);
+      showError(data.error || "Hitilafu imetokea kwenye server.", errorBox);
     }
   } catch (err) {
-    console.error("AzamPay Payment Error:", err);
-    showError("Hitilafu ya mtandao. Jaribu tena.", errorBox);
+    console.error("Payment Error:", err);
+    showError("Hitilafu ya mtandao. Hakikisha backend server ina /api/azampay/pay route.", errorBox);
   } finally {
     if (payBtn) {
       payBtn.disabled = false;
@@ -137,11 +148,11 @@ function showError(msg, element) {
   }
 }
 
-// 4. LISTENERS NA INITIALIZATION
+// 5. INITIALIZE ON PAGE LOAD
 document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
+  checkUserLoginState();
 
-  // Unganisha fomu ya checkout kama ipo kwenye ukurasa
   const checkoutForm = document.getElementById('checkoutForm');
   if (checkoutForm) {
     checkoutForm.addEventListener('submit', processAzamPayCheckout);
