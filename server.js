@@ -86,7 +86,6 @@ function recordFail(key) {
 }
 
 // ═══════════ 🛡️ HACKERAI — SECURITY MODULE (Mlinzi wa Website) ═══════════
-
 const securityFile = 'security.json';
 
 function logSecurity(type, details, severity, ip) {
@@ -622,10 +621,10 @@ app.get('/api/security/report', (req, res) => {
 });
 
 // ═══════════ 💳 MALIPO YA AZAMPAY (USSD PUSH TANZANIA) ═══════════
-const AZAMPAY_ENV = String(process.env.AZAMPAY_ENV || 'sandbox').toLowerCase();
-const AZAMPAY_APP_NAME = process.env.AZAMPAY_APP_NAME;
-const AZAMPAY_CLIENT_ID = process.env.AZAMPAY_CLIENT_ID;
-const AZAMPAY_CLIENT_SECRET = process.env.AZAMPAY_CLIENT_SECRET;
+const AZAMPAY_ENV = String(process.env.AZAMPAY_ENV || 'sandbox').toLowerCase().trim();
+const AZAMPAY_APP_NAME = process.env.AZAMPAY_APP_NAME ? process.env.AZAMPAY_APP_NAME.trim() : '';
+const AZAMPAY_CLIENT_ID = process.env.AZAMPAY_CLIENT_ID ? process.env.AZAMPAY_CLIENT_ID.trim() : '';
+const AZAMPAY_CLIENT_SECRET = process.env.AZAMPAY_CLIENT_SECRET ? process.env.AZAMPAY_CLIENT_SECRET.trim() : '';
 
 const AZAMPAY_AUTH_URL = AZAMPAY_ENV === 'production'
   ? 'https://authenticator.azampay.co.tz/AppRegistration/GenerateToken'
@@ -633,7 +632,7 @@ const AZAMPAY_AUTH_URL = AZAMPAY_ENV === 'production'
 
 const AZAMPAY_CHECKOUT_URL = AZAMPAY_ENV === 'production'
   ? 'https://checkout.azampay.co.tz'
-  : 'https://sandbox.azampay.co.tz';
+  : 'https://checkout-sandbox.azampay.co.tz';
 
 let azamPayToken = null;
 let azamPayTokenExpiresAt = 0;
@@ -642,22 +641,31 @@ async function getAzamPayToken() {
   if (azamPayToken && Date.now() < azamPayTokenExpiresAt) return azamPayToken;
 
   if (!AZAMPAY_APP_NAME || !AZAMPAY_CLIENT_ID || !AZAMPAY_CLIENT_SECRET) {
-    throw new Error('AzamPay credentials hazijawekwa kwenye environment variables.');
+    throw new Error('AzamPay credentials hazijawekwa au haziko kamili kwenye Render environment variables.');
   }
+
+  const payload = {
+    appName: AZAMPAY_APP_NAME,
+    clientId: AZAMPAY_CLIENT_ID,
+    clientSecret: AZAMPAY_CLIENT_SECRET
+  };
+
+  console.log('--- KUOMBA TOKEN YA AZAMPAY ---');
+  console.log('URL:', AZAMPAY_AUTH_URL);
+  console.log('AppName:', AZAMPAY_APP_NAME);
+  console.log('ClientID:', AZAMPAY_CLIENT_ID);
 
   const response = await fetch(AZAMPAY_AUTH_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      appName: AZAMPAY_APP_NAME,
-      clientId: AZAMPAY_CLIENT_ID,
-      clientSecret: AZAMPAY_CLIENT_SECRET
-    })
+    body: JSON.stringify(payload)
   });
 
   const data = await response.json();
+  console.log('Jibu kutoka AzamPay Authenticator:', data);
+
   if (!response.ok || !data.success || !data.data?.accessToken) {
-    throw new Error(data.message || 'Imeshindikana kupata AzamPay Token.');
+    throw new Error(data.message || 'Server error: Invalid client details');
   }
 
   azamPayToken = data.data.accessToken;
@@ -679,7 +687,7 @@ function normalizeTanzaniaPhone(phone) {
 
 function normalizeAzamProvider(network, phone) {
   const value = String(network || '').toLowerCase().trim();
-  if (value.includes('mpesa') || value.includes('m-pesa') || value.includes('voda')) return 'Mpesa';
+  if (value.includes('mpesa') || value.includes('m-pesa') || value.includes('voda')) return 'Vodacom';
   if (value.includes('tigo') || value.includes('mixx')) return 'Tigo';
   if (value.includes('airtel')) return 'Airtel';
   if (value.includes('halo') || value.includes('halopesa')) return 'Halopesa';
@@ -688,11 +696,12 @@ function normalizeAzamProvider(network, phone) {
   const p = normalizeTanzaniaPhone(phone);
   if (p) {
     const prefix = p.substring(3, 6);
-    if (['740', '741', '742', '743', '744', '745', '746', '747', '748', '749'].includes(prefix)) return 'Mpesa';
-    if (['680', '681', '682', '683', '684', '685', '686', '687', '688', '689'].includes(prefix)) return 'Airtel';
-    if (['650', '651', '652', '653', '654', '655', '656', '657', '658', '659'].includes(prefix)) return 'Tigo';
+    if (['740', '741', '742', '743', '744', '745', '746', '747', '748', '749', '750', '751', '752', '753', '754', '755', '756', '757', '758', '759', '760', '761', '762', '763', '764', '765', '766', '767', '768', '769'].includes(prefix)) return 'Vodacom';
+    if (['680', '681', '682', '683', '684', '685', '686', '687', '688', '689', '780', '781', '782', '783', '784', '785', '786', '787', '788', '789'].includes(prefix)) return 'Airtel';
+    if (['650', '651', '652', '653', '654', '655', '656', '657', '658', '659', '710', '711', '712', '713', '714', '715', '716', '717', '718', '719', '670', '671', '672', '673', '674', '675', '676', '677', '678', '679'].includes(prefix)) return 'Tigo';
+    if (['620', '621', '622', '623', '624', '625', '626', '627', '628', '629'].includes(prefix)) return 'Halopesa';
   }
-  return null;
+  return 'Airtel';
 }
 
 // AzamPay MNO Checkout Post
@@ -708,7 +717,6 @@ app.post('/api/azampay/pay', async (req, res) => {
     if (!phoneFull) return res.status(400).json({ error: 'Namba ya simu si sahihi.' });
 
     const provider = normalizeAzamProvider(network, phoneFull);
-    if (!provider) return res.status(400).json({ error: 'Mtandao wa simu haujulikani.' });
 
     const tx_ref = 'AZAM-' + Date.now() + '-' + crypto.randomBytes(3).toString('hex').toUpperCase();
 
@@ -738,6 +746,10 @@ app.post('/api/azampay/pay', async (req, res) => {
       additionalProperties: {}
     };
 
+    console.log('--- INITIATING AZAMPAY CHECKOUT ---');
+    console.log('Checkout URL:', AZAMPAY_CHECKOUT_URL + '/azampay/mno/checkout');
+    console.log('Payload:', payload);
+
     const azamRes = await fetch(AZAMPAY_CHECKOUT_URL + '/azampay/mno/checkout', {
       method: 'POST',
       headers: {
@@ -748,6 +760,8 @@ app.post('/api/azampay/pay', async (req, res) => {
     });
 
     const azamData = await azamRes.json();
+    console.log('Jibu la Checkout kutoka AzamPay:', azamData);
+
     if (!azamRes.ok || azamData.success !== true) {
       logSecurity('AZAMPAY_FAILED', 'AzamPay checkout error: ' + (azamData.message || ''), 'MEDIUM', getIP(req));
       return res.status(400).json({ error: azamData.message || 'Imeshindwa kuanzisha malipo ya AzamPay.' });
@@ -761,8 +775,8 @@ app.post('/api/azampay/pay', async (req, res) => {
       message: 'Ombi la malipo limetumwa kwenye simu yako. Weka PIN kuthibitisha.'
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message || 'Server Error' });
+    console.error('Error kwenye /api/azampay/pay:', err);
+    res.status(500).json({ error: err.message || 'Server Error: Invalid client details' });
   }
 });
 
@@ -1101,7 +1115,7 @@ async function askGemini(prompt) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return 'GEMINI_API_KEY haijawekwa kwenye .env. Weka kwanza.';
   try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' + key, {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + key, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1153,7 +1167,7 @@ app.post('/api/ai/chat', async (req, res) => {
     'Malipo: AzamPay, ClickPesa (M-Pesa, Tigo Pesa, Airtel Money, HaloPesa, Azampesa), au malipo ya moja kwa moja (manual) kwa namba tuliyotoa kwenye checkout.\n' +
     'Baada ya malipo, bidhaa/download link inapatikana kwenye "My Orders".\n' +
     transcript +
-    '\nJibu kwa ufupi, kirafiki na kwa lugha rapisi. Mteja anasema sasa: "' + message + '"';
+    '\nJibu kwa ufupi, kirafiki na kwa lugha rahisi. Mteja anasema sasa: "' + message + '"';
 
   const reply = await askGemini(prompt);
   res.json({ reply });
