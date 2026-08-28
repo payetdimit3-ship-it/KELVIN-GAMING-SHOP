@@ -25,7 +25,7 @@ if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
 const TRACKED_FILES = [
   'users.json', 'sessions.json', 'products.json', 
   'orders.json', 'requests.json', 'security.json', 
-  'marketplace.json', 'coupons.json', 'reviews.json'
+  'marketplace.json', 'coupons.json', 'reviews.json', 'matches.json'
 ];
 
 // 📁 HIFADHI YA DATA (.data folder)
@@ -173,6 +173,7 @@ app.post('/api/auth/register', (req, res) => {
   users[cleanEmail] = {
     name: name.trim(), email: cleanEmail, phone: phone || '',
     password: hashPassword(password), isAdmin: cleanEmail === adminEmail, isStaff: false,
+    balance: 0, adminEarnings: 0,
     created: new Date().toISOString()
   };
   writeJson(usersFile, users);
@@ -219,7 +220,7 @@ app.post('/api/auth/login', (req, res) => {
 app.get('/api/auth/me', (req, res) => {
   const user = getUserByToken(req);
   if (!user) return res.status(401).json({ error: 'Huna token au token si sahihi' });
-  res.json({ success: true, user: { name: user.name, email: user.email, isAdmin: user.isAdmin, isStaff: !!user.isStaff } });
+  res.json({ success: true, user: { name: user.name, email: user.email, balance: user.balance || 0, adminEarnings: user.adminEarnings || 0, isAdmin: user.isAdmin, isStaff: !!user.isStaff } });
 });
 
 // Admin: Weka au Ondoa Staff
@@ -255,6 +256,84 @@ app.get('/api/auth/promote', (req, res) => {
   users[cleanEmail].isAdmin = true;
   writeJson(usersFile, users);
   res.json({ success: true, message: '✅ ' + cleanEmail + ' sasa ni Admin. Toka (logout) na uingie tena ili ibadilike.' });
+});
+
+// 🏆 FUNCTION YA KUKAMILISHA MECHI NA KUTOA 10% CUT
+async function completeMatchAndPayout(matchId, winnerUserId) {
+  const matches = readJson('matches.json', []);
+  const match = matches.find(m => m.id === matchId);
+
+  if (!match || match.status === 'completed') return { success: false, error: 'Mechi haipatikani au imeshakamilika' };
+
+  const totalPool = (match.entryFee || 0) * 2; // Mfano: 5,000 x 2 = 10,000 TZS
+  const platformFee = totalPool * 0.10; // 10% Komisheni yako (1,000 TZS)
+  const winnerPrize = totalPool - platformFee; // Mshindi anachukua (9,000 TZS)
+
+  // 1. Mfanye Mchezaji Awe Mshindi na Usasishe Mechi
+  match.status = 'completed';
+  match.winnerId = winnerUserId;
+  match.platformCommission = platformFee;
+  match.winnerPayout = winnerPrize;
+
+  // 2. Ongeza Pesa Kwenye Wallet ya Mshindi
+  const users = readJson(usersFile, {});
+  let winnerKey = Object.keys(users).find(k => k === winnerUserId || users[k].email === winnerUserId);
+  if (winnerKey) {
+    users[winnerKey].balance = (users[winnerKey].balance || 0) + winnerPrize;
+  }
+
+  // 3. Weka 10% Kwenye Wallet ya Admin
+  let adminKey = Object.keys(users).find(k => users[k].isAdmin === true);
+  if (adminKey) {
+    users[adminKey].adminEarnings = (users[adminKey].adminEarnings || 0) + platformFee;
+  }
+
+  // Hifadhi data mpya
+  writeJson('matches.json', matches);
+  writeJson(usersFile, users);
+
+  return { success: true, winnerPrize, platformFee };
+}
+
+// Endpoints za Mechi / Tournaments
+app.get('/api/matches', (req, res) => {
+  const matches = readJson('matches.json', []);
+  res.json({ success: true, matches });
+});
+
+app.post('/api/matches', (req, res) => {
+  const user = getUserByToken(req);
+  if (!user || (!user.isAdmin && !user.isStaff)) return res.status(403).json({ error: 'Huna ruhusa' });
+  const { title, entryFee, player1Id, player2Id } = req.body;
+  if (!title || entryFee === undefined) return res.status(400).json({ error: 'Jaza kichwa cha habari na kiingilio' });
+
+  const matches = readJson('matches.json', []);
+  const match = {
+    id: 'm_' + Date.now(),
+    title: title.trim(),
+    entryFee: Number(entryFee),
+    player1Id: player1Id || '',
+    player2Id: player2Id || '',
+    status: 'pending',
+    winnerId: null,
+    platformCommission: 0,
+    winnerPayout: 0,
+    date: new Date().toISOString()
+  };
+  matches.push(match);
+  writeJson('matches.json', matches);
+  res.json({ success: true, match });
+});
+
+app.post('/api/matches/:id/complete', async (req, res) => {
+  const user = getUserByToken(req);
+  if (!user || (!user.isAdmin && !user.isStaff)) return res.status(403).json({ error: 'Huna ruhusa' });
+  const { winnerUserId } = req.body;
+  if (!winnerUserId) return res.status(400).json({ error: 'Weka ID au Email ya mshindi' });
+
+  const result = await completeMatchAndPayout(req.params.id, winnerUserId);
+  if (!result.success) return res.status(400).json({ error: result.error || 'Imeshindikana kukamilisha mechi' });
+  res.json({ success: true, message: '✅ Mechi imekamilishwa na zawadi zimetolewa!', ...result });
 });
 
 // 🎮 BIDHAA (PRODUCTS)
@@ -354,6 +433,7 @@ app.get('/api/admin/backup', (req, res) => {
     products: readJson('products.json', {}),
     orders: readJson('orders.json', []),
     requests: readJson('requests.json', []),
+    matches: readJson('matches.json', []),
     security: readJson(securityFile, { events: [], blocked: {} })
   };
   res.setHeader('Content-Disposition', 'attachment; filename="gamehub-backup-' + Date.now() + '.json"');
