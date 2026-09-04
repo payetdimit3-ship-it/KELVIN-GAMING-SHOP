@@ -1,18 +1,94 @@
 <!doctype html>
 <html lang="sw">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sign in — MchezoHub</title><link rel="stylesheet" href="mchezo.css"></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in — MchezoHub</title>
+  <link rel="stylesheet" href="mchezo.css">
+  <!-- Ongeza Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
 <body>
-  <main class="mh-auth"><section class="mh-auth-card">
-    <a class="mh-brand" href="index.html"><b class="mh-mark">MH</b><span>Mchezo<span>Hub</span></span></a>
-    <div class="mh-kicker" style="margin-top:28px">PLAYER ACCESS</div><h1>Sign in</h1><p class="mh-muted">Ingia kwa Google au email ili kufungua account yako.</p>
-    <form class="mh-form" data-login>
-      <label>Email<input required type="email" autocomplete="email" placeholder="you@example.com"></label>
-      <label>Password<input required type="password" autocomplete="current-password" placeholder="••••••••"></label>
-      <div class="mh-alert" role="status"></div><button class="mh-btn" type="submit">Sign in</button>
-      <button class="mh-btn secondary" type="button" onclick="alert('Google OAuth itaunganishwa ukiweka Supabase credentials kwenye server.')">Continue with Google</button>
-    </form>
-    <p class="mh-form-note">Huna account? <a class="mh-cyan" href="signup.html">Fungua account mpya</a><br><a href="../index.html">← Rudi Kelvin Gaming Shop</a></p>
-  </section></main>
+  <main class="mh-auth">
+    <section class="mh-auth-card">
+      <a class="mh-brand" href="index.html"><b class="mh-mark">MH</b><span>Mchezo<span>Hub</span></span></a>
+      <div class="mh-kicker" style="margin-top:28px">PLAYER ACCESS</div>
+      <h1>Sign in</h1>
+      <p class="mh-muted">Ingia kwa Google au email ili kufungua account yako.</p>
+      
+      <form class="mh-form" id="loginForm">
+        <label>Email
+          <input required id="emailInput" type="email" autocomplete="email" placeholder="you@example.com">
+        </label>
+        <label>Password
+          <input required id="passwordInput" type="password" autocomplete="current-password" placeholder="••••••••">
+        </label>
+        
+        <div class="mh-alert" id="authAlert" role="status" style="display:none;"></div>
+        
+        <button class="mh-btn" type="submit" id="submitBtn">Sign in</button>
+        <button class="mh-btn secondary" type="button" id="googleBtn">Continue with Google</button>
+      </form>
+      
+      <p class="mh-form-note">
+        Huna account? <a class="mh-cyan" href="signup.html">Fungua account mpya</a><br>
+        <a href="../index.html">← Rudi Kelvin Gaming Shop</a>
+      </p>
+    </section>
+  </main>
+
   <script src="mchezo.js"></script>
+  <script>
+    // Initialise Supabase Client
+    const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const alertBox = document.getElementById('authAlert');
+
+    // 1. Google Login Handler
+    document.getElementById('googleBtn').addEventListener('click', async () => {
+      const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/index.html`
+        }
+      });
+      if (error) {
+        alertBox.style.display = 'block';
+        alertBox.innerText = 'Google Login Error: ' + error.message;
+      }
+    });
+
+    // 2. Email & Password Login Handler
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('emailInput').value;
+      const password = document.getElementById('passwordInput').value;
+      const submitBtn = document.getElementById('submitBtn');
+
+      submitBtn.innerText = 'Inaingia...';
+      submitBtn.disabled = true;
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        alertBox.style.display = 'block';
+        alertBox.innerText = 'Shida kwenye Login: ' + error.message;
+        submitBtn.innerText = 'Sign in';
+        submitBtn.disabled = false;
+      } else {
+        alertBox.style.display = 'block';
+        alertBox.style.color = '#00ffcc';
+        alertBox.innerText = 'Imefanikiwa! Inakupeleka...';
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1200);
+      }
+    });
+  </script>
 </body>
 </html>
