@@ -13,11 +13,18 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// ☁️ SUPABASE — HIFADHI YA KUDUMU (Backup Automatic)
+// ☁️ SUPABASE — HIFADHI YA KUDUMU (Backup Automatic - Imeboreshwa)
 let supabase = null;
-if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
-  supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-  console.log('☁️ Supabase imeunganishwa — data itahifadhiwa kudumu.');
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (supabaseUrl && supabaseKey) {
+  try {
+    supabase = createClient(supabaseUrl, supabaseKey);
+    console.log('☁️ Supabase imeunganishwa — data itahifadhiwa kudumu.');
+  } catch (err) {
+    console.error('⚠️ Imeshindwa kuanzisha Supabase client:', err.message);
+  }
 } else {
   console.log('⚠️ Supabase HAIJAWEKWA — data itapotea kila deploy mpya kwenye Render free tier!');
 }
@@ -265,30 +272,26 @@ async function completeMatchAndPayout(matchId, winnerUserId) {
 
   if (!match || match.status === 'completed') return { success: false, error: 'Mechi haipatikani au imeshakamilika' };
 
-  const totalPool = (match.entryFee || 0) * 2; // Mfano: 5,000 x 2 = 10,000 TZS
-  const platformFee = totalPool * 0.10; // 10% Komisheni yako (1,000 TZS)
-  const winnerPrize = totalPool - platformFee; // Mshindi anachukua (9,000 TZS)
+  const totalPool = (match.entryFee || 0) * 2;
+  const platformFee = totalPool * 0.10;
+  const winnerPrize = totalPool - platformFee;
 
-  // 1. Mfanye Mchezaji Awe Mshindi na Usasishe Mechi
   match.status = 'completed';
   match.winnerId = winnerUserId;
   match.platformCommission = platformFee;
   match.winnerPayout = winnerPrize;
 
-  // 2. Ongeza Pesa Kwenye Wallet ya Mshindi
   const users = readJson(usersFile, {});
   let winnerKey = Object.keys(users).find(k => k === winnerUserId || users[k].email === winnerUserId);
   if (winnerKey) {
     users[winnerKey].balance = (users[winnerKey].balance || 0) + winnerPrize;
   }
 
-  // 3. Weka 10% Kwenye Wallet ya Admin
   let adminKey = Object.keys(users).find(k => users[k].isAdmin === true);
   if (adminKey) {
     users[adminKey].adminEarnings = (users[adminKey].adminEarnings || 0) + platformFee;
   }
 
-  // Hifadhi data mpya
   writeJson('matches.json', matches);
   writeJson(usersFile, users);
 
@@ -1052,12 +1055,12 @@ app.get('/api/my-orders', (req, res) => {
   res.json({ success: true, orders: mine });
 });
 
-// 🤖 GEMINI AI INTEGRATION
+// 🤖 GEMINI AI INTEGRATION (Imeboreshwa kutumia gemini-2.5-flash)
 async function askGemini(prompt) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return 'GEMINI_API_KEY haijawekwa kwenye .env. Weka kwanza.';
   try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' + key, {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + key, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
