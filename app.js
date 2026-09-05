@@ -18,7 +18,7 @@ function updateCartBadge() {
   }
 }
 
-// 2. KUSIMAMIA ADMIN & USER LOGIN STATE (LUDISHA SEHEMU YA ADMIN)
+// 2. KUSIMAMIA ADMIN & USER LOGIN STATE
 function checkUserLoginState() {
   const user = JSON.parse(localStorage.getItem('gamehubUser') || 'null');
   const loginBtn = document.getElementById('topLoginBtn');
@@ -41,7 +41,7 @@ function checkUserLoginState() {
   }
 }
 
-// 3. KUTAMBUA MTANDAO WENYE NAMBA YA SIMU
+// 3. KUTAMBUA MTANDAO WENYE NAMBA YA SIMU (Inaendana na AzamPay Backend)
 function detectNetwork(phone) {
   const cleanPhone = phone.replace(/[^0-9]/g, '');
   let prefix = '';
@@ -54,12 +54,13 @@ function detectNetwork(phone) {
     prefix = cleanPhone.substring(0, 2);
   }
 
-  if (['65', '67', '71', '68'].includes(prefix)) return 'tigo';
-  if (['74', '75', '76', '79'].includes(prefix)) return 'vodacom';
-  if (['78', '69'].includes(prefix)) return 'airtel';
-  if (['62'].includes(prefix)) return 'halotel';
+  if (['74', '75', '76', '79'].includes(prefix)) return 'Mpesa';
+  if (['65', '67', '71'].includes(prefix)) return 'Tigo';
+  if (['78', '68', '69'].includes(prefix)) return 'Airtel';
+  if (['62', '61'].includes(prefix)) return 'Halopesa';
+  if (['73'].includes(prefix)) return 'Azampesa';
 
-  return 'airtel';
+  return 'Airtel';
 }
 
 // 4. AZAMPAY CHECKOUT FUNCTION
@@ -105,11 +106,12 @@ async function processAzamPayCheckout(event) {
   if (errorBox) errorBox.style.display = 'none';
 
   try {
-    const response = await fetch('/api/azampay/pay', {
+    // KUREKEBISHA: Njia imebadilishwa kutoka /api/azampay/pay kwenda /api/azampay-pay
+    const response = await fetch('/api/azampay-pay', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        amount: amount,
+        total: amount,
         phone: phone,
         provider: provider,
         items: items,
@@ -130,7 +132,7 @@ async function processAzamPayCheckout(event) {
     }
   } catch (err) {
     console.error("Payment Error:", err);
-    showError("Hitilafu ya mtandao. Hakikisha backend server ina /api/azampay/pay route.", errorBox);
+    showError("Hitilafu ya mtandao. Hakikisha backend server ina /api/azampay-pay route.", errorBox);
   } finally {
     if (payBtn) {
       payBtn.disabled = false;
