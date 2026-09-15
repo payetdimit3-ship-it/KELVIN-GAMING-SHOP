@@ -123,10 +123,13 @@
   }
   function hideMsg(){ msgBox.className = 'msg-box'; }
 
-  // ---------- Ikiwa tayari amelogin, mpeleke moja kwa moja ----------
+  // ---------- Ikiwa tayari amelogin, mpeleke moja kwa moja (na ueleze kwa nini) ----------
   (async ()=>{
     const { data: { session } } = await supabase.auth.getSession();
-    if(session) await routeUserAfterAuth(session.user.id);
+    if(session){
+      showMsg('Tayari umeshaingia. Tunakuelekeza...', 'success');
+      await routeUserAfterAuth(session.user.id);
+    }
   })();
 
   async function routeUserAfterAuth(userId){
