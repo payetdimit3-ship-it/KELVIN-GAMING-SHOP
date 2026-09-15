@@ -391,7 +391,7 @@
       </div>
     </div>
     <a href="cart.html" class="icon-btn" style="text-decoration:none;">🛒</a>
-    <a href="login.html" class="btn btn-ghost">Ingia</a>
+    <a href="login.html" class="btn btn-ghost" id="authBtn">Ingia</a>
     <button class="nav-toggle">☰</button>
   </div>
 </div>
@@ -714,6 +714,39 @@
     }
   }
   loadDarCupLive();
+
+  // ---------- Auth State: onyesha jina/Toka badala ya "Ingia" ukiwa umeingia ----------
+  async function refreshAuthUI(){
+    const authBtn = document.getElementById('authBtn');
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if(session){
+      const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', session.user.id).maybeSingle();
+      const name = profile ? profile.full_name.split(' ')[0] : 'Akaunti';
+      authBtn.textContent = '👤 ' + name + ' · Toka';
+      authBtn.href = '#';
+      authBtn.onclick = async (e)=>{
+        e.preventDefault();
+        if(confirm('Una uhakika unataka kutoka?')){
+          await supabase.auth.signOut();
+          window.location.reload();
+        }
+      };
+      // Kama ni Owner/Admin/Staff, "Akaunti" bottom-nav iendelee kuelekeza Admin
+      if(profile && ['owner','admin','staff'].includes(profile.role)){
+        const bnAccount = document.querySelector('.bn-item[href="login.html"]');
+        if(bnAccount) bnAccount.href = 'admin-dashboard.html';
+      }
+    } else {
+      authBtn.textContent = 'Ingia';
+      authBtn.href = 'login.html';
+      authBtn.onclick = null;
+    }
+  }
+
+  // Sasisha UI kila mara auth state inabadilika (login/logout kwenye tab yoyote)
+  supabase.auth.onAuthStateChange(()=> refreshAuthUI());
+  refreshAuthUI();
   // ---------- Add to cart micro-interaction ----------
   document.querySelectorAll('.add-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
