@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affiliate Program — LifeIsGameTZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C11; --bg-alt: #0F1219; --panel: #151922; --panel-2: #1B202B; --border: #262C3A;
+    --text: #EEF2F7; --muted: #8890A3;
+    --cyan: #1BE7E3; --cyan-soft: rgba(27,231,227,0.12); --cyan-glow: rgba(27,231,227,0.55);
+    --magenta: #FF3E9C; --magenta-soft: rgba(255,62,156,0.12); --magenta-glow: rgba(255,62,156,0.55);
+    --amber: #F5B942;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--bg); color:var(--text); font-family:'Rajdhani', sans-serif; font-size:16px; overflow-x:hidden; }
+  h1,h2,h3,.logo,.stat-num{ font-family:'Orbitron', sans-serif; }
+  a{ text-decoration:none; color:inherit; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:0 1.4rem; }
+
+  .grid-bg{ position:fixed; inset:0; z-index:-2;
+    background-image:linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
+    background-size:42px 42px; -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%); mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%); }
+  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.3; }
+  .glow-1{ width:480px; height:480px; background:var(--cyan); top:-180px; left:-160px; }
+  .glow-2{ width:420px; height:420px; background:var(--magenta); top:60px; right:-180px; }
+
+  .navbar{ position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1.6rem; padding:1rem 1.4rem;
+    background:rgba(10,12,17,0.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+  .logo .mark{ width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg, var(--cyan), var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  .nav-links{ display:flex; gap:1.6rem; margin-left:1rem; }
+  .nav-links a{ font-weight:600; font-size:.95rem; color:var(--muted); }
+  .nav-links a.active, .nav-links a:hover{ color:var(--cyan); }
+  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
+  .btn{ font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.9rem; padding:.65rem 1.3rem; border-radius:8px; cursor:pointer; border:1px solid transparent; display:inline-flex; align-items:center; gap:.4rem; }
+  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
+  .btn-cyan{ background:var(--cyan); color:#05181A; box-shadow:0 0 20px var(--cyan-glow); }
+  .btn-full{ width:100%; justify-content:center; }
+
+  .af-hero{ padding:3rem 0 1.6rem; text-align:center; }
+  .eyebrow{ color:var(--cyan); font-weight:600; letter-spacing:1.5px; font-size:.82rem; }
+  .af-hero h1{ font-size:clamp(2rem, 5vw, 3rem); font-weight:900; margin:.8rem 0 .6rem; }
+  .af-hero h1 .accent{ color:var(--magenta); }
+  .af-hero p{ color:var(--muted); font-size:1rem; max-width:600px; margin:0 auto 1.4rem; }
+
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.4rem; margin-bottom:1.2rem; }
+  .panel h3{ font-size:1.05rem; font-weight:700; margin-bottom:1rem; }
+
+  /* ---------- How it works ---------- */
+  .steps-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.1rem; margin-bottom:2rem; }
+  .step-card{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.2rem; text-align:center; }
+  .step-num{ width:34px; height:34px; border-radius:50%; background:var(--cyan-soft); color:var(--cyan); display:flex; align-items:center; justify-content:center; font-weight:800; margin:0 auto .7rem; font-family:'Orbitron', sans-serif; }
+  .step-card h4{ font-size:.88rem; margin-bottom:.4rem; }
+  .step-card p{ font-size:.76rem; color:var(--muted); }
+
+  /* ---------- Dashboard demo ---------- */
+  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.2rem; }
+  .stat-card{ background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:1.1rem; }
+  .stat-card .ic{ font-size:1.2rem; margin-bottom:.5rem; }
+  .stat-num-sm{ font-size:1.5rem; font-weight:800; }
+  .stat-lbl-sm{ font-size:.76rem; color:var(--muted); margin-top:.2rem; }
+
+  .link-box{ display:flex; gap:.6rem; align-items:center; background:var(--bg-alt); border:1px solid var(--border); border-radius:10px; padding:.8rem 1rem; margin-bottom:1rem; }
+  .link-box input{ flex:1; background:none; border:none; color:var(--cyan); font-family:monospace; font-size:.85rem; outline:none; }
+  .copy-btn{ background:var(--cyan); color:#05181A; border:none; border-radius:6px; padding:.4rem .8rem; font-size:.78rem; font-weight:700; cursor:pointer; }
+
+  table{ width:100%; border-collapse:collapse; font-size:.87rem; }
+  th{ text-align:left; color:var(--muted); font-weight:600; padding:.5rem .4rem; font-size:.72rem; border-bottom:1px solid var(--border); text-transform:uppercase; }
+  td{ padding:.6rem .4rem; border-bottom:1px solid var(--border); }
+  tr:last-child td{ border-bottom:none; }
+  .pill{ font-size:.7rem; padding:.18rem .6rem; border-radius:20px; font-weight:600; }
+  .pill.paid{ background:var(--cyan-soft); color:var(--cyan); }
+  .pill.pending{ background:rgba(245,185,66,0.15); color:var(--amber); }
+
+  .signup-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:1.6rem; }
+  .form-row{ margin-bottom:.9rem; }
+  .form-row label{ display:block; font-size:.8rem; color:var(--muted); margin-bottom:.35rem; }
+  .form-row input{ width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px; padding:.65rem .8rem; color:var(--text); font-family:inherit; font-size:.9rem; outline:none; }
+  .form-row input:focus{ border-color:var(--cyan); }
+
+  footer{ border-top:1px solid var(--border); padding:2rem 0; background:var(--bg-alt); text-align:center; color:var(--muted); font-size:.82rem; margin-top:2rem; }
+
+  @media (max-width: 900px){ .steps-row{ grid-template-columns:repeat(2,1fr); } .stat-grid{ grid-template-columns:repeat(2,1fr); } .signup-grid{ grid-template-columns:1fr; } }
+  @media (max-width: 720px){ .nav-links{ display:none; } }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-blob glow-1"></div>
+<div class="glow-blob glow-2"></div>
+
+<div class="navbar">
+  <a href="home.html" class="logo"><div class="mark">🤝</div>LifeIsGameTZ</a>
+  <div class="nav-links">
+    <a href="youth-marketplace.html">Youth Marketplace</a>
+    <a href="creator-program.html">Creator Program</a>
+    <a href="affiliate-program.html" class="active">Affiliate</a>
+    <a href="community-fund.html">Community Fund</a>
+  </div>
+  <div class="nav-actions">
+    <a href="login.html" class="btn btn-ghost">Ingia</a>
+  </div>
+</div>
+
+<section class="af-hero">
+  <div class="wrap">
+    <div class="eyebrow">AFFILIATE PROGRAM</div>
+    <h1>Shiriki Link. <span class="accent">Pata Commission.</span></h1>
+    <p>Shiriki link yako ya rufaa kwa marafiki — mtu akinunua kupitia link yako, unapata commission moja kwa moja kwenye Wallet.</p>
+  </div>
+</section>
+
+<div class="wrap" style="padding-bottom:3rem;">
+  <div class="steps-row">
+    <div class="step-card"><div class="step-num">1</div><h4>Jisajili</h4><p>Pata referral link yako binafsi bure.</p></div>
+    <div class="step-card"><div class="step-num">2</div><h4>Shiriki</h4><p>Tuma link kwa marafiki kwenye WhatsApp/Instagram/TikTok.</p></div>
+    <div class="step-card"><div class="step-num">3</div><h4>Mtu Ananunua</h4><p>Rafiki yako akinunua bidhaa au kujiunga tournament kupitia link yako.</p></div>
+    <div class="step-card"><div class="step-num">4</div><h4>Pata Commission</h4><p>Unapata 5-10% moja kwa moja kwenye Wallet yako.</p></div>
+  </div>
+
+  <div class="panel">
+    <h3>🔗 Link Yako ya Affiliate</h3>
+    <div class="link-box">
+      <input type="text" value="https://lifeisgametz.co.tz/?ref=KELVIN2026" readonly id="refLink">
+      <button class="copy-btn" onclick="copyLink()">Copy</button>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="ic">👆</div><div class="stat-num-sm" id="affClicks">1,842</div><div class="stat-lbl-sm">Clicks</div></div>
+      <div class="stat-card"><div class="ic">✅</div><div class="stat-num-sm" id="affConversions">96</div><div class="stat-lbl-sm">Conversions</div></div>
+      <div class="stat-card"><div class="ic">📊</div><div class="stat-num-sm" id="affRate">5.2%</div><div class="stat-lbl-sm">Conversion Rate</div></div>
+      <div class="stat-card"><div class="ic">💰</div><div class="stat-num-sm" id="affCommission">TZS 184,000</div><div class="stat-lbl-sm">Commission Jumla</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Miamala ya Hivi Karibuni</h3>
+    <table>
+      <tr><th>Tarehe</th><th>Mnunuzi</th><th>Bidhaa/Huduma</th><th>Commission</th><th>Hali</th></tr>
+      <tr><td>09 Sep 2026</td><td>Juma A.</td><td>FC 26 — Standard Edition</td><td>TZS 4,500</td><td><span class="pill paid">Imelipwa</span></td></tr>
+      <tr><td>07 Sep 2026</td><td>Neema G.</td><td>Tournament Entry (Dar Cup)</td><td>TZS 200</td><td><span class="pill paid">Imelipwa</span></td></tr>
+      <tr><td>05 Sep 2026</td><td>Fatma S.</td><td>Academy — React Course</td><td>TZS 2,500</td><td><span class="pill pending">Inasubiri</span></td></tr>
+    </table>
+  </div>
+
+  <div class="signup-grid">
+    <div class="panel">
+      <h3>Bado Huna Link? Jisajili Sasa</h3>
+      <div class="form-row"><label>Jina Kamili</label><input type="text" placeholder="Kelvin Fred Pela"></div>
+      <div class="form-row"><label>Namba ya Simu (kwa Wallet)</label><input type="text" placeholder="+255 7XX XXX XXX"></div>
+      <button class="btn btn-cyan btn-full" id="getAffiliateLinkBtn">Pata Link Yangu ya Affiliate</button>
+    </div>
+    <div class="panel">
+      <h3>Commission Rates</h3>
+      <div style="font-size:.85rem; color:var(--muted); line-height:1.9;">
+        <p>🛒 Store products — <b style="color:var(--cyan);">10%</b></p>
+        <p>🏆 Tournament entries — <b style="color:var(--cyan);">10%</b></p>
+        <p>🎓 Academy courses — <b style="color:var(--cyan);">8%</b></p>
+        <p>🌱 Agro-Marketplace — <b style="color:var(--cyan);">8-12%</b></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 LifeIsGameTZ. Affiliate Program — Shiriki, Pata Commission.</footer>
+
+<script>
+  function copyLink(){
+    const input = document.getElementById('refLink');
+    input.select();
+    document.execCommand('copy');
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✓ Copied';
+    setTimeout(()=> btn.textContent = 'Copy', 1500);
+  }
+</script>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  function genCode(name){
+    const base = (name || 'USER').toUpperCase().replace(/[^A-Z]/g,'').slice(0,10) || 'USER';
+    return base + Math.floor(1000 + Math.random()*8999);
+  }
+
+  async function loadMyAffiliate(){
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session) return; // baki na mfano wa static kama hajaingia
+
+    const { data: aff } = await supabase.from('affiliates').select('*').eq('user_id', session.user.id).maybeSingle();
+    if(aff){
+      document.getElementById('refLink').value = `https://lifeisgametz.co.tz/?ref=${aff.referral_code}`;
+      document.getElementById('affClicks').textContent = aff.clicks.toLocaleString('en-US');
+      document.getElementById('affConversions').textContent = aff.conversions.toLocaleString('en-US');
+      const rate = aff.clicks > 0 ? ((aff.conversions/aff.clicks)*100).toFixed(1) : '0.0';
+      document.getElementById('affRate').textContent = rate + '%';
+      document.getElementById('affCommission').textContent = 'TZS ' + Number(aff.commission_earned).toLocaleString('en-US');
+      document.getElementById('getAffiliateLinkBtn').textContent = '✓ Una Link Tayari';
+      document.getElementById('getAffiliateLinkBtn').disabled = true;
+    }
+  }
+
+  document.getElementById('getAffiliateLinkBtn').addEventListener('click', async ()=>{
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){
+      alert('Tafadhali Ingia/Jisajili kwanza ili upate link yako ya affiliate.');
+      window.location.href = 'login.html';
+      return;
+    }
+
+    const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', session.user.id).maybeSingle();
+    const code = genCode(profile ? profile.full_name : session.user.email);
+
+    const { error } = await supabase.from('affiliates').upsert({
+      user_id: session.user.id,
+      referral_code: code
+    });
+
+    if(error){ alert('Imeshindwa: ' + error.message); return; }
+    alert('Hongera! Link yako ya affiliate imetengenezwa.');
+    loadMyAffiliate();
+  });
+
+  loadMyAffiliate();
+</script>
+</body>
+</html>

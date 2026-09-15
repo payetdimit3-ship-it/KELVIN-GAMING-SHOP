@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Store — LifeIsGameTZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C11;
+    --bg-alt: #0F1219;
+    --panel: #151922;
+    --panel-2: #1B202B;
+    --border: #262C3A;
+    --text: #EEF2F7;
+    --muted: #8890A3;
+    --cyan: #1BE7E3;
+    --cyan-soft: rgba(27,231,227,0.12);
+    --cyan-glow: rgba(27,231,227,0.55);
+    --magenta: #FF3E9C;
+    --magenta-soft: rgba(255,62,156,0.12);
+    --magenta-glow: rgba(255,62,156,0.55);
+    --amber: #F5B942;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Rajdhani', sans-serif; font-size:16px; overflow-x:hidden;
+  }
+  h1,h2,h3,.logo,.price-new{ font-family:'Orbitron', sans-serif; }
+  a{ text-decoration:none; color:inherit; }
+  .wrap{ max-width:1280px; margin:0 auto; padding:0 1.4rem; }
+
+  .grid-bg{
+    position:fixed; inset:0; z-index:-2;
+    background-image:
+      linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
+    background-size:42px 42px;
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
+  }
+  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.3; }
+  .glow-1{ width:480px; height:480px; background:var(--cyan); top:-180px; left:-160px; }
+  .glow-2{ width:420px; height:420px; background:var(--magenta); top:60px; right:-180px; }
+
+  /* ---------- Navbar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1.6rem;
+    padding:1rem 1.4rem; background:rgba(10,12,17,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+  .logo .mark{
+    width:34px; height:34px; border-radius:8px;
+    background:linear-gradient(135deg, var(--cyan), var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+  }
+  .nav-links{ display:flex; gap:1.6rem; margin-left:1rem; }
+  .nav-links a{ font-weight:600; font-size:.95rem; color:var(--muted); }
+  .nav-links a.active, .nav-links a:hover{ color:var(--cyan); }
+  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:8px; border:1px solid var(--border);
+    background:var(--panel); color:var(--muted); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:1rem; position:relative;
+  }
+  .icon-btn .cart-count{
+    position:absolute; top:-6px; right:-6px; background:var(--magenta); color:#fff;
+    font-size:.62rem; font-weight:700; border-radius:20px; padding:.05rem .35rem;
+  }
+  .btn{
+    font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.9rem;
+    padding:.6rem 1.2rem; border-radius:8px; cursor:pointer; border:1px solid transparent;
+  }
+  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
+
+  /* ---------- Page head ---------- */
+  .store-head{ padding:2.2rem 0 1rem; }
+  .breadcrumb{ font-size:.78rem; color:var(--muted); margin-bottom:.5rem; }
+  .breadcrumb .cyan{ color:var(--cyan); }
+  .store-head h1{ font-size:2rem; font-weight:800; }
+  .store-head p{ color:var(--muted); font-size:.92rem; margin-top:.3rem; }
+
+  /* ---------- Layout: filters + grid ---------- */
+  .store-body{ display:grid; grid-template-columns:250px 1fr; gap:1.6rem; padding:1.5rem 0 4rem; }
+
+  .filters{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px;
+    padding:1.3rem; align-self:start; position:sticky; top:5.5rem;
+  }
+  .filters h3{ font-size:.95rem; margin-bottom:.9rem; }
+  .filter-group{ margin-bottom:1.4rem; }
+  .filter-group h4{ font-size:.78rem; color:var(--muted); letter-spacing:.4px; margin-bottom:.6rem; text-transform:uppercase; }
+  .filter-option{ display:flex; align-items:center; gap:.5rem; font-size:.87rem; margin-bottom:.55rem; cursor:pointer; color:var(--text); }
+  .filter-option input{ accent-color:var(--cyan); }
+  .price-range{ display:flex; align-items:center; gap:.5rem; }
+  .price-range input{
+    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:6px;
+    padding:.4rem .5rem; color:var(--text); font-size:.82rem; font-family:inherit; outline:none;
+  }
+  .clear-filters{ font-size:.8rem; color:var(--magenta); cursor:pointer; text-align:center; margin-top:.5rem; }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; flex-wrap:wrap; gap:.8rem;
+  }
+  .result-count{ font-size:.85rem; color:var(--muted); }
+  .toolbar-right{ display:flex; align-items:center; gap:.7rem; }
+  .search-mini{
+    background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    padding:.5rem .8rem; display:flex; align-items:center; gap:.5rem; width:220px;
+  }
+  .search-mini input{ background:none; border:none; outline:none; color:var(--text); font-size:.85rem; width:100%; font-family:inherit; }
+  select.sort-select{
+    background:var(--panel); border:1px solid var(--border); border-radius:8px; color:var(--text);
+    padding:.55rem .8rem; font-size:.85rem; font-family:inherit; outline:none;
+  }
+
+  .cat-tabs{ display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.2rem; }
+  .cat-tab{
+    padding:.5rem 1rem; border-radius:20px; font-size:.85rem; cursor:pointer;
+    border:1px solid var(--border); color:var(--muted); background:var(--panel);
+  }
+  .cat-tab.active{ background:var(--cyan); color:#05181A; border-color:var(--cyan); font-weight:600; }
+
+  /* ---------- Product grid ---------- */
+  .product-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
+  .product-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px;
+    overflow:hidden; position:relative; transition:border-color .2s, transform .2s;
+  }
+  .product-card:hover{ border-color:var(--cyan); transform:translateY(-5px); }
+  .product-thumb{
+    height:150px; display:flex; align-items:center; justify-content:center;
+    font-size:2.8rem; background:linear-gradient(135deg, var(--panel-2), var(--bg-alt)); position:relative;
+  }
+  .badge{
+    position:absolute; top:.7rem; left:.7rem; color:#fff;
+    font-size:.66rem; font-weight:700; padding:.2rem .55rem; border-radius:5px; letter-spacing:.4px;
+  }
+  .badge.sale{ background:var(--magenta); }
+  .badge.best{ background:var(--cyan); color:#05181A; }
+  .wish-btn{
+    position:absolute; top:.7rem; right:.7rem; width:30px; height:30px; border-radius:50%;
+    background:rgba(0,0,0,.5); border:none; color:#fff; cursor:pointer; font-size:.9rem;
+  }
+  .product-info{ padding:1rem; }
+  .platform-tag{ font-size:.72rem; color:var(--muted); margin-bottom:.25rem; }
+  .title{ font-weight:600; font-size:.96rem; margin-bottom:.3rem; }
+  .rating{ color:var(--amber); font-size:.78rem; margin-bottom:.6rem; }
+  .rating span{ color:var(--muted); margin-left:.3rem; }
+  .price-row{ display:flex; justify-content:space-between; align-items:center; }
+  .price-block{ display:flex; align-items:baseline; gap:.45rem; }
+  .price-new{ color:var(--cyan); font-weight:700; font-size:1.05rem; }
+  .price-old{ color:var(--muted); font-size:.78rem; text-decoration:line-through; }
+  .add-btn{
+    width:34px; height:34px; border-radius:8px; border:1px solid var(--cyan);
+    background:var(--cyan-soft); color:var(--cyan); cursor:pointer; font-size:1rem;
+  }
+  .stock-tag{ font-size:.7rem; margin-top:.5rem; }
+  .stock-tag.in{ color:var(--cyan); }
+  .stock-tag.low{ color:var(--amber); }
+
+  /* ---------- Pagination ---------- */
+  .pagination{ display:flex; justify-content:center; gap:.5rem; margin-top:2.5rem; }
+  .page-btn{
+    width:38px; height:38px; border-radius:8px; border:1px solid var(--border);
+    background:var(--panel); color:var(--muted); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:.85rem;
+  }
+  .page-btn.active{ background:var(--cyan); color:#05181A; border-color:var(--cyan); font-weight:700; }
+
+  @media (max-width: 980px){
+    .store-body{ grid-template-columns:1fr; }
+    .filters{ position:static; }
+    .product-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width: 720px){
+    .nav-links{ display:none; }
+    .product-grid{ grid-template-columns:repeat(2,1fr); }
+    .search-mini{ display:none; }
+  }
+  @media (max-width: 480px){
+    .product-grid{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-blob glow-1"></div>
+<div class="glow-blob glow-2"></div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <a href="home.html" class="logo"><div class="mark">🎮</div>LifeIsGameTZ</a>
+  <div class="nav-links">
+    <a href="store.html" class="active">Store</a>
+    <a href="home.html#tournaments">Tournaments</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="community-marketplace.html">Marketplace</a>
+    <a href="agribusiness-hub.html">Vijana Uchumi</a>
+    <a href="community-health.html">Msaada wa Jamii</a>
+    <a href="creator-program.html">Creator Program</a>
+    <a href="affiliate-program.html">Affiliate</a>
+    <a href="community-fund.html">Community Fund</a>
+    <a href="home.html#reco">Kwa Ajili Yako</a>
+    <a href="academy.html">Academy</a>
+  </div>
+  <div class="nav-actions">
+    <button class="icon-btn">🔍</button>
+    <a href="cart.html" class="icon-btn" style="text-decoration:none;">🛒<span class="cart-count">3</span></a>
+    <a href="login.html" class="btn btn-ghost">Ingia</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="store-head">
+    <div class="breadcrumb"><a href="home.html">Home</a> / <span class="cyan">Store</span></div>
+    <h1>Store</h1>
+    <p>Games, gift cards, coins na accessories — bidhaa 500+ zinazopatikana sasa hivi</p>
+  </div>
+
+  <div class="cat-tabs">
+    <div class="cat-tab active">Zote</div>
+    <div class="cat-tab">PC Games</div>
+    <div class="cat-tab">PlayStation</div>
+    <div class="cat-tab">Xbox</div>
+    <div class="cat-tab">Gift Cards</div>
+    <div class="cat-tab">eFootball</div>
+    <div class="cat-tab">Accessories</div>
+  </div>
+
+  <div class="store-body">
+    <!-- FILTERS -->
+    <aside class="filters">
+      <h3>Filters</h3>
+      <div class="filter-group">
+        <h4>Platform</h4>
+        <label class="filter-option"><input type="checkbox" checked> PC</label>
+        <label class="filter-option"><input type="checkbox"> PlayStation</label>
+        <label class="filter-option"><input type="checkbox"> Xbox</label>
+        <label class="filter-option"><input type="checkbox"> Mobile</label>
+      </div>
+      <div class="filter-group">
+        <h4>Bei (TZS)</h4>
+        <div class="price-range">
+          <input type="number" placeholder="Min">
+          <span style="color:var(--muted);">–</span>
+          <input type="number" placeholder="Max">
+        </div>
+      </div>
+      <div class="filter-group">
+        <h4>Rating</h4>
+        <label class="filter-option"><input type="checkbox"> ★★★★★ na juu</label>
+        <label class="filter-option"><input type="checkbox"> ★★★★ na juu</label>
+      </div>
+      <div class="filter-group">
+        <h4>Upatikanaji</h4>
+        <label class="filter-option"><input type="checkbox" checked> Ipo Stock</label>
+        <label class="filter-option"><input type="checkbox"> Iko Sale</label>
+      </div>
+      <div class="clear-filters">Futa Filters Zote</div>
+    </aside>
+
+    <!-- PRODUCT LIST -->
+    <div>
+      <div class="toolbar">
+        <div class="result-count">Bidhaa 128 zimepatikana</div>
+        <div class="toolbar-right">
+          <div class="search-mini">🔍 <input type="text" placeholder="Tafuta bidhaa..."></div>
+          <select class="sort-select">
+            <option>Panga: Maarufu</option>
+            <option>Bei: Chini → Juu</option>
+            <option>Bei: Juu → Chini</option>
+            <option>Mpya Zaidi</option>
+            <option>Rating ya Juu</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="product-grid" id="productGrid">
+        <a class="product-card" href="product.html" style="display:block;">
+          <div class="product-thumb">🎮<span class="badge best">BESTSELLER</span><button class="wish-btn">♡</button></div>
+          <div class="product-info">
+            <div class="platform-tag">PC · PlayStation · Xbox</div>
+            <div class="title">FC 26 — Standard Edition</div>
+            <div class="rating">★★★★★ <span>(482)</span></div>
+            <div class="price-row">
+              <div class="price-block"><span class="price-new">TZS 45,000</span><span class="price-old">60,000</span></div>
+              <button class="add-btn">+</button>
+            </div>
+            <div class="stock-tag in">✔ Ipo Stock</div>
+          </div>
+        </a>
+
+        <a class="product-card" href="product.html" style="display:block;">
+          <div class="product-thumb">🔑<span class="badge sale">SALE</span><button class="wish-btn">♡</button></div>
+          <div class="product-info">
+            <div class="platform-tag">Steam</div>
+            <div class="title">Steam Account — 12 Games Bundle</div>
+            <div class="rating">★★★★☆ <span>(139)</span></div>
+            <div class="price-row">
+              <div class="price-block"><span class="price-new">TZS 80,000</span><span class="price-old">120,000</span></div>
+              <button class="add-btn">+</button>
+            </div>
+            <div class="stock-tag low">⚠ Zimebaki 4</div>
+          </div>
+        </a>
+
+        <a class="product-card" href="product.html" style="display:block;">
+          <div class="product-thumb">⚽<button class="wish-btn">♡</button></div>
+          <div class="product-info">
+            <div class="platform-tag">eFootball 2026</div>
+            <div class="title">eFootball Coins — 5,000</div>
+            <div class="rating">★★★★★ <span>(910)</span></div>
+            <div class="price-row">
+              <div class="price-block"><span class="price-new">TZS 12,000</span></div>
+              <button class="add-btn">+</button>
+            </div>
+            <div class="stock-tag in">✔ Instant Delivery</div>
+          </div>
+        </a>
+
+        <a class="product-card" href="product.html" style="display:block;">
+          <div class="product-thumb">🎧<span class="badge sale">SALE</span><button class="wish-btn">♡</button></div>
+          <div class="product-info">
+            <div class="platform-tag">Universal</div>
+            <div class="title">Gaming Headset RGB Pro</div>
+            <div class="rating">★★★★☆ <span>(76)</span></div>
+            <div class="price-row">
+              <div class="price-block"><span class="price-new">TZS 65,000</span><span class="price-old">85,000</span></div>
+              <button class="add-btn">+</button>
+            </div>
+            <div class="stock-tag in">✔ Ipo Stock</div>
+          </div>
+        </a>
+
+        <a class="product-card" href="product.html" style="display:block;">
+          <div class="product-thumb">🎁<button class="wish-btn">♡</button></div>
+          <div class="product-info">
+            <div class="platform-tag">PlayStation Network</div>
+            <div class="title">PSN Gift Card 20,000</div>
+            <div class="rating">★★★★★ <span>(203)</span></div>
+            <div class="price-row">
+              <div class="price-block"><span class="price-new">TZS 30,000</span></div>
+              <button class="add-btn">+</button>
+            </div>
+            <div class="stock-tag in">✔ Instant Delivery</div>
+          </div>
+        </a>
+
+        <a class="product-card" href="product.html" style="display:block;">
+          <div class="product-thumb">🏎️<span class="badge best">BESTSELLER</span><button class="wish-btn">♡</button></div>
+          <div class="product-info">
+            <div class="platform-tag">PC · PlayStation</div>
+            <div class="title">Need for Speed Unbound</div>
+            <div class="rating">★★★★☆ <span>(310)</span></div>
+            <div class="price-row">
+              <div class="price-block"><span class="price-new">TZS 52,000</span><span class="price-old">70,000</span></div>
+              <button class="add-btn">+</button>
+            </div>
+            <div class="stock-tag in">✔ Ipo Stock</div>
+          </div>
+        </a>
+
+        <a class="product-card" href="product.html" style="display:block;">
+          <div class="product-thumb">🔫<button class="wish-btn">♡</button></div>
+          <div class="product-info">
+            <div class="platform-tag">PC · Xbox</div>
+            <div class="title">Call of Duty: Modern Ops</div>
+            <div class="rating">★★★★★ <span>(560)</span></div>
+            <div class="price-row">
+              <div class="price-block"><span class="price-new">TZS 58,000</span></div>
+              <button class="add-btn">+</button>
+            </div>
+            <div class="stock-tag low">⚠ Zimebaki 9</div>
+          </div>
+        </a>
+
+        <a class="product-card" href="product.html" style="display:block;">
+          <div class="product-thumb">🕹️<button class="wish-btn">♡</button></div>
+          <div class="product-info">
+            <div class="platform-tag">Universal</div>
+            <div class="title">Wireless Pro Controller</div>
+            <div class="rating">★★★★☆ <span>(88)</span></div>
+            <div class="price-row">
+              <div class="price-block"><span class="price-new">TZS 42,000</span></div>
+              <button class="add-btn">+</button>
+            </div>
+            <div class="stock-tag in">✔ Ipo Stock</div>
+          </div>
+        </a>
+
+        <a class="product-card" href="product.html" style="display:block;">
+          <div class="product-thumb">🎮<span class="badge sale">SALE</span><button class="wish-btn">♡</button></div>
+          <div class="product-info">
+            <div class="platform-tag">Xbox</div>
+            <div class="title">Xbox Game Pass — 3 Months</div>
+            <div class="rating">★★★★★ <span>(415)</span></div>
+            <div class="price-row">
+              <div class="price-block"><span class="price-new">TZS 35,000</span><span class="price-old">50,000</span></div>
+              <button class="add-btn">+</button>
+            </div>
+            <div class="stock-tag in">✔ Instant Delivery</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="pagination">
+        <div class="page-btn">‹</div>
+        <div class="page-btn active">1</div>
+        <div class="page-btn">2</div>
+        <div class="page-btn">3</div>
+        <div class="page-btn">…</div>
+        <div class="page-btn">14</div>
+        <div class="page-btn">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // ---------- Supabase Client ----------
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const thumbEmoji = { 'pc-games':'🎮', 'playstation':'🎮', 'xbox':'🕹️', 'mobile':'📱', 'gift-cards':'🎁', 'efootball':'⚽', 'accessories':'🎧' };
+
+  function formatTZS(n){ return 'TZS ' + Number(n).toLocaleString('en-US'); }
+
+  function productCardHTML(p){
+    const img = (p.images && p.images.length) ? p.images[0] : '🎮';
+    const badgeHTML = p.badge === 'sale' ? '<span class="badge sale">SALE</span>'
+      : p.badge === 'bestseller' ? '<span class="badge best">BESTSELLER</span>'
+      : p.badge === 'new' ? '<span class="badge best">NEW</span>' : '';
+    const oldPrice = p.compare_at_price ? `<span class="price-old">${Number(p.compare_at_price).toLocaleString('en-US')}</span>` : '';
+    const stockTag = p.stock > 50
+      ? '<div class="stock-tag in">✔ Ipo Stock</div>'
+      : p.stock > 0 ? `<div class="stock-tag low">⚠ Zimebaki ${p.stock}</div>` : '<div class="stock-tag low">✘ Hazipo</div>';
+    return `
+      <a class="product-card" href="product.html?slug=${p.slug}" style="display:block;">
+        <div class="product-thumb">${img}${badgeHTML}<button class="wish-btn">♡</button></div>
+        <div class="product-info">
+          <div class="platform-tag">${(p.platforms || []).join(' · ')}</div>
+          <div class="title">${p.title}</div>
+          <div class="rating">${'★'.repeat(Math.round(p.rating_avg||0))}${'☆'.repeat(5-Math.round(p.rating_avg||0))} <span>(${p.rating_count||0})</span></div>
+          <div class="price-row">
+            <div class="price-block"><span class="price-new">${formatTZS(p.price)}</span>${oldPrice}</div>
+            <button class="add-btn">+</button>
+          </div>
+          ${stockTag}
+        </div>
+      </a>`;
+  }
+
+  async function loadProducts(){
+    const grid = document.getElementById('productGrid');
+    try{
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+      if(error) throw error;
+      if(data && data.length){
+        grid.innerHTML = data.map(productCardHTML).join('');
+        document.querySelector('.result-count').textContent = `Bidhaa ${data.length} zimepatikana`;
+        attachCardEvents();
+      }
+      // Ikiwa jedwali lipo tupu (bado hujaendesha supabase_seed_products.sql), tunabaki na mfano wa static uliopo tayari.
+    } catch(err){
+      console.warn('Imeshindwa kupata bidhaa kutoka Supabase, tunatumia mfano wa static:', err.message);
+    }
+  }
+
+  // ---------- Add to cart micro-interaction ----------
+  function attachCardEvents(){
+    document.querySelectorAll('.add-btn').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        btn.textContent = '✓';
+        btn.style.background = 'var(--cyan)';
+        btn.style.color = '#05181A';
+        setTimeout(()=>{ btn.textContent='+'; btn.style.background='var(--cyan-soft)'; btn.style.color='var(--cyan)'; }, 900);
+      });
+    });
+    document.querySelectorAll('.wish-btn').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        const filled = btn.textContent.trim() === '♥';
+        btn.textContent = filled ? '♡' : '♥';
+        btn.style.color = filled ? '#fff' : 'var(--magenta)';
+      });
+    });
+  }
+  attachCardEvents();
+  loadProducts();
+
+  // ---------- Category tabs ----------
+  document.querySelectorAll('.cat-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // ---------- Pagination ----------
+  document.querySelectorAll('.page-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(isNaN(parseInt(btn.textContent))) return;
+      document.querySelectorAll('.page-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+</script>
+</body>
+</html>

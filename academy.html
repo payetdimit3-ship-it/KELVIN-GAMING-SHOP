@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academy — LifeIsGameTZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C11;
+    --bg-alt: #0F1219;
+    --panel: #151922;
+    --panel-2: #1B202B;
+    --border: #262C3A;
+    --text: #EEF2F7;
+    --muted: #8890A3;
+    --cyan: #1BE7E3;
+    --cyan-soft: rgba(27,231,227,0.12);
+    --cyan-glow: rgba(27,231,227,0.55);
+    --magenta: #FF3E9C;
+    --magenta-soft: rgba(255,62,156,0.12);
+    --magenta-glow: rgba(255,62,156,0.55);
+    --amber: #F5B942;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Rajdhani', sans-serif; font-size:16px; overflow-x:hidden;
+  }
+  h1,h2,h3,.logo,.stat-num{ font-family:'Orbitron', sans-serif; }
+  a{ text-decoration:none; color:inherit; }
+  .wrap{ max-width:1200px; margin:0 auto; padding:0 1.4rem; }
+
+  .grid-bg{
+    position:fixed; inset:0; z-index:-2;
+    background-image:
+      linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
+    background-size:42px 42px;
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
+  }
+  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.3; }
+  .glow-1{ width:480px; height:480px; background:var(--cyan); top:-180px; left:-160px; }
+  .glow-2{ width:420px; height:420px; background:var(--magenta); top:60px; right:-180px; }
+
+  /* ---------- Navbar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1.6rem;
+    padding:1rem 1.4rem; background:rgba(10,12,17,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+  .logo .mark{
+    width:34px; height:34px; border-radius:8px;
+    background:linear-gradient(135deg, var(--cyan), var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+  }
+  .nav-links{ display:flex; gap:1.6rem; margin-left:1rem; }
+  .nav-links a{ font-weight:600; font-size:.95rem; color:var(--muted); }
+  .nav-links a.active, .nav-links a:hover{ color:var(--cyan); }
+  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:8px; border:1px solid var(--border);
+    background:var(--panel); color:var(--muted); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:1rem;
+  }
+  .btn{
+    font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.9rem;
+    padding:.65rem 1.3rem; border-radius:8px; cursor:pointer; border:1px solid transparent;
+    display:inline-flex; align-items:center; gap:.4rem;
+  }
+  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
+  .btn-cyan{ background:var(--cyan); color:#05181A; box-shadow:0 0 20px var(--cyan-glow); }
+  .btn-magenta-outline{ background:transparent; color:var(--magenta); border-color:var(--magenta); }
+  .btn-sm{ padding:.5rem 1rem; font-size:.82rem; }
+  .btn-full{ width:100%; justify-content:center; }
+
+  /* ---------- Hero ---------- */
+  .ac-hero{ padding:3.4rem 0 2rem; text-align:center; }
+  .eyebrow{ color:var(--cyan); font-weight:600; letter-spacing:1.5px; font-size:.82rem; }
+  .ac-hero h1{ font-size:clamp(2rem, 5vw, 3rem); font-weight:900; margin:.8rem 0 .8rem; }
+  .ac-hero h1 .accent{ color:var(--magenta); }
+  .ac-hero p{ color:var(--muted); font-size:1.05rem; max-width:600px; margin:0 auto 1.6rem; }
+  .ac-hero-actions{ display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+  .stats-strip{ display:flex; justify-content:center; gap:3rem; padding:1.6rem 0 2.4rem; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+  .stats-strip div{ text-align:center; }
+  .stat-num{ font-size:1.7rem; font-weight:800; color:var(--cyan); }
+  .stat-lbl{ font-size:.78rem; color:var(--muted); letter-spacing:.4px; }
+
+  /* ---------- Tabs ---------- */
+  .ac-tabs{ display:flex; justify-content:center; gap:.6rem; padding:2rem 0 1.6rem; flex-wrap:wrap; }
+  .ac-tab{
+    padding:.7rem 1.3rem; border-radius:30px; font-size:.9rem; font-weight:600; cursor:pointer;
+    border:1px solid var(--border); color:var(--muted); background:var(--panel);
+  }
+  .ac-tab.active{ background:var(--cyan); color:#05181A; border-color:var(--cyan); }
+
+  .view{ display:none; padding-bottom:4rem; }
+  .view.active{ display:block; }
+
+  .cat-chips{ display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1.6rem; }
+  .chip{
+    padding:.4rem .9rem; border-radius:20px; font-size:.82rem; cursor:pointer;
+    border:1px solid var(--border); color:var(--muted); background:var(--panel);
+  }
+  .chip.active{ background:var(--magenta); color:#fff; border-color:var(--magenta); }
+
+  /* ---------- Course grid ---------- */
+  .course-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
+  .course-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden;
+    transition:border-color .2s, transform .2s; cursor:pointer;
+  }
+  .course-card:hover{ border-color:var(--cyan); transform:translateY(-4px); }
+  .course-thumb{
+    height:120px; display:flex; align-items:center; justify-content:center; font-size:2.4rem;
+    background:linear-gradient(135deg, var(--panel-2), var(--bg-alt)); position:relative;
+  }
+  .course-badge{
+    position:absolute; top:.6rem; left:.6rem; font-size:.66rem; font-weight:700; padding:.2rem .55rem;
+    border-radius:5px; color:#fff;
+  }
+  .course-badge.free{ background:var(--cyan); color:#05181A; }
+  .course-badge.premium{ background:var(--magenta); }
+  .course-info{ padding:1rem; }
+  .course-level{ font-size:.72rem; color:var(--muted); margin-bottom:.3rem; }
+  .course-title{ font-weight:700; font-size:.98rem; margin-bottom:.5rem; min-height:44px; }
+  .course-meta{ display:flex; justify-content:space-between; align-items:center; font-size:.78rem; color:var(--muted); margin-bottom:.7rem; }
+  .course-progress-track{ height:5px; background:var(--panel-2); border-radius:20px; overflow:hidden; margin-bottom:.7rem; display:none; }
+  .course-progress-track.show{ display:block; }
+  .course-progress-fill{ height:100%; background:var(--cyan); }
+  .course-price{ font-size:.9rem; font-weight:700; color:var(--cyan); font-family:'Orbitron', sans-serif; }
+  .course-price.free-lbl{ color:var(--cyan); }
+
+  /* ---------- AI Mentor ---------- */
+  .mentor-wrap{ display:grid; grid-template-columns:1fr 1.4fr; gap:1.6rem; }
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.4rem; }
+  .panel h3{ font-size:1.05rem; font-weight:700; margin-bottom:1rem; }
+  .mentor-topics{ display:flex; flex-direction:column; gap:.6rem; }
+  .mentor-topic{
+    padding:.7rem .9rem; border-radius:10px; border:1px solid var(--border); background:var(--panel-2);
+    font-size:.85rem; cursor:pointer; display:flex; align-items:center; gap:.6rem;
+  }
+  .mentor-topic:hover{ border-color:var(--cyan); color:var(--cyan); }
+
+  .mentor-chat-box{ display:flex; flex-direction:column; height:460px; }
+  .mentor-head{ display:flex; align-items:center; gap:.7rem; padding-bottom:1rem; border-bottom:1px solid var(--border); margin-bottom:1rem; }
+  .mentor-avatar{
+    width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--cyan),var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+  }
+  .mentor-head strong{ font-size:.95rem; }
+  .mentor-head span{ display:block; font-size:.75rem; color:var(--cyan); }
+  .mentor-body{ flex:1; overflow-y:auto; padding-right:.4rem; }
+  .m-msg{ margin-bottom:.9rem; max-width:85%; padding:.6rem .85rem; border-radius:10px; line-height:1.5; font-size:.88rem; }
+  .m-msg.bot{ background:var(--panel-2); }
+  .m-msg.me{ background:var(--cyan-soft); color:var(--cyan); margin-left:auto; }
+  .mentor-input{ display:flex; gap:.6rem; margin-top:.9rem; }
+  .mentor-input input{
+    flex:1; background:var(--bg-alt); border:1px solid var(--border); border-radius:20px;
+    padding:.6rem 1rem; color:var(--text); font-size:.88rem; outline:none; font-family:inherit;
+  }
+  .mentor-send{ width:38px; height:38px; border-radius:50%; border:none; background:var(--cyan); color:#05181A; cursor:pointer; }
+
+  /* ---------- Course Player ---------- */
+  .player-wrap{ display:grid; grid-template-columns:280px 1fr; gap:1.4rem; }
+  .lesson-list{ display:flex; flex-direction:column; gap:.5rem; }
+  .lesson-item{
+    display:flex; align-items:center; gap:.7rem; padding:.7rem .8rem; border-radius:8px;
+    border:1px solid var(--border); background:var(--panel-2); font-size:.85rem; color:var(--muted);
+  }
+  .lesson-item.done{ color:var(--cyan); border-color:var(--cyan-soft); }
+  .lesson-item.current{ border-color:var(--cyan); color:var(--text); background:var(--cyan-soft); }
+  .lesson-check{ width:20px; height:20px; border-radius:50%; border:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.7rem; }
+  .lesson-item.done .lesson-check{ background:var(--cyan); border-color:var(--cyan); color:#05181A; }
+
+  .player-progress{ margin-bottom:1.2rem; }
+  .player-progress-track{ height:6px; background:var(--panel-2); border-radius:20px; overflow:hidden; margin-bottom:.4rem; }
+  .player-progress-fill{ height:100%; background:linear-gradient(90deg, var(--cyan), var(--magenta)); border-radius:20px; transition:width .3s; }
+  .player-progress-lbl{ font-size:.78rem; color:var(--muted); }
+
+  .lesson-content{ min-height:280px; }
+  .lesson-content h2{ font-size:1.3rem; margin-bottom:.8rem; }
+  .lesson-content p{ color:var(--muted); font-size:.92rem; line-height:1.7; margin-bottom:.9rem; }
+  .code-block{
+    background:var(--bg-alt); border:1px solid var(--border); border-radius:8px; padding:.9rem;
+    font-family:monospace; font-size:.82rem; color:var(--cyan); margin-bottom:1rem; overflow-x:auto;
+  }
+
+  .quiz-q{ margin-bottom:1.2rem; }
+  .quiz-q p{ font-weight:600; margin-bottom:.6rem; color:var(--text); }
+  .quiz-opt{
+    display:block; padding:.6rem .9rem; border:1px solid var(--border); border-radius:8px;
+    margin-bottom:.5rem; cursor:pointer; font-size:.88rem; background:var(--panel-2);
+  }
+  .quiz-opt.selected{ border-color:var(--cyan); background:var(--cyan-soft); color:var(--cyan); }
+  .quiz-opt.correct{ border-color:var(--cyan); background:var(--cyan-soft); color:var(--cyan); }
+  .quiz-opt.wrong{ border-color:var(--magenta); background:var(--magenta-soft); color:var(--magenta); }
+
+  /* ---------- Certificate ---------- */
+  .cert-box{ text-align:center; padding:1.5rem; }
+  .certificate{
+    border:2px solid var(--cyan); border-radius:14px; padding:2.4rem 1.6rem; background:var(--panel-2);
+    max-width:520px; margin:0 auto 1.4rem; position:relative; overflow:hidden;
+  }
+  .certificate::before{
+    content:''; position:absolute; inset:8px; border:1px solid var(--border); border-radius:8px; pointer-events:none;
+  }
+  .cert-mark{ font-size:2.2rem; margin-bottom:.6rem; }
+  .cert-title{ font-size:.72rem; letter-spacing:2px; color:var(--muted); margin-bottom:1.2rem; }
+  .cert-name{ font-size:1.6rem; font-weight:800; color:var(--cyan); margin-bottom:.6rem; font-family:'Orbitron', sans-serif; }
+  .cert-course{ font-size:1rem; color:var(--text); margin-bottom:1.4rem; }
+  .cert-date{ font-size:.78rem; color:var(--muted); }
+
+  footer{ border-top:1px solid var(--border); padding:2rem 0; background:var(--bg-alt); text-align:center; color:var(--muted); font-size:.82rem; margin-top:2rem; }
+
+  @media (max-width: 980px){
+    .course-grid{ grid-template-columns:repeat(2,1fr); }
+    .mentor-wrap{ grid-template-columns:1fr; }
+    .player-wrap{ grid-template-columns:1fr; }
+  }
+  @media (max-width: 720px){
+    .nav-links{ display:none; }
+    .course-grid{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-blob glow-1"></div>
+<div class="glow-blob glow-2"></div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <a href="home.html" class="logo"><div class="mark">🎮</div>LifeIsGameTZ</a>
+  <div class="nav-links">
+    <a href="store.html">Store</a>
+    <a href="home.html#tournaments">Tournaments</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="community-marketplace.html">Marketplace</a>
+    <a href="agribusiness-hub.html">Vijana Uchumi</a>
+    <a href="community-health.html">Msaada wa Jamii</a>
+    <a href="creator-program.html">Creator Program</a>
+    <a href="affiliate-program.html">Affiliate</a>
+    <a href="community-fund.html">Community Fund</a>
+    <a href="youth-marketplace.html">Youth Marketplace</a>
+    <a href="academy.html" class="active">Academy</a>
+  </div>
+  <div class="nav-actions">
+    <a href="cart.html" class="icon-btn" style="text-decoration:none;">🛒</a>
+    <a href="login.html" class="btn btn-ghost">Ingia</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="ac-hero">
+  <div class="wrap">
+    <div class="eyebrow">DIGITAL SKILLS ACADEMY</div>
+    <h1>Jifunze. <span class="accent">Jenga Ujuzi.</span> Pata Cheti.</h1>
+    <p>Kozi za bure na premium kwenye Web Development, Design, AI, na Gaming — na AI Mentor anayekufundisha hatua kwa hatua.</p>
+    <div class="ac-hero-actions">
+      <button class="btn btn-cyan" onclick="switchTab('courses')">📚 Ona Kozi Zote</button>
+      <button class="btn btn-magenta-outline" onclick="switchTab('mentor')">🤖 Ongea na AI Mentor</button>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div><div class="stat-num">42</div><div class="stat-lbl">KOZI</div></div>
+  <div><div class="stat-num">8,900+</div><div class="stat-lbl">WANAFUNZI</div></div>
+  <div><div class="stat-num">3,140</div><div class="stat-lbl">VYETI VILIVYOTOLEWA</div></div>
+  <div><div class="stat-num">4.8★</div><div class="stat-lbl">RATING WASTANI</div></div>
+</div>
+
+<div class="wrap">
+  <!-- TABS -->
+  <div class="ac-tabs">
+    <div class="ac-tab active" data-tab="courses" onclick="switchTab('courses')">📚 Kozi Zote</div>
+    <div class="ac-tab" data-tab="mentor" onclick="switchTab('mentor')">🤖 AI Mentor</div>
+    <div class="ac-tab" data-tab="player" onclick="switchTab('player')">🎓 Endelea Kujifunza</div>
+  </div>
+
+  <!-- ================= VIEW: COURSES ================= -->
+  <div class="view active" id="view-courses">
+    <div class="cat-chips">
+      <div class="chip active">Zote</div>
+      <div class="chip">HTML/CSS</div>
+      <div class="chip">JavaScript</div>
+      <div class="chip">React</div>
+      <div class="chip">UI/UX</div>
+      <div class="chip">Graphic Design</div>
+      <div class="chip">Video Editing</div>
+      <div class="chip">Game Development</div>
+      <div class="chip">AI</div>
+      <div class="chip">Cybersecurity</div>
+      <div class="chip">Digital Marketing</div>
+      <div class="chip">Entrepreneurship</div>
+    </div>
+
+    <div class="course-grid">
+      <div class="course-card" onclick="switchTab('player')">
+        <div class="course-thumb">🌐<span class="course-badge free">FREE</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Anayeanza</div>
+          <div class="course-title">HTML &amp; CSS kwa Wanaoanza</div>
+          <div class="course-progress-track show"><div class="course-progress-fill" style="width:40%;"></div></div>
+          <div class="course-meta"><span>12 lessons · 3h</span><span>★ 4.8</span></div>
+          <div class="course-price free-lbl">Endelea (40%)</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">⚡<span class="course-badge free">FREE</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Kati</div>
+          <div class="course-title">JavaScript Fundamentals</div>
+          <div class="course-meta"><span>18 lessons · 5h</span><span>★ 4.7</span></div>
+          <div class="course-price free-lbl">Anza Bure</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">⚛️<span class="course-badge premium">PREMIUM</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Kati - Juu</div>
+          <div class="course-title">React kwa Ajili ya Web Apps</div>
+          <div class="course-meta"><span>24 lessons · 8h</span><span>★ 4.9</span></div>
+          <div class="course-price">TZS 25,000</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">🎨<span class="course-badge free">FREE</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Anayeanza</div>
+          <div class="course-title">Misingi ya UI/UX Design</div>
+          <div class="course-meta"><span>15 lessons · 4h</span><span>★ 4.6</span></div>
+          <div class="course-price free-lbl">Anza Bure</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">🖌️<span class="course-badge premium">PREMIUM</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Kati</div>
+          <div class="course-title">Graphic Design na Canva/Figma</div>
+          <div class="course-meta"><span>20 lessons · 6h</span><span>★ 4.8</span></div>
+          <div class="course-price">TZS 20,000</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">🎬<span class="course-badge premium">PREMIUM</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Kati</div>
+          <div class="course-title">Video Editing kwa CapCut/Premiere</div>
+          <div class="course-meta"><span>16 lessons · 5h</span><span>★ 4.7</span></div>
+          <div class="course-price">TZS 22,000</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">🕹️<span class="course-badge premium">PREMIUM</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Juu</div>
+          <div class="course-title">Game Development na Unity</div>
+          <div class="course-meta"><span>30 lessons · 10h</span><span>★ 4.9</span></div>
+          <div class="course-price">TZS 40,000</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">🤖<span class="course-badge free">FREE</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Anayeanza</div>
+          <div class="course-title">Utangulizi wa AI</div>
+          <div class="course-meta"><span>10 lessons · 3h</span><span>★ 4.8</span></div>
+          <div class="course-price free-lbl">Anza Bure</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">🛡️<span class="course-badge premium">PREMIUM</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Kati</div>
+          <div class="course-title">Misingi ya Cybersecurity</div>
+          <div class="course-meta"><span>14 lessons · 4h</span><span>★ 4.6</span></div>
+          <div class="course-price">TZS 18,000</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">📢<span class="course-badge free">FREE</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Anayeanza</div>
+          <div class="course-title">Digital Marketing Msingi</div>
+          <div class="course-meta"><span>11 lessons · 3h</span><span>★ 4.5</span></div>
+          <div class="course-price free-lbl">Anza Bure</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">💡<span class="course-badge premium">PREMIUM</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Zote</div>
+          <div class="course-title">Entrepreneurship kwa Vijana</div>
+          <div class="course-meta"><span>13 lessons · 4h</span><span>★ 4.7</span></div>
+          <div class="course-price">TZS 15,000</div>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-thumb">⚽<span class="course-badge free">FREE</span></div>
+        <div class="course-info">
+          <div class="course-level">Kiwango: Anayeanza</div>
+          <div class="course-title">Kuwa Tournament Referee</div>
+          <div class="course-meta"><span>8 lessons · 2h</span><span>★ 4.9</span></div>
+          <div class="course-price free-lbl">Anza Bure</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VIEW: AI MENTOR ================= -->
+  <div class="view" id="view-mentor">
+    <div class="mentor-wrap">
+      <div class="panel">
+        <h3>Anza kwa Mada</h3>
+        <div class="mentor-topics">
+          <div class="mentor-topic" onclick="mentorPrompt('Nataka kujifunza HTML')">🌐 Nataka kujifunza HTML</div>
+          <div class="mentor-topic" onclick="mentorPrompt('Nataka kujifunza JavaScript')">⚡ Nataka kujifunza JavaScript</div>
+          <div class="mentor-topic" onclick="mentorPrompt('Nataka kujifunza Graphic Design')">🎨 Nataka kujifunza Graphic Design</div>
+          <div class="mentor-topic" onclick="mentorPrompt('Nataka kujifunza AI')">🤖 Nataka kujifunza AI</div>
+          <div class="mentor-topic" onclick="mentorPrompt('Nianzie wapi kama sijui chochote?')">🧭 Nianzie wapi kama sijui chochote?</div>
+        </div>
+      </div>
+
+      <div class="panel mentor-chat-box">
+        <div class="mentor-head">
+          <div class="mentor-avatar">🤖</div>
+          <div><strong>AI Mentor</strong><span>🟢 Tayari kufundisha</span></div>
+        </div>
+        <div class="mentor-body" id="mentorBody">
+          <div class="m-msg bot">Habari! Mimi ni AI Mentor wako. Niambie unachotaka kujifunza, au chagua mada upande wa kushoto, tuanze somo lako la kwanza.</div>
+        </div>
+        <div class="mentor-input">
+          <input type="text" id="mentorInput" placeholder="Andika unachotaka kujifunza...">
+          <button class="mentor-send" onclick="sendMentor()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VIEW: COURSE PLAYER ================= -->
+  <div class="view" id="view-player">
+    <div class="player-progress">
+      <div class="player-progress-track"><div class="player-progress-fill" id="playerProgressFill" style="width:20%;"></div></div>
+      <div class="player-progress-lbl" id="playerProgressLbl">Lesson 1/5 · HTML &amp; CSS kwa Wanaoanza</div>
+    </div>
+
+    <div class="player-wrap">
+      <div class="panel">
+        <h3 style="font-size:.9rem;">Lessons</h3>
+        <div class="lesson-list" id="lessonList"></div>
+      </div>
+
+      <div class="panel">
+        <div id="lessonView"></div>
+        <div id="quizView" style="display:none;"></div>
+        <div id="certView" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 LifeIsGameTZ. Academy — Jifunze, Jenga Ujuzi, Pata Cheti.</footer>
+
+<script>
+  function switchTab(name){
+    document.querySelectorAll('.ac-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  document.querySelectorAll('.cat-chips').forEach(group=>{
+    group.querySelectorAll('.chip').forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+  });
+
+  // ---------- AI Mentor chat ----------
+  const mentorBody = document.getElementById('mentorBody');
+  const mentorReplies = {
+    'nataka kujifunza html': 'Sawa, tuanze Lesson 1: HTML ni lugha inayotengeneza muundo wa ukurasa wa website — kama mifupa ya mwili. Kila kitu unachokiona kwenye website (maandishi, picha, vitufe) kimewekwa ndani ya "tags" kama vile <h1>, <p>, <img>. Ungependa nikuoneshe tag ya kwanza tunayotumia kuanza ukurasa?',
+    'nataka kujifunza javascript': 'JavaScript ndiyo lugha inayofanya website "iishi" — inaruhusu vitufe kufanya kazi, forms kutuma taarifa, na animations. Tutaanza na variable ya kwanza: `let jina = "Kelvin";`. Ungependa niendelee na "functions" au "if statements" kwanza?',
+    'nataka kujifunza graphic design': 'Graphic Design inaanzia na misingi 4: Color, Typography, Layout, na Contrast. Kwa mfano, rangi za neon kwenye gaming zinatumika kuvuta macho kwenye vitufe muhimu. Ungependa tuanze na "Color Theory" au "Typography"?',
+    'nataka kujifunza ai': 'AI (Artificial Intelligence) kwa ujumla ni mifumo inayojifunza kutoka data ili kufanya maamuzi au kutoa majibu. Tutaanza na dhana ya msingi: Machine Learning ni nini, na jinsi AI kama mimi ninavyoelewa maandishi yako. Uko tayari?',
+    'nianzie wapi kama sijui chochote?': 'Poa kabisa kuanzia mwanzo! Kwa anayeanza, napendekeza: 1) HTML/CSS kwanza (msingi wa web), 2) JavaScript baadaye, 3) halafu chagua eneo maalum (Design, AI, au Video Editing) kulingana na unachopenda. Ungependa nikuanzishie HTML sasa hivi?'
+  };
+
+  function addMentorMsg(text, who){
+    const div = document.createElement('div');
+    div.className = 'm-msg ' + who;
+    div.textContent = text;
+    mentorBody.appendChild(div);
+    mentorBody.scrollTop = mentorBody.scrollHeight;
+  }
+
+  function mentorReplyFor(text){
+    const key = text.trim().toLowerCase();
+    return mentorReplies[key] || 'Vizuri! Nimepokea ombi lako kuhusu "' + text + '". Kwa somo kamili la mada hii, fungua "Endelea Kujifunza" upande wa juu ili tuanze lessons kwa mpangilio.';
+  }
+
+  function mentorPrompt(text){
+    addMentorMsg(text, 'me');
+    setTimeout(()=> addMentorMsg(mentorReplyFor(text), 'bot'), 500);
+  }
+
+  function sendMentor(){
+    const input = document.getElementById('mentorInput');
+    const text = input.value.trim();
+    if(!text) return;
+    mentorPrompt(text);
+    input.value = '';
+  }
+  document.getElementById('mentorInput').addEventListener('keydown', e=>{ if(e.key === 'Enter') sendMentor(); });
+
+  // ---------- Course Player: Lesson -> Quiz -> Certificate ----------
+  const lessons = [
+    { title:'Utangulizi wa HTML', body:'HTML (HyperText Markup Language) ndiyo msingi wa kila website. Tags zinaeleza browser jinsi ya kuonyesha content — maandishi, picha, links, na zaidi.', code:'<h1>Habari Dunia</h1>\n<p>Huu ni ukurasa wangu wa kwanza.</p>' },
+    { title:'Muundo wa Ukurasa', body:'Kila ukurasa wa HTML una <html>, <head>, na <body>. <head> ina taarifa za page (title, fonts), <body> ina kila kitu kinachoonekana.', code:'<html>\n  <head><title>Ukurasa Wangu</title></head>\n  <body>...</body>\n</html>' },
+    { title:'Headings na Paragraphs', body:'Tunatumia <h1> hadi <h6> kwa vichwa vya habari (h1 ni kikubwa zaidi), na <p> kwa maandishi ya kawaida.', code:'<h1>Kichwa Kikuu</h1>\n<h2>Kichwa Kidogo</h2>\n<p>Maandishi ya kawaida hapa.</p>' },
+    { title:'Links na Images', body:'<a> inatengeneza link, <img> inaonyesha picha. Zote zina "attributes" kama href na src zinazoelekeza kwenye rasilimali.', code:'<a href="https://example.com">Bofya Hapa</a>\n<img src="picha.jpg" alt="Maelezo">' },
+    { title:'Misingi ya CSS', body:'CSS inatumika kupamba HTML — rangi, fonti, nafasi. Unaweza kuiweka ndani ya <style> au faili tofauti.', code:'h1 { color: cyan; font-size: 32px; }' }
+  ];
+  let currentLesson = 0;
+  let completedLessons = 0;
+
+  function renderLessonList(){
+    const list = document.getElementById('lessonList');
+    list.innerHTML = '';
+    lessons.forEach((l, i)=>{
+      const div = document.createElement('div');
+      div.className = 'lesson-item' + (i < completedLessons ? ' done' : '') + (i === currentLesson ? ' current' : '');
+      div.innerHTML = '<span class="lesson-check">' + (i < completedLessons ? '✓' : (i+1)) + '</span>' + l.title;
+      list.appendChild(div);
+    });
+  }
+
+  function renderLesson(){
+    document.getElementById('quizView').style.display = 'none';
+    document.getElementById('certView').style.display = 'none';
+    const lv = document.getElementById('lessonView');
+    lv.style.display = 'block';
+    const l = lessons[currentLesson];
+    lv.innerHTML = `
+      <h2>Lesson ${currentLesson+1}: ${l.title}</h2>
+      <p>${l.body}</p>
+      <div class="code-block">${l.code.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</div>
+      <button class="btn btn-cyan" id="nextLessonBtn">${currentLesson === lessons.length-1 ? 'Maliza Lessons → Anza Quiz' : 'Kamilisha Lesson →'}</button>
+    `;
+    document.getElementById('nextLessonBtn').addEventListener('click', ()=>{
+      completedLessons = Math.max(completedLessons, currentLesson+1);
+      if(currentLesson < lessons.length-1){
+        currentLesson++;
+        renderLessonList();
+        renderLesson();
+      } else {
+        renderLessonList();
+        renderQuiz();
+      }
+      updateProgress();
+    });
+  }
+
+  function updateProgress(){
+    const pct = Math.round((completedLessons / (lessons.length+1)) * 100);
+    document.getElementById('playerProgressFill').style.width = pct + '%';
+    document.getElementById('playerProgressLbl').textContent = 'Lesson ' + Math.min(completedLessons+1, lessons.length) + '/' + lessons.length + ' · HTML & CSS kwa Wanaoanza';
+  }
+
+  function renderQuiz(){
+    document.getElementById('lessonView').style.display = 'none';
+    const qv = document.getElementById('quizView');
+    qv.style.display = 'block';
+    qv.innerHTML = `
+      <h2>📝 Quiz — HTML Msingi</h2>
+      <div class="quiz-q">
+        <p>1. Tag ipi inatumika kwa kichwa kikubwa zaidi cha habari?</p>
+        <div class="quiz-opt" data-correct="false">&lt;p&gt;</div>
+        <div class="quiz-opt" data-correct="true">&lt;h1&gt;</div>
+        <div class="quiz-opt" data-correct="false">&lt;div&gt;</div>
+      </div>
+      <div class="quiz-q">
+        <p>2. Tag ipi inatumika kuonyesha picha?</p>
+        <div class="quiz-opt" data-correct="false">&lt;a&gt;</div>
+        <div class="quiz-opt" data-correct="false">&lt;link&gt;</div>
+        <div class="quiz-opt" data-correct="true">&lt;img&gt;</div>
+      </div>
+      <button class="btn btn-cyan" id="submitQuizBtn" style="margin-top:.6rem;">Tuma Majibu</button>
+    `;
+    qv.querySelectorAll('.quiz-q').forEach(q=>{
+      q.querySelectorAll('.quiz-opt').forEach(opt=>{
+        opt.addEventListener('click', ()=>{
+          q.querySelectorAll('.quiz-opt').forEach(o=>o.classList.remove('selected'));
+          opt.classList.add('selected');
+        });
+      });
+    });
+    document.getElementById('submitQuizBtn').addEventListener('click', ()=>{
+      qv.querySelectorAll('.quiz-q').forEach(q=>{
+        q.querySelectorAll('.quiz-opt').forEach(opt=>{
+          if(opt.dataset.correct === 'true') opt.classList.add('correct');
+          else if(opt.classList.contains('selected')) opt.classList.add('wrong');
+        });
+      });
+      completedLessons = lessons.length + 1;
+      updateProgress();
+      setTimeout(renderCertificate, 900);
+    });
+  }
+
+  function renderCertificate(){
+    document.getElementById('quizView').style.display = 'none';
+    const cv = document.getElementById('certView');
+    cv.style.display = 'block';
+    const today = new Date().toLocaleDateString('sw-TZ', { year:'numeric', month:'long', day:'numeric' });
+    cv.innerHTML = `
+      <div class="cert-box">
+        <div class="certificate">
+          <div class="cert-mark">🎓</div>
+          <div class="cert-title">CHETI CHA KUKAMILISHA KOZI</div>
+          <div class="cert-name" id="certNameDisplay">Kelvin Fred Pela</div>
+          <div class="cert-course">amekamilisha kwa mafanikio<br><b>HTML &amp; CSS kwa Wanaoanza</b></div>
+          <div class="cert-date">LifeIsGameTZ Academy · ${today}</div>
+        </div>
+        <div id="certSaveStatus" style="font-size:.78rem; color:var(--muted); margin-bottom:1rem;">⏳ Inahifadhi cheti chako...</div>
+        <button class="btn btn-cyan">⬇️ Pakua Cheti (PDF)</button>
+        <button class="btn btn-ghost" onclick="switchTab('courses')" style="margin-left:.6rem;">Anza Kozi Nyingine</button>
+      </div>
+    `;
+    if(window.saveCertificateToSupabase) window.saveCertificateToSupabase();
+  }
+
+  renderLessonList();
+  renderLesson();
+</script>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  window.saveCertificateToSupabase = async function(){
+    const statusEl = document.getElementById('certSaveStatus');
+    try{
+      const { data: { session } } = await supabase.auth.getSession();
+      if(!session){
+        statusEl.textContent = '⚠️ Ingia/Jisajili ili cheti hiki kihifadhiwe kwenye akaunti yako (kwa sasa ni mfano wa ndani tu).';
+        return;
+      }
+
+      document.getElementById('certNameDisplay').textContent = session.user.email || 'Mwanafunzi';
+
+      const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', session.user.id).maybeSingle();
+      if(profile && profile.full_name) document.getElementById('certNameDisplay').textContent = profile.full_name;
+
+      const { data: course } = await supabase.from('courses').select('id').eq('slug', 'html-css-wanaoanza').maybeSingle();
+      if(!course) throw new Error('Course haijapatikana Supabase — endesha supabase_seed_academy.sql');
+
+      await supabase.from('enrollments').upsert({
+        user_id: session.user.id,
+        course_id: course.id,
+        progress_percent: 100,
+        status: 'completed'
+      });
+
+      const certCode = 'LGT-CERT-' + Math.floor(10000 + Math.random()*89999);
+      const { error: certErr } = await supabase.from('certificates').insert({
+        user_id: session.user.id,
+        course_id: course.id,
+        certificate_code: certCode
+      });
+      if(certErr) throw certErr;
+
+      statusEl.textContent = `✅ Cheti kimehifadhiwa! Certificate Code: ${certCode}`;
+    } catch(err){
+      statusEl.textContent = '⚠️ Imeshindwa kuhifadhi cheti Supabase: ' + err.message;
+      console.warn(err);
+    }
+  };
+</script>
+</body>
+</html>

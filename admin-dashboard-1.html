@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeIsGameTZ — Admin Control Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sidebar-bg: #0E2A20;
+    --sidebar-hover: #143C2C;
+    --sidebar-text: #9FBBAE;
+    --sidebar-text-dim: #6E8B7C;
+    --page-bg: #F3F5F4;
+    --card-bg: #FFFFFF;
+    --border: #E4E8E6;
+    --text: #1B211E;
+    --muted: #6B756F;
+    --green: #1B9E5A;
+    --green-dim: #E4F6EC;
+    --gold: #E8A33D;
+    --gold-dim: #FCF1DF;
+    --blue: #4C6FE0;
+    --blue-dim: #E9EDFC;
+    --purple: #8B5CF6;
+    --purple-dim: #F0EAFE;
+    --pink: #E0578B;
+    --pink-dim: #FCE9F0;
+    --red: #E5545E;
+    --red-dim: #FCE9EA;
+    --sidebar-w: 258px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--page-bg); color:var(--text);
+    font-family:'Inter', sans-serif;
+    display:flex; min-height:100vh; overflow-x:hidden;
+  }
+  h1,h2,h3,.num,.brand-name{ font-family:'Barlow Condensed', sans-serif; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    width:var(--sidebar-w); flex-shrink:0;
+    background:var(--sidebar-bg);
+    height:100vh; position:sticky; top:0; overflow-y:auto;
+    transition:transform .25s ease;
+  }
+  .brand{
+    display:flex; align-items:center; gap:.6rem;
+    padding:1.1rem 1.2rem; border-bottom:1px solid rgba(255,255,255,.07);
+  }
+  .brand-mark{
+    width:32px; height:32px; border-radius:8px;
+    background:linear-gradient(135deg, var(--gold), #C97D1F);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:1rem;
+  }
+  .brand-name{ font-size:1.3rem; font-weight:600; color:#fff; line-height:1; }
+  .brand-sub{ font-size:.66rem; color:var(--sidebar-text-dim); letter-spacing:.4px; }
+
+  .nav-group{ padding:.4rem 0; }
+  .nav-group-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:.7rem 1.2rem .35rem; cursor:pointer;
+  }
+  .nav-group-title{
+    font-size:.72rem; font-weight:600; color:var(--sidebar-text-dim);
+    letter-spacing:.6px;
+  }
+  .chevron{ font-size:.65rem; color:var(--sidebar-text-dim); transition:transform .2s; }
+  .nav-group.collapsed .chevron{ transform:rotate(-90deg); }
+  .nav-group.collapsed .nav-items{ display:none; }
+
+  .nav-item{
+    display:flex; align-items:center; gap:.65rem;
+    padding:.55rem 1.2rem; color:var(--sidebar-text);
+    font-size:.87rem; cursor:pointer; border-left:3px solid transparent;
+    transition:background .15s, color .15s;
+  }
+  .nav-item:hover{ background:var(--sidebar-hover); color:#fff; }
+  .nav-item.active{
+    background:var(--sidebar-hover); color:#fff;
+    border-left-color:var(--green); font-weight:600;
+  }
+  .nav-icon{ width:18px; text-align:center; font-size:.95rem; }
+  .nav-arrow{ margin-left:auto; font-size:.75rem; opacity:.6; }
+  .nav-badge{
+    margin-left:auto; font-size:.65rem; background:var(--red);
+    color:#fff; border-radius:20px; padding:.05rem .4rem; font-weight:600;
+  }
+  .plan-box{
+    margin:1rem; padding:.8rem; background:var(--sidebar-hover);
+    border-radius:10px; text-align:center;
+  }
+  .plan-box .tag{
+    font-size:.68rem; color:var(--gold); font-weight:600; letter-spacing:.4px;
+  }
+  .plan-box button{
+    margin-top:.5rem; width:100%; background:transparent; border:1px solid rgba(255,255,255,.15);
+    color:var(--sidebar-text); padding:.4rem; border-radius:6px; font-size:.75rem; cursor:pointer;
+  }
+
+  /* ---------- Main ---------- */
+  .main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+
+  .topbar{
+    display:flex; align-items:center; gap:1rem;
+    padding:.85rem 1.4rem; border-bottom:1px solid var(--border);
+    background:var(--card-bg); position:sticky; top:0; z-index:20;
+  }
+  .hamburger{
+    display:none; background:none; border:none; color:var(--text);
+    font-size:1.3rem; cursor:pointer;
+  }
+  .topbar-title h2{ font-size:1.05rem; font-weight:600; }
+  .topbar-title p{ font-size:.72rem; color:var(--muted); }
+  .search{
+    flex:1; max-width:420px; background:var(--page-bg);
+    border:1px solid var(--border); border-radius:9px;
+    padding:.5rem .8rem; display:flex; align-items:center; gap:.5rem;
+  }
+  .search input{
+    background:none; border:none; outline:none; color:var(--text);
+    font-size:.86rem; width:100%; font-family:inherit;
+  }
+  .search input::placeholder{ color:var(--muted); }
+  .topbar-right{ margin-left:auto; display:flex; align-items:center; gap:.7rem; }
+  .icon-btn{
+    background:var(--page-bg); border:1px solid var(--border); color:var(--muted);
+    width:36px; height:36px; border-radius:8px; display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:1rem; position:relative;
+  }
+  .icon-btn .dot{
+    position:absolute; top:-3px; right:-3px; width:9px; height:9px;
+    border-radius:50%; background:var(--red); border:2px solid var(--card-bg);
+  }
+  .user-chip{
+    display:flex; align-items:center; gap:.55rem; padding-left:.6rem;
+    border-left:1px solid var(--border); cursor:pointer;
+  }
+  .user-chip .avatar{
+    width:32px; height:32px; border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),#C97D1F);
+    display:flex; align-items:center; justify-content:center; font-size:.85rem; color:#fff;
+  }
+  .user-chip .name{ font-size:.83rem; font-weight:600; line-height:1.1; }
+  .user-chip .role{ font-size:.7rem; color:var(--muted); }
+
+  .content{ padding:1.4rem; flex:1; }
+  .page{ display:none; }
+  .page.active{ display:block; }
+
+  .page-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:1.2rem; flex-wrap:wrap; gap:.7rem;
+  }
+  .page-head h1{ font-size:1.7rem; font-weight:600; }
+  .page-head p{ color:var(--muted); font-size:.85rem; margin-top:.15rem; }
+  .btn{
+    background:var(--green); color:#fff; border:none; padding:.6rem 1rem;
+    border-radius:8px; font-size:.85rem; font-weight:600; cursor:pointer;
+    display:flex; align-items:center; gap:.4rem;
+  }
+  .btn.outline{ background:var(--card-bg); border:1px solid var(--border); color:var(--text); }
+  .btn-row{ display:flex; gap:.6rem; flex-wrap:wrap; }
+
+  /* ---------- Stat cards ---------- */
+  .stat-grid{
+    display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; margin-bottom:1.4rem;
+  }
+  .stat-card{
+    background:var(--card-bg); border:1px solid var(--border);
+    border-radius:12px; padding:1rem 1.1rem;
+  }
+  .stat-icon{
+    width:34px; height:34px; border-radius:9px; display:flex; align-items:center;
+    justify-content:center; font-size:1rem; margin-bottom:.6rem;
+  }
+  .stat-icon.blue{ background:var(--blue-dim); }
+  .stat-icon.green{ background:var(--green-dim); }
+  .stat-icon.gold{ background:var(--gold-dim); }
+  .stat-icon.purple{ background:var(--purple-dim); }
+  .stat-icon.pink{ background:var(--pink-dim); }
+  .stat-delta{ font-size:.72rem; color:var(--green); font-weight:600; }
+  .stat-delta.down{ color:var(--red); }
+  .num{ font-size:1.7rem; font-weight:600; line-height:1.1; margin-top:.15rem; }
+  .stat-label{ font-size:.76rem; color:var(--muted); margin-top:.1rem; }
+
+  /* ---------- Panels ---------- */
+  .grid-2{ display:grid; grid-template-columns:1.3fr 1fr; gap:1rem; }
+  .panel{
+    background:var(--card-bg); border:1px solid var(--border);
+    border-radius:12px; padding:1.1rem 1.2rem; margin-bottom:1rem;
+  }
+  .panel-head{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:.9rem;
+  }
+  .panel-head h3{ font-size:1.1rem; font-weight:600; }
+  .link-btn{ color:var(--green); font-size:.8rem; cursor:pointer; font-weight:600; }
+
+  .ai-row{
+    display:flex; align-items:center; gap:.7rem;
+    padding:.55rem 0; border-bottom:1px solid var(--border);
+  }
+  .ai-row:last-child{ border-bottom:none; }
+  .status-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .status-dot.on{ background:var(--green); box-shadow:0 0 0 3px var(--green-dim); }
+  .status-dot.wait{ background:var(--gold); box-shadow:0 0 0 3px var(--gold-dim); }
+  .ai-name{ font-size:.87rem; font-weight:500; flex:1; }
+  .ai-status-label{ font-size:.7rem; padding:.15rem .5rem; border-radius:20px; }
+  .ai-status-label.on{ background:var(--green-dim); color:var(--green); }
+  .ai-status-label.wait{ background:var(--gold-dim); color:var(--gold); }
+
+  table{ width:100%; border-collapse:collapse; font-size:.84rem; }
+  th{ text-align:left; color:var(--muted); font-weight:600; padding:.5rem .4rem; font-size:.72rem; border-bottom:1px solid var(--border); text-transform:uppercase; letter-spacing:.3px; }
+  td{ padding:.6rem .4rem; border-bottom:1px solid var(--border); }
+  tr:last-child td{ border-bottom:none; }
+  .pill{ font-size:.7rem; padding:.18rem .6rem; border-radius:20px; font-weight:600; }
+  .pill.paid, .pill.active{ background:var(--green-dim); color:var(--green); }
+  .pill.pending{ background:var(--gold-dim); color:var(--gold); }
+  .pill.ended{ background:#EEE; color:var(--muted); }
+  .row-actions span{ cursor:pointer; margin-right:.5rem; opacity:.65; }
+  .row-actions span:hover{ opacity:1; }
+
+  /* ---------- Tabbed page (Tournament Manager) ---------- */
+  .tabs{ display:flex; gap:.4rem; border-bottom:1px solid var(--border); margin-bottom:1.1rem; flex-wrap:wrap; }
+  .tab{
+    padding:.6rem .9rem; font-size:.85rem; color:var(--muted); cursor:pointer;
+    border-radius:8px 8px 0 0; display:flex; align-items:center; gap:.4rem;
+  }
+  .tab.active{ background:var(--green); color:#fff; font-weight:600; }
+  .tab:not(.active):hover{ background:var(--page-bg); }
+
+  .filter-chips{ display:flex; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap; }
+  .chip{
+    padding:.4rem .9rem; border-radius:20px; font-size:.8rem; cursor:pointer;
+    border:1px solid var(--border); color:var(--muted); background:var(--card-bg);
+  }
+  .chip.active{ background:var(--green); color:#fff; border-color:var(--green); }
+
+  .toolbar{
+    display:flex; gap:.7rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center;
+  }
+  .toolbar .search{ max-width:280px; }
+
+  .quick-actions{ display:flex; gap:.7rem; flex-wrap:wrap; }
+  .qa-btn{
+    background:var(--card-bg); border:1px solid var(--border); color:var(--text);
+    padding:.6rem 1rem; border-radius:8px; font-size:.83rem; cursor:pointer;
+    display:flex; align-items:center; gap:.5rem;
+  }
+  .qa-btn:hover{ border-color:var(--green); color:var(--green); }
+
+  .commission-note{
+    display:flex; gap:.6rem; align-items:flex-start; background:var(--gold-dim); border:1px solid var(--gold);
+    border-radius:10px; padding:.8rem; font-size:.82rem; color:var(--gold);
+  }
+  .form-row{ margin-bottom:.9rem; }
+  .form-row input{
+    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px;
+    padding:.65rem .8rem; color:var(--text); font-family:inherit; font-size:.9rem; outline:none;
+  }
+  .form-row input:focus{ border-color:var(--gold); }
+  .placeholder-box{
+    border:1px dashed var(--border); border-radius:12px; background:var(--card-bg);
+    padding:3rem 1.5rem; text-align:center; color:var(--muted);
+  }
+  .placeholder-box .big{ font-size:2rem; margin-bottom:.6rem; }
+
+  /* ---------- AI Boss Assistant floating panel ---------- */
+  .boss-fab{
+    position:fixed; bottom:1.4rem; right:1.4rem; z-index:40;
+    width:56px; height:56px; border-radius:50%;
+    background:linear-gradient(135deg, var(--green), #147A45);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; cursor:pointer; border:none; color:#fff;
+    box-shadow:0 6px 18px rgba(27,158,90,0.35);
+  }
+  .boss-panel{
+    position:fixed; bottom:5.2rem; right:1.4rem; z-index:41;
+    width:320px; max-width:calc(100vw - 2rem); height:420px;
+    background:var(--card-bg); border:1px solid var(--border);
+    border-radius:14px; display:none; flex-direction:column; overflow:hidden;
+    box-shadow:0 12px 32px rgba(0,0,0,.18);
+  }
+  .boss-panel.open{ display:flex; }
+  .boss-panel-head{
+    padding:.8rem 1rem; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:.6rem; background:var(--sidebar-bg);
+  }
+  .boss-panel-head .avatar{
+    width:30px; height:30px; border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),#C97D1F);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .boss-panel-head strong{ font-size:.9rem; color:#fff; }
+  .boss-panel-head span{ display:block; font-size:.7rem; color:var(--green); }
+  .boss-panel-close{ margin-left:auto; background:none; border:none; color:var(--sidebar-text); cursor:pointer; font-size:1.1rem; }
+  .boss-chat{ flex:1; padding:1rem; overflow-y:auto; font-size:.85rem; }
+  .msg{ margin-bottom:.8rem; max-width:85%; padding:.5rem .7rem; border-radius:10px; line-height:1.4; }
+  .msg.bot{ background:var(--page-bg); }
+  .msg.me{ background:var(--green-dim); color:var(--green); margin-left:auto; }
+  .boss-input{
+    display:flex; align-items:center; gap:.5rem;
+    border-top:1px solid var(--border); padding:.6rem;
+  }
+  .boss-input input{
+    flex:1; background:var(--page-bg); border:1px solid var(--border);
+    border-radius:20px; padding:.5rem .9rem; color:var(--text); font-size:.85rem;
+    outline:none; font-family:inherit;
+  }
+  .mic-btn, .send-btn{
+    width:34px; height:34px; border-radius:50%; border:none;
+    background:var(--page-bg); color:var(--muted); cursor:pointer; flex-shrink:0;
+  }
+  .send-btn{ background:var(--green); color:#fff; }
+
+  .overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:30; }
+  .overlay.show{ display:block; }
+
+  @media (max-width: 1100px){
+    .stat-grid{ grid-template-columns:repeat(3,1fr); }
+  }
+  @media (max-width: 960px){
+    .grid-2{ grid-template-columns:1fr; }
+  }
+  @media (max-width: 720px){
+    .sidebar{ position:fixed; left:0; top:0; z-index:50; transform:translateX(-100%); }
+    .sidebar.open{ transform:translateX(0); }
+    .hamburger{ display:block; }
+    .search{ display:none; }
+    .stat-grid{ grid-template-columns:1fr 1fr; }
+    .boss-panel{ right:1rem; left:1rem; width:auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <a href="home.html" class="brand" style="text-decoration:none;">
+    <div class="brand-mark">🎮</div>
+    <div>
+      <div class="brand-name">LifeIsGameTZ</div>
+      <div class="brand-sub">ADMIN CONTROL CENTER</div>
+    </div>
+  </a>
+
+  <nav>
+    <div class="nav-group">
+      <div class="nav-group-head"><span class="nav-group-title">MUHTASARI</span></div>
+      <div class="nav-items">
+        <div class="nav-item active" data-page="overview"><span class="nav-icon">🏠</span>Dashboard Overview</div>
+        <div class="nav-item" data-page="ai-center"><span class="nav-icon">🤖</span>AI Command Center<span class="nav-badge">3</span></div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-head"><span class="nav-group-title">BIASHARA</span><span class="chevron">▾</span></div>
+      <div class="nav-items">
+        <div class="nav-item" data-page="products"><span class="nav-icon">🛒</span>Product Manager</div>
+        <div class="nav-item" data-page="efootball"><span class="nav-icon">⚽</span>eFootball Center</div>
+        <div class="nav-item" data-page="tournaments"><span class="nav-icon">🏆</span>Tournament Manager<span class="nav-arrow">›</span></div>
+        <div class="nav-item" data-page="payments"><span class="nav-icon">💰</span>Payments Center</div>
+        <div class="nav-item" data-page="wallet"><span class="nav-icon">💳</span>Wallet</div>
+        <div class="nav-item" data-page="escrow"><span class="nav-icon">🔐</span>Escrow &amp; Settlement</div>
+        <div class="nav-item" data-page="payouts"><span class="nav-icon">💸</span>Payout Manager</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-head"><span class="nav-group-title">WATU</span><span class="chevron">▾</span></div>
+      <div class="nav-items">
+        <div class="nav-item" data-page="users"><span class="nav-icon">👥</span>Users &amp; Roles</div>
+        <div class="nav-item" data-page="youth"><span class="nav-icon">🧑‍💻</span>Youth Marketplace</div>
+        <div class="nav-item" data-page="academy"><span class="nav-icon">🎓</span>Academy</div>
+        <div class="nav-item" data-page="creators"><span class="nav-icon">🎨</span>Creator Center</div>
+        <div class="nav-item" data-page="affiliates"><span class="nav-icon">🤝</span>Affiliate Program</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-head"><span class="nav-group-title">UKUAJI</span><span class="chevron">▾</span></div>
+      <div class="nav-items">
+        <div class="nav-item" data-page="marketing"><span class="nav-icon">📢</span>Marketing Center</div>
+        <div class="nav-item" data-page="health"><span class="nav-icon">🩺</span>Health &amp; Community</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-head"><span class="nav-group-title">MFUMO</span><span class="chevron">▾</span></div>
+      <div class="nav-items">
+        <div class="nav-item" data-page="security"><span class="nav-icon">🛡️</span>Security Center<span class="nav-badge">1</span></div>
+        <div class="nav-item" data-page="builder"><span class="nav-icon">🧱</span>AI Website Builder</div>
+        <div class="nav-item" data-page="analytics"><span class="nav-icon">📊</span>Analytics &amp; Reports</div>
+        <div class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span>Settings</div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="plan-box">
+    <div class="tag">PROFESSIONAL PLAN</div>
+    <button>Boss · Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <button class="hamburger" id="hamburger">☰</button>
+    <div class="topbar-title" id="topbarTitle">
+      <h2>Dashboard</h2>
+      <p>LifeIsGameTZ · Msimu 2026</p>
+    </div>
+    <div class="search">🔍 <input type="text" placeholder="Tafuta wachezaji, order, tournament..."></div>
+    <div class="topbar-right">
+      <a href="home.html" class="icon-btn" title="Ona Store" style="text-decoration:none;">🌐</a>
+      <button class="icon-btn">🌙</button>
+      <button class="icon-btn">🔔<span class="dot"></span></button>
+      <button class="icon-btn">🪙</button>
+      <div class="user-chip" id="bossChipOpen">
+        <div class="avatar">KF</div>
+        <div>
+          <div class="name">Kelvin Fred Pela</div>
+          <div class="role">Boss · Owner</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- PAGE: OVERVIEW -->
+    <section class="page active" id="page-overview">
+      <div class="page-head">
+        <div>
+          <h1>Dashboard Overview</h1>
+          <p>Habari Boss — hali ya platform kwa ujumla, leo Jumapili.</p>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">👥</div>
+          <div class="num">2,847</div>
+          <div class="stat-label">Total Users</div>
+          <div class="stat-delta">▲ +12 wiki hii</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">💰</div>
+          <div class="num">TZS 850K</div>
+          <div class="stat-label">Mauzo ya Leo</div>
+          <div class="stat-delta">▲ 12% kuliko jana</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gold">🛒</div>
+          <div class="num">37</div>
+          <div class="stat-label">Orders Mpya</div>
+          <div class="stat-delta">5 bado hazijalipwa</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">🏆</div>
+          <div class="num">6</div>
+          <div class="stat-label">Tournaments Live</div>
+          <div class="stat-delta">▲ +2 leo</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon pink">🛡️</div>
+          <div class="num">1</div>
+          <div class="stat-label">Security Alerts</div>
+          <div class="stat-delta down">Angalia sasa</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="panel">
+            <div class="panel-head"><h3>Orders za Hivi Karibuni</h3><span class="link-btn">Ona zote</span></div>
+            <table>
+              <tr><th>Order</th><th>Mteja</th><th>Bidhaa</th><th>Kiasi</th><th>Hali</th></tr>
+              <tr><td>#1042</td><td>Juma A.</td><td>FC 26 — PC Key</td><td>TZS 45,000</td><td><span class="pill paid">Imelipwa</span></td></tr>
+              <tr><td>#1041</td><td>Fatma S.</td><td>PSN Gift Card</td><td>TZS 30,000</td><td><span class="pill pending">Inasubiri</span></td></tr>
+              <tr><td>#1040</td><td>Kelvin M.</td><td>eFootball Coins</td><td>TZS 12,000</td><td><span class="pill paid">Imelipwa</span></td></tr>
+              <tr><td>#1039</td><td>Neema G.</td><td>Tournament Entry</td><td>TZS 5,000</td><td><span class="pill paid">Imelipwa</span></td></tr>
+            </table>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Vitendo vya Haraka</h3></div>
+            <div class="quick-actions">
+              <button class="qa-btn">➕ Ongeza Bidhaa</button>
+              <button class="qa-btn">🏆 Anzisha Tournament</button>
+              <button class="qa-btn">📢 Tengeneza Promotion</button>
+              <button class="qa-btn">💸 Kagua Payouts</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="panel">
+            <div class="panel-head"><h3>AI Team — Status</h3><span class="link-btn" data-goto="ai-center">Fungua</span></div>
+            <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">Business Manager</span><span class="ai-status-label on">Online</span></div>
+            <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">Customer Support</span><span class="ai-status-label on">Online</span></div>
+            <div class="ai-row"><span class="status-dot wait"></span><span class="ai-name">Health Assistant</span><span class="ai-status-label wait">2 escalations</span></div>
+            <div class="ai-row"><span class="status-dot wait"></span><span class="ai-name">Security Guardian</span><span class="ai-status-label wait">Needs approval</span></div>
+            <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">Tournament Manager</span><span class="ai-status-label on">Online</span></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Community Fund</h3></div>
+            <table>
+              <tr><td>Zilizokusanywa</td><td style="text-align:right;">TZS 620,000</td></tr>
+              <tr><td>Zilizogawanywa</td><td style="text-align:right;">TZS 410,000</td></tr>
+              <tr><td>Miradi iliyosaidiwa</td><td style="text-align:right;">4</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: TOURNAMENT MANAGER (mfano kamili wa tabbed page kama 'Examinations' kwenye video) -->
+    <section class="page" id="page-tournaments">
+      <div class="page-head">
+        <div>
+          <h1>Tournament Manager</h1>
+          <p>Panga leagues, fixtures, matokeo na malipo ya zawadi</p>
+        </div>
+        <button class="btn">➕ Create Tournament</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="t-list">🏆 Tournaments</div>
+        <div class="tab" data-tab="t-reg">📝 Registrations</div>
+        <div class="tab" data-tab="t-bracket">🗂️ Brackets &amp; Fixtures</div>
+        <div class="tab" data-tab="t-results">📊 Results</div>
+        <div class="tab" data-tab="t-ai">⚡ AI Referee</div>
+      </div>
+
+      <div id="t-list" class="tab-panel">
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card"><div class="stat-icon blue">🎮</div><div class="num">312</div><div class="stat-label">Wachezaji Waliojisajili</div></div>
+          <div class="stat-card"><div class="stat-icon green">✅</div><div class="num">248</div><div class="stat-label">Mechi Zilizochezwa</div></div>
+          <div class="stat-card"><div class="stat-icon gold">🏅</div><div class="num">TZS 1.2M</div><div class="stat-label">Jumla ya Zawadi</div></div>
+          <div class="stat-card"><div class="stat-icon purple">📈</div><div class="num">92%</div><div class="stat-label">Completion Rate</div></div>
+        </div>
+
+        <div class="filter-chips">
+          <div class="chip active">Zote</div>
+          <div class="chip">Zinazoendelea</div>
+          <div class="chip">Zijazo</div>
+          <div class="chip">Zimekamilika</div>
+        </div>
+
+        <div class="toolbar">
+          <div class="search">🔍 <input type="text" placeholder="Tafuta tournament kwa jina..."></div>
+          <button class="btn outline">⏫ Bulk Upload</button>
+          <button class="btn outline">⬇️ Export</button>
+        </div>
+
+        <div class="panel">
+          <table>
+            <tr><th>Tournament</th><th>Game</th><th>Entry Fee</th><th>Wachezaji</th><th>Prize Pool</th><th>Hali</th><th>Vitendo</th></tr>
+            <tr>
+              <td>Dar Cup — Weekly</td><td>eFootball 2026</td><td>TZS 2,000</td><td>64/64</td><td>TZS 100,000</td>
+              <td><span class="pill active">Inaendelea</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            <tr>
+              <td>FC26 Championship</td><td>FC 26</td><td>TZS 5,000</td><td>32/32</td><td>TZS 250,000</td>
+              <td><span class="pill pending">Ijayo</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            <tr>
+              <td>Zanzibar Gamers League</td><td>eFootball 2026</td><td>Free</td><td>16/16</td><td>TZS 50,000</td>
+              <td><span class="pill ended">Imekamilika</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="t-reg" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">📝</div>Orodha ya usajili wa wachezaji itaonekana hapa.</div>
+      </div>
+      <div id="t-bracket" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>🗂️ Auto Bracket Generator</h3>
+            <button class="btn btn-sm" id="generateBracketBtn">⚡ Zalisha Bracket Kiotomatiki</button>
+          </div>
+          <p style="color:var(--muted); font-size:.85rem; margin-bottom:1rem;">Wachezaji 64 waliojisajili kwa "Dar Cup — Weekly" wako tayari. Bonyeza kitufe kuzalisha Single Elimination Bracket kiotomatiki (mfumo unachanganya wachezaji bila mpangilio - random seeding).</p>
+          <div id="bracketOutput"></div>
+        </div>
+      </div>
+      <div id="t-results" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">📊</div>Matokeo na ranking ya wachezaji.</div>
+      </div>
+      <div id="t-ai" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h3>⚡ Dispute Resolver — Maombi Yanayosubiri</h3></div>
+          <table>
+            <tr><th>Mechi</th><th>Wachezaji</th><th>Tatizo</th><th>Proof</th><th>Vitendo</th></tr>
+            <tr>
+              <td>Round 3 — Match 12</td><td>Juma A. vs Kevin O.</td><td>Mabishano ya score (2-1 vs 1-1)</td>
+              <td><span class="pill pending">📎 Screenshots 2</span></td>
+              <td class="row-actions"><span>👁️ Ona Proof</span></td>
+            </tr>
+            <tr>
+              <td>Round 2 — Match 5</td><td>Neema G. vs Baraka J.</td><td>Mchezaji hakuonekana (no-show)</td>
+              <td><span class="pill pending">📎 Video Clip</span></td>
+              <td class="row-actions"><span>👁️ Ona Proof</span></td>
+            </tr>
+          </table>
+          <div class="commission-note" style="margin-top:1rem;">🤖 AI inachambua screenshots/video na kupendekeza uamuzi, lakini <b>uamuzi wa mwisho unahitaji Boss approval</b> kabla ya kuathiri matokeo ya bracket.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: YOUTH MARKETPLACE -->
+    <section class="page" id="page-youth">
+      <div class="page-head">
+        <div>
+          <h1>Youth Marketplace</h1>
+          <p>Freelancers, gigs, na maombi — Opportunity → Apply → Review → Accepted → Task → Payment</p>
+        </div>
+        <button class="btn">➕ Chapisha Gig Mpya</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="y-freelancers">🧑‍💻 Freelancers</div>
+        <div class="tab" data-tab="y-gigs">💼 Gigs</div>
+        <div class="tab" data-tab="y-applications">📝 Maombi</div>
+        <div class="tab" data-tab="y-payouts">💸 Payouts</div>
+      </div>
+
+      <div id="y-freelancers" class="tab-panel">
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card"><div class="stat-icon blue">🧑‍💻</div><div class="num">1,240</div><div class="stat-label">Freelancers Waliosajiliwa</div></div>
+          <div class="stat-card"><div class="stat-icon gold">🟡</div><div class="num">37</div><div class="stat-label">Wanasubiri Review</div></div>
+          <div class="stat-card"><div class="stat-icon green">✅</div><div class="num">3,680</div><div class="stat-label">Miradi Iliyokamilika</div></div>
+          <div class="stat-card"><div class="stat-icon purple">⭐</div><div class="num">4.7</div><div class="stat-label">Rating Wastani</div></div>
+        </div>
+
+        <div class="filter-chips">
+          <div class="chip active">Zote</div>
+          <div class="chip">Wanasubiri Approval</div>
+          <div class="chip">Verified</div>
+          <div class="chip">Suspended</div>
+        </div>
+
+        <div class="toolbar">
+          <div class="search">🔍 <input type="text" placeholder="Tafuta freelancer kwa jina au ujuzi..."></div>
+        </div>
+
+        <div class="panel">
+          <table>
+            <tr><th>Freelancer</th><th>Ujuzi</th><th>Miradi</th><th>Rating</th><th>Hali</th><th>Vitendo</th></tr>
+            <tr>
+              <td>Amina R.</td><td>Graphic Design</td><td>96</td><td>★ 5.0</td>
+              <td><span class="pill paid">Verified</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🚫</span></td>
+            </tr>
+            <tr>
+              <td>Baraka J.</td><td>Video Editing</td><td>58</td><td>★ 4.9</td>
+              <td><span class="pill paid">Verified</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🚫</span></td>
+            </tr>
+            <tr>
+              <td>Joyce M.</td><td>Social Media</td><td>0</td><td>—</td>
+              <td><span class="pill pending">Wanasubiri Review</span></td>
+              <td class="row-actions"><span>👁️</span><span>✅</span><span>❌</span></td>
+            </tr>
+            <tr>
+              <td>Hamis T.</td><td>Web Development</td><td>0</td><td>—</td>
+              <td><span class="pill pending">Wanasubiri Review</span></td>
+              <td class="row-actions"><span>👁️</span><span>✅</span><span>❌</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="y-gigs" class="tab-panel" style="display:none;">
+        <div class="filter-chips">
+          <div class="chip active">Zote</div>
+          <div class="chip">Open</div>
+          <div class="chip">Kwenye Review</div>
+          <div class="chip">Inaendelea</div>
+          <div class="chip">Zimekamilika</div>
+        </div>
+        <div class="panel">
+          <table>
+            <tr><th>Gig</th><th>Category</th><th>Budget</th><th>Waliomba</th><th>Deadline</th><th>Hali</th><th>Vitendo</th></tr>
+            <tr>
+              <td>Banner ya Tournament ya Wiki</td><td>Design</td><td>TZS 25,000</td><td>12</td><td>Siku 2</td>
+              <td><span class="pill paid">Open</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            <tr>
+              <td>Video Recap — FC26 Championship</td><td>Video Editing</td><td>TZS 45,000</td><td>7</td><td>Siku 4</td>
+              <td><span class="pill paid">Open</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            <tr>
+              <td>Landing Page ya Youth Academy</td><td>Web Dev</td><td>TZS 120,000</td><td>3</td><td>Siku 6</td>
+              <td><span class="pill pending">Kwenye Review</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="y-applications" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">📝</div>Maombi ya freelancer kwa kila gig yataonekana hapa (Apply → Review → Accepted).</div>
+      </div>
+      <div id="y-payouts" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">💸</div>Malipo ya freelancers baada ya kukamilisha task (commission 10% inakatwa moja kwa moja).</div>
+      </div>
+    </section>
+
+    <!-- PAGE: ACADEMY -->
+    <section class="page" id="page-academy">
+      <div class="page-head">
+        <div>
+          <h1>Academy</h1>
+          <p>Learn → Course → Lesson → Quiz → Certificate</p>
+        </div>
+        <button class="btn">➕ Ongeza Kozi Mpya</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="a-courses">📚 Kozi</div>
+        <div class="tab" data-tab="a-students">👥 Wanafunzi</div>
+        <div class="tab" data-tab="a-certificates">🎓 Vyeti</div>
+        <div class="tab" data-tab="a-mentor">🤖 AI Mentor</div>
+        <div class="tab" data-tab="a-studio">🎬 Content Studio</div>
+      </div>
+
+      <div id="a-courses" class="tab-panel">
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card"><div class="stat-icon blue">📚</div><div class="num">42</div><div class="stat-label">Kozi Zilizopo</div></div>
+          <div class="stat-card"><div class="stat-icon green">👥</div><div class="num">8,900</div><div class="stat-label">Wanafunzi</div></div>
+          <div class="stat-card"><div class="stat-icon gold">🎓</div><div class="num">3,140</div><div class="stat-label">Vyeti Vilivyotolewa</div></div>
+          <div class="stat-card"><div class="stat-icon purple">⭐</div><div class="num">4.8</div><div class="stat-label">Rating Wastani</div></div>
+        </div>
+
+        <div class="filter-chips">
+          <div class="chip active">Zote</div>
+          <div class="chip">Free</div>
+          <div class="chip">Premium</div>
+          <div class="chip">Draft</div>
+        </div>
+
+        <div class="panel">
+          <table>
+            <tr><th>Kozi</th><th>Category</th><th>Level</th><th>Bei</th><th>Wanafunzi</th><th>Hali</th><th>Vitendo</th></tr>
+            <tr>
+              <td>HTML &amp; CSS kwa Wanaoanza</td><td>Web Dev</td><td>Anayeanza</td><td>Free</td><td>2,140</td>
+              <td><span class="pill paid">Live</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            <tr>
+              <td>React kwa Ajili ya Web Apps</td><td>Web Dev</td><td>Kati-Juu</td><td>TZS 25,000</td><td>640</td>
+              <td><span class="pill paid">Live</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            <tr>
+              <td>Game Development na Unity</td><td>Game Dev</td><td>Juu</td><td>TZS 40,000</td><td>0</td>
+              <td><span class="pill pending">Draft</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="a-students" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">👥</div>Orodha ya wanafunzi na progress yao (per-lesson) itaonekana hapa.</div>
+      </div>
+      <div id="a-certificates" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <div class="toolbar">
+            <div class="search">🔍 <input type="text" placeholder="Tafuta kwa certificate code..."></div>
+          </div>
+          <table>
+            <tr><th>Certificate Code</th><th>Mwanafunzi</th><th>Kozi</th><th>Tarehe</th><th>Vitendo</th></tr>
+            <tbody id="certificatesTableBody">
+            <tr><td>LGT-CERT-88213</td><td>Kelvin Fred Pela</td><td>HTML &amp; CSS kwa Wanaoanza</td><td>10 Sep 2026</td><td class="row-actions"><span>👁️ Ona</span><span>✔️ Thibitisha</span></td></tr>
+            <tr><td>LGT-CERT-88190</td><td>Amina R.</td><td>UI/UX Design Msingi</td><td>08 Sep 2026</td><td class="row-actions"><span>👁️ Ona</span><span>✔️ Thibitisha</span></td></tr>
+            <tr><td>LGT-CERT-88155</td><td>Neema K.</td><td>JavaScript Fundamentals</td><td>05 Sep 2026</td><td class="row-actions"><span>👁️ Ona</span><span>✔️ Thibitisha</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="a-mentor" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">🤖</div>Mazungumzo ya AI Mentor na wanafunzi — ripoti za maswali yanayoulizwa zaidi.</div>
+      </div>
+
+      <div id="a-studio" class="tab-panel" style="display:none;">
+        <div class="grid-2">
+          <div>
+            <div class="panel">
+              <div class="panel-head"><h3>📤 Pakia Maudhui Mapya</h3></div>
+              <div class="form-row"><label>Aina ya Maudhui</label>
+                <select>
+                  <option>🎬 Video (Upload/Embed Link)</option>
+                  <option>🖼️ Picha/Infographic</option>
+                  <option>📄 Text Guide/PDF</option>
+                </select>
+              </div>
+              <div class="form-row"><label>Video/Embed Link</label><input type="text" placeholder="https://..."></div>
+              <div class="form-row"><label>Elekeza Kwenye Category</label>
+                <select>
+                  <option>🌱 Vijana Uchumi &amp; Agribusiness</option>
+                  <option>💻 Cybersecurity &amp; Web Dev</option>
+                  <option>🎮 Gaming Tutorials</option>
+                  <option>🩺 Health &amp; Wellness Education</option>
+                </select>
+              </div>
+              <button class="btn">Chapisha Maudhui</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <div class="panel-head"><h3>🤖 AI Course Generator</h3></div>
+              <p style="color:var(--muted); font-size:.85rem; margin-bottom:.8rem;">Andika mada yoyote, AI itaandaa muundo wa kozi (syllabus) kiotomatiki.</p>
+              <div class="form-row"><input type="text" id="courseTopicInput" placeholder="Mfano: Nataka kujifunza Kilimo cha Tikiti"></div>
+              <button class="btn btn-full" id="genCourseBtn">✨ Tengeneza Syllabus</button>
+              <div id="syllabusOutput" style="margin-top:1rem; font-size:.85rem; color:var(--muted); line-height:1.7;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: PRODUCT MANAGER -->
+    <section class="page" id="page-products">
+      <div class="page-head">
+        <div>
+          <h1>Product Manager</h1>
+          <p>Bidhaa zote za store — games, gift cards, coins, accessories</p>
+        </div>
+        <button class="btn">➕ Ongeza Bidhaa</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="p-all">🛒 Bidhaa Zote</div>
+        <div class="tab" data-tab="p-categories">🗂️ Categories</div>
+        <div class="tab" data-tab="p-inventory">📦 Stock/Inventory</div>
+      </div>
+
+      <div id="p-all" class="tab-panel">
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card"><div class="stat-icon blue">🛒</div><div class="num">312</div><div class="stat-label">Bidhaa Zote</div></div>
+          <div class="stat-card"><div class="stat-icon green">✅</div><div class="num">298</div><div class="stat-label">Zipo Live</div></div>
+          <div class="stat-card"><div class="stat-icon gold">⚠️</div><div class="num">9</div><div class="stat-label">Stock Chache</div></div>
+          <div class="stat-card"><div class="stat-icon purple">📝</div><div class="num">5</div><div class="stat-label">Draft</div></div>
+        </div>
+
+        <div class="filter-chips">
+          <div class="chip active">Zote</div>
+          <div class="chip">PC Games</div>
+          <div class="chip">PlayStation</div>
+          <div class="chip">Xbox</div>
+          <div class="chip">Gift Cards</div>
+          <div class="chip">eFootball</div>
+          <div class="chip">Accessories</div>
+        </div>
+
+        <div class="toolbar">
+          <div class="search">🔍 <input type="text" placeholder="Tafuta bidhaa kwa jina au SKU..."></div>
+          <button class="btn outline">⏫ Bulk Upload</button>
+          <button class="btn outline">⬇️ Export</button>
+        </div>
+
+        <div class="panel">
+          <table>
+            <tr><th>Bidhaa</th><th>Category</th><th>Bei</th><th>Stock</th><th>Rating</th><th>Hali</th><th>Vitendo</th></tr>
+            <tbody id="productsTableBody">
+            <tr>
+              <td>FC 26 — Standard Edition</td><td>PC/PlayStation/Xbox</td><td>TZS 45,000</td><td>∞ Digital</td><td>★ 4.8</td>
+              <td><span class="pill paid">Live</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            <tr>
+              <td>Steam Account — 12 Games Bundle</td><td>Steam</td><td>TZS 80,000</td><td>4</td><td>★ 4.6</td>
+              <td><span class="pill pending">Stock Chache</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            <tr>
+              <td>eFootball Coins — 5,000</td><td>eFootball</td><td>TZS 12,000</td><td>∞ Digital</td><td>★ 5.0</td>
+              <td><span class="pill paid">Live</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            <tr>
+              <td>Gaming Headset RGB Pro</td><td>Accessories</td><td>TZS 65,000</td><td>23</td><td>★ 4.7</td>
+              <td><span class="pill paid">Live</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            <tr>
+              <td>Xbox Game Pass — 3 Months</td><td>Xbox</td><td>TZS 35,000</td><td>∞ Digital</td><td>★ 4.9</td>
+              <td><span class="pill ended">Draft</span></td>
+              <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="p-categories" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <table>
+            <tr><th>Category</th><th>Bidhaa</th><th>Vitendo</th></tr>
+            <tr><td>🖥️ PC Games</td><td>84</td><td class="row-actions"><span>✏️</span><span>🗑️</span></td></tr>
+            <tr><td>🎮 PlayStation</td><td>56</td><td class="row-actions"><span>✏️</span><span>🗑️</span></td></tr>
+            <tr><td>🕹️ Xbox</td><td>41</td><td class="row-actions"><span>✏️</span><span>🗑️</span></td></tr>
+            <tr><td>🎁 Gift Cards</td><td>38</td><td class="row-actions"><span>✏️</span><span>🗑️</span></td></tr>
+            <tr><td>⚽ eFootball</td><td>29</td><td class="row-actions"><span>✏️</span><span>🗑️</span></td></tr>
+            <tr><td>🎧 Accessories</td><td>64</td><td class="row-actions"><span>✏️</span><span>🗑️</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="p-inventory" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">📦</div>Ufuatiliaji wa stock kwa bidhaa za kimwili (accessories, gaming PCs) utaonekana hapa.</div>
+      </div>
+    </section>
+
+    <!-- PAGE: REVENUE & COMMISSION -->
+    <section class="page" id="page-analytics">
+      <div class="page-head">
+        <div>
+          <h1>Revenue &amp; Commission Dashboard</h1>
+          <p>Uwazi kamili wa mapato — commission kutoka Store, Youth Marketplace, Tournaments, na Marketplace</p>
+        </div>
+        <button class="btn outline">⬇️ Export Ripoti</button>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon green">💰</div>
+          <div class="num">TZS 4.8M</div>
+          <div class="stat-label">Mapato Ghafi (Mwezi Huu)</div>
+          <div class="stat-delta">▲ 18% kuliko mwezi jana</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon gold">💵</div>
+          <div class="num">TZS 612K</div>
+          <div class="stat-label">Commission ya Admin</div>
+          <div class="stat-delta">10% ya wastani</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">🛒</div>
+          <div class="num">TZS 3.1M</div>
+          <div class="stat-label">Mauzo ya Store</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">🏆</div>
+          <div class="num">TZS 480K</div>
+          <div class="stat-label">Entry Fees za Tournaments</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Chanzo cha Commission (Mwezi Huu)</h3></div>
+        <table>
+          <tr><th>Chanzo</th><th>Mapato Ghafi</th><th>Commission %</th><th>Commission (TZS)</th><th>Kwenda kwa</th></tr>
+          <tr><td>🛒 Store (bidhaa)</td><td>TZS 3,100,000</td><td>—</td><td>—</td><td>Faida ya moja kwa moja (markup)</td></tr>
+          <tr><td>🧑‍💻 Youth Marketplace (gigs)</td><td>TZS 890,000</td><td>10%</td><td>TZS 89,000</td><td>Admin Treasury</td></tr>
+          <tr><td>🏆 Tournament Entry Fees</td><td>TZS 480,000</td><td>Ada ya huduma</td><td>TZS 48,000</td><td>Admin Treasury</td></tr>
+          <tr><td>🏪 Community Marketplace (VIP Ads)</td><td>TZS 210,000</td><td>Ada ya siku</td><td>TZS 210,000</td><td>Admin Treasury</td></tr>
+          <tr><td>🌱 Agro-Marketplace (Affiliate)</td><td>TZS 120,000</td><td>8-12%</td><td>TZS 14,000</td><td>Admin Treasury</td></tr>
+        </table>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><h3>Community Fund (10% ya Commission)</h3></div>
+          <table>
+            <tr><td>Commission ya Mwezi</td><td style="text-align:right;">TZS 612,000</td></tr>
+            <tr><td>Kwenda Community Fund (10%)</td><td style="text-align:right; color:var(--gold);">TZS 61,200</td></tr>
+            <tr><td>Kwenda Admin Treasury (90%)</td><td style="text-align:right;">TZS 550,800</td></tr>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Payouts Zinazosubiri Approval</h3></div>
+          <div class="ai-row"><span class="status-dot wait"></span><span class="ai-name">Baraka J. — Tournament Prize</span><span class="ai-status-label wait">TZS 60,000</span></div>
+          <div class="ai-row"><span class="status-dot wait"></span><span class="ai-name">Amina R. — Gig Payment</span><span class="ai-status-label wait">TZS 22,500</span></div>
+          <div class="ai-row"><span class="status-dot wait"></span><span class="ai-name">Neema K. — Withdrawal</span><span class="ai-status-label wait">TZS 150,000</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: SECURITY CENTER -->
+    <section class="page" id="page-security">
+      <div class="page-head">
+        <div>
+          <h1>Security Center</h1>
+          <p>2FA, Bot/Multi-Account Prevention, na Audit Logs — AI Security Guardian</p>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="s-alerts">🚨 Alerts</div>
+        <div class="tab" data-tab="s-2fa">🔐 2FA Settings</div>
+        <div class="tab" data-tab="s-bot">🤖 Bot &amp; Multi-Account</div>
+        <div class="tab" data-tab="s-audit">📜 Audit Log</div>
+      </div>
+
+      <div id="s-alerts" class="tab-panel">
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card"><div class="stat-icon pink">🚨</div><div class="num">1</div><div class="stat-label">Alerts za Sasa</div></div>
+          <div class="stat-card"><div class="stat-icon gold">🔑</div><div class="num">23</div><div class="stat-label">Login Attempts Zilizoshindwa (24h)</div></div>
+          <div class="stat-card"><div class="stat-icon blue">🌐</div><div class="num">4</div><div class="stat-label">IPs Zilizozuiwa</div></div>
+          <div class="stat-card"><div class="stat-icon purple">👥</div><div class="num">2</div><div class="stat-label">Akaunti Zenye Shaka</div></div>
+        </div>
+        <div class="panel">
+          <table>
+            <tr><th>Aina</th><th>Maelezo</th><th>Ukali</th><th>Muda</th><th>Vitendo</th></tr>
+            <tr>
+              <td>🔁 Multi-Account</td><td>IP moja ina akaunti 3 zilizojisajili kwa tournament moja</td>
+              <td><span class="pill pending">Kati</span></td><td>Dakika 12 zilizopita</td>
+              <td class="row-actions"><span>👁️</span><span>🚫 Zuia</span></td>
+            </tr>
+            <tr>
+              <td>🔑 Brute Force</td><td>Majaribio 15 ya password kwenye akaunti moja</td>
+              <td><span class="pill" style="background:var(--red-dim); color:var(--red);">Juu</span></td><td>Saa 1 zilizopita</td>
+              <td class="row-actions"><span>👁️</span><span>🚫 Zuia IP</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="s-2fa" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h3>🔐 Mipangilio ya 2FA</h3></div>
+          <p style="color:var(--muted); font-size:.85rem; margin-bottom:1rem;">2FA (SMS/Email OTP) inahitajika kiotomatiki kwa vitendo hivi — haiwezi kuzimwa kwa vitendo vya fedha:</p>
+          <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">Wallet Withdrawal</span><span class="ai-status-label on">Inahitajika</span></div>
+          <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">Kubadilisha Namba ya Simu</span><span class="ai-status-label on">Inahitajika</span></div>
+          <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">Kubadilisha Password</span><span class="ai-status-label on">Inahitajika</span></div>
+          <div class="ai-row"><span class="status-dot wait"></span><span class="ai-name">Login ya Kawaida</span><span class="ai-status-label wait">Hiari (mtumiaji anachagua)</span></div>
+        </div>
+      </div>
+
+      <div id="s-bot" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h3>🤖 Bot &amp; Multi-Account Prevention</h3></div>
+          <p style="color:var(--muted); font-size:.85rem; margin-bottom:1rem;">Sheria zinazofanya kazi kiotomatiki kuzuia mtu mmoja kutumia akaunti nyingi kwenye tournament moja au betting/prediction:</p>
+          <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">Device Fingerprinting</span><span class="ai-status-label on">Active</span></div>
+          <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">IP + Phone Number Matching</span><span class="ai-status-label on">Active</span></div>
+          <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">CAPTCHA kwenye Signup</span><span class="ai-status-label on">Active</span></div>
+          <div class="ai-row"><span class="status-dot wait"></span><span class="ai-name">Rate Limiting ya API</span><span class="ai-status-label wait">Kwenye Ujenzi</span></div>
+        </div>
+      </div>
+
+      <div id="s-audit" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">📜</div>Kumbukumbu ya vitendo vyote vya Admin/AI (audit trail) itaonekana hapa.</div>
+      </div>
+    </section>
+
+    <!-- PAGE: PAYMENTS CENTER -->
+    <section class="page" id="page-payments">
+      <div class="page-head">
+        <div>
+          <h1>Payments Center</h1>
+          <p>Malipo yote — powered by AzamPay (M-Pesa, Tigo Pesa, Airtel Money, HaloPesa, AzamPesa, Bank)</p>
+        </div>
+        <button class="btn outline">⬇️ Export</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="pay-all">💰 Miamala Yote</div>
+        <div class="tab" data-tab="pay-pending">⏳ Pending</div>
+        <div class="tab" data-tab="pay-failed">❌ Failed</div>
+        <div class="tab" data-tab="pay-providers">📡 Providers</div>
+      </div>
+
+      <div id="pay-all" class="tab-panel">
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card"><div class="stat-icon green">✅</div><div class="num">TZS 4.2M</div><div class="stat-label">Zilizolipwa (Mwezi Huu)</div></div>
+          <div class="stat-card"><div class="stat-icon gold">⏳</div><div class="num">12</div><div class="stat-label">Pending</div></div>
+          <div class="stat-card"><div class="stat-icon pink">❌</div><div class="num">3</div><div class="stat-label">Zilizoshindwa</div></div>
+          <div class="stat-card"><div class="stat-icon blue">📊</div><div class="num">96.4%</div><div class="stat-label">Success Rate</div></div>
+        </div>
+
+        <div class="filter-chips">
+          <div class="chip active">Zote</div>
+          <div class="chip">M-Pesa</div>
+          <div class="chip">Tigo Pesa</div>
+          <div class="chip">Airtel Money</div>
+          <div class="chip">AzamPesa</div>
+          <div class="chip">HaloPesa</div>
+          <div class="chip">Bank</div>
+        </div>
+
+        <div class="panel">
+          <table>
+            <tr><th>Ref</th><th>Mteja</th><th>Kiasi</th><th>Provider</th><th>Aina</th><th>Hali</th><th>Muda</th></tr>
+            <tr><td>TXN-88421</td><td>Juma A.</td><td>TZS 45,000</td><td>📱 M-Pesa</td><td>Store</td><td><span class="pill paid">Success</span></td><td>Dakika 8</td></tr>
+            <tr><td>TXN-88420</td><td>Fatma S.</td><td>TZS 2,500</td><td>📱 Tigo Pesa</td><td>Tournament</td><td><span class="pill paid">Success</span></td><td>Dakika 22</td></tr>
+            <tr><td>TXN-88419</td><td>Kelvin M.</td><td>TZS 12,000</td><td>📱 AzamPesa</td><td>Store</td><td><span class="pill pending">Pending</span></td><td>Dakika 35</td></tr>
+            <tr><td>TXN-88418</td><td>Neema G.</td><td>TZS 80,000</td><td>🏦 CRDB Bank</td><td>Creator Program</td><td><span class="pill paid">Success</span></td><td>Saa 1</td></tr>
+            <tr><td>TXN-88417</td><td>David M.</td><td>TZS 25,000</td><td>📱 Airtel Money</td><td>Academy</td><td><span class="pill ended">Failed</span></td><td>Saa 2</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="pay-pending" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">⏳</div>Miamala inayosubiri uthibitisho kutoka AzamPay Callback.</div>
+      </div>
+      <div id="pay-failed" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">❌</div>Miamala iliyoshindwa — sababu za kawaida: insufficient balance, timeout, network error.</div>
+      </div>
+      <div id="pay-providers" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <table>
+            <tr><th>Provider</th><th>Miamala</th><th>Success Rate</th><th>Hali</th></tr>
+            <tr><td>📱 M-Pesa</td><td>1,240</td><td>97.8%</td><td><span class="pill paid">Active</span></td></tr>
+            <tr><td>📱 Tigo Pesa</td><td>680</td><td>96.1%</td><td><span class="pill paid">Active</span></td></tr>
+            <tr><td>📱 Airtel Money</td><td>410</td><td>94.5%</td><td><span class="pill paid">Active</span></td></tr>
+            <tr><td>📱 AzamPesa</td><td>290</td><td>98.2%</td><td><span class="pill paid">Active</span></td></tr>
+            <tr><td>📱 HaloPesa</td><td>85</td><td>93.0%</td><td><span class="pill paid">Active</span></td></tr>
+            <tr><td>🏦 Bank (CRDB/NMB)</td><td>62</td><td>99.1%</td><td><span class="pill paid">Active</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: WALLET -->
+    <section class="page" id="page-wallet">
+      <div class="page-head">
+        <div>
+          <h1>Wallet</h1>
+          <p>Salio la watumiaji, deposits, na withdrawals</p>
+        </div>
+      </div>
+
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card"><div class="stat-icon green">💰</div><div class="num">TZS 12.4M</div><div class="stat-label">Jumla ya Wallet Balances</div></div>
+        <div class="stat-card"><div class="stat-icon blue">📥</div><div class="num">TZS 3.1M</div><div class="stat-label">Deposits (Mwezi Huu)</div></div>
+        <div class="stat-card"><div class="stat-icon gold">📤</div><div class="num">TZS 1.8M</div><div class="stat-label">Withdrawals (Mwezi Huu)</div></div>
+        <div class="stat-card"><div class="stat-icon purple">⏳</div><div class="num">6</div><div class="stat-label">Withdrawals Pending</div></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search">🔍 <input type="text" placeholder="Tafuta mtumiaji..."></div>
+      </div>
+
+      <div class="panel">
+        <table>
+          <tr><th>Mtumiaji</th><th>Balance</th><th>Deposits Jumla</th><th>Withdrawals Jumla</th><th>2FA</th><th>Vitendo</th></tr>
+          <tbody id="walletsTableBody">
+          <tr><td>Kelvin Fred Pela</td><td style="color:var(--cyan); font-weight:700;">TZS 850,000</td><td>TZS 2,100,000</td><td>TZS 1,250,000</td><td><span class="pill paid">✔ On</span></td><td class="row-actions"><span>👁️</span><span>✏️ Adjust</span></td></tr>
+          <tr><td>Baraka J.</td><td style="color:var(--cyan); font-weight:700;">TZS 240,000</td><td>TZS 680,000</td><td>TZS 440,000</td><td><span class="pill paid">✔ On</span></td><td class="row-actions"><span>👁️</span><span>✏️ Adjust</span></td></tr>
+          <tr><td>Amina R.</td><td style="color:var(--cyan); font-weight:700;">TZS 95,000</td><td>TZS 310,000</td><td>TZS 215,000</td><td><span class="pill pending">✘ Off</span></td><td class="row-actions"><span>👁️</span><span>✏️ Adjust</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>💸 Withdrawal Requests — Zinasubiri Approval</h3></div>
+        <table>
+          <tr><th>Mtumiaji</th><th>Kiasi</th><th>Provider</th><th>2FA</th><th>Vitendo</th></tr>
+          <tr><td>Neema K.</td><td>TZS 150,000</td><td>📱 M-Pesa</td><td><span class="pill paid">✔ Verified</span></td><td class="row-actions"><span>✅ Approve</span><span>❌ Reject</span></td></tr>
+          <tr><td>Hamis T.</td><td>TZS 45,000</td><td>📱 Tigo Pesa</td><td><span class="pill paid">✔ Verified</span></td><td class="row-actions"><span>✅ Approve</span><span>❌ Reject</span></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- PAGE: ESCROW & SETTLEMENT -->
+    <section class="page" id="page-escrow">
+      <div class="page-head">
+        <div>
+          <h1>Escrow &amp; Settlement</h1>
+          <p>Entry Fee → Escrow → Match → Result → Verification → Settlement → Winner → Payout</p>
+        </div>
+      </div>
+
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card"><div class="stat-icon gold">🔐</div><div class="num">TZS 480,000</div><div class="stat-label">Fedha Zilizoshikiliwa (Held)</div></div>
+        <div class="stat-card"><div class="stat-icon green">✅</div><div class="num">42</div><div class="stat-label">Zilizoachiliwa (Released)</div></div>
+        <div class="stat-card"><div class="stat-icon pink">⚠️</div><div class="num">2</div><div class="stat-label">Disputed</div></div>
+        <div class="stat-card"><div class="stat-icon blue">↩️</div><div class="num">3</div><div class="stat-label">Refunded</div></div>
+      </div>
+
+      <div class="panel">
+        <table>
+          <tr><th>Tournament/Order</th><th>Kiasi</th><th>Hali ya Escrow</th><th>Muda</th><th>Vitendo</th></tr>
+          <tr><td>Dar Cup — Weekly (Entry #59)</td><td>TZS 2,000</td><td><span class="pill pending">🔐 Held</span></td><td>Inasubiri matokeo</td><td class="row-actions"><span>👁️</span></td></tr>
+          <tr><td>FC26 Championship (Entry #12)</td><td>TZS 5,000</td><td><span class="pill paid">✅ Released</span></td><td>Imekamilika</td><td class="row-actions"><span>👁️</span></td></tr>
+          <tr><td>Order #1042 — FC26 Key</td><td>TZS 45,000</td><td><span class="pill" style="background:var(--red-dim); color:var(--red);">⚠️ Disputed</span></td><td>Mteja hajapokea delivery</td><td class="row-actions"><span>👁️ Ona Dispute</span></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- PAGE: PAYOUT MANAGER -->
+    <section class="page" id="page-payouts">
+      <div class="page-head">
+        <div>
+          <h1>Payout Manager</h1>
+          <p>Seller payouts, tournament prizes, affiliate commissions, creator earnings</p>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="po-pending">⏳ Pending Approval</div>
+        <div class="tab" data-tab="po-approved">✅ Approved</div>
+        <div class="tab" data-tab="po-failed">❌ Failed</div>
+      </div>
+
+      <div id="po-pending" class="tab-panel">
+        <div class="commission-note" style="margin-bottom:1rem;">🔴 Vitendo hivi vyote vinahitaji Boss Approval — AI haiwezi kutoa pesa peke yake.</div>
+        <div class="panel">
+          <table>
+            <tr><th>Aina</th><th>Mpokeaji</th><th>Kiasi</th><th>Chanzo</th><th>Vitendo</th></tr>
+            <tr><td>🏆 Tournament Prize</td><td>Baraka J.</td><td>TZS 60,000</td><td>Dar Cup — Nafasi ya 1</td><td class="row-actions"><span>✅ Approve</span><span>❌ Reject</span></td></tr>
+            <tr><td>🧑‍💻 Gig Payment</td><td>Amina R.</td><td>TZS 22,500</td><td>Banner ya Tournament (baada ya 10% commission)</td><td class="row-actions"><span>✅ Approve</span><span>❌ Reject</span></td></tr>
+            <tr><td>🤝 Affiliate Commission</td><td>Kelvin Fred Pela</td><td>TZS 4,500</td><td>Referral — Order #1042</td><td class="row-actions"><span>✅ Approve</span><span>❌ Reject</span></td></tr>
+            <tr><td>🎨 Creator Earnings</td><td>David M.</td><td>TZS 6,375</td><td>Skill Moves Guide — Downloads 15</td><td class="row-actions"><span>✅ Approve</span><span>❌ Reject</span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div id="po-approved" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">✅</div>Payouts zilizoidhinishwa na kulipwa zitaonekana hapa.</div>
+      </div>
+      <div id="po-failed" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">❌</div>Payouts zilizoshindwa (mfano namba ya simu batili) zitaonekana hapa kwa marekebisho.</div>
+      </div>
+    </section>
+
+    <!-- PAGE: USERS & ROLES -->
+    <section class="page" id="page-users">
+      <div class="page-head">
+        <div>
+          <h1>Users &amp; Roles</h1>
+          <p>Watumiaji wote, roles, na permissions</p>
+        </div>
+        <button class="btn">➕ Ongeza Staff</button>
+      </div>
+
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card"><div class="stat-icon blue">👥</div><div class="num">2,847</div><div class="stat-label">Watumiaji Wote</div></div>
+        <div class="stat-card"><div class="stat-icon green">🟢</div><div class="num">2,791</div><div class="stat-label">Active</div></div>
+        <div class="stat-card"><div class="stat-icon gold">⏸️</div><div class="num">42</div><div class="stat-label">Suspended</div></div>
+        <div class="stat-card"><div class="stat-icon pink">🚫</div><div class="num">14</div><div class="stat-label">Banned</div></div>
+      </div>
+
+      <div class="filter-chips">
+        <div class="chip active">Zote</div>
+        <div class="chip">Customers</div>
+        <div class="chip">Freelancers</div>
+        <div class="chip">Referees</div>
+        <div class="chip">Staff</div>
+        <div class="chip">Admins</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search">🔍 <input type="text" placeholder="Tafuta mtumiaji kwa jina/simu..."></div>
+      </div>
+
+      <div class="panel">
+        <table>
+          <tr><th>Mtumiaji</th><th>Role</th><th>Wallet</th><th>Amejiunga</th><th>Hali</th><th>Vitendo</th></tr>
+          <tbody id="usersTableBody">
+          <tr><td>Kelvin Fred Pela</td><td><span class="pill paid">👑 Owner</span></td><td>TZS 850,000</td><td>Jan 2026</td><td><span class="pill paid">Active</span></td><td class="row-actions"><span>👁️</span><span>✏️</span></td></tr>
+          <tr><td>Amina R.</td><td><span class="pill pending">Freelancer</span></td><td>TZS 95,000</td><td>Mar 2026</td><td><span class="pill paid">Active</span></td><td class="row-actions"><span>👁️</span><span>✏️</span><span>🚫</span></td></tr>
+          <tr><td>David M.</td><td><span class="pill pending">Referee</span></td><td>TZS 240,000</td><td>Feb 2026</td><td><span class="pill paid">Active</span></td><td class="row-actions"><span>👁️</span><span>✏️</span><span>🚫</span></td></tr>
+          <tr><td>Juma A.</td><td><span class="pill ended">Customer</span></td><td>TZS 12,000</td><td>Jun 2026</td><td><span class="pill" style="background:var(--red-dim); color:var(--red);">Suspended</span></td><td class="row-actions"><span>👁️</span><span>✏️</span><span>✅ Unban</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Roles &amp; Permissions</h3></div>
+        <table>
+          <tr><th>Role</th><th>Maelezo</th><th>Idadi</th></tr>
+          <tr><td>👑 Owner/Boss</td><td>Ufikiaji kamili, approval ya vitendo vyote nyeti</td><td>1</td></tr>
+          <tr><td>🛠️ Staff/Admin</td><td>Wanasimamia modules mahususi, hawana access ya Wallet Adjust</td><td>4</td></tr>
+          <tr><td>🧑‍💻 Freelancer</td><td>Youth Marketplace + Creator Program</td><td>1,240</td></tr>
+          <tr><td>🏁 Referee</td><td>Tournament Manager — verification ya matokeo tu</td><td>28</td></tr>
+          <tr><td>🛒 Customer</td><td>Store, Tournaments, Academy (default role)</td><td>1,574</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- PAGE: CREATOR CENTER -->
+    <section class="page" id="page-creators">
+      <div class="page-head">
+        <div>
+          <h1>Creator Center</h1>
+          <p>Digital products za Creator Program — game guides, graphics, templates, coding services</p>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="cr-products">🛒 Bidhaa</div>
+        <div class="tab" data-tab="cr-review">🕵️ Kwenye Review</div>
+        <div class="tab" data-tab="cr-creators">🧑‍🎨 Creators</div>
+      </div>
+
+      <div id="cr-products" class="tab-panel">
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card"><div class="stat-icon blue">🛒</div><div class="num">2,180</div><div class="stat-label">Bidhaa Zilizochapishwa</div></div>
+          <div class="stat-card"><div class="stat-icon gold">🕵️</div><div class="num">14</div><div class="stat-label">Kwenye Review</div></div>
+          <div class="stat-card"><div class="stat-icon green">⬇️</div><div class="num">14,300</div><div class="stat-label">Downloads Jumla</div></div>
+          <div class="stat-card"><div class="stat-icon purple">💰</div><div class="num">15%</div><div class="stat-label">Commission Rate</div></div>
+        </div>
+        <div class="panel">
+          <table>
+            <tr><th>Bidhaa</th><th>Creator</th><th>Bei</th><th>Downloads</th><th>Hali</th><th>Vitendo</th></tr>
+            <tr><td>eFootball Ultimate Team Guide</td><td>Baraka J.</td><td>TZS 8,000</td><td>1,240</td><td><span class="pill paid">Live</span></td><td class="row-actions"><span>👁️</span><span>🗑️</span></td></tr>
+            <tr><td>Gaming Thumbnail Pack</td><td>Amina R.</td><td>TZS 12,000</td><td>680</td><td><span class="pill paid">Live</span></td><td class="row-actions"><span>👁️</span><span>🗑️</span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div id="cr-review" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <table>
+            <tr><th>Bidhaa</th><th>Creator</th><th>Aina</th><th>AI Check</th><th>Vitendo</th></tr>
+            <tr><td>Stream Overlay Kit v2</td><td>Fatma S.</td><td>Template</td><td><span class="pill paid">✔ Copyright OK</span></td><td class="row-actions"><span>✅ Approve</span><span>❌ Reject</span></td></tr>
+            <tr><td>Discord Bot Setup Guide</td><td>Kevin O.</td><td>Coding Service</td><td><span class="pill pending">🕵️ Inakaguliwa</span></td><td class="row-actions"><span>✅ Approve</span><span>❌ Reject</span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div id="cr-creators" class="tab-panel" style="display:none;">
+        <div class="placeholder-box"><div class="big">🧑‍🎨</div>Orodha ya creators wote na jumla ya mapato yao.</div>
+      </div>
+    </section>
+
+    <!-- PAGE: AFFILIATE PROGRAM (Admin) -->
+    <section class="page" id="page-affiliates">
+      <div class="page-head">
+        <div>
+          <h1>Affiliate Program</h1>
+          <p>Affiliates, referral links, na commission tracking</p>
+        </div>
+      </div>
+
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card"><div class="stat-icon blue">🤝</div><div class="num">386</div><div class="stat-label">Affiliates Active</div></div>
+        <div class="stat-card"><div class="stat-icon green">👆</div><div class="num">28,400</div><div class="stat-label">Clicks (Mwezi Huu)</div></div>
+        <div class="stat-card"><div class="stat-icon gold">✅</div><div class="num">1,480</div><div class="stat-label">Conversions</div></div>
+        <div class="stat-card"><div class="stat-icon purple">💰</div><div class="num">TZS 890K</div><div class="stat-label">Commission Iliyolipwa</div></div>
+      </div>
+
+      <div class="panel">
+        <table>
+          <tr><th>Affiliate</th><th>Referral Code</th><th>Clicks</th><th>Conversions</th><th>Commission</th></tr>
+          <tbody id="affiliatesTableBody">
+          <tr><td>Kelvin Fred Pela</td><td>KELVIN2026</td><td>1,842</td><td>96</td><td style="color:var(--cyan); font-weight:700;">TZS 184,000</td></tr>
+          <tr><td>Neema K.</td><td>NEEMA2026</td><td>920</td><td>41</td><td style="color:var(--cyan); font-weight:700;">TZS 68,500</td></tr>
+          <tr><td>Hamis T.</td><td>HAMIS2026</td><td>610</td><td>18</td><td style="color:var(--cyan); font-weight:700;">TZS 29,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PAGE: MARKETING CENTER -->
+    <section class="page" id="page-marketing">
+      <div class="page-head">
+        <div>
+          <h1>Marketing Center</h1>
+          <p>Banners, promotions, coupons, na AI-generated content</p>
+        </div>
+        <button class="btn">➕ Tengeneza Promotion</button>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="mk-banners">🖼️ Banners</div>
+        <div class="tab" data-tab="mk-coupons">🎟️ Coupons</div>
+        <div class="tab" data-tab="mk-ai">🤖 AI Content Generator</div>
+      </div>
+
+      <div id="mk-banners" class="tab-panel">
+        <div class="panel">
+          <table>
+            <tr><th>Banner</th><th>Sehemu</th><th>Kipindi</th><th>Hali</th><th>Vitendo</th></tr>
+            <tr><td>Dar Cup Weekly — Jiunge Sasa</td><td>Home Hero</td><td>08-15 Sep</td><td><span class="pill paid">Live</span></td><td class="row-actions"><span>✏️</span><span>🗑️</span></td></tr>
+            <tr><td>FC 26 — Punguzo 25%</td><td>Store Top Banner</td><td>05-12 Sep</td><td><span class="pill paid">Live</span></td><td class="row-actions"><span>✏️</span><span>🗑️</span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div id="mk-coupons" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <table>
+            <tr><th>Code</th><th>Punguzo</th><th>Matumizi</th><th>Muda</th><th>Hali</th></tr>
+            <tr><td>GAME10</td><td>10%</td><td>142/500</td><td>Hadi 30 Sep</td><td><span class="pill paid">Active</span></td></tr>
+            <tr><td>WELCOME20</td><td>20%</td><td>89/200</td><td>Hadi 20 Sep</td><td><span class="pill paid">Active</span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div id="mk-ai" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h3>🤖 AI Content &amp; Marketing Agent</h3></div>
+          <div class="form-row"><input type="text" id="mkPromptInput" placeholder="Mfano: Tengeneza promotion ya tournament ya Jumapili"></div>
+          <button class="btn btn-full" id="mkGenBtn">✨ Tengeneza</button>
+          <div id="mkOutput" style="margin-top:1rem; font-size:.85rem; color:var(--muted); line-height:1.7;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: HEALTH & COMMUNITY -->
+    <section class="page" id="page-health">
+      <div class="page-head">
+        <div>
+          <h1>Health &amp; Community</h1>
+          <p>AI Health Assistant escalations na Professional Network — data hii imetengwa (isolated) kutoka business analytics</p>
+        </div>
+      </div>
+
+      <div class="commission-note" style="margin-bottom:1.2rem;">🔒 Kwa faragha ya watumiaji, mazungumzo kamili ya Health/Recovery <b>hayaonyeshwi</b> hapa moja kwa moja. Admin anaona tu case ID, urgency level, na status — siyo maudhui ya mazungumzo, isipokuwa mtumiaji ameomba msaada wa moja kwa moja wa Admin.</div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="h-escalations">🚨 Escalations</div>
+        <div class="tab" data-tab="h-professionals">👨‍⚕️ Professional Network</div>
+      </div>
+
+      <div id="h-escalations" class="tab-panel">
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card"><div class="stat-icon green">🟢</div><div class="num">18</div><div class="stat-label">Low Concern (wiki hii)</div></div>
+          <div class="stat-card"><div class="stat-icon gold">🟡</div><div class="num">6</div><div class="stat-label">Needs Attention</div></div>
+          <div class="stat-card"><div class="stat-icon pink">🔴</div><div class="num">1</div><div class="stat-label">Urgent — Escalated</div></div>
+          <div class="stat-card"><div class="stat-icon blue">👨‍⚕️</div><div class="num">12</div><div class="stat-label">Ziliozounganishwa na Mtaalamu</div></div>
+        </div>
+        <div class="panel">
+          <table>
+            <tr><th>Case ID</th><th>Aina</th><th>Urgency</th><th>Status</th><th>Vitendo</th></tr>
+            <tr><td>HC-88214</td><td>AI Health Assistant</td><td><span class="pill" style="background:var(--red-dim); color:var(--red);">🔴 Urgent</span></td><td>Imeelekezwa kwa 112/116</td><td class="row-actions"><span>👁️ Fuatilia</span></td></tr>
+            <tr><td>HC-88190</td><td>Recovery Support</td><td><span class="pill pending">🟡 Needs Attention</span></td><td>Inasubiri professional</td><td class="row-actions"><span>👁️ Fuatilia</span><span>🔗 Unganisha</span></td></tr>
+            <tr><td>HC-88175</td><td>AI Health Assistant</td><td><span class="pill paid">🟢 Low Concern</span></td><td>Imefungwa</td><td class="row-actions"><span>👁️ Ona</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="h-professionals" class="tab-panel" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h3>Wataalamu Waliothibitishwa</h3><button class="btn btn-sm">➕ Ongeza Mtaalamu</button></div>
+          <table>
+            <tr><th>Jina</th><th>Role</th><th>Eneo</th><th>Verification</th><th>Vitendo</th></tr>
+            <tr><td>Dr. Rehema N.</td><td>Daktari Mkuu</td><td>Dar es Salaam</td><td><span class="pill paid">✔ Verified</span></td><td class="row-actions"><span>👁️</span><span>✏️</span></td></tr>
+            <tr><td>Peter L.</td><td>Mshauri wa Kisaikolojia</td><td>Mtandaoni</td><td><span class="pill paid">✔ Verified</span></td><td class="row-actions"><span>👁️</span><span>✏️</span></td></tr>
+            <tr><td>Said O.</td><td>Mshauri wa Recovery</td><td>Mtandaoni</td><td><span class="pill pending">🕵️ Inakaguliwa</span></td><td class="row-actions"><span>✅ Thibitisha</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE: AI WEBSITE BUILDER -->
+    <section class="page" id="page-builder">
+      <div class="page-head">
+        <div>
+          <h1>AI Website Builder</h1>
+          <p>Badilisha website kwa kuandika command — Request → Preview → Security Check → Boss Approval → Publish</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>🧱 Andika Unachotaka Kubadilisha</h3></div>
+        <div class="form-row"><input type="text" id="builderInput" placeholder="Mfano: Ongeza banner ya tournament kwenye Home Page"></div>
+        <button class="btn btn-full" id="builderRunBtn">🤖 Tuma kwa AI Web Builder</button>
+        <div id="builderPipeline" style="display:none; margin-top:1.2rem;">
+          <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">1. Request Imepokelewa</span><span class="ai-status-label on">✔ Done</span></div>
+          <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">2. Preview Imetengenezwa</span><span class="ai-status-label on">✔ Done</span></div>
+          <div class="ai-row"><span class="status-dot on"></span><span class="ai-name">3. Security Check</span><span class="ai-status-label on">✔ Safe</span></div>
+          <div class="ai-row"><span class="status-dot wait"></span><span class="ai-name">4. Boss Approval</span><span class="ai-status-label wait">Inasubiri wewe</span></div>
+          <div style="display:flex; gap:.6rem; margin-top:1rem;">
+            <button class="btn btn-sm">✅ Idhinisha &amp; Chapisha</button>
+            <button class="btn btn-sm outline">❌ Kataa</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>📜 Version History</h3></div>
+        <table>
+          <tr><th>Version</th><th>Mabadiliko</th><th>Na Nani</th><th>Muda</th><th>Vitendo</th></tr>
+          <tr><td>v24</td><td>Ongeza banner ya FC26 Championship</td><td>AI Web Builder</td><td>Saa 2 zilizopita</td><td class="row-actions"><span>👁️</span><span>↩️ Rollback</span></td></tr>
+          <tr><td>v23</td><td>Badilisha rangi ya "Nunua Sasa" button</td><td>Kelvin Fred Pela</td><td>Jana</td><td class="row-actions"><span>👁️</span><span>↩️ Rollback</span></td></tr>
+          <tr><td>v22</td><td>Ongeza category "Accessories"</td><td>AI Web Builder</td><td>Siku 3 zilizopita</td><td class="row-actions"><span>👁️</span><span>↩️ Rollback</span></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- PAGE: SETTINGS -->
+    <section class="page" id="page-settings">
+      <div class="page-head">
+        <div>
+          <h1>Settings</h1>
+          <p>Mipangilio ya mfumo mzima</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="panel">
+            <div class="panel-head"><h3>🌐 Website Settings</h3></div>
+            <div class="ai-row"><span class="ai-name">Jina la Website</span><span style="color:var(--muted); font-size:.85rem;">LifeIsGameTZ</span></div>
+            <div class="ai-row"><span class="ai-name">Maintenance Mode</span><span class="ai-status-label wait">Off</span></div>
+            <div class="ai-row"><span class="ai-name">Default Language</span><span style="color:var(--muted); font-size:.85rem;">Kiswahili</span></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>💳 Payment Settings</h3></div>
+            <div class="ai-row"><span class="ai-name">AzamPay Environment</span><span class="ai-status-label pending" style="background:var(--gold-dim); color:var(--gold);">Sandbox</span></div>
+            <div class="ai-row"><span class="ai-name">Service Fee (Store)</span><span style="color:var(--muted); font-size:.85rem;">TZS 2,000/order</span></div>
+            <div class="ai-row"><span class="ai-name">Commission Rate (Youth/Creator)</span><span style="color:var(--muted); font-size:.85rem;">10% / 15%</span></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>📧 Email/SMS</h3></div>
+            <div class="ai-row"><span class="ai-name">Order Confirmations</span><span class="ai-status-label on">✔ On</span></div>
+            <div class="ai-row"><span class="ai-name">SMS OTP (2FA)</span><span class="ai-status-label on">✔ On</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel">
+            <div class="panel-head"><h3>🤖 AI Settings</h3></div>
+            <div class="ai-row"><span class="ai-name">AI Agents Active</span><span style="color:var(--muted); font-size:.85rem;">9/9</span></div>
+            <div class="ai-row"><span class="ai-name">Boss Approval kwa Payouts</span><span class="ai-status-label on">✔ Inahitajika</span></div>
+            <div class="ai-row"><span class="ai-name">Health AI Safety Layer</span><span class="ai-status-label on">✔ Active</span></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>🔌 API &amp; Infrastructure</h3></div>
+            <div class="ai-row"><span class="ai-name">Supabase Connection</span><span class="ai-status-label pending" style="background:var(--gold-dim); color:var(--gold);">Haijaunganishwa</span></div>
+            <div class="ai-row"><span class="ai-name">Render Hosting</span><span class="ai-status-label pending" style="background:var(--gold-dim); color:var(--gold);">Haijaunganishwa</span></div>
+            <div class="ai-row"><span class="ai-name">Backup ya Mwisho</span><span style="color:var(--muted); font-size:.85rem;">—</span></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>👑 Owner Account</h3></div>
+            <div class="ai-row"><span class="ai-name">Jina</span><span style="color:var(--muted); font-size:.85rem;">Kelvin Fred Pela</span></div>
+            <div class="ai-row"><span class="ai-name">2FA</span><span class="ai-status-label on">✔ On</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Placeholder pages nyingine (module kwa module) -->
+
+  </div>
+</div>
+
+<!-- AI BOSS ASSISTANT -->
+<button class="boss-fab" id="bossFab">👑</button>
+<div class="boss-panel" id="bossPanel">
+  <div class="boss-panel-head">
+    <div class="avatar">👑</div>
+    <div>
+      <strong>AI Boss Assistant</strong>
+      <span>🟢 Online</span>
+    </div>
+    <button class="boss-panel-close" id="bossClose">✕</button>
+  </div>
+  <div class="boss-chat" id="bossChat">
+    <div class="msg bot">Habari Boss, nikusaidie nini leo?</div>
+  </div>
+  <div class="boss-input">
+    <button class="mic-btn" id="bossMicBtn" title="Bofya kuongea">🎙️</button>
+    <input type="text" id="bossInputText" placeholder="Andika ujumbe...">
+    <button class="send-btn" id="bossSend">➤</button>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // ---------- Collapsible sidebar groups ----------
+  document.querySelectorAll('.nav-group-head').forEach(head=>{
+    head.addEventListener('click', ()=>{
+      head.parentElement.classList.toggle('collapsed');
+    });
+  });
+
+  // ---------- Page navigation ----------
+  const navItems = document.querySelectorAll('.nav-item');
+  const contentEl = document.querySelector('.content');
+  const topbarTitle = document.getElementById('topbarTitle');
+  const builtPages = { overview: document.getElementById('page-overview'), tournaments: document.getElementById('page-tournaments'), youth: document.getElementById('page-youth'), academy: document.getElementById('page-academy'), products: document.getElementById('page-products'), analytics: document.getElementById('page-analytics'), security: document.getElementById('page-security'), payments: document.getElementById('page-payments'), wallet: document.getElementById('page-wallet'), escrow: document.getElementById('page-escrow'), payouts: document.getElementById('page-payouts'), users: document.getElementById('page-users'), creators: document.getElementById('page-creators'), affiliates: document.getElementById('page-affiliates'), marketing: document.getElementById('page-marketing'), health: document.getElementById('page-health'), builder: document.getElementById('page-builder'), settings: document.getElementById('page-settings') };
+
+  const pageLabels = {
+    'overview':['Dashboard','LifeIsGameTZ · Msimu 2026'],
+    'ai-center':['AI Command Center','Simamia AI agents zote'],
+    'products':['Product Manager','Bidhaa zote za store'],
+    'efootball':['eFootball Center','Coins, teams na marketplace'],
+    'tournaments':['Tournament Manager','LifeIsGameTZ · Msimu 2026'],
+    'payments':['Payments Center','Malipo yote ya platform'],
+    'wallet':['Wallet','Salio na miamala ya watumiaji'],
+    'escrow':['Escrow & Settlement','Ulinzi wa fedha za mechi'],
+    'payouts':['Payout Manager','Malipo ya washindi na sellers'],
+    'users':['Users & Roles','Watumiaji na ruhusa'],
+    'youth':['Youth Marketplace','Fursa za vijana'],
+    'academy':['Academy','Kozi na vyeti'],
+    'creators':['Creator Center','Wabunifu wa maudhui'],
+    'affiliates':['Affiliate Program','Wanaoshiriki uuzaji'],
+    'marketing':['Marketing Center','Matangazo na promotions'],
+    'health':['Health & Community','Msaada wa afya na jamii'],
+    'security':['Security Center','Ulinzi wa mfumo'],
+    'builder':['AI Website Builder','Badilisha website kwa AI'],
+    'analytics':['Analytics & Reports','Ripoti za kina'],
+    'settings':['Settings','Mipangilio ya mfumo']
+  };
+
+  function goToPage(key){
+    navItems.forEach(i => i.classList.toggle('active', i.dataset.page === key));
+    Object.values(builtPages).forEach(p => p.classList.remove('active'));
+    let ph = document.getElementById('page-placeholder');
+    if(ph) ph.classList.remove('active');
+
+    const [title, sub] = pageLabels[key] || [key, ''];
+    topbarTitle.innerHTML = `<h2>${title}</h2><p>${sub}</p>`;
+
+    if(builtPages[key]){
+      builtPages[key].classList.add('active');
+      return;
+    }
+    if(!ph){
+      ph = document.createElement('section');
+      ph.className = 'page';
+      ph.id = 'page-placeholder';
+      contentEl.appendChild(ph);
+    }
+    ph.innerHTML = `
+      <div class="page-head"><div><h1>${title}</h1><p>Module hii itajengwa kwa undani (schema + logic + UI kamili).</p></div></div>
+      <div class="placeholder-box"><div class="big">🧩</div>Skeleton ya sehemu hii inakuja katika awamu inayofuata.</div>`;
+    ph.classList.add('active');
+  }
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      goToPage(item.dataset.page);
+      if(window.innerWidth <= 720) closeSidebar();
+    });
+  });
+  document.querySelectorAll('[data-goto]').forEach(el=>{
+    el.addEventListener('click', ()=> goToPage(el.dataset.goto));
+  });
+
+  // ---------- Tabs (Tournament Manager) ----------
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      const parent = tab.closest('.page');
+      parent.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      parent.querySelectorAll('.tab-panel').forEach(p=>p.style.display='none');
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).style.display='block';
+    });
+  });
+
+  // ---------- Filter chips ----------
+  document.querySelectorAll('.filter-chips').forEach(group=>{
+    group.querySelectorAll('.chip').forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+  });
+
+  // ---------- Mobile sidebar ----------
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  function openSidebar(){ sidebar.classList.add('open'); overlay.classList.add('show'); }
+  function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+  document.getElementById('hamburger').addEventListener('click', openSidebar);
+  overlay.addEventListener('click', ()=>{ closeSidebar(); closeBossPanel(); });
+
+  // ---------- AI Boss Assistant panel ----------
+  const bossPanel = document.getElementById('bossPanel');
+  const bossChat = document.getElementById('bossChat');
+  function openBossPanel(){ bossPanel.classList.add('open'); }
+  function closeBossPanel(){ bossPanel.classList.remove('open'); }
+  document.getElementById('bossFab').addEventListener('click', openBossPanel);
+  document.getElementById('bossChipOpen').addEventListener('click', openBossPanel);
+  document.getElementById('bossClose').addEventListener('click', closeBossPanel);
+
+  function addMsg(text, who){
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    bossChat.appendChild(div);
+    bossChat.scrollTop = bossChat.scrollHeight;
+  }
+
+  // ---------- Voice output (Text-to-Speech) ----------
+  function speakText(text){
+    if(!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'sw-TZ';
+    utter.rate = 1.0;
+    window.speechSynthesis.speak(utter);
+  }
+
+  // ---------- Boss command intent handling (yenye data hai kutoka Supabase) ----------
+  async function bossReplyFor(text){
+    const t = text.toLowerCase();
+
+    if(t.includes('ripoti') || t.includes('mauzo') || t.includes('sales')){
+      try{
+        const { count: orderCount } = await supabase.from('orders').select('*', { count:'exact', head:true });
+        const { data: paidOrders } = await supabase.from('orders').select('total').eq('status','paid');
+        const totalRevenue = (paidOrders||[]).reduce((sum,o)=> sum + Number(o.total||0), 0);
+        return `Boss, jumla ya orders ni ${orderCount||0}, na mapato yaliyothibitishwa ni TZS ${totalRevenue.toLocaleString('en-US')}.`;
+      } catch(e){ return 'Samahani Boss, nimeshindwa kupata ripoti ya mauzo kwa sasa.'; }
+    }
+    if(t.includes('watumiaji') || t.includes('users')){
+      try{
+        const { count } = await supabase.from('profiles').select('*', { count:'exact', head:true });
+        return `Boss, tuna watumiaji ${count||0} waliojisajili kwa sasa.`;
+      } catch(e){ return 'Samahani Boss, nimeshindwa kupata idadi ya watumiaji.'; }
+    }
+    if(t.includes('wallet') || t.includes('salio')){
+      goToPage('wallet');
+      return 'Boss, nimekufungulia Wallet.';
+    }
+    if(t.includes('order') && (t.includes('fungua') || t.includes('open'))){
+      goToPage('payments');
+      return 'Boss, nimekufungulia Payments Center.';
+    }
+    if(t.includes('usalama') || t.includes('security')){
+      goToPage('security');
+      return 'Boss, nimekufungulia Security Center.';
+    }
+    if(t.includes('tournament')){
+      goToPage('tournaments');
+      return 'Boss, nimekufungulia Tournament Manager.';
+    }
+    return 'Nimepokea ombi lako: "' + text + '". Ombi hili bado halijaunganishwa na AI backend kamili, lakini muunganiko wa Supabase upo tayari kwa ripoti za mauzo, watumiaji, na kufungua pages (jaribu "nipe ripoti ya mauzo" au "fungua wallet").';
+  }
+
+  async function sendBossMessage(){
+    const input = document.getElementById('bossInputText');
+    const text = input.value.trim();
+    if(!text) return;
+    addMsg(text, 'me');
+    input.value = '';
+    const reply = await bossReplyFor(text);
+    addMsg(reply, 'bot');
+    speakText(reply);
+  }
+  document.getElementById('bossSend').addEventListener('click', sendBossMessage);
+  document.getElementById('bossInputText').addEventListener('keydown', e=>{
+    if(e.key === 'Enter') sendBossMessage();
+  });
+
+  // ---------- Voice input (Speech-to-Text) ----------
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const micBtn = document.getElementById('bossMicBtn');
+  if(SpeechRecognitionAPI){
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'sw-TZ';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    let listening = false;
+
+    recognition.addEventListener('result', (e)=>{
+      const transcript = e.results[0][0].transcript;
+      document.getElementById('bossInputText').value = transcript;
+      sendBossMessage();
+    });
+    recognition.addEventListener('end', ()=>{
+      listening = false;
+      micBtn.style.background = '';
+      micBtn.textContent = '🎙️';
+    });
+    recognition.addEventListener('error', (e)=>{
+      console.warn('Speech recognition error:', e.error);
+      listening = false;
+      micBtn.style.background = '';
+      micBtn.textContent = '🎙️';
+    });
+
+    micBtn.addEventListener('click', ()=>{
+      if(listening){ recognition.stop(); return; }
+      try{
+        recognition.start();
+        listening = true;
+        micBtn.style.background = 'var(--red)';
+        micBtn.textContent = '🔴';
+        openBossPanel();
+      } catch(err){ console.warn('Haikuweza kuanzisha microphone:', err); }
+    });
+  } else {
+    micBtn.addEventListener('click', ()=>{
+      alert('Browser hii haitumii Speech Recognition. Jaribu Google Chrome kwenye simu/kompyuta.');
+    });
+  }
+
+  // ---------- Auto Bracket Generator ----------
+  const bracketNames = ['Juma A.','Fatma S.','Kevin M.','Neema G.','Amina R.','Baraka J.','David M.','Hamis T.',
+    'Joyce M.','Rehema K.','Said O.','Grace P.','Yusuf N.','Zainab R.','Peter L.','Mary W.'];
+  document.getElementById('generateBracketBtn').addEventListener('click', ()=>{
+    const shuffled = [...bracketNames].sort(()=> Math.random() - 0.5);
+    let html = '<table><tr><th>Match</th><th>Player 1</th><th>vs</th><th>Player 2</th></tr>';
+    for(let i=0; i<shuffled.length; i+=2){
+      html += `<tr><td>Round 1 — Match ${(i/2)+1}</td><td>${shuffled[i]}</td><td style="text-align:center; color:var(--muted);">VS</td><td>${shuffled[i+1] || 'BYE'}</td></tr>`;
+    }
+    html += '</table>';
+    document.getElementById('bracketOutput').innerHTML = html;
+  });
+
+  // ---------- AI Course Generator ----------
+  document.getElementById('genCourseBtn').addEventListener('click', ()=>{
+    const topic = document.getElementById('courseTopicInput').value.trim() || 'Mada Yako';
+    const out = document.getElementById('syllabusOutput');
+    out.innerHTML = `
+      <b style="color:var(--text);">📘 Syllabus: ${topic}</b>
+      <ol style="margin:.6rem 0 0 1.2rem;">
+        <li>Module 1 — Utangulizi na Misingi ya ${topic}</li>
+        <li>Module 2 — Vifaa/Zana Zinazohitajika</li>
+        <li>Module 3 — Mazoezi ya Vitendo (Hands-on)</li>
+        <li>Module 4 — Changamoto za Kawaida na Suluhisho</li>
+        <li>Module 5 — Mradi wa Mwisho + Quiz + Certificate</li>
+      </ol>`;
+  });
+
+  // ---------- AI Content & Marketing Generator ----------
+  document.getElementById('mkGenBtn').addEventListener('click', ()=>{
+    const prompt = document.getElementById('mkPromptInput').value.trim() || 'promotion';
+    document.getElementById('mkOutput').innerHTML = `
+      <b style="color:var(--text);">✨ Matokeo ya AI:</b>
+      <p style="margin-top:.5rem;">"🔥 ${prompt} — Usikose! LifeIsGameTZ inakuletea fursa ya kipekee. Jiunge sasa kabla nafasi hazijaisha. 📲 Bofya kwenye app kujiunga leo!"</p>
+      <p style="margin-top:.5rem; font-size:.78rem;">📌 Maoni: Chapisha kwenye Home Hero Banner na WhatsApp Status kwa matokeo bora.</p>`;
+  });
+
+  // ---------- AI Website Builder pipeline ----------
+  document.getElementById('builderRunBtn').addEventListener('click', ()=>{
+    document.getElementById('builderPipeline').style.display = 'block';
+  });
+
+  // =====================================================================
+  // SUPABASE LIVE DATA LOADERS
+  // Ikiwa jedwali ni tupu au muunganiko umeshindwa, tunabaki na mfano wa
+  // static uliopo tayari kwenye HTML (graceful fallback).
+  // =====================================================================
+
+  function formatTZS(n){ return 'TZS ' + Number(n||0).toLocaleString('en-US'); }
+
+  // ---------- Product Manager: bidhaa halisi ----------
+  async function loadProductsAdmin(){
+    try{
+      const { data, error } = await supabase.from('products').select('*, product_categories(name)').order('created_at', { ascending:false });
+      if(error) throw error;
+      if(!data || !data.length) return; // bado hakuna data -> baki na mfano
+
+      const tbody = document.getElementById('productsTableBody');
+      tbody.innerHTML = data.map(p => `
+        <tr>
+          <td>${p.title}</td>
+          <td>${(p.platforms||[]).join('/')}</td>
+          <td>${formatTZS(p.price)}</td>
+          <td>${p.is_digital ? '∞ Digital' : p.stock}</td>
+          <td>★ ${p.rating_avg || 0}</td>
+          <td><span class="pill ${p.status==='active' ? 'paid' : 'ended'}">${p.status==='active' ? 'Live' : 'Draft'}</span></td>
+          <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
+        </tr>`).join('');
+    } catch(err){
+      console.warn('Products admin load failed, tunabaki na mfano wa static:', err.message);
+    }
+  }
+
+  // ---------- Users & Roles: watumiaji halisi ----------
+  async function loadUsersAdmin(){
+    try{
+      const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending:false });
+      if(error) throw error;
+      if(!data || !data.length) return;
+
+      const roleLabels = { owner:'👑 Owner', admin:'🛠️ Admin', staff:'🛠️ Staff', freelancer:'Freelancer', referee:'Referee', customer:'Customer' };
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = data.map(u => `
+        <tr>
+          <td>${u.full_name || '—'}</td>
+          <td><span class="pill pending">${roleLabels[u.role] || u.role}</span></td>
+          <td>—</td>
+          <td>${new Date(u.created_at).toLocaleDateString('sw-TZ', {month:'short', year:'numeric'})}</td>
+          <td><span class="pill paid">Active</span></td>
+          <td class="row-actions"><span>👁️</span><span>✏️</span><span>🚫</span></td>
+        </tr>`).join('');
+    } catch(err){
+      console.warn('Users admin load failed, tunabaki na mfano wa static:', err.message);
+    }
+  }
+
+  // ---------- Overview: stats halisi (users/orders count) ----------
+  async function loadOverviewStats(){
+    try{
+      const [{ count: userCount }, { count: orderCount }, { count: tournamentRegCount }] = await Promise.all([
+        supabase.from('profiles').select('*', { count:'exact', head:true }),
+        supabase.from('orders').select('*', { count:'exact', head:true }),
+        supabase.from('tournament_registrations').select('*', { count:'exact', head:true })
+      ]);
+      if(userCount !== null){
+        const el = document.querySelector('#page-overview .stat-card:nth-child(1) .num');
+        if(el) el.textContent = userCount.toLocaleString('en-US');
+      }
+      if(orderCount !== null){
+        const el = document.querySelector('#page-overview .stat-card:nth-child(3) .num');
+        if(el && orderCount > 0) el.textContent = orderCount + ' orders';
+      }
+      console.log('Live stats:', { userCount, orderCount, tournamentRegCount });
+    } catch(err){
+      console.warn('Overview stats load failed, tunabaki na mfano wa static:', err.message);
+    }
+  }
+
+  // ---------- Academy: vyeti halisi ----------
+  async function loadCertificatesAdmin(){
+    try{
+      const { data, error } = await supabase
+        .from('certificates')
+        .select('certificate_code, issued_at, profiles(full_name), courses(title)')
+        .order('issued_at', { ascending:false });
+      if(error) throw error;
+      if(!data || !data.length) return;
+
+      const tbody = document.getElementById('certificatesTableBody');
+      tbody.innerHTML = data.map(c => `
+        <tr>
+          <td>${c.certificate_code}</td>
+          <td>${c.profiles ? c.profiles.full_name : '—'}</td>
+          <td>${c.courses ? c.courses.title : '—'}</td>
+          <td>${new Date(c.issued_at).toLocaleDateString('sw-TZ', {day:'2-digit', month:'short', year:'numeric'})}</td>
+          <td class="row-actions"><span>👁️ Ona</span><span>✔️ Thibitisha</span></td>
+        </tr>`).join('');
+    } catch(err){
+      console.warn('Certificates admin load failed (unahitaji kuwa umelogin kama admin/owner), tunabaki na mfano wa static:', err.message);
+    }
+  }
+
+  // ---------- Wallet: balances halisi ----------
+  async function loadWalletsAdmin(){
+    try{
+      const { data, error } = await supabase
+        .from('wallets')
+        .select('balance, profiles(full_name)')
+        .order('balance', { ascending:false });
+      if(error) throw error;
+      if(!data || !data.length) return;
+
+      const tbody = document.getElementById('walletsTableBody');
+      tbody.innerHTML = data.map(w => `
+        <tr>
+          <td>${w.profiles ? w.profiles.full_name : '—'}</td>
+          <td style="color:var(--cyan); font-weight:700;">${formatTZS(w.balance)}</td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="pill pending">—</span></td>
+          <td class="row-actions"><span>👁️</span><span>✏️ Adjust</span></td>
+        </tr>`).join('');
+    } catch(err){
+      console.warn('Wallets admin load failed (unahitaji kuwa umelogin kama admin/owner), tunabaki na mfano wa static:', err.message);
+    }
+  }
+
+  // ---------- Affiliate Program: data halisi ----------
+  async function loadAffiliatesAdmin(){
+    try{
+      const { data, error } = await supabase
+        .from('affiliates')
+        .select('*, profiles(full_name)')
+        .order('commission_earned', { ascending:false });
+      if(error) throw error;
+      if(!data || !data.length) return;
+
+      const tbody = document.getElementById('affiliatesTableBody');
+      tbody.innerHTML = data.map(a => `
+        <tr>
+          <td>${a.profiles ? a.profiles.full_name : '—'}</td>
+          <td>${a.referral_code}</td>
+          <td>${a.clicks}</td>
+          <td>${a.conversions}</td>
+          <td style="color:var(--cyan); font-weight:700;">${formatTZS(a.commission_earned)}</td>
+        </tr>`).join('');
+    } catch(err){
+      console.warn('Affiliates admin load failed, tunabaki na mfano wa static:', err.message);
+    }
+  }
+
+  loadProductsAdmin();
+  loadUsersAdmin();
+  loadOverviewStats();
+  loadCertificatesAdmin();
+  loadWalletsAdmin();
+  loadAffiliatesAdmin();
+</script>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FC 26 — Standard Edition | LifeIsGameTZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C11;
+    --bg-alt: #0F1219;
+    --panel: #151922;
+    --panel-2: #1B202B;
+    --border: #262C3A;
+    --text: #EEF2F7;
+    --muted: #8890A3;
+    --cyan: #1BE7E3;
+    --cyan-soft: rgba(27,231,227,0.12);
+    --cyan-glow: rgba(27,231,227,0.55);
+    --magenta: #FF3E9C;
+    --magenta-soft: rgba(255,62,156,0.12);
+    --magenta-glow: rgba(255,62,156,0.55);
+    --amber: #F5B942;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Rajdhani', sans-serif; font-size:16px; overflow-x:hidden;
+  }
+  h1,h2,h3,.logo,.price-new{ font-family:'Orbitron', sans-serif; }
+  a{ text-decoration:none; color:inherit; }
+  .wrap{ max-width:1200px; margin:0 auto; padding:0 1.4rem; }
+
+  .grid-bg{
+    position:fixed; inset:0; z-index:-2;
+    background-image:
+      linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
+    background-size:42px 42px;
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
+  }
+  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.3; }
+  .glow-1{ width:480px; height:480px; background:var(--cyan); top:-180px; left:-160px; }
+  .glow-2{ width:420px; height:420px; background:var(--magenta); top:60px; right:-180px; }
+
+  /* ---------- Navbar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1.6rem;
+    padding:1rem 1.4rem; background:rgba(10,12,17,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+  .logo .mark{
+    width:34px; height:34px; border-radius:8px;
+    background:linear-gradient(135deg, var(--cyan), var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+  }
+  .nav-links{ display:flex; gap:1.6rem; margin-left:1rem; }
+  .nav-links a{ font-weight:600; font-size:.95rem; color:var(--muted); }
+  .nav-links a.active, .nav-links a:hover{ color:var(--cyan); }
+  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:8px; border:1px solid var(--border);
+    background:var(--panel); color:var(--muted); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:1rem; position:relative;
+  }
+  .icon-btn .cart-count{
+    position:absolute; top:-6px; right:-6px; background:var(--magenta); color:#fff;
+    font-size:.62rem; font-weight:700; border-radius:20px; padding:.05rem .35rem;
+  }
+  .btn{
+    font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.9rem;
+    padding:.6rem 1.2rem; border-radius:8px; cursor:pointer; border:1px solid transparent;
+  }
+  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
+
+  .breadcrumb{ font-size:.78rem; color:var(--muted); padding:1.4rem 0 0; }
+  .breadcrumb .cyan{ color:var(--cyan); }
+
+  /* ---------- Product hero ---------- */
+  .product-hero{
+    display:grid; grid-template-columns:1fr 1fr; gap:2.4rem; padding:1.6rem 0 3rem;
+  }
+  .gallery-main{
+    height:380px; border-radius:16px; background:linear-gradient(135deg, var(--panel-2), var(--bg-alt));
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    font-size:6rem; position:relative;
+  }
+  .gallery-main .badge{
+    position:absolute; top:1rem; left:1rem; background:var(--cyan); color:#05181A;
+    font-size:.72rem; font-weight:700; padding:.25rem .7rem; border-radius:6px;
+  }
+  .gallery-thumbs{ display:flex; gap:.7rem; margin-top:.9rem; }
+  .thumb{
+    width:64px; height:64px; border-radius:10px; background:var(--panel);
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; cursor:pointer;
+  }
+  .thumb.active{ border-color:var(--cyan); box-shadow:0 0 0 2px var(--cyan-soft); }
+
+  .p-title{ font-size:1.9rem; font-weight:800; margin-bottom:.5rem; }
+  .p-platforms{ display:flex; gap:.5rem; margin-bottom:.7rem; flex-wrap:wrap; }
+  .platform-chip{
+    background:var(--panel); border:1px solid var(--border); border-radius:20px;
+    padding:.25rem .8rem; font-size:.78rem; color:var(--muted);
+  }
+  .p-rating{ display:flex; align-items:center; gap:.6rem; margin-bottom:1.2rem; }
+  .p-rating .stars{ color:var(--amber); font-size:.95rem; }
+  .p-rating span{ font-size:.85rem; color:var(--muted); }
+
+  .price-block-lg{ display:flex; align-items:baseline; gap:.8rem; margin-bottom:.4rem; }
+  .price-new-lg{ font-size:2.1rem; font-weight:800; color:var(--cyan); font-family:'Orbitron', sans-serif; }
+  .price-old-lg{ font-size:1.1rem; color:var(--muted); text-decoration:line-through; }
+  .save-tag{ background:var(--magenta-soft); color:var(--magenta); font-size:.75rem; font-weight:700; padding:.2rem .6rem; border-radius:6px; }
+  .p-stock{ font-size:.82rem; color:var(--cyan); margin-bottom:1.4rem; }
+
+  .qty-row{ display:flex; align-items:center; gap:1rem; margin-bottom:1.2rem; }
+  .qty-box{ display:flex; align-items:center; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .qty-box button{ width:36px; height:36px; background:var(--panel); border:none; color:var(--text); cursor:pointer; font-size:1rem; }
+  .qty-box input{ width:44px; text-align:center; background:var(--bg-alt); border:none; color:var(--text); font-family:inherit; font-size:.95rem; }
+
+  .action-row{ display:flex; gap:.8rem; margin-bottom:1.6rem; flex-wrap:wrap; }
+  .btn-cyan{ background:var(--cyan); color:#05181A; box-shadow:0 0 24px var(--cyan-glow); font-size:1rem; padding:.85rem 1.6rem; }
+  .btn-magenta-outline{ background:transparent; color:var(--magenta); border-color:var(--magenta); font-size:1rem; padding:.85rem 1.6rem; }
+  .btn-wish{ width:52px; height:52px; border-radius:8px; border:1px solid var(--border); background:var(--panel); color:var(--muted); font-size:1.2rem; cursor:pointer; }
+
+  .trust-row{ display:flex; gap:1.4rem; flex-wrap:wrap; padding-top:1.2rem; border-top:1px solid var(--border); }
+  .trust-item{ display:flex; align-items:center; gap:.5rem; font-size:.82rem; color:var(--muted); }
+  .trust-item .ic{ color:var(--cyan); }
+
+  /* ---------- Tabs: description / specs / reviews ---------- */
+  .info-tabs{ display:flex; gap:.4rem; border-bottom:1px solid var(--border); margin-bottom:1.4rem; }
+  .info-tab{ padding:.7rem 1.1rem; font-size:.9rem; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; }
+  .info-tab.active{ color:var(--cyan); border-color:var(--cyan); font-weight:600; }
+  .info-panel{ display:none; color:var(--muted); font-size:.92rem; line-height:1.7; }
+  .info-panel.active{ display:block; }
+  .spec-table{ width:100%; border-collapse:collapse; }
+  .spec-table td{ padding:.6rem .4rem; border-bottom:1px solid var(--border); font-size:.87rem; }
+  .spec-table td:first-child{ color:var(--muted); width:180px; }
+
+  .review-item{ padding:1rem 0; border-bottom:1px solid var(--border); }
+  .review-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:.4rem; }
+  .review-name{ font-weight:600; font-size:.9rem; }
+  .review-stars{ color:var(--amber); font-size:.85rem; }
+  .review-text{ color:var(--muted); font-size:.88rem; line-height:1.5; }
+
+  /* ---------- Related products ---------- */
+  .section-head{ display:flex; justify-content:space-between; align-items:flex-end; margin:2.5rem 0 1.4rem; }
+  .section-head h2{ font-size:1.5rem; font-weight:800; }
+  .related-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.1rem; }
+  .rp-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden;
+    transition:border-color .2s, transform .2s;
+  }
+  .rp-card:hover{ border-color:var(--cyan); transform:translateY(-4px); }
+  .rp-thumb{ height:110px; display:flex; align-items:center; justify-content:center; font-size:2rem; background:linear-gradient(135deg, var(--panel-2), var(--bg-alt)); }
+  .rp-info{ padding:.8rem; }
+  .rp-title{ font-size:.85rem; font-weight:600; margin-bottom:.4rem; }
+  .rp-price{ color:var(--cyan); font-weight:700; font-size:.9rem; }
+
+  footer{ border-top:1px solid var(--border); padding:2.2rem 0; background:var(--bg-alt); margin-top:3rem; text-align:center; color:var(--muted); font-size:.82rem; }
+
+  @media (max-width: 900px){
+    .product-hero{ grid-template-columns:1fr; }
+    .related-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width: 720px){
+    .nav-links{ display:none; }
+    .gallery-main{ height:260px; font-size:4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-blob glow-1"></div>
+<div class="glow-blob glow-2"></div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <a href="home.html" class="logo"><div class="mark">🎮</div>LifeIsGameTZ</a>
+  <div class="nav-links">
+    <a href="store.html" class="active">Store</a>
+    <a href="home.html#tournaments">Tournaments</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="community-marketplace.html">Marketplace</a>
+    <a href="agribusiness-hub.html">Vijana Uchumi</a>
+    <a href="community-health.html">Msaada wa Jamii</a>
+    <a href="creator-program.html">Creator Program</a>
+    <a href="affiliate-program.html">Affiliate</a>
+    <a href="community-fund.html">Community Fund</a>
+    <a href="home.html#reco">Kwa Ajili Yako</a>
+    <a href="academy.html">Academy</a>
+  </div>
+  <div class="nav-actions">
+    <button class="icon-btn">🔍</button>
+    <a href="cart.html" class="icon-btn" style="text-decoration:none;">🛒<span class="cart-count">3</span></a>
+    <a href="login.html" class="btn btn-ghost">Ingia</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="breadcrumb"><a href="home.html">Home</a> / <a href="store.html">Store</a> / <span class="cyan">FC 26 — Standard Edition</span></div>
+
+  <!-- PRODUCT HERO -->
+  <div class="product-hero">
+    <div>
+      <div class="gallery-main">🎮<span class="badge">BESTSELLER</span></div>
+      <div class="gallery-thumbs">
+        <div class="thumb active">🎮</div>
+        <div class="thumb">🏟️</div>
+        <div class="thumb">⚽</div>
+        <div class="thumb">🕹️</div>
+      </div>
+    </div>
+
+    <div>
+      <h1 class="p-title">FC 26 — Standard Edition</h1>
+      <div class="p-platforms">
+        <span class="platform-chip">🖥️ PC</span>
+        <span class="platform-chip">🎮 PlayStation</span>
+        <span class="platform-chip">🕹️ Xbox</span>
+      </div>
+      <div class="p-rating"><span class="stars">★★★★★</span><span>4.8 · Maoni 482</span></div>
+
+      <div class="price-block-lg">
+        <span class="price-new-lg">TZS 45,000</span>
+        <span class="price-old-lg">60,000</span>
+        <span class="save-tag">Okoa 25%</span>
+      </div>
+      <div class="p-stock">✔ Ipo Stock — Delivery ndani ya dakika 5 (digital key)</div>
+
+      <div class="qty-row">
+        <div class="qty-box">
+          <button id="qtyMinus">−</button>
+          <input type="text" id="qtyValue" value="1" readonly>
+          <button id="qtyPlus">+</button>
+        </div>
+        <span style="color:var(--muted); font-size:.85rem;">Jumla: <b id="totalPrice" style="color:var(--text);">TZS 45,000</b></span>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-cyan" id="buyNowBtn">⚡ Nunua Sasa</button>
+        <button class="btn btn-magenta-outline" id="addCartBtn">🛒 Weka Cart</button>
+        <button class="btn-wish" id="wishBtn">♡</button>
+      </div>
+
+      <div class="trust-row">
+        <div class="trust-item"><span class="ic">🔐</span> Malipo Salama (Escrow)</div>
+        <div class="trust-item"><span class="ic">⚡</span> Digital Delivery Papo Hapo</div>
+        <div class="trust-item"><span class="ic">🛡️</span> 100% Genuine Keys</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO TABS -->
+  <div>
+    <div class="info-tabs">
+      <div class="info-tab active" data-tab="desc">Maelezo</div>
+      <div class="info-tab" data-tab="specs">Specs Zinazohitajika</div>
+      <div class="info-tab" data-tab="reviews">Maoni (482)</div>
+    </div>
+
+    <div class="info-panel active" id="desc">
+      <p>FC 26 inaleta uzoefu mpya wa soka na HyperMotion V, timu zilizosasishwa za msimu 2025/26, na Ultimate Team iliyoboreshwa. Key hii ni ya Standard Edition, inayofanya kazi kwenye PC, PlayStation na Xbox kulingana na region uliyochagua wakati wa ununuzi.</p>
+    </div>
+
+    <div class="info-panel" id="specs">
+      <table class="spec-table">
+        <tr><td>OS</td><td>Windows 10/11 64-bit</td></tr>
+        <tr><td>Processor</td><td>Intel Core i5-6600K / AMD Ryzen 5 1600</td></tr>
+        <tr><td>Memory</td><td>8 GB RAM</td></tr>
+        <tr><td>Graphics</td><td>NVIDIA GTX 1050 Ti / AMD RX 570</td></tr>
+        <tr><td>Storage</td><td>100 GB nafasi</td></tr>
+      </table>
+    </div>
+
+    <div class="info-panel" id="reviews">
+      <div class="review-item">
+        <div class="review-head"><span class="review-name">Kelvin M.</span><span class="review-stars">★★★★★</span></div>
+        <div class="review-text">Key ilifika ndani ya dakika chache, gameplay nzuri sana. Nimeridhika kabisa.</div>
+      </div>
+      <div class="review-item">
+        <div class="review-head"><span class="review-name">Fatma S.</span><span class="review-stars">★★★★☆</span></div>
+        <div class="review-text">Bei nzuri kuliko store nyingine, lakini ningependa language pack ya Kiswahili.</div>
+      </div>
+      <div class="review-item">
+        <div class="review-head"><span class="review-name">Juma A.</span><span class="review-stars">★★★★★</span></div>
+        <div class="review-text">Huduma kwa wateja nzuri, waliponisaidia haraka nilipopata tatizo la activation.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATED PRODUCTS -->
+  <div class="section-head"><h2>Bidhaa Zinazofanana</h2></div>
+  <div class="related-grid">
+    <a class="rp-card" href="product.html">
+      <div class="rp-thumb">⚽</div>
+      <div class="rp-info"><div class="rp-title">eFootball Coins — 5,000</div><div class="rp-price">TZS 12,000</div></div>
+    </a>
+    <a class="rp-card" href="product.html">
+      <div class="rp-thumb">🏎️</div>
+      <div class="rp-info"><div class="rp-title">Need for Speed Unbound</div><div class="rp-price">TZS 52,000</div></div>
+    </a>
+    <a class="rp-card" href="product.html">
+      <div class="rp-thumb">🔫</div>
+      <div class="rp-info"><div class="rp-title">Call of Duty: Modern Ops</div><div class="rp-price">TZS 58,000</div></div>
+    </a>
+    <a class="rp-card" href="product.html">
+      <div class="rp-thumb">🎧</div>
+      <div class="rp-info"><div class="rp-title">Gaming Headset RGB Pro</div><div class="rp-price">TZS 65,000</div></div>
+    </a>
+  </div>
+</div>
+
+<footer>© 2026 LifeIsGameTZ. Haki zote zimehifadhiwa.</footer>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let unitPrice = 45000; // default (fallback FC26 price already in HTML)
+
+  function formatTZS(n){ return 'TZS ' + Number(n).toLocaleString('en-US'); }
+
+  async function loadProductBySlug(){
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+    if(!slug) return; // hakuna slug -> tunabaki na FC26 static ya mfano
+    try{
+      const { data, error } = await supabase.from('products').select('*').eq('slug', slug).single();
+      if(error || !data) throw error || new Error('haipo');
+
+      unitPrice = Number(data.price);
+      document.title = data.title + ' | LifeIsGameTZ';
+      document.querySelector('.p-title').textContent = data.title;
+      document.querySelector('.gallery-main').firstChild.textContent = (data.images && data.images[0]) || '🎮';
+      document.querySelector('.price-new-lg').textContent = formatTZS(data.price);
+      const oldPriceEl = document.querySelector('.price-old-lg');
+      if(data.compare_at_price){
+        oldPriceEl.textContent = Number(data.compare_at_price).toLocaleString('en-US');
+        oldPriceEl.style.display = '';
+      } else {
+        oldPriceEl.style.display = 'none';
+        document.querySelector('.save-tag').style.display = 'none';
+      }
+      document.querySelector('.p-rating span').textContent = `${data.rating_avg||0} · Maoni ${data.rating_count||0}`;
+      document.getElementById('desc').querySelector('p').textContent = data.description || '';
+      document.getElementById('totalPrice').textContent = formatTZS(unitPrice);
+
+      const platformsWrap = document.querySelector('.p-platforms');
+      if(data.platforms && data.platforms.length){
+        platformsWrap.innerHTML = data.platforms.map(p => `<span class="platform-chip">${p}</span>`).join('');
+      }
+      document.querySelector('.breadcrumb').innerHTML =
+        `<a href="home.html">Home</a> / <a href="store.html">Store</a> / <span class="cyan">${data.title}</span>`;
+    } catch(err){
+      console.warn('Imeshindwa kupata bidhaa kutoka Supabase (slug=' + slug + '), tunabaki na mfano wa static:', err && err.message);
+    }
+  }
+
+  const qtyValue = document.getElementById('qtyValue');
+  const totalPrice = document.getElementById('totalPrice');
+
+  function updateTotal(){
+    totalPrice.textContent = formatTZS(unitPrice * parseInt(qtyValue.value, 10));
+  }
+  document.getElementById('qtyPlus').addEventListener('click', ()=>{
+    qtyValue.value = parseInt(qtyValue.value,10) + 1;
+    updateTotal();
+  });
+  document.getElementById('qtyMinus').addEventListener('click', ()=>{
+    const v = parseInt(qtyValue.value,10);
+    if(v > 1){ qtyValue.value = v - 1; updateTotal(); }
+  });
+
+  document.getElementById('wishBtn').addEventListener('click', function(){
+    const filled = this.textContent.trim() === '♥';
+    this.textContent = filled ? '♡' : '♥';
+    this.style.color = filled ? 'var(--muted)' : 'var(--magenta)';
+    this.style.borderColor = filled ? 'var(--border)' : 'var(--magenta)';
+  });
+
+  document.getElementById('addCartBtn').addEventListener('click', function(){
+    const original = this.textContent;
+    this.textContent = '✓ Imewekwa Cart';
+    setTimeout(()=>{ this.textContent = original; window.location.href = 'cart.html'; }, 700);
+  });
+  document.getElementById('buyNowBtn').addEventListener('click', function(){
+    window.location.href = 'cart.html';
+  });
+
+  // ---------- Gallery thumbs ----------
+  document.querySelectorAll('.thumb').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      document.querySelectorAll('.thumb').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.querySelector('.gallery-main').firstChild.textContent = t.textContent;
+    });
+  });
+
+  // ---------- Info tabs ----------
+  document.querySelectorAll('.info-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.info-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.info-panel').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  loadProductBySlug();
+</script>
+</body>
+</html>

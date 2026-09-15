@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Program — LifeIsGameTZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C11; --bg-alt: #0F1219; --panel: #151922; --panel-2: #1B202B; --border: #262C3A;
+    --text: #EEF2F7; --muted: #8890A3;
+    --cyan: #1BE7E3; --cyan-soft: rgba(27,231,227,0.12); --cyan-glow: rgba(27,231,227,0.55);
+    --magenta: #FF3E9C; --magenta-soft: rgba(255,62,156,0.12); --magenta-glow: rgba(255,62,156,0.55);
+    --amber: #F5B942;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--bg); color:var(--text); font-family:'Rajdhani', sans-serif; font-size:16px; overflow-x:hidden; }
+  h1,h2,h3,.logo{ font-family:'Orbitron', sans-serif; }
+  a{ text-decoration:none; color:inherit; }
+  .wrap{ max-width:1200px; margin:0 auto; padding:0 1.4rem; }
+
+  .grid-bg{ position:fixed; inset:0; z-index:-2;
+    background-image:linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
+    background-size:42px 42px; -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%); mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%); }
+  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.3; }
+  .glow-1{ width:480px; height:480px; background:var(--cyan); top:-180px; left:-160px; }
+  .glow-2{ width:420px; height:420px; background:var(--magenta); top:60px; right:-180px; }
+
+  .navbar{ position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1.6rem; padding:1rem 1.4rem;
+    background:rgba(10,12,17,0.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+  .logo .mark{ width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg, var(--cyan), var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  .nav-links{ display:flex; gap:1.6rem; margin-left:1rem; }
+  .nav-links a{ font-weight:600; font-size:.95rem; color:var(--muted); }
+  .nav-links a.active, .nav-links a:hover{ color:var(--cyan); }
+  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
+  .icon-btn{ width:38px; height:38px; border-radius:8px; border:1px solid var(--border); background:var(--panel); color:var(--muted);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem; }
+  .btn{ font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.9rem; padding:.65rem 1.3rem; border-radius:8px; cursor:pointer; border:1px solid transparent; display:inline-flex; align-items:center; gap:.4rem; }
+  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
+  .btn-cyan{ background:var(--cyan); color:#05181A; box-shadow:0 0 20px var(--cyan-glow); }
+  .btn-magenta-outline{ background:transparent; color:var(--magenta); border-color:var(--magenta); }
+  .btn-full{ width:100%; justify-content:center; }
+
+  .cp-hero{ padding:3rem 0 1.6rem; text-align:center; }
+  .eyebrow{ color:var(--cyan); font-weight:600; letter-spacing:1.5px; font-size:.82rem; }
+  .cp-hero h1{ font-size:clamp(2rem, 5vw, 3rem); font-weight:900; margin:.8rem 0 .6rem; }
+  .cp-hero h1 .accent{ color:var(--magenta); }
+  .cp-hero p{ color:var(--muted); font-size:1rem; max-width:600px; margin:0 auto 1.4rem; }
+
+  .stats-strip{ display:flex; justify-content:center; gap:3rem; padding:1.6rem 0 2rem; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+  .stats-strip div{ text-align:center; }
+  .stat-num{ font-size:1.7rem; font-weight:800; color:var(--cyan); font-family:'Orbitron', sans-serif; }
+  .stat-lbl{ font-size:.78rem; color:var(--muted); letter-spacing:.4px; }
+
+  .cp-tabs{ display:flex; justify-content:center; gap:.6rem; padding:2rem 0 1.6rem; flex-wrap:wrap; }
+  .cp-tab{ padding:.7rem 1.2rem; border-radius:30px; font-size:.87rem; font-weight:600; cursor:pointer;
+    border:1px solid var(--border); color:var(--muted); background:var(--panel); }
+  .cp-tab.active{ background:var(--cyan); color:#05181A; border-color:var(--cyan); }
+
+  .view{ display:none; padding-bottom:4rem; }
+  .view.active{ display:block; }
+
+  .cat-chips{ display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+  .chip{ padding:.4rem .9rem; border-radius:20px; font-size:.82rem; cursor:pointer; border:1px solid var(--border); color:var(--muted); background:var(--panel); }
+  .chip.active{ background:var(--magenta); color:#fff; border-color:var(--magenta); }
+
+  .product-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.1rem; }
+  .product-card{ background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:border-color .2s, transform .2s; }
+  .product-card:hover{ border-color:var(--cyan); transform:translateY(-4px); }
+  .product-thumb{ height:120px; display:flex; align-items:center; justify-content:center; font-size:2.3rem; background:linear-gradient(135deg, var(--panel-2), var(--bg-alt)); position:relative; }
+  .badge{ position:absolute; top:.6rem; left:.6rem; background:var(--magenta); color:#fff; font-size:.64rem; font-weight:700; padding:.2rem .5rem; border-radius:5px; }
+  .product-info{ padding:.9rem; }
+  .product-title{ font-weight:700; font-size:.88rem; margin-bottom:.3rem; min-height:38px; }
+  .creator-tag{ font-size:.74rem; color:var(--muted); margin-bottom:.5rem; }
+  .product-footer{ display:flex; justify-content:space-between; align-items:center; }
+  .product-price{ color:var(--cyan); font-weight:700; font-size:.9rem; font-family:'Orbitron', sans-serif; }
+  .dl-count{ font-size:.72rem; color:var(--muted); }
+
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.4rem; margin-bottom:1.2rem; }
+  .panel h3{ font-size:1.05rem; font-weight:700; margin-bottom:1rem; }
+  .apply-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:1.6rem; }
+  .form-row{ margin-bottom:.9rem; }
+  .form-row label{ display:block; font-size:.8rem; color:var(--muted); margin-bottom:.35rem; }
+  .form-row input, .form-row select, .form-row textarea{
+    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px;
+    padding:.65rem .8rem; color:var(--text); font-family:inherit; font-size:.9rem; outline:none; }
+  .form-row textarea{ resize:vertical; min-height:90px; }
+  .form-row input:focus, .form-row select:focus, .form-row textarea:focus{ border-color:var(--cyan); }
+  .form-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+  .commission-note{ display:flex; gap:.6rem; align-items:flex-start; background:var(--cyan-soft); border:1px solid var(--cyan);
+    border-radius:10px; padding:.8rem; font-size:.8rem; color:var(--cyan); margin-top:1rem; }
+
+  footer{ border-top:1px solid var(--border); padding:2rem 0; background:var(--bg-alt); text-align:center; color:var(--muted); font-size:.82rem; margin-top:2rem; }
+
+  @media (max-width: 980px){ .product-grid{ grid-template-columns:repeat(2,1fr); } .apply-grid{ grid-template-columns:1fr; } }
+  @media (max-width: 720px){ .nav-links{ display:none; } .product-grid{ grid-template-columns:1fr; } .form-grid-2{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-blob glow-1"></div>
+<div class="glow-blob glow-2"></div>
+
+<div class="navbar">
+  <a href="home.html" class="logo"><div class="mark">🎨</div>LifeIsGameTZ</a>
+  <div class="nav-links">
+    <a href="youth-marketplace.html">Youth Marketplace</a>
+    <a href="creator-program.html" class="active">Creator Program</a>
+    <a href="affiliate-program.html">Affiliate</a>
+    <a href="community-fund.html">Community Fund</a>
+  </div>
+  <div class="nav-actions">
+    <a href="cart.html" class="icon-btn" style="text-decoration:none;">🛒</a>
+    <a href="login.html" class="btn btn-ghost">Ingia</a>
+  </div>
+</div>
+
+<section class="cp-hero">
+  <div class="wrap">
+    <div class="eyebrow">CREATOR PROGRAM</div>
+    <h1>Uza Ubunifu Wako. <span class="accent">Pata Kipato.</span></h1>
+    <p>Game guides, graphics packs, sound effects, templates, na coding services — uza kazi zako za kidijitali, platform inachukua commission ndogo tu.</p>
+    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-cyan" onclick="switchTab('browse')">🛒 Vinjari Bidhaa</button>
+      <button class="btn btn-magenta-outline" onclick="switchTab('become')">🚀 Kuwa Creator</button>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div><div class="stat-num">640+</div><div class="stat-lbl">CREATORS</div></div>
+  <div><div class="stat-num">2,180</div><div class="stat-lbl">DIGITAL PRODUCTS</div></div>
+  <div><div class="stat-num">14,300+</div><div class="stat-lbl">DOWNLOADS</div></div>
+  <div><div class="stat-num">TZS 18M+</div><div class="stat-lbl">MALIPO YALIYOFANYIKA</div></div>
+</div>
+
+<div class="wrap">
+  <div class="cp-tabs">
+    <div class="cp-tab active" data-tab="browse" onclick="switchTab('browse')">🛒 Vinjari</div>
+    <div class="cp-tab" data-tab="become" onclick="switchTab('become')">🚀 Kuwa Creator</div>
+  </div>
+
+  <div class="view active" id="view-browse">
+    <div class="cat-chips">
+      <div class="chip active">Zote</div>
+      <div class="chip">📖 Game Guides</div>
+      <div class="chip">🎨 Graphics Packs</div>
+      <div class="chip">🔊 Sound Effects</div>
+      <div class="chip">🖼️ Templates</div>
+      <div class="chip">💻 Coding Services</div>
+    </div>
+
+    <div class="product-grid" id="creatorProductGrid">
+      <div class="product-card">
+        <div class="product-thumb">📖<span class="badge">BESTSELLER</span></div>
+        <div class="product-info">
+          <div class="product-title">eFootball 2026 — Ultimate Team Guide</div>
+          <div class="creator-tag">na Baraka J.</div>
+          <div class="product-footer"><span class="product-price">TZS 8,000</span><span class="dl-count">⬇ 1,240</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-thumb">🎨</div>
+        <div class="product-info">
+          <div class="product-title">Gaming Thumbnail Pack — 50 Designs</div>
+          <div class="creator-tag">na Amina R.</div>
+          <div class="product-footer"><span class="product-price">TZS 12,000</span><span class="dl-count">⬇ 680</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-thumb">🔊</div>
+        <div class="product-info">
+          <div class="product-title">Esports Sound Effects Bundle</div>
+          <div class="creator-tag">na Hamis T.</div>
+          <div class="product-footer"><span class="product-price">TZS 6,000</span><span class="dl-count">⬇ 410</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-thumb">🖼️<span class="badge">NEW</span></div>
+        <div class="product-info">
+          <div class="product-title">Tournament Bracket Overlay Templates</div>
+          <div class="creator-tag">na Neema K.</div>
+          <div class="product-footer"><span class="product-price">TZS 10,000</span><span class="dl-count">⬇ 95</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-thumb">📖</div>
+        <div class="product-info">
+          <div class="product-title">FC 26 — Skill Moves Master Guide</div>
+          <div class="creator-tag">na David M.</div>
+          <div class="product-footer"><span class="product-price">TZS 7,500</span><span class="dl-count">⬇ 920</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-thumb">💻</div>
+        <div class="product-info">
+          <div class="product-title">Discord Bot Setup kwa Gaming Clans</div>
+          <div class="creator-tag">na Kevin O.</div>
+          <div class="product-footer"><span class="product-price">TZS 35,000</span><span class="dl-count">⬇ 58</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-thumb">🎨</div>
+        <div class="product-info">
+          <div class="product-title">Team Logo Pack — 20 Gaming Badges</div>
+          <div class="creator-tag">na Amina R.</div>
+          <div class="product-footer"><span class="product-price">TZS 9,000</span><span class="dl-count">⬇ 340</span></div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-thumb">🖼️</div>
+        <div class="product-info">
+          <div class="product-title">Stream Overlay Kit — Twitch/TikTok Live</div>
+          <div class="creator-tag">na Fatma S.</div>
+          <div class="product-footer"><span class="product-price">TZS 15,000</span><span class="dl-count">⬇ 220</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="view-become">
+    <div class="apply-grid">
+      <div class="panel">
+        <h3>Anza Kuuza Kazi Zako</h3>
+        <div class="form-grid-2">
+          <div class="form-row"><label>Jina la Creator</label><input type="text" placeholder="Kelvin Fred Pela"></div>
+          <div class="form-row"><label>Aina ya Bidhaa</label>
+            <select><option>📖 Game Guide</option><option>🎨 Graphics Pack</option><option>🔊 Sound Effects</option><option>🖼️ Template</option><option>💻 Coding Service</option></select>
+          </div>
+        </div>
+        <div class="form-row"><label>Jina la Bidhaa</label><input type="text" placeholder="Mfano: eFootball Ultimate Team Guide"></div>
+        <div class="form-row"><label>Maelezo</label><textarea placeholder="Eleza bidhaa yako kwa ufupi..."></textarea></div>
+        <div class="form-grid-2">
+          <div class="form-row"><label>Bei (TZS)</label><input type="number" placeholder="8000"></div>
+          <div class="form-row"><label>Faili la Bidhaa</label><input type="file"></div>
+        </div>
+        <button class="btn btn-cyan btn-full">Wasilisha kwa Review</button>
+        <div class="commission-note">💡 Platform inachukua commission ndogo (15%) kwa kila download. Bidhaa zinakaguliwa na AI + Admin kabla ya kuchapishwa (ubora na copyright).</div>
+      </div>
+
+      <div class="panel">
+        <h3>Kwa Nini Creator Program?</h3>
+        <div style="font-size:.85rem; color:var(--muted); line-height:1.9;">
+          <p>✅ Hakuna ada ya kujiunga</p>
+          <p>✅ Malipo ya moja kwa moja kwenye Wallet yako</p>
+          <p>✅ Unamiliki kazi yako — unaweza kuiondoa wakati wowote</p>
+          <p>✅ Vinjari maarufu vinapata "Featured" placement</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 LifeIsGameTZ. Creator Program — Ubunifu Wako, Kipato Chako.</footer>
+
+<script>
+  function switchTab(name){
+    document.querySelectorAll('.cp-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  document.querySelectorAll('.cat-chips .chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('.cat-chips .chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+</script>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const catIcons = { 'Game Guide':'📖', 'Graphics Pack':'🎨', 'Sound Effects':'🔊', 'Template':'🖼️', 'Coding Service':'💻' };
+
+  async function loadCreatorProducts(){
+    try{
+      const { data, error } = await supabase
+        .from('creator_products')
+        .select('*, profiles(full_name)')
+        .eq('status', 'active')
+        .order('downloads_count', { ascending:false });
+      if(error) throw error;
+      if(!data || !data.length) return;
+
+      const grid = document.getElementById('creatorProductGrid');
+      grid.innerHTML = data.map(p => `
+        <div class="product-card">
+          <div class="product-thumb">${catIcons[p.category] || '🛒'}</div>
+          <div class="product-info">
+            <div class="product-title">${p.title}</div>
+            <div class="creator-tag">na ${p.profiles ? p.profiles.full_name : 'Creator'}</div>
+            <div class="product-footer">
+              <span class="product-price">TZS ${Number(p.price).toLocaleString('en-US')}</span>
+              <span class="dl-count">⬇ ${p.downloads_count}</span>
+            </div>
+          </div>
+        </div>`).join('');
+    } catch(err){
+      console.warn('Creator products load failed, tunabaki na mfano wa static:', err.message);
+    }
+  }
+
+  // ---------- Wasilisha bidhaa (Kuwa Creator form) ----------
+  document.querySelector('#view-become .btn-cyan').addEventListener('click', async ()=>{
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){
+      alert('Tafadhali Ingia/Jisajili kwanza kabla ya kuwasilisha bidhaa.');
+      window.location.href = 'login.html';
+      return;
+    }
+    const inputs = document.querySelectorAll('#view-become input[type="text"], #view-become select, #view-become textarea, #view-become input[type="number"]');
+    const title = inputs[1] ? inputs[1].value : '';
+    const category = document.querySelector('#view-become select').value;
+    const description = document.querySelector('#view-become textarea').value;
+    const price = document.querySelector('#view-become input[type="number"]').value;
+
+    if(!title || !price){ alert('Tafadhali jaza jina la bidhaa na bei.'); return; }
+
+    const { error } = await supabase.from('creator_products').insert({
+      creator_id: session.user.id,
+      title, category, description,
+      price: parseFloat(price),
+      status: 'pending'
+    });
+    if(error){ alert('Imeshindwa: ' + error.message); return; }
+    alert('Bidhaa yako imewasilishwa kwa review! Itaonekana Store baada ya kuidhinishwa.');
+  });
+
+  loadCreatorProducts();
+</script>
+</body>
+</html>

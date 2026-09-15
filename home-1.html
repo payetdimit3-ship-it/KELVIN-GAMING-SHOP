@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeIsGameTZ — Gaming, Tournaments &amp; Digital Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C11;
+    --bg-alt: #0F1219;
+    --panel: #151922;
+    --panel-2: #1B202B;
+    --border: #262C3A;
+    --text: #EEF2F7;
+    --muted: #8890A3;
+    --cyan: #1BE7E3;
+    --cyan-soft: rgba(27,231,227,0.12);
+    --cyan-glow: rgba(27,231,227,0.55);
+    --magenta: #FF3E9C;
+    --magenta-soft: rgba(255,62,156,0.12);
+    --magenta-glow: rgba(255,62,156,0.55);
+    --amber: #F5B942;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Rajdhani', sans-serif; font-size:16px;
+    overflow-x:hidden; padding-bottom:0;
+  }
+  h1,h2,h3,.logo,.stat-num,.price-new{ font-family:'Orbitron', sans-serif; }
+  a{ text-decoration:none; color:inherit; }
+  .wrap{ max-width:1200px; margin:0 auto; padding:0 1.4rem; }
+  section{ padding:4rem 0; }
+  .eyebrow{ color:var(--cyan); font-weight:600; letter-spacing:1.5px; font-size:.82rem; }
+
+  /* ---------- Background texture ---------- */
+  .grid-bg{
+    position:fixed; inset:0; z-index:-2;
+    background-image:
+      linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
+    background-size:42px 42px;
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 70%);
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 70%);
+  }
+  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.35; }
+  .glow-1{ width:520px; height:520px; background:var(--cyan); top:-180px; left:-160px; }
+  .glow-2{ width:460px; height:460px; background:var(--magenta); top:120px; right:-180px; }
+
+  /* ---------- Top utility ticker ---------- */
+  .ticker-bar{
+    background:#05070A; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; overflow:hidden; white-space:nowrap;
+    font-size:.8rem; height:34px;
+  }
+  .ticker-tag{
+    flex-shrink:0; background:var(--magenta); color:#fff; font-weight:700;
+    padding:.3rem .8rem; display:flex; align-items:center; gap:.4rem; height:100%;
+    letter-spacing:.4px; z-index:2;
+  }
+  .ticker-tag .dot{ width:6px; height:6px; border-radius:50%; background:#fff; animation:pulse 1.4s infinite; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
+  .ticker-track{ display:flex; gap:2.5rem; padding-left:1.5rem; animation:scrollTicker 26s linear infinite; }
+  .ticker-track span{ color:var(--muted); }
+  .ticker-track b{ color:var(--text); }
+  @keyframes scrollTicker{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
+
+  /* ---------- Navbar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; gap:1.6rem;
+    padding:1rem 1.4rem; background:rgba(10,12,17,0.88);
+    backdrop-filter:blur(10px); border-bottom:1px solid var(--border);
+  }
+  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+  .logo .mark{
+    width:34px; height:34px; border-radius:8px;
+    background:linear-gradient(135deg, var(--cyan), var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+  }
+  .nav-links{ display:flex; gap:1.6rem; margin-left:1rem; }
+  .nav-links a{ font-weight:600; font-size:.95rem; color:var(--muted); transition:color .15s; }
+  .nav-links a:hover{ color:var(--cyan); }
+  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:8px; border:1px solid var(--border);
+    background:var(--panel); color:var(--muted); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:1rem;
+  }
+  .nav-toggle{ display:none; background:none; border:none; color:var(--text); font-size:1.4rem; }
+
+  .btn{
+    font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.95rem;
+    padding:.75rem 1.5rem; border-radius:8px; cursor:pointer; letter-spacing:.4px;
+    display:inline-flex; align-items:center; gap:.5rem; border:1px solid transparent;
+    transition:transform .15s, box-shadow .15s;
+  }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-cyan{ background:var(--cyan); color:#05181A; box-shadow:0 0 24px var(--cyan-glow); }
+  .btn-cyan:hover{ box-shadow:0 0 38px var(--cyan-glow); }
+  .btn-magenta-outline{
+    background:transparent; color:var(--magenta); border-color:var(--magenta);
+  }
+  .btn-magenta-outline:hover{ background:var(--magenta-soft); box-shadow:0 0 30px var(--magenta-glow); }
+  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
+  .btn-sm{ padding:.5rem 1rem; font-size:.82rem; }
+  .btn-full{ width:100%; justify-content:center; }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding:4rem 0 3rem; text-align:center; }
+  .hero h1{
+    font-size:clamp(2.4rem, 6vw, 4.4rem); font-weight:900; line-height:1.05;
+    letter-spacing:.5px; margin:1.1rem 0 1rem;
+    text-shadow:0 0 30px rgba(27,231,227,0.25);
+  }
+  .hero h1 .accent{ color:var(--magenta); text-shadow:0 0 30px var(--magenta-glow); }
+  .hero p{ color:var(--muted); font-size:1.15rem; max-width:620px; margin:0 auto 2rem; }
+  .hero-actions{ display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+  /* ---------- Quick stats counter ---------- */
+  .stats-section{ padding:2.5rem 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .stats-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; text-align:center; }
+  .stats-grid .ic{ font-size:1.5rem; margin-bottom:.4rem; }
+  .stat-num{ font-size:2.1rem; font-weight:800; color:var(--cyan); }
+  .stat-lbl{ font-size:.8rem; color:var(--muted); letter-spacing:.5px; margin-top:.2rem; }
+
+  /* ---------- Categories ---------- */
+  .cat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+  .cat-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:1.5rem 1rem; text-align:center; cursor:pointer;
+    transition:border-color .2s, transform .2s; position:relative; overflow:hidden;
+  }
+  .cat-card:hover{ border-color:var(--cyan); transform:translateY(-4px); }
+  .cat-card .ic{ font-size:2rem; margin-bottom:.6rem; }
+  .cat-card .lbl{ font-size:.95rem; font-weight:700; }
+  .cat-card .sub{ font-size:.76rem; color:var(--muted); margin-top:.2rem; }
+  .cat-card.live::after{
+    content:'LIVE'; position:absolute; top:.6rem; right:.6rem; background:var(--magenta);
+    color:#fff; font-size:.6rem; font-weight:700; padding:.15rem .4rem; border-radius:4px;
+  }
+
+  /* ---------- Section head ---------- */
+  .section-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:2rem; flex-wrap:wrap; gap:.8rem;
+  }
+  .section-head h2{ font-size:1.9rem; font-weight:800; margin-top:.4rem; }
+  .see-all{ color:var(--cyan); font-weight:600; font-size:.9rem; }
+
+  /* ---------- Product showcase ---------- */
+  .product-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; }
+  .product-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px;
+    overflow:hidden; position:relative; transition:border-color .2s, transform .2s;
+  }
+  .product-card:hover{ border-color:var(--cyan); transform:translateY(-5px); }
+  .product-thumb{
+    height:140px; display:flex; align-items:center; justify-content:center;
+    font-size:2.6rem; background:linear-gradient(135deg, var(--panel-2), var(--bg-alt));
+    position:relative;
+  }
+  .badge{
+    position:absolute; top:.7rem; left:.7rem; color:#fff;
+    font-size:.66rem; font-weight:700; padding:.2rem .55rem; border-radius:5px; letter-spacing:.4px;
+  }
+  .badge.sale{ background:var(--magenta); }
+  .badge.best{ background:var(--cyan); color:#05181A; }
+  .product-info{ padding:1rem; }
+  .product-info .title{ font-weight:600; font-size:.98rem; margin-bottom:.25rem; }
+  .rating{ color:var(--amber); font-size:.8rem; margin-bottom:.5rem; }
+  .rating span{ color:var(--muted); margin-left:.3rem; }
+  .price-row{ display:flex; justify-content:space-between; align-items:center; }
+  .price-block{ display:flex; align-items:baseline; gap:.5rem; }
+  .price-new{ color:var(--cyan); font-weight:700; font-size:1.05rem; }
+  .price-old{ color:var(--muted); font-size:.82rem; text-decoration:line-through; }
+  .add-btn{
+    width:34px; height:34px; border-radius:8px; border:1px solid var(--cyan);
+    background:var(--cyan-soft); color:var(--cyan); cursor:pointer; font-size:1rem;
+  }
+
+  /* ---------- AI personalization widget ---------- */
+  .ai-reco-strip{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; }
+  .reco-card{
+    background:var(--panel); border:1px solid var(--cyan-soft); border-radius:14px;
+    padding:1.1rem; position:relative; transition:transform .2s;
+  }
+  .reco-card:hover{ transform:translateY(-4px); }
+  .match-badge{
+    display:inline-flex; align-items:center; gap:.3rem; background:var(--cyan-soft); color:var(--cyan);
+    font-size:.72rem; font-weight:700; padding:.2rem .55rem; border-radius:20px; margin-bottom:.7rem;
+  }
+  .reco-thumb{
+    height:110px; border-radius:10px; margin-bottom:.7rem; display:flex; align-items:center;
+    justify-content:center; font-size:2.2rem; background:linear-gradient(135deg, var(--panel-2), var(--bg-alt));
+  }
+  .reco-card .title{ font-weight:600; font-size:.92rem; margin-bottom:.2rem; }
+  .reco-card .why{ font-size:.76rem; color:var(--muted); }
+
+  /* ---------- Tournament cards ---------- */
+  .tourney-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
+  .tourney-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.3rem;
+    position:relative; overflow:hidden;
+  }
+  .tourney-card::before{
+    content:''; position:absolute; width:180px; height:180px; border-radius:50%;
+    background:var(--magenta); filter:blur(70px); opacity:.18; right:-70px; top:-70px;
+  }
+  .status-pill{
+    display:inline-block; font-size:.68rem; font-weight:700; padding:.2rem .6rem;
+    border-radius:20px; margin-bottom:.7rem; position:relative; z-index:1;
+  }
+  .status-pill.open{ background:var(--cyan-soft); color:var(--cyan); }
+  .status-pill.soon{ background:rgba(245,185,66,0.15); color:var(--amber); }
+  .status-pill.full{ background:rgba(255,255,255,0.08); color:var(--muted); }
+  .tourney-card h3{ font-size:1.15rem; font-weight:700; margin-bottom:.3rem; position:relative; z-index:1; }
+  .tourney-card .meta{ font-size:.8rem; color:var(--muted); margin-bottom:1rem; position:relative; z-index:1; }
+  .progress-track{
+    height:7px; background:var(--panel-2); border-radius:20px; overflow:hidden; margin-bottom:.4rem;
+    position:relative; z-index:1;
+  }
+  .progress-fill{ height:100%; background:linear-gradient(90deg, var(--cyan), var(--magenta)); border-radius:20px; }
+  .progress-lbl{ font-size:.75rem; color:var(--muted); margin-bottom:1rem; position:relative; z-index:1; }
+
+  /* ---------- PC Compatibility Checker ---------- */
+  .pc-checker{
+    background:var(--panel); border:1px solid var(--border); border-radius:18px;
+    padding:2.2rem; display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:center;
+  }
+  .pc-checker h2{ font-size:1.7rem; font-weight:800; margin-bottom:.5rem; }
+  .pc-checker p{ color:var(--muted); font-size:.92rem; margin-bottom:1rem; }
+  .form-row{ margin-bottom:.9rem; }
+  .form-row label{ display:block; font-size:.8rem; color:var(--muted); margin-bottom:.35rem; }
+  .form-row select, .form-row input{
+    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px;
+    padding:.65rem .8rem; color:var(--text); font-family:inherit; font-size:.9rem; outline:none;
+  }
+  .form-row select:focus, .form-row input:focus{ border-color:var(--cyan); }
+  .check-result{
+    margin-top:1rem; padding:1rem; border-radius:10px; font-size:.88rem; display:none;
+  }
+  .check-result.show{ display:block; }
+  .check-result.ok{ background:var(--cyan-soft); color:var(--cyan); border:1px solid var(--cyan); }
+  .check-result.bad{ background:var(--magenta-soft); color:var(--magenta); border:1px solid var(--magenta); }
+  .pc-visual{
+    background:linear-gradient(135deg, var(--panel-2), var(--bg-alt)); border-radius:14px;
+    height:100%; min-height:220px; display:flex; align-items:center; justify-content:center;
+    font-size:4rem; border:1px solid var(--border);
+  }
+
+  /* ---------- Footer ---------- */
+  footer{ border-top:1px solid var(--border); padding:3rem 0 5.5rem; background:var(--bg-alt); }
+  .footer-grid{ display:grid; grid-template-columns:1.5fr repeat(3,1fr); gap:2rem; margin-bottom:2rem; }
+  .footer-grid h4{ font-size:.85rem; margin-bottom:.9rem; color:var(--text); letter-spacing:.4px; }
+  .footer-grid a{ display:block; color:var(--muted); font-size:.88rem; margin-bottom:.55rem; }
+  .footer-grid a:hover{ color:var(--cyan); }
+  .footer-bottom{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;
+    padding-top:1.5rem; border-top:1px solid var(--border); color:var(--muted); font-size:.82rem;
+  }
+  .socials{ display:flex; gap:.7rem; }
+
+  /* ---------- Floating AI chatbot ---------- */
+  .chat-fab{
+    position:fixed; bottom:1.4rem; right:1.4rem; z-index:60;
+    width:58px; height:58px; border-radius:50%;
+    background:linear-gradient(135deg, var(--cyan), #12a3a1);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.5rem; cursor:pointer; border:none; color:#05181A;
+    box-shadow:0 0 26px var(--cyan-glow);
+  }
+  .chat-panel{
+    position:fixed; bottom:5.4rem; right:1.4rem; z-index:61;
+    width:320px; max-width:calc(100vw - 2rem); height:430px;
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:14px; display:none; flex-direction:column; overflow:hidden;
+    box-shadow:0 12px 40px rgba(0,0,0,.5);
+  }
+  .chat-panel.open{ display:flex; }
+  .chat-head{
+    padding:.8rem 1rem; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:.6rem; background:var(--bg-alt);
+  }
+  .chat-head .avatar{
+    width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--cyan),var(--magenta));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .chat-head strong{ font-size:.88rem; }
+  .chat-head span{ display:block; font-size:.7rem; color:var(--cyan); }
+  .chat-close{ margin-left:auto; background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.1rem; }
+  .chat-body{ flex:1; padding:1rem; overflow-y:auto; font-size:.85rem; }
+  .msg{ margin-bottom:.8rem; max-width:85%; padding:.55rem .75rem; border-radius:10px; line-height:1.4; }
+  .msg.bot{ background:var(--panel-2); }
+  .msg.me{ background:var(--cyan-soft); color:var(--cyan); margin-left:auto; }
+  .chat-input{ display:flex; align-items:center; gap:.5rem; border-top:1px solid var(--border); padding:.6rem; }
+  .chat-input input{
+    flex:1; background:var(--panel-2); border:1px solid var(--border); border-radius:20px;
+    padding:.5rem .9rem; color:var(--text); font-size:.85rem; outline:none; font-family:inherit;
+  }
+  .chat-send{
+    width:34px; height:34px; border-radius:50%; border:none; background:var(--cyan);
+    color:#05181A; cursor:pointer; flex-shrink:0;
+  }
+
+  /* ---------- Bottom mobile nav ---------- */
+  .bottom-nav{
+    display:none; position:fixed; bottom:0; left:0; right:0; z-index:55;
+    background:rgba(10,12,17,0.96); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border); padding:.5rem 0;
+    justify-content:space-around; align-items:center;
+  }
+  .bottom-nav .bn-item{
+    display:flex; flex-direction:column; align-items:center; gap:.15rem;
+    color:var(--muted); font-size:.65rem; font-weight:600; cursor:pointer;
+  }
+  .bottom-nav .bn-item .bn-ic{ font-size:1.15rem; }
+  .bottom-nav .bn-item.active{ color:var(--cyan); }
+
+  @media (max-width: 900px){
+    .cat-row{ grid-template-columns:repeat(2,1fr); }
+    .product-grid{ grid-template-columns:repeat(2,1fr); }
+    .ai-reco-strip{ grid-template-columns:repeat(2,1fr); }
+    .tourney-grid{ grid-template-columns:1fr; }
+    .stats-grid{ grid-template-columns:repeat(2,1fr); gap:1.6rem; }
+    .pc-checker{ grid-template-columns:1fr; }
+    .pc-visual{ min-height:160px; order:-1; }
+    .footer-grid{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width: 760px){
+    .nav-links{ display:none; }
+    .nav-toggle{ display:block; }
+    .bottom-nav{ display:flex; }
+    footer{ padding-bottom:6rem; }
+    .chat-fab{ bottom:5rem; }
+    .chat-panel{ bottom:8.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-blob glow-1"></div>
+<div class="glow-blob glow-2"></div>
+
+<!-- TOP UTILITY TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-tag"><span class="dot"></span> LIVE SCORES</div>
+  <div class="ticker-track">
+    <span><b>Simba SC</b> 2 - 1 <b>Yanga SC</b> · FT</span>
+    <span><b>Man City</b> 3 - 0 <b>Chelsea</b> · Premier League</span>
+    <span><b>Dar Cup</b> Round 3 inaendelea · 58 wachezaji wamebaki</span>
+    <span><b>Real Madrid</b> 1 - 1 <b>Barcelona</b> · 67'</span>
+    <span><b>FC26 Championship</b> usajili unafunga leo saa 8 usiku</span>
+    <span><b>Simba SC</b> 2 - 1 <b>Yanga SC</b> · FT</span>
+    <span><b>Man City</b> 3 - 0 <b>Chelsea</b> · Premier League</span>
+    <span><b>Dar Cup</b> Round 3 inaendelea · 58 wachezaji wamebaki</span>
+    <span><b>Real Madrid</b> 1 - 1 <b>Barcelona</b> · 67'</span>
+    <span><b>FC26 Championship</b> usajili unafunga leo saa 8 usiku</span>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="logo"><div class="mark">🎮</div>LifeIsGameTZ</div>
+  <div class="nav-links">
+    <a href="store.html">Store</a>
+    <a href="#tournaments">Tournaments</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="community-marketplace.html">Marketplace</a>
+    <a href="agribusiness-hub.html">Vijana Uchumi</a>
+    <a href="community-health.html">Msaada wa Jamii</a>
+    <a href="creator-program.html">Creator Program</a>
+    <a href="affiliate-program.html">Affiliate</a>
+    <a href="community-fund.html">Community Fund</a>
+    <a href="youth-marketplace.html">Youth Marketplace</a>
+    <a href="#reco">Kwa Ajili Yako</a>
+    <a href="#pc-check">PC Checker</a>
+    <a href="academy.html">Academy</a>
+  </div>
+  <div class="nav-actions">
+    <button class="icon-btn">🔍</button>
+    <div style="position:relative;">
+      <button class="icon-btn" id="notifBell" style="position:relative;">🔔<span id="notifDot" style="position:absolute; top:-3px; right:-3px; width:9px; height:9px; border-radius:50%; background:var(--magenta); display:none;"></span></button>
+      <div id="notifPanel" style="display:none; position:absolute; top:48px; right:0; width:300px; max-width:80vw; background:var(--panel); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,.4); z-index:60; overflow:hidden;">
+        <div style="padding:.8rem 1rem; border-bottom:1px solid var(--border); font-weight:700; font-size:.9rem;">Notifications</div>
+        <div id="notifList" style="max-height:320px; overflow-y:auto;"></div>
+      </div>
+    </div>
+    <a href="cart.html" class="icon-btn" style="text-decoration:none;">🛒</a>
+    <a href="login.html" class="btn btn-ghost">Ingia</a>
+    <button class="nav-toggle">☰</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">TANZANIA'S GAMING &amp; ESPORTS PLATFORM</div>
+    <h1>CHEZA. <span class="accent">SHINDANA.</span><br>LIPWA KWA UJUZI WAKO.</h1>
+    <p>Nunua games na gift cards, jiunge tournament za eFootball, na pata fursa za kipato kama kijana wa kidijitali — yote sehemu moja.</p>
+    <div class="hero-actions">
+      <a href="store.html" class="btn btn-cyan">🛒 Nunua Sasa</a>
+      <a href="tournament.html" class="btn btn-magenta-outline">🏆 Jiunge Tournament</a>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK STATS COUNTER -->
+<section class="stats-section">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div><div class="ic">🎮</div><div class="stat-num" data-target="500">0+</div><div class="stat-lbl">GAMES</div></div>
+      <div><div class="ic">👥</div><div class="stat-num" data-target="2" data-suffix="M+">0</div><div class="stat-lbl">WACHEZAJI</div></div>
+      <div><div class="ic">🛒</div><div class="stat-num" data-target="50" data-suffix="K+">0</div><div class="stat-lbl">MAUZO</div></div>
+      <div><div class="ic">🏆</div><div class="stat-num" data-target="86">0+</div><div class="stat-lbl">TOURNAMENTS/MWEZI</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORY GRID -->
+<section id="store">
+  <div class="wrap">
+    <div class="section-head"><h2>Chagua Category</h2></div>
+    <div class="cat-row">
+      <div class="cat-card">
+        <div class="ic">🕹️</div>
+        <div class="lbl">Top Games</div>
+        <div class="sub">PC · PlayStation · Xbox</div>
+      </div>
+      <div class="cat-card">
+        <div class="ic">🔑</div>
+        <div class="lbl">Steam Accounts</div>
+        <div class="sub">Verified &amp; secure</div>
+      </div>
+      <div class="cat-card">
+        <div class="ic">⚽</div>
+        <div class="lbl">eFootball Coins</div>
+        <div class="sub">Top-up ya haraka</div>
+      </div>
+      <div class="cat-card live">
+        <div class="ic">📡</div>
+        <div class="lbl">Live Scores</div>
+        <div class="sub">Matokeo ya sasa hivi</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT SHOWCASE -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="eyebrow">BEST SELLERS</div><h2>Bidhaa Zinazouzwa Zaidi</h2></div>
+      <a href="store.html" class="see-all">Ona Zote →</a>
+    </div>
+    <div class="product-grid">
+      <div class="product-card">
+        <div class="product-thumb">🎮<span class="badge best">BESTSELLER</span></div>
+        <div class="product-info">
+          <div class="title">FC 26 — Standard Edition</div>
+          <div class="rating">★★★★★ <span>(482)</span></div>
+          <div class="price-row">
+            <div class="price-block"><span class="price-new">TZS 45,000</span><span class="price-old">60,000</span></div>
+            <button class="add-btn">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-thumb">🔑<span class="badge sale">SALE</span></div>
+        <div class="product-info">
+          <div class="title">Steam Account — 12 Games Bundle</div>
+          <div class="rating">★★★★☆ <span>(139)</span></div>
+          <div class="price-row">
+            <div class="price-block"><span class="price-new">TZS 80,000</span><span class="price-old">120,000</span></div>
+            <button class="add-btn">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-thumb">⚽</div>
+        <div class="product-info">
+          <div class="title">eFootball Coins — 5,000</div>
+          <div class="rating">★★★★★ <span>(910)</span></div>
+          <div class="price-row">
+            <div class="price-block"><span class="price-new">TZS 12,000</span></div>
+            <button class="add-btn">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-thumb">🎧<span class="badge sale">SALE</span></div>
+        <div class="product-info">
+          <div class="title">Gaming Headset RGB Pro</div>
+          <div class="rating">★★★★☆ <span>(76)</span></div>
+          <div class="price-row">
+            <div class="price-block"><span class="price-new">TZS 65,000</span><span class="price-old">85,000</span></div>
+            <button class="add-btn">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI PERSONALIZATION -->
+<section id="reco">
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="eyebrow">🤖 AI PERSONALIZATION</div><h2>Mapendekezo Kwa Wako</h2></div>
+    </div>
+    <div class="ai-reco-strip">
+      <div class="reco-card">
+        <div class="match-badge">⚡ 96% Match</div>
+        <div class="reco-thumb">🏎️</div>
+        <div class="title">Need for Speed Unbound</div>
+        <div class="why">Kwa sababu unapenda racing games</div>
+      </div>
+      <div class="reco-card">
+        <div class="match-badge">⚡ 91% Match</div>
+        <div class="reco-thumb">⚽</div>
+        <div class="title">eFootball 2026 Season Pass</div>
+        <div class="why">Kwa sababu unacheza tournaments mara kwa mara</div>
+      </div>
+      <div class="reco-card">
+        <div class="match-badge">⚡ 88% Match</div>
+        <div class="reco-thumb">🔫</div>
+        <div class="title">Call of Duty: Modern Ops</div>
+        <div class="why">Wachezaji wenye wasifu kama wako wanaipenda</div>
+      </div>
+      <div class="reco-card">
+        <div class="match-badge">⚡ 84% Match</div>
+        <div class="reco-thumb">🎧</div>
+        <div class="title">Wireless Gaming Headset</div>
+        <div class="why">Inaenda vizuri na games ulizonunua</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOURNAMENT CARDS -->
+<section id="tournaments">
+  <div class="wrap">
+    <div class="section-head"><div><div class="eyebrow">LIGI ZA SASA</div><h2>Jiunge Tournament</h2></div></div>
+    <div class="tourney-grid">
+      <div class="tourney-card" id="darCupCard">
+        <span class="status-pill open">OPEN</span>
+        <h3>Dar Cup — Weekly</h3>
+        <div class="meta">eFootball 2026 · Entry TZS 2,000 · Zawadi TZS 100,000</div>
+        <div class="progress-track"><div class="progress-fill" id="darCupProgressFill" style="width:91%;"></div></div>
+        <div class="progress-lbl" id="darCupProgressLbl">58/64 wachezaji</div>
+        <a href="tournament.html" class="btn btn-cyan btn-sm btn-full">Jiunge Sasa</a>
+      </div>
+      <div class="tourney-card">
+        <span class="status-pill soon">SOON</span>
+        <h3>FC26 Championship</h3>
+        <div class="meta">FC 26 · Entry TZS 5,000 · Zawadi TZS 250,000</div>
+        <div class="progress-track"><div class="progress-fill" style="width:60%;"></div></div>
+        <div class="progress-lbl">19/32 wachezaji · Inaanza kesho</div>
+        <a href="tournament.html" class="btn btn-magenta-outline btn-sm btn-full">Sajili Sasa</a>
+      </div>
+      <div class="tourney-card">
+        <span class="status-pill full">FULL</span>
+        <h3>Zanzibar Gamers League</h3>
+        <div class="meta">eFootball 2026 · Free Entry · Zawadi TZS 50,000</div>
+        <div class="progress-track"><div class="progress-fill" style="width:100%;"></div></div>
+        <div class="progress-lbl">16/16 wachezaji · Bracket imefungwa</div>
+        <button class="btn btn-ghost btn-sm btn-full" disabled>Imejaa</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PC COMPATIBILITY CHECKER -->
+<section id="pc-check">
+  <div class="wrap">
+    <div class="pc-checker">
+      <div>
+        <div class="eyebrow">INTERACTIVE TOOL</div>
+        <h2>Angalia PC Yako</h2>
+        <p>Jaza specs za kompyuta yako tuone kama inaweza kutumia FC 26, Call of Duty na games nyingine kubwa.</p>
+        <div class="form-row">
+          <label>Processor (CPU)</label>
+          <select id="cpuSelect">
+            <option>Intel Core i3 / Ryzen 3</option>
+            <option>Intel Core i5 / Ryzen 5</option>
+            <option>Intel Core i7 / Ryzen 7 na juu zaidi</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Graphics Card (GPU)</label>
+          <select id="gpuSelect">
+            <option>Integrated Graphics (bila GPU maalum)</option>
+            <option>GTX 1650 / RX 570</option>
+            <option>RTX 3060 na juu zaidi</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>RAM</label>
+          <select id="ramSelect">
+            <option>4GB</option>
+            <option>8GB</option>
+            <option>16GB na zaidi</option>
+          </select>
+        </div>
+        <button class="btn btn-cyan" id="checkBtn">🖥️ Angalia Utangamanifu</button>
+        <div class="check-result" id="checkResult"></div>
+      </div>
+      <div class="pc-visual">🖥️</div>
+    </div>
+  </div>
+</section>
+
+<!-- YOUTH / ACADEMY CTA -->
+<section id="academy">
+  <div class="wrap">
+    <div class="tourney-card" style="padding:2.5rem; text-align:center;">
+      <div class="eyebrow">DIGITAL SKILLS ACADEMY</div>
+      <h2 style="margin:.6rem 0 .6rem;">Jifunze, Ujenge Ujuzi, Upate Kazi</h2>
+      <p style="color:var(--muted); max-width:520px; margin:0 auto 1.4rem;">Kozi za bure na premium kwenye Web Development, Design, Video Editing na Gaming — ukiwa na cheti mwishoni.</p>
+      <a href="academy.html" class="btn btn-cyan">🎓 Anza Kujifunza</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="logo" style="margin-bottom:.8rem;"><div class="mark">🎮</div>LifeIsGameTZ</div>
+        <p style="color:var(--muted); font-size:.88rem; max-width:280px;">Gaming, Digital Economy na Youth Opportunities — sehemu moja, kwa Watanzania.</p>
+      </div>
+      <div>
+        <h4>STORE</h4>
+        <a href="#">Top Games</a>
+        <a href="#">Steam Accounts</a>
+        <a href="#">eFootball Coins</a>
+      </div>
+      <div>
+        <h4>COMMUNITY</h4>
+        <a href="#">Tournaments</a>
+        <a href="youth-marketplace.html">Youth Marketplace</a>
+        <a href="academy.html">Academy</a>
+      </div>
+      <div>
+        <h4>MAWASILIANO</h4>
+        <a href="#">📞 +255 700 000 000</a>
+        <a href="#">✉️ support@lifeisgametz.co.tz</a>
+        <a href="#">💬 Msaada wa Jamii</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 LifeIsGameTZ. Haki zote zimehifadhiwa.</div>
+      <div class="socials">
+        <span class="icon-btn">📷</span>
+        <span class="icon-btn">🎵</span>
+        <span class="icon-btn">💬</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- FLOATING AI CHATBOT -->
+<button class="chat-fab" id="chatFab">💬</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div class="avatar">🤖</div>
+    <div>
+      <strong>AI Msaidizi</strong>
+      <span>🟢 Online</span>
+    </div>
+    <button class="chat-close" id="chatClose">✕</button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="msg bot">Habari! Nikusaidie kupata game, kujiunga tournament, au kuangalia order yako?</div>
+  </div>
+  <div class="chat-input">
+    <input type="text" id="chatInputText" placeholder="Andika ujumbe...">
+    <button class="chat-send" id="chatSend">➤</button>
+  </div>
+</div>
+
+<!-- BOTTOM MOBILE NAV -->
+<div class="bottom-nav">
+  <div class="bn-item active"><span class="bn-ic">🏠</span>Home</div>
+  <div class="bn-item"><span class="bn-ic">🛒</span>Store</div>
+  <div class="bn-item"><span class="bn-ic">🏆</span>Tournaments</div>
+  <div class="bn-item" id="bnChat"><span class="bn-ic">💬</span>Chat</div>
+  <a href="login.html" class="bn-item" style="color:inherit;"><span class="bn-ic">👤</span>Akaunti</a>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function loadDarCupLive(){
+    try{
+      const { data: tourney, error } = await supabase.from('tournaments').select('id, max_players').eq('title', 'Dar Cup — Weekly Championship').maybeSingle();
+      if(error || !tourney) return;
+      const { count } = await supabase.from('tournament_registrations').select('*', { count:'exact', head:true }).eq('tournament_id', tourney.id);
+      const players = count || 0;
+      const max = tourney.max_players;
+      const pct = Math.min(100, Math.round((players/max)*100));
+      document.getElementById('darCupProgressFill').style.width = pct + '%';
+      document.getElementById('darCupProgressLbl').textContent = `${players}/${max} wachezaji`;
+    } catch(err){
+      console.warn('Dar Cup live data haikupatikana, tunabaki na mfano wa static:', err.message);
+    }
+  }
+  loadDarCupLive();
+  // ---------- Add to cart micro-interaction ----------
+  document.querySelectorAll('.add-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      btn.textContent = '✓';
+      btn.style.background = 'var(--cyan)';
+      btn.style.color = '#05181A';
+      setTimeout(()=>{ btn.textContent='+'; btn.style.background='var(--cyan-soft)'; btn.style.color='var(--cyan)'; }, 900);
+    });
+  });
+
+  // ---------- Stat counters ----------
+  const counters = document.querySelectorAll('.stat-num');
+  const animateCounter = (el) => {
+    const target = parseInt(el.dataset.target, 10);
+    const suffix = el.dataset.suffix || '+';
+    let cur = 0;
+    const step = Math.max(1, Math.ceil(target / 60));
+    const tick = () => {
+      cur += step;
+      if(cur >= target){ el.textContent = target + suffix; return; }
+      el.textContent = cur + suffix;
+      requestAnimationFrame(tick);
+    };
+    tick();
+  };
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ animateCounter(e.target); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => obs.observe(c));
+
+  // ---------- PC compatibility checker (demo logic) ----------
+  document.getElementById('checkBtn').addEventListener('click', ()=>{
+    const cpu = document.getElementById('cpuSelect').selectedIndex;
+    const gpu = document.getElementById('gpuSelect').selectedIndex;
+    const ram = document.getElementById('ramSelect').selectedIndex;
+    const score = cpu + gpu + ram;
+    const result = document.getElementById('checkResult');
+    result.classList.add('show');
+    if(score >= 4){
+      result.className = 'check-result show ok';
+      result.innerHTML = '✅ PC yako inaweza kucheza FC 26, COD na games nyingi kubwa kwa settings za juu.';
+    } else if(score >= 2){
+      result.className = 'check-result show ok';
+      result.innerHTML = '🟡 PC yako inaweza kucheza games nyingi kwa settings za kati. Kuongeza RAM/GPU kutaboresha uzoefu.';
+    } else {
+      result.className = 'check-result show bad';
+      result.innerHTML = '⚠️ PC yako inafaa zaidi kwa games nyepesi. Tunapendekeza kuboresha GPU/RAM kwa games kubwa.';
+    }
+  });
+
+  // ---------- Floating chat ----------
+  const chatFab = document.getElementById('chatFab');
+  const chatPanel = document.getElementById('chatPanel');
+  const chatBody = document.getElementById('chatBody');
+  function openChat(){ chatPanel.classList.add('open'); }
+  function toggleChat(){ chatPanel.classList.toggle('open'); }
+  chatFab.addEventListener('click', toggleChat);
+  document.getElementById('chatClose').addEventListener('click', toggleChat);
+  document.getElementById('bnChat').addEventListener('click', openChat);
+
+  function addChatMsg(text, who){
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    chatBody.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+  function sendChat(){
+    const input = document.getElementById('chatInputText');
+    const text = input.value.trim();
+    if(!text) return;
+    addChatMsg(text, 'me');
+    input.value = '';
+    setTimeout(()=> addChatMsg('Asante! Timu yetu ya AI inachambua ombi lako na itakujibu papo hapo.', 'bot'), 500);
+  }
+  document.getElementById('chatSend').addEventListener('click', sendChat);
+  document.getElementById('chatInputText').addEventListener('keydown', e=>{ if(e.key === 'Enter') sendChat(); });
+
+  // ---------- Bottom nav active state ----------
+  document.querySelectorAll('.bn-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      document.querySelectorAll('.bn-item').forEach(i=>i.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+  // ---------- Push Notification Engine (toast + dropdown) ----------
+  const notifList = document.getElementById('notifList');
+  const notifDot = document.getElementById('notifDot');
+  let notifications = [];
+
+  function timeAgo(){ return 'Sasa hivi'; }
+
+  function pushNotification(icon, title, body){
+    notifications.unshift({icon, title, body, time: timeAgo()});
+    renderNotifList();
+    notifDot.style.display = 'block';
+    showToast(icon, title, body);
+  }
+
+  function renderNotifList(){
+    if(notifications.length === 0){
+      notifList.innerHTML = '<div style="padding:1.2rem; text-align:center; color:var(--muted); font-size:.85rem;">Hakuna notification bado.</div>';
+      return;
+    }
+    notifList.innerHTML = notifications.map(n => `
+      <div style="padding:.8rem 1rem; border-bottom:1px solid var(--border); display:flex; gap:.7rem;">
+        <div style="font-size:1.2rem;">${n.icon}</div>
+        <div>
+          <div style="font-size:.85rem; font-weight:600;">${n.title}</div>
+          <div style="font-size:.78rem; color:var(--muted);">${n.body}</div>
+          <div style="font-size:.68rem; color:var(--muted); margin-top:.2rem;">${n.time}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  function showToast(icon, title, body){
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed; top:1rem; right:1rem; z-index:100; background:var(--panel); border:1px solid var(--cyan); border-radius:10px; padding:.8rem 1rem; display:flex; gap:.7rem; max-width:300px; box-shadow:0 8px 24px rgba(0,0,0,.4); animation:slideIn .3s ease;';
+    toast.innerHTML = `<div style="font-size:1.3rem;">${icon}</div><div><div style="font-size:.85rem; font-weight:700;">${title}</div><div style="font-size:.78rem; color:var(--muted);">${body}</div></div>`;
+    document.body.appendChild(toast);
+    setTimeout(()=>{ toast.style.opacity = '0'; toast.style.transition = 'opacity .4s'; setTimeout(()=> toast.remove(), 400); }, 4500);
+  }
+
+  document.getElementById('notifBell').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const panel = document.getElementById('notifPanel');
+    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    notifDot.style.display = 'none';
+  });
+  document.addEventListener('click', ()=>{ document.getElementById('notifPanel').style.display = 'none'; });
+
+  // Demo: simulate live alerts zinazokuja (kama WebSocket/Supabase Realtime ingetuma)
+  renderNotifList();
+  setTimeout(()=> pushNotification('⚽', 'Goli!', 'Simba SC wamefunga — sasa 3-1 dhidi ya Yanga SC'), 3000);
+  setTimeout(()=> pushNotification('🏆', 'Tournament Alert', 'Dar Cup Round 3 inaanza baada ya dakika 10'), 9000);
+</script>
+<style>
+  @keyframes slideIn{ from{ transform:translateX(30px); opacity:0; } to{ transform:translateX(0); opacity:1; } }
+</style>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vijana Uchumi &amp; Agribusiness Hub — LifeIsGameTZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C11; --bg-alt: #0F1219; --panel: #151922; --panel-2: #1B202B; --border: #262C3A;
+    --text: #EEF2F7; --muted: #8890A3;
+    --cyan: #1BE7E3; --cyan-soft: rgba(27,231,227,0.12); --cyan-glow: rgba(27,231,227,0.55);
+    --magenta: #FF3E9C; --magenta-soft: rgba(255,62,156,0.12); --magenta-glow: rgba(255,62,156,0.55);
+    --amber: #F5B942; --green2: #3ECF8E; --green2-soft: rgba(62,207,142,0.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--bg); color:var(--text); font-family:'Rajdhani', sans-serif; font-size:16px; overflow-x:hidden; }
+  h1,h2,h3,.logo{ font-family:'Orbitron', sans-serif; }
+  a{ text-decoration:none; color:inherit; }
+  .wrap{ max-width:1200px; margin:0 auto; padding:0 1.4rem; }
+
+  .grid-bg{ position:fixed; inset:0; z-index:-2;
+    background-image:linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
+    background-size:42px 42px; -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%); mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%); }
+  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.3; }
+  .glow-1{ width:480px; height:480px; background:var(--green2); top:-180px; left:-160px; }
+  .glow-2{ width:420px; height:420px; background:var(--magenta); top:60px; right:-180px; }
+
+  .navbar{ position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1.6rem; padding:1rem 1.4rem;
+    background:rgba(10,12,17,0.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+  .logo .mark{ width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg, var(--green2), var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  .nav-links{ display:flex; gap:1.6rem; margin-left:1rem; }
+  .nav-links a{ font-weight:600; font-size:.95rem; color:var(--muted); }
+  .nav-links a.active, .nav-links a:hover{ color:var(--green2); }
+  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
+  .icon-btn{ width:38px; height:38px; border-radius:8px; border:1px solid var(--border); background:var(--panel); color:var(--muted);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem; }
+  .btn{ font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.9rem; padding:.65rem 1.3rem; border-radius:8px; cursor:pointer; border:1px solid transparent; display:inline-flex; align-items:center; gap:.4rem; }
+  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
+  .btn-green{ background:var(--green2); color:#052015; box-shadow:0 0 20px rgba(62,207,142,0.4); }
+  .btn-magenta-outline{ background:transparent; color:var(--magenta); border-color:var(--magenta); }
+  .btn-sm{ padding:.5rem 1rem; font-size:.82rem; }
+  .btn-full{ width:100%; justify-content:center; }
+
+  .ag-hero{ padding:3rem 0 1.6rem; text-align:center; }
+  .eyebrow{ color:var(--green2); font-weight:600; letter-spacing:1.5px; font-size:.82rem; }
+  .ag-hero h1{ font-size:clamp(2rem, 5vw, 3rem); font-weight:900; margin:.8rem 0 .6rem; }
+  .ag-hero h1 .accent{ color:var(--magenta); }
+  .ag-hero p{ color:var(--muted); font-size:1rem; max-width:620px; margin:0 auto 1.4rem; }
+
+  .stats-strip{ display:flex; justify-content:center; gap:3rem; padding:1.6rem 0 2rem; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+  .stats-strip div{ text-align:center; }
+  .stat-num{ font-size:1.7rem; font-weight:800; color:var(--green2); font-family:'Orbitron', sans-serif; }
+  .stat-lbl{ font-size:.78rem; color:var(--muted); letter-spacing:.4px; }
+
+  .ag-tabs{ display:flex; justify-content:center; gap:.6rem; padding:2rem 0 1.6rem; flex-wrap:wrap; }
+  .ag-tab{ padding:.7rem 1.2rem; border-radius:30px; font-size:.87rem; font-weight:600; cursor:pointer;
+    border:1px solid var(--border); color:var(--muted); background:var(--panel); }
+  .ag-tab.active{ background:var(--green2); color:#052015; border-color:var(--green2); }
+
+  .view{ display:none; padding-bottom:4rem; }
+  .view.active{ display:block; }
+
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.4rem; margin-bottom:1.2rem; }
+  .panel h3{ font-size:1.05rem; font-weight:700; margin-bottom:1rem; }
+
+  /* ---------- Pitch cards ---------- */
+  .pitch-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:1.2rem; }
+  .pitch-card{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.3rem; }
+  .pitch-cat{ display:inline-block; font-size:.7rem; font-weight:700; padding:.2rem .6rem; border-radius:20px; margin-bottom:.7rem; }
+  .pitch-cat.tech{ background:var(--cyan-soft); color:var(--cyan); }
+  .pitch-cat.agri{ background:var(--green2-soft); color:var(--green2); }
+  .pitch-cat.energy{ background:rgba(245,185,66,0.15); color:var(--amber); }
+  .pitch-title{ font-weight:700; font-size:1.05rem; margin-bottom:.4rem; }
+  .pitch-desc{ font-size:.85rem; color:var(--muted); margin-bottom:1rem; line-height:1.5; }
+  .fund-track{ height:8px; background:var(--panel-2); border-radius:20px; overflow:hidden; margin-bottom:.4rem; }
+  .fund-fill{ height:100%; background:linear-gradient(90deg, var(--green2), var(--cyan)); border-radius:20px; }
+  .fund-lbl{ display:flex; justify-content:space-between; font-size:.78rem; color:var(--muted); margin-bottom:1rem; }
+  .pitch-footer{ display:flex; justify-content:space-between; align-items:center; }
+  .vote-btn{ background:var(--green2-soft); color:var(--green2); border:1px solid var(--green2); border-radius:8px; padding:.45rem .9rem; font-size:.8rem; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:.4rem; }
+
+  /* ---------- Agro marketplace ---------- */
+  .cat-chips{ display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+  .chip{ padding:.4rem .9rem; border-radius:20px; font-size:.82rem; cursor:pointer; border:1px solid var(--border); color:var(--muted); background:var(--panel); }
+  .chip.active{ background:var(--green2); color:#052015; border-color:var(--green2); }
+  .agro-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.1rem; }
+  .agro-card{ background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:border-color .2s, transform .2s; }
+  .agro-card:hover{ border-color:var(--green2); transform:translateY(-4px); }
+  .agro-thumb{ height:110px; display:flex; align-items:center; justify-content:center; font-size:2.2rem; background:linear-gradient(135deg, var(--panel-2), var(--bg-alt)); }
+  .agro-info{ padding:.9rem; }
+  .agro-title{ font-weight:700; font-size:.88rem; margin-bottom:.4rem; min-height:38px; }
+  .agro-price{ color:var(--green2); font-weight:700; font-size:.92rem; font-family:'Orbitron', sans-serif; margin-bottom:.5rem; }
+  .affiliate-tag{ font-size:.7rem; color:var(--amber); border-top:1px solid var(--border); padding-top:.5rem; }
+
+  /* ---------- Sponsorship form ---------- */
+  .apply-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:1.6rem; }
+  .form-row{ margin-bottom:.9rem; }
+  .form-row label{ display:block; font-size:.8rem; color:var(--muted); margin-bottom:.35rem; }
+  .form-row input, .form-row select, .form-row textarea{
+    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px;
+    padding:.65rem .8rem; color:var(--text); font-family:inherit; font-size:.9rem; outline:none; }
+  .form-row textarea{ resize:vertical; min-height:90px; }
+  .form-row input:focus, .form-row select:focus, .form-row textarea:focus{ border-color:var(--green2); }
+  .form-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+
+  /* ---------- AI Career Mentor / Copywriter chat ---------- */
+  .mentor-chat-box{ display:flex; flex-direction:column; height:340px; }
+  .mentor-head{ display:flex; align-items:center; gap:.7rem; padding-bottom:1rem; border-bottom:1px solid var(--border); margin-bottom:1rem; }
+  .mentor-avatar{ width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--green2),var(--cyan));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  .mentor-head strong{ font-size:.95rem; }
+  .mentor-head span{ display:block; font-size:.75rem; color:var(--green2); }
+  .mentor-body{ flex:1; overflow-y:auto; padding-right:.4rem; }
+  .m-msg{ margin-bottom:.9rem; max-width:85%; padding:.6rem .85rem; border-radius:10px; line-height:1.5; font-size:.88rem; }
+  .m-msg.bot{ background:var(--panel-2); }
+  .m-msg.me{ background:var(--green2-soft); color:var(--green2); margin-left:auto; }
+  .mentor-input{ display:flex; gap:.6rem; margin-top:.9rem; }
+  .mentor-input input{ flex:1; background:var(--bg-alt); border:1px solid var(--border); border-radius:20px; padding:.6rem 1rem; color:var(--text); font-size:.88rem; outline:none; font-family:inherit; }
+  .mentor-send{ width:38px; height:38px; border-radius:50%; border:none; background:var(--green2); color:#052015; cursor:pointer; }
+
+  footer{ border-top:1px solid var(--border); padding:2rem 0; background:var(--bg-alt); text-align:center; color:var(--muted); font-size:.82rem; margin-top:2rem; }
+
+  @media (max-width: 980px){ .pitch-grid{ grid-template-columns:1fr; } .agro-grid{ grid-template-columns:repeat(2,1fr); } .apply-grid{ grid-template-columns:1fr; } }
+  @media (max-width: 720px){ .nav-links{ display:none; } .agro-grid{ grid-template-columns:1fr; } .form-grid-2{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-blob glow-1"></div>
+<div class="glow-blob glow-2"></div>
+
+<div class="navbar">
+  <a href="home.html" class="logo"><div class="mark">🌱</div>LifeIsGameTZ</a>
+  <div class="nav-links">
+    <a href="youth-marketplace.html">Youth Marketplace</a>
+    <a href="academy.html">Academy</a>
+    <a href="community-marketplace.html">Marketplace</a>
+    <a href="agribusiness-hub.html" class="active">Vijana Uchumi</a>
+    <a href="community-health.html">Msaada wa Jamii</a>
+    <a href="creator-program.html">Creator Program</a>
+    <a href="affiliate-program.html">Affiliate</a>
+    <a href="community-fund.html">Community Fund</a>
+  </div>
+  <div class="nav-actions">
+    <a href="cart.html" class="icon-btn" style="text-decoration:none;">🛒</a>
+    <a href="login.html" class="btn btn-ghost">Ingia</a>
+  </div>
+</div>
+
+<section class="ag-hero">
+  <div class="wrap">
+    <div class="eyebrow">VIJANA UCHUMI &amp; AGRIBUSINESS HUB</div>
+    <h1>Wazo Lako. <span class="accent">Ufadhili Wetu.</span></h1>
+    <p>Wasilisha wazo lako la biashara (Teknolojia, Kilimo, Nishati Safi), pata ufadhili wa mafunzo ya ufundi, au uza bidhaa zako kwenye Agro-Marketplace.</p>
+    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-green" onclick="switchTab('pitch')">💡 Wasilisha Wazo Lako</button>
+      <button class="btn btn-magenta-outline" onclick="switchTab('market')">🌾 Ona Agro-Marketplace</button>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div><div class="stat-num">184</div><div class="stat-lbl">MIRADI ILIYOWASILISHWA</div></div>
+  <div><div class="stat-num">TZS 28M+</div><div class="stat-lbl">UFADHILI ULIOTOLEWA</div></div>
+  <div><div class="stat-num">42</div><div class="stat-lbl">VIJANA WALIOPATA UFADHILI WA MAFUNZO</div></div>
+  <div><div class="stat-num">960+</div><div class="stat-lbl">WACHUUZI WA AGRO-MARKETPLACE</div></div>
+</div>
+
+<div class="wrap">
+  <div class="ag-tabs">
+    <div class="ag-tab active" data-tab="pitch" onclick="switchTab('pitch')">💡 Pitching &amp; Grants</div>
+    <div class="ag-tab" data-tab="market" onclick="switchTab('market')">🌾 Agro-Marketplace</div>
+    <div class="ag-tab" data-tab="sponsor" onclick="switchTab('sponsor')">🎓 Ufadhili wa Mafunzo</div>
+    <div class="ag-tab" data-tab="copywriter" onclick="switchTab('copywriter')">📢 AI Copywriter</div>
+  </div>
+
+  <!-- ================= PITCHING & GRANTS ================= -->
+  <div class="view active" id="view-pitch">
+    <div class="pitch-grid" id="pitchGrid">
+      <div class="pitch-card">
+        <span class="pitch-cat agri">🌾 Agribusiness</span>
+        <div class="pitch-title">Smart Irrigation Kit kwa Wakulima Wadogo</div>
+        <div class="pitch-desc">Mfumo wa umwagiliaji wa bei nafuu unaotumia sensor za udongo kuokoa maji kwa 40%.</div>
+        <div class="fund-track"><div class="fund-fill" style="width:68%;"></div></div>
+        <div class="fund-lbl"><span>TZS 3,400,000 ya TZS 5,000,000</span><span>68%</span></div>
+        <div class="pitch-footer">
+          <button class="vote-btn" onclick="voteProject(this)">👍 Piga Kura (214)</button>
+          <button class="btn btn-ghost btn-sm">Soma Zaidi</button>
+        </div>
+      </div>
+
+      <div class="pitch-card">
+        <span class="pitch-cat energy">☀️ Nishati Safi</span>
+        <div class="pitch-title">Solar Charging Hub kwa Vijiji Visivyo na Umeme</div>
+        <div class="pitch-desc">Kituo cha kuchaji simu na taa za solar kwa jamii za vijijini, kikiendeshwa na vijana wa eneo husika.</div>
+        <div class="fund-track"><div class="fund-fill" style="width:41%;"></div></div>
+        <div class="fund-lbl"><span>TZS 1,640,000 ya TZS 4,000,000</span><span>41%</span></div>
+        <div class="pitch-footer">
+          <button class="vote-btn" onclick="voteProject(this)">👍 Piga Kura (98)</button>
+          <button class="btn btn-ghost btn-sm">Soma Zaidi</button>
+        </div>
+      </div>
+
+      <div class="pitch-card">
+        <span class="pitch-cat tech">💻 Teknolojia</span>
+        <div class="pitch-title">App ya Kuunganisha Wakulima na Masoko</div>
+        <div class="pitch-desc">Jukwaa la simu linalowasaidia wakulima kuuza mazao moja kwa moja kwa wanunuzi bila madalali.</div>
+        <div class="fund-track"><div class="fund-fill" style="width:85%;"></div></div>
+        <div class="fund-lbl"><span>TZS 4,250,000 ya TZS 5,000,000</span><span>85%</span></div>
+        <div class="pitch-footer">
+          <button class="vote-btn" onclick="voteProject(this)">👍 Piga Kura (356)</button>
+          <button class="btn btn-ghost btn-sm">Soma Zaidi</button>
+        </div>
+      </div>
+
+      <div class="pitch-card">
+        <span class="pitch-cat agri">🌾 Agribusiness</span>
+        <div class="pitch-title">Kiwanda Kidogo cha Kusindika Matunda</div>
+        <div class="pitch-desc">Vijana wanaotaka kuongeza thamani ya matunda (juice, jam) badala ya kuuza mabichi.</div>
+        <div class="fund-track"><div class="fund-fill" style="width:22%;"></div></div>
+        <div class="fund-lbl"><span>TZS 880,000 ya TZS 4,000,000</span><span>22%</span></div>
+        <div class="pitch-footer">
+          <button class="vote-btn" onclick="voteProject(this)">👍 Piga Kura (54)</button>
+          <button class="btn btn-ghost btn-sm">Soma Zaidi</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:1.2rem;">
+      <h3>Wasilisha Wazo Lako Mwenyewe</h3>
+      <div class="form-grid-2">
+        <div class="form-row"><label>Jina la Mradi</label><input type="text" id="pitchTitle" placeholder="Mfano: Smart Irrigation Kit"></div>
+        <div class="form-row"><label>Sekta</label>
+          <select id="pitchSector"><option>Teknolojia</option><option>Agribusiness</option><option>Nishati Safi</option></select>
+        </div>
+      </div>
+      <div class="form-row"><label>Maelezo ya Wazo (Pitch)</label><textarea id="pitchDesc" placeholder="Eleza tatizo linalotatuliwa, suluhisho lako..."></textarea></div>
+      <div class="form-row"><label>Kiasi cha Ufadhili Unachohitaji (TZS)</label><input type="number" id="pitchGoal" placeholder="4000000"></div>
+      <button class="btn btn-green btn-full" id="submitPitchBtn">Tuma Pitch Yako</button>
+    </div>
+  </div>
+
+  <!-- ================= AGRO-MARKETPLACE ================= -->
+  <div class="view" id="view-market">
+    <div class="cat-chips">
+      <div class="chip active">Zote</div>
+      <div class="chip">Pembejeo</div>
+      <div class="chip">Mazao Yaliyoongezwa Thamani</div>
+      <div class="chip">Vifaa vya Solar</div>
+      <div class="chip">Mifugo</div>
+    </div>
+    <div class="agro-grid">
+      <div class="agro-card">
+        <div class="agro-thumb">🌽</div>
+        <div class="agro-info"><div class="agro-title">Mbegu za Mahindi Bora — Kilo 5</div><div class="agro-price">TZS 18,000</div><div class="affiliate-tag">💰 Affiliate: 8% commission</div></div>
+      </div>
+      <div class="agro-card">
+        <div class="agro-thumb">🍯</div>
+        <div class="agro-info"><div class="agro-title">Asali Halisi ya Asili — Lita 1</div><div class="agro-price">TZS 25,000</div><div class="affiliate-tag">💰 Affiliate: 10% commission</div></div>
+      </div>
+      <div class="agro-card">
+        <div class="agro-thumb">☀️</div>
+        <div class="agro-info"><div class="agro-title">Solar Lamp + Charger Kit</div><div class="agro-price">TZS 45,000</div><div class="affiliate-tag">💰 Affiliate: 12% commission</div></div>
+      </div>
+      <div class="agro-card">
+        <div class="agro-thumb">🐄</div>
+        <div class="agro-info"><div class="agro-title">Malisho ya Mifugo (Ng'ombe) — Gunia</div><div class="agro-price">TZS 32,000</div><div class="affiliate-tag">💰 Affiliate: 7% commission</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SPONSORSHIP ================= -->
+  <div class="view" id="view-sponsor">
+    <div class="apply-grid">
+      <div class="panel">
+        <h3>Omba Ufadhili wa Mafunzo ya Ufundi (VETA/Kozi Fupi)</h3>
+        <div class="form-grid-2">
+          <div class="form-row"><label>Jina Kamili</label><input type="text" placeholder="Kelvin Fred Pela"></div>
+          <div class="form-row"><label>Umri</label><input type="number" placeholder="22"></div>
+        </div>
+        <div class="form-row"><label>Kozi Unayotaka Kusoma</label>
+          <select>
+            <option>Web Development / Programming</option>
+            <option>Database Management</option>
+            <option>Networking</option>
+            <option>Ufundi Umeme wa Solar</option>
+            <option>Ushonaji/Fashion Design</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Eneo Unalotoka</label><input type="text" placeholder="Mkoa/Wilaya"></div>
+        <div class="form-row"><label>Kwa Nini Unahitaji Ufadhili Huu</label><textarea placeholder="Eleza hali yako kwa ufupi..."></textarea></div>
+        <button class="btn btn-green btn-full" onclick="submitSponsorship()">Tuma Maombi ya Ufadhili</button>
+      </div>
+
+      <div class="panel mentor-chat-box">
+        <div class="mentor-head">
+          <div class="mentor-avatar">🧭</div>
+          <div><strong>AI Career Mentor</strong><span>🟢 Tayari kukushauri</span></div>
+        </div>
+        <div class="mentor-body" id="mentorBody">
+          <div class="m-msg bot">Habari! Niambie eneo unalotoka na uwezo wako (mtaji/muda), nitakushauri kozi au fursa inayokufaa zaidi.</div>
+        </div>
+        <div class="mentor-input">
+          <input type="text" id="mentorInput" placeholder="Mfano: Nipo Mwanza, sina mtaji mkubwa...">
+          <button class="mentor-send" onclick="sendMentor()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= AI COPYWRITER ================= -->
+  <div class="view" id="view-copywriter">
+    <div class="apply-grid">
+      <div class="panel">
+        <h3>📢 AI Social Media Copywriter</h3>
+        <p style="color:var(--muted); font-size:.85rem; margin-bottom:1rem;">Andika maelezo mafupi ya biashara yako, AI itakuandalia matangazo ya Instagram/TikTok/WhatsApp Status.</p>
+        <div class="form-row"><label>Jina la Biashara</label><input type="text" id="cwBizName" placeholder="Mfano: Kilimo Bora Farm"></div>
+        <div class="form-row"><label>Unauza Nini</label><input type="text" id="cwProduct" placeholder="Mfano: Mboga za majani zilizo fresh"></div>
+        <div class="form-row"><label>Sauti ya Tangazo</label>
+          <select id="cwTone">
+            <option>Ya Kawaida/Ya Kirafiki</option>
+            <option>Yenye Msisimko (Hype)</option>
+            <option>Ya Kitaalamu/Rasmi</option>
+          </select>
+        </div>
+        <button class="btn btn-green btn-full" onclick="generateCopy()">✨ Tengeneza Tangazo</button>
+      </div>
+
+      <div class="panel">
+        <h3>Matokeo</h3>
+        <div id="copyOutput" style="font-size:.9rem; color:var(--muted); line-height:1.7;">
+          Jaza fomu upande wa kushoto kisha bofya "Tengeneza Tangazo" ili uone matokeo hapa.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 LifeIsGameTZ. Vijana Uchumi &amp; Agribusiness Hub — Wazo Lako, Ufadhili Wetu.</footer>
+
+<script>
+  function switchTab(name){
+    document.querySelectorAll('.ag-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  document.querySelectorAll('.cat-chips .chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('.cat-chips .chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+
+  function submitSponsorship(){ alert('Maombi yako ya ufadhili yamepokelewa. Utapata majibu ndani ya wiki moja.'); }
+
+  // Fallback ya UI-only (kama Supabase haijapakia pitches, hii inatumika kwenye cards za mfano)
+  function voteProject(btn){
+    const text = btn.textContent.match(/\((\d+)\)/);
+    if(text){
+      const n = parseInt(text[1],10) + 1;
+      btn.textContent = '👍 Umepiga Kura (' + n + ')';
+      btn.disabled = true;
+      btn.style.opacity = '.7';
+    }
+  }
+
+  // ---------- AI Career Mentor ----------
+  const mentorBody = document.getElementById('mentorBody');
+  function addMentorMsg(text, who){
+    const div = document.createElement('div');
+    div.className = 'm-msg ' + who;
+    div.textContent = text;
+    mentorBody.appendChild(div);
+    mentorBody.scrollTop = mentorBody.scrollHeight;
+  }
+  function sendMentor(){
+    const input = document.getElementById('mentorInput');
+    const text = input.value.trim();
+    if(!text) return;
+    addMentorMsg(text, 'me');
+    input.value = '';
+    setTimeout(()=>{
+      addMentorMsg('Asante kwa taarifa hiyo. Kwa uwezo ulioueleza, ningependekeza uanze na kozi fupi ya bure ya "Digital Marketing Msingi" kwenye Academy yetu, kisha uombe ufadhili wa VETA kwa ujuzi wa vitendo. Ungependa nikusaidie kujaza fomu ya maombi?', 'bot');
+    }, 600);
+  }
+  document.getElementById('mentorInput').addEventListener('keydown', e=>{ if(e.key === 'Enter') sendMentor(); });
+
+  // ---------- AI Copywriter ----------
+  function generateCopy(){
+    const biz = document.getElementById('cwBizName').value || 'Biashara Yako';
+    const prod = document.getElementById('cwProduct').value || 'bidhaa/huduma bora';
+    const tone = document.getElementById('cwTone').value;
+    let copy = '';
+    if(tone.includes('Msisimko')){
+      copy = `🔥 ${biz} IMEFIKA! 🔥\n${prod} — bora kuliko wote sokoni! Usikose, order sasa kabla hazijaisha! 📲 Wasiliana nasi leo!`;
+    } else if(tone.includes('Kitaalamu')){
+      copy = `${biz} inakuletea ${prod} kwa ubora na uaminifu wa hali ya juu. Wasiliana nasi kwa maelezo zaidi na huduma ya haraka.`;
+    } else {
+      copy = `Karibu ${biz}! 😊 Tunauza ${prod} kwa bei nzuri na huduma ya karibu. Tupigie/Tumia WhatsApp kuagiza leo!`;
+    }
+    document.getElementById('copyOutput').innerText = copy;
+  }
+</script>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const sectorIcons = { Teknolojia:'💻', Agribusiness:'🌾', 'Nishati Safi':'☀️' };
+  const sectorClass = { Teknolojia:'tech', Agribusiness:'agri', 'Nishati Safi':'energy' };
+
+  async function loadPitches(){
+    try{
+      const { data, error } = await supabase.from('agribusiness_pitches').select('*').eq('status','active').order('votes_count', { ascending:false });
+      if(error) throw error;
+      if(!data || !data.length) return;
+
+      const grid = document.getElementById('pitchGrid');
+      grid.innerHTML = data.map(p => {
+        const pct = Math.min(100, Math.round((p.funding_raised / p.funding_goal) * 100));
+        return `
+        <div class="pitch-card">
+          <span class="pitch-cat ${sectorClass[p.sector]||'tech'}">${sectorIcons[p.sector]||'💡'} ${p.sector}</span>
+          <div class="pitch-title">${p.title}</div>
+          <div class="pitch-desc">${p.description||''}</div>
+          <div class="fund-track"><div class="fund-fill" style="width:${pct}%;"></div></div>
+          <div class="fund-lbl"><span>TZS ${Number(p.funding_raised).toLocaleString('en-US')} ya TZS ${Number(p.funding_goal).toLocaleString('en-US')}</span><span>${pct}%</span></div>
+          <div class="pitch-footer">
+            <button class="vote-btn live-vote-btn" data-pitch-id="${p.id}">👍 Piga Kura (${p.votes_count})</button>
+            <button class="btn btn-ghost btn-sm">Soma Zaidi</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      document.querySelectorAll('.live-vote-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=> voteOnPitch(btn.dataset.pitchId, btn));
+      });
+    } catch(err){
+      console.warn('Pitches load failed, tunabaki na mfano wa static:', err.message);
+    }
+  }
+
+  async function voteOnPitch(pitchId, btn){
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){
+      alert('Tafadhali Ingia/Jisajili kwanza ili upige kura.');
+      window.location.href = 'login.html';
+      return;
+    }
+    btn.disabled = true;
+    const { error: voteErr } = await supabase.from('pitch_votes').insert({ pitch_id: pitchId, user_id: session.user.id });
+    if(voteErr){
+      btn.disabled = false;
+      alert(voteErr.code === '23505' ? 'Tayari umeshapiga kura kwenye mradi huu.' : 'Imeshindwa: ' + voteErr.message);
+      return;
+    }
+    const { data: pitch } = await supabase.from('agribusiness_pitches').select('votes_count').eq('id', pitchId).single();
+    await supabase.from('agribusiness_pitches').update({ votes_count: (pitch.votes_count||0) + 1 }).eq('id', pitchId);
+    btn.textContent = '✓ Umepiga Kura';
+  }
+
+  document.getElementById('submitPitchBtn').addEventListener('click', async ()=>{
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){
+      alert('Tafadhali Ingia/Jisajili kwanza kabla ya kuwasilisha pitch.');
+      window.location.href = 'login.html';
+      return;
+    }
+    const title = document.getElementById('pitchTitle').value;
+    const sector = document.getElementById('pitchSector').value;
+    const description = document.getElementById('pitchDesc').value;
+    const goal = document.getElementById('pitchGoal').value;
+
+    if(!title || !goal){ alert('Tafadhali jaza angalau jina na kiasi cha ufadhili.'); return; }
+
+    const { error } = await supabase.from('agribusiness_pitches').insert({
+      user_id: session.user.id,
+      title, sector, description,
+      funding_goal: parseFloat(goal),
+      status: 'pending'
+    });
+    if(error){ alert('Imeshindwa: ' + error.message); return; }
+    alert('Asante! Pitch yako imepokelewa na itapitiwa na timu (na AI) ndani ya siku 3.');
+  });
+
+  loadPitches();
+</script>
+</body>
+</html>

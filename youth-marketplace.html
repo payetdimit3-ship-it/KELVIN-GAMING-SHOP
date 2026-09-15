@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Youth Marketplace — LifeIsGameTZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C11;
+    --bg-alt: #0F1219;
+    --panel: #151922;
+    --panel-2: #1B202B;
+    --border: #262C3A;
+    --text: #EEF2F7;
+    --muted: #8890A3;
+    --cyan: #1BE7E3;
+    --cyan-soft: rgba(27,231,227,0.12);
+    --cyan-glow: rgba(27,231,227,0.55);
+    --magenta: #FF3E9C;
+    --magenta-soft: rgba(255,62,156,0.12);
+    --magenta-glow: rgba(255,62,156,0.55);
+    --amber: #F5B942;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Rajdhani', sans-serif; font-size:16px; overflow-x:hidden;
+  }
+  h1,h2,h3,.logo,.stat-num{ font-family:'Orbitron', sans-serif; }
+  a{ text-decoration:none; color:inherit; }
+  .wrap{ max-width:1200px; margin:0 auto; padding:0 1.4rem; }
+
+  .grid-bg{
+    position:fixed; inset:0; z-index:-2;
+    background-image:
+      linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
+    background-size:42px 42px;
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
+  }
+  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.3; }
+  .glow-1{ width:480px; height:480px; background:var(--cyan); top:-180px; left:-160px; }
+  .glow-2{ width:420px; height:420px; background:var(--magenta); top:60px; right:-180px; }
+
+  /* ---------- Navbar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1.6rem;
+    padding:1rem 1.4rem; background:rgba(10,12,17,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+  .logo .mark{
+    width:34px; height:34px; border-radius:8px;
+    background:linear-gradient(135deg, var(--cyan), var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+  }
+  .nav-links{ display:flex; gap:1.6rem; margin-left:1rem; }
+  .nav-links a{ font-weight:600; font-size:.95rem; color:var(--muted); }
+  .nav-links a.active, .nav-links a:hover{ color:var(--cyan); }
+  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:8px; border:1px solid var(--border);
+    background:var(--panel); color:var(--muted); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; font-size:1rem;
+  }
+  .btn{
+    font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.9rem;
+    padding:.65rem 1.3rem; border-radius:8px; cursor:pointer; border:1px solid transparent;
+    display:inline-flex; align-items:center; gap:.4rem;
+  }
+  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
+  .btn-cyan{ background:var(--cyan); color:#05181A; box-shadow:0 0 20px var(--cyan-glow); }
+  .btn-magenta-outline{ background:transparent; color:var(--magenta); border-color:var(--magenta); }
+  .btn-sm{ padding:.5rem 1rem; font-size:.82rem; }
+  .btn-full{ width:100%; justify-content:center; }
+
+  /* ---------- Hero ---------- */
+  .yh-hero{ padding:3.4rem 0 2rem; text-align:center; }
+  .eyebrow{ color:var(--cyan); font-weight:600; letter-spacing:1.5px; font-size:.82rem; }
+  .yh-hero h1{ font-size:clamp(2rem, 5vw, 3rem); font-weight:900; margin:.8rem 0 .8rem; }
+  .yh-hero h1 .accent{ color:var(--magenta); }
+  .yh-hero p{ color:var(--muted); font-size:1.05rem; max-width:600px; margin:0 auto 1.6rem; }
+  .yh-hero-actions{ display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+  .stats-strip{ display:flex; justify-content:center; gap:3rem; padding:1.6rem 0 2.4rem; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+  .stats-strip div{ text-align:center; }
+  .stat-num{ font-size:1.7rem; font-weight:800; color:var(--cyan); }
+  .stat-lbl{ font-size:.78rem; color:var(--muted); letter-spacing:.4px; }
+
+  /* ---------- Tabs ---------- */
+  .yh-tabs{ display:flex; justify-content:center; gap:.6rem; padding:2rem 0 1.6rem; flex-wrap:wrap; }
+  .yh-tab{
+    padding:.7rem 1.3rem; border-radius:30px; font-size:.9rem; font-weight:600; cursor:pointer;
+    border:1px solid var(--border); color:var(--muted); background:var(--panel);
+  }
+  .yh-tab.active{ background:var(--cyan); color:#05181A; border-color:var(--cyan); }
+
+  .view{ display:none; padding-bottom:4rem; }
+  .view.active{ display:block; }
+
+  .cat-chips{ display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1.6rem; }
+  .chip{
+    padding:.4rem .9rem; border-radius:20px; font-size:.82rem; cursor:pointer;
+    border:1px solid var(--border); color:var(--muted); background:var(--panel);
+  }
+  .chip.active{ background:var(--magenta); color:#fff; border-color:var(--magenta); }
+
+  /* ---------- Freelancer cards ---------- */
+  .freelancer-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
+  .fl-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.3rem;
+    transition:border-color .2s, transform .2s;
+  }
+  .fl-card:hover{ border-color:var(--cyan); transform:translateY(-4px); }
+  .fl-top{ display:flex; gap:.9rem; align-items:center; margin-bottom:.9rem; }
+  .fl-avatar{
+    width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg, var(--cyan), var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0;
+  }
+  .fl-name{ font-weight:700; font-size:1rem; }
+  .fl-role{ font-size:.78rem; color:var(--muted); }
+  .fl-rating{ color:var(--amber); font-size:.78rem; margin-top:.15rem; }
+  .fl-rating span{ color:var(--muted); }
+  .fl-tags{ display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.9rem; }
+  .fl-tag{ background:var(--cyan-soft); color:var(--cyan); font-size:.7rem; padding:.2rem .55rem; border-radius:6px; }
+  .fl-bio{ font-size:.82rem; color:var(--muted); line-height:1.5; margin-bottom:1rem; min-height:44px; }
+  .fl-footer{ display:flex; justify-content:space-between; align-items:center; padding-top:.9rem; border-top:1px solid var(--border); }
+  .fl-price{ font-size:.9rem; }
+  .fl-price b{ color:var(--cyan); font-family:'Orbitron', sans-serif; }
+  .verified{ display:inline-flex; align-items:center; gap:.2rem; color:var(--cyan); font-size:.7rem; margin-left:.3rem; }
+
+  /* ---------- Opportunity (gig) cards ---------- */
+  .gig-list{ display:flex; flex-direction:column; gap:1rem; }
+  .gig-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.3rem;
+    display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+  }
+  .gig-left{ flex:1; min-width:220px; }
+  .gig-title{ font-weight:700; font-size:1.05rem; margin-bottom:.35rem; }
+  .gig-meta{ font-size:.8rem; color:var(--muted); display:flex; gap:1rem; flex-wrap:wrap; }
+  .gig-status{ font-size:.7rem; font-weight:700; padding:.2rem .6rem; border-radius:20px; margin-bottom:.5rem; display:inline-block; }
+  .gig-status.open{ background:var(--cyan-soft); color:var(--cyan); }
+  .gig-status.review{ background:rgba(245,185,66,0.15); color:var(--amber); }
+  .gig-status.progress{ background:var(--magenta-soft); color:var(--magenta); }
+  .gig-right{ text-align:right; }
+  .gig-budget{ font-family:'Orbitron', sans-serif; color:var(--cyan); font-size:1.15rem; font-weight:700; margin-bottom:.5rem; }
+
+  /* ---------- Flow tracker (Opportunity -> Apply -> Review -> Accepted -> Task -> Payment) ---------- */
+  .flow-tracker{ display:flex; justify-content:space-between; margin:0 0 2rem; overflow-x:auto; padding-bottom:.5rem; }
+  .flow-step{ text-align:center; flex:1; min-width:90px; position:relative; }
+  .flow-step:not(:last-child)::after{
+    content:''; position:absolute; top:15px; left:55%; width:100%; height:2px; background:var(--border); z-index:0;
+  }
+  .flow-circle{
+    width:32px; height:32px; border-radius:50%; background:var(--panel); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:.85rem; margin:0 auto .5rem; position:relative; z-index:1;
+  }
+  .flow-step.done .flow-circle{ background:var(--cyan); color:#05181A; border-color:var(--cyan); }
+  .flow-lbl{ font-size:.7rem; color:var(--muted); }
+  .flow-step.done .flow-lbl{ color:var(--cyan); font-weight:600; }
+
+  /* ---------- Become freelancer form ---------- */
+  .apply-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:1.6rem; }
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.4rem; }
+  .panel h3{ font-size:1.05rem; font-weight:700; margin-bottom:1rem; }
+  .form-row{ margin-bottom:.9rem; }
+  .form-row label{ display:block; font-size:.8rem; color:var(--muted); margin-bottom:.35rem; }
+  .form-row input, .form-row select, .form-row textarea{
+    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px;
+    padding:.65rem .8rem; color:var(--text); font-family:inherit; font-size:.9rem; outline:none;
+  }
+  .form-row textarea{ resize:vertical; min-height:90px; }
+  .form-row input:focus, .form-row select:focus, .form-row textarea:focus{ border-color:var(--cyan); }
+  .form-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+  .skill-picker{ display:flex; gap:.5rem; flex-wrap:wrap; }
+  .skill-pick{
+    padding:.4rem .8rem; border-radius:20px; font-size:.8rem; cursor:pointer;
+    border:1px solid var(--border); color:var(--muted); background:var(--bg-alt);
+  }
+  .skill-pick.selected{ background:var(--cyan-soft); color:var(--cyan); border-color:var(--cyan); }
+
+  .commission-note{
+    display:flex; gap:.6rem; align-items:flex-start; background:var(--cyan-soft); border:1px solid var(--cyan);
+    border-radius:10px; padding:.8rem; font-size:.8rem; color:var(--cyan); margin-top:1rem;
+  }
+
+  .confirm-box{ text-align:center; padding:3rem 1rem; }
+  .confirm-icon{
+    width:76px; height:76px; border-radius:50%; background:var(--cyan-soft); color:var(--cyan);
+    display:flex; align-items:center; justify-content:center; font-size:2.2rem; margin:0 auto 1.1rem;
+  }
+
+  footer{ border-top:1px solid var(--border); padding:2rem 0; background:var(--bg-alt); text-align:center; color:var(--muted); font-size:.82rem; margin-top:2rem; }
+
+  @media (max-width: 980px){
+    .freelancer-grid{ grid-template-columns:repeat(2,1fr); }
+    .apply-grid{ grid-template-columns:1fr; }
+  }
+  @media (max-width: 720px){
+    .nav-links{ display:none; }
+    .freelancer-grid{ grid-template-columns:1fr; }
+    .form-grid-2{ grid-template-columns:1fr; }
+    .flow-lbl{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-blob glow-1"></div>
+<div class="glow-blob glow-2"></div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <a href="home.html" class="logo"><div class="mark">🎮</div>LifeIsGameTZ</a>
+  <div class="nav-links">
+    <a href="store.html">Store</a>
+    <a href="home.html#tournaments">Tournaments</a>
+    <a href="leaderboard.html">Leaderboard</a>
+    <a href="community-marketplace.html">Marketplace</a>
+    <a href="agribusiness-hub.html">Vijana Uchumi</a>
+    <a href="community-health.html">Msaada wa Jamii</a>
+    <a href="creator-program.html">Creator Program</a>
+    <a href="affiliate-program.html">Affiliate</a>
+    <a href="community-fund.html">Community Fund</a>
+    <a href="youth-marketplace.html" class="active">Youth Marketplace</a>
+    <a href="academy.html">Academy</a>
+  </div>
+  <div class="nav-actions">
+    <a href="cart.html" class="icon-btn" style="text-decoration:none;">🛒</a>
+    <a href="login.html" class="btn btn-ghost">Ingia</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="yh-hero">
+  <div class="wrap">
+    <div class="eyebrow">YOUTH OPPORTUNITIES</div>
+    <h1>Jenga Ujuzi Wako. <span class="accent">Pata Kipato Halisi.</span></h1>
+    <p>Uza huduma zako za design, video editing, web development au tournament referee — au omba kazi zilizowekwa na wateja wa LifeIsGameTZ.</p>
+    <div class="yh-hero-actions">
+      <button class="btn btn-cyan" onclick="switchTab('gigs')">💼 Ona Fursa za Kazi</button>
+      <button class="btn btn-magenta-outline" onclick="switchTab('apply')">🚀 Kuwa Freelancer</button>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div><div class="stat-num">1,240+</div><div class="stat-lbl">FREELANCERS</div></div>
+  <div><div class="stat-num">3,680</div><div class="stat-lbl">MIRADI ILIYOKAMILIKA</div></div>
+  <div><div class="stat-num">TZS 42M+</div><div class="stat-lbl">MALIPO YALIYOFANYIKA</div></div>
+  <div><div class="stat-num">4.7★</div><div class="stat-lbl">RATING WASTANI</div></div>
+</div>
+
+<div class="wrap">
+  <!-- TABS -->
+  <div class="yh-tabs">
+    <div class="yh-tab active" data-tab="freelancers" onclick="switchTab('freelancers')">🧑‍💻 Tafuta Freelancer</div>
+    <div class="yh-tab" data-tab="gigs" onclick="switchTab('gigs')">💼 Fursa za Kazi</div>
+    <div class="yh-tab" data-tab="apply" onclick="switchTab('apply')">🚀 Kuwa Freelancer</div>
+  </div>
+
+  <!-- ================= VIEW: FREELANCERS ================= -->
+  <div class="view active" id="view-freelancers">
+    <div class="cat-chips">
+      <div class="chip active">Zote</div>
+      <div class="chip">🎨 Design</div>
+      <div class="chip">🎬 Video Editing</div>
+      <div class="chip">🌐 Web Dev</div>
+      <div class="chip">📱 Social Media</div>
+      <div class="chip">🏁 Tournament Referee</div>
+    </div>
+
+    <div class="freelancer-grid">
+      <div class="fl-card">
+        <div class="fl-top">
+          <div class="fl-avatar">🎨</div>
+          <div>
+            <div class="fl-name">Amina R. <span class="verified">✔ Verified</span></div>
+            <div class="fl-role">Graphic Designer</div>
+            <div class="fl-rating">★★★★★ <span>(96 miradi)</span></div>
+          </div>
+        </div>
+        <div class="fl-tags"><span class="fl-tag">Logo</span><span class="fl-tag">Poster</span><span class="fl-tag">Thumbnail</span></div>
+        <div class="fl-bio">Nabuni banners za tournament, logo za timu, na thumbnails za YouTube kwa mtindo wa gaming.</div>
+        <div class="fl-footer">
+          <div class="fl-price">Kuanzia <b>TZS 15,000</b></div>
+          <button class="btn btn-cyan btn-sm">Ajiri</button>
+        </div>
+      </div>
+
+      <div class="fl-card">
+        <div class="fl-top">
+          <div class="fl-avatar">🎬</div>
+          <div>
+            <div class="fl-name">Baraka J. <span class="verified">✔ Verified</span></div>
+            <div class="fl-role">Video Editor</div>
+            <div class="fl-rating">★★★★★ <span>(58 miradi)</span></div>
+          </div>
+        </div>
+        <div class="fl-tags"><span class="fl-tag">Highlights</span><span class="fl-tag">Montage</span><span class="fl-tag">Reels</span></div>
+        <div class="fl-bio">Ninatengeneza highlight reels za mechi za eFootball na tournament recaps za TikTok/YouTube.</div>
+        <div class="fl-footer">
+          <div class="fl-price">Kuanzia <b>TZS 20,000</b></div>
+          <button class="btn btn-cyan btn-sm">Ajiri</button>
+        </div>
+      </div>
+
+      <div class="fl-card">
+        <div class="fl-top">
+          <div class="fl-avatar">🌐</div>
+          <div>
+            <div class="fl-name">Neema K.</div>
+            <div class="fl-role">Web Developer</div>
+            <div class="fl-rating">★★★★☆ <span>(31 miradi)</span></div>
+          </div>
+        </div>
+        <div class="fl-tags"><span class="fl-tag">HTML/CSS</span><span class="fl-tag">React</span><span class="fl-tag">Landing Page</span></div>
+        <div class="fl-bio">Natengeneza landing pages na mini-websites za clans/teams za eFootball na biashara ndogo.</div>
+        <div class="fl-footer">
+          <div class="fl-price">Kuanzia <b>TZS 60,000</b></div>
+          <button class="btn btn-cyan btn-sm">Ajiri</button>
+        </div>
+      </div>
+
+      <div class="fl-card">
+        <div class="fl-top">
+          <div class="fl-avatar">🏁</div>
+          <div>
+            <div class="fl-name">David M. <span class="verified">✔ Verified</span></div>
+            <div class="fl-role">Tournament Referee</div>
+            <div class="fl-rating">★★★★★ <span>(120 mechi)</span></div>
+          </div>
+        </div>
+        <div class="fl-tags"><span class="fl-tag">eFootball</span><span class="fl-tag">Disputes</span><span class="fl-tag">Live Scoring</span></div>
+        <div class="fl-bio">Uzoefu wa kusimamia brackets na kutatua disputes kwa haki katika tournaments za wiki.</div>
+        <div class="fl-footer">
+          <div class="fl-price">TZS 3,000/mechi</div>
+          <button class="btn btn-cyan btn-sm">Ajiri</button>
+        </div>
+      </div>
+
+      <div class="fl-card">
+        <div class="fl-top">
+          <div class="fl-avatar">📱</div>
+          <div>
+            <div class="fl-name">Fatma S.</div>
+            <div class="fl-role">Social Media Manager</div>
+            <div class="fl-rating">★★★★☆ <span>(44 miradi)</span></div>
+          </div>
+        </div>
+        <div class="fl-tags"><span class="fl-tag">Content</span><span class="fl-tag">Captions</span><span class="fl-tag">Scheduling</span></div>
+        <div class="fl-bio">Nasimamia akaunti za TikTok/Instagram za gaming stores na content creators wachanga.</div>
+        <div class="fl-footer">
+          <div class="fl-price">Kuanzia <b>TZS 40,000</b>/mwezi</div>
+          <button class="btn btn-cyan btn-sm">Ajiri</button>
+        </div>
+      </div>
+
+      <div class="fl-card">
+        <div class="fl-top">
+          <div class="fl-avatar">🎨</div>
+          <div>
+            <div class="fl-name">Kevin O.</div>
+            <div class="fl-role">UI/UX Designer</div>
+            <div class="fl-rating">★★★★★ <span>(22 miradi)</span></div>
+          </div>
+        </div>
+        <div class="fl-tags"><span class="fl-tag">Figma</span><span class="fl-tag">Mobile UI</span><span class="fl-tag">Prototyping</span></div>
+        <div class="fl-bio">Nabuni mockups za app na website kwa mtindo wa kisasa kwa ajili ya gaming/startups.</div>
+        <div class="fl-footer">
+          <div class="fl-price">Kuanzia <b>TZS 35,000</b></div>
+          <button class="btn btn-cyan btn-sm">Ajiri</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VIEW: GIGS (Opportunities) ================= -->
+  <div class="view" id="view-gigs">
+    <div class="cat-chips">
+      <div class="chip active">Zote</div>
+      <div class="chip">Open</div>
+      <div class="chip">Kwenye Review</div>
+      <div class="chip">Inaendelea</div>
+    </div>
+
+    <div class="gig-list" id="gigList">
+      <div class="gig-card">
+        <div class="gig-left">
+          <span class="gig-status open">OPEN</span>
+          <div class="gig-title">Tengeneza Banner ya Tournament ya Wiki</div>
+          <div class="gig-meta"><span>🎨 Design</span><span>⏱ Deadline: siku 2</span><span>👥 12 wameomba</span></div>
+        </div>
+        <div class="gig-right">
+          <div class="gig-budget">TZS 25,000</div>
+          <button class="btn btn-cyan btn-sm" onclick="openApplyModal()">Omba Kazi</button>
+        </div>
+      </div>
+
+      <div class="gig-card">
+        <div class="gig-left">
+          <span class="gig-status open">OPEN</span>
+          <div class="gig-title">Video Recap ya FC26 Championship (dakika 3-5)</div>
+          <div class="gig-meta"><span>🎬 Video Editing</span><span>⏱ Deadline: siku 4</span><span>👥 7 wameomba</span></div>
+        </div>
+        <div class="gig-right">
+          <div class="gig-budget">TZS 45,000</div>
+          <button class="btn btn-cyan btn-sm" onclick="openApplyModal()">Omba Kazi</button>
+        </div>
+      </div>
+
+      <div class="gig-card">
+        <div class="gig-left">
+          <span class="gig-status review">KWENYE REVIEW</span>
+          <div class="gig-title">Landing Page ya Youth Academy</div>
+          <div class="gig-meta"><span>🌐 Web Dev</span><span>⏱ Deadline: siku 6</span><span>👥 3 waliochaguliwa kwa review</span></div>
+        </div>
+        <div class="gig-right">
+          <div class="gig-budget">TZS 120,000</div>
+          <button class="btn btn-ghost btn-sm" disabled>Maombi Yamefungwa</button>
+        </div>
+      </div>
+
+      <div class="gig-card">
+        <div class="gig-left">
+          <span class="gig-status progress">INAENDELEA</span>
+          <div class="gig-title">Referee — Dar Cup Weekly (Wiki hii)</div>
+          <div class="gig-meta"><span>🏁 Referee</span><span>📅 Jumapili, 2:00 PM</span><span>✔ Amechaguliwa: David M.</span></div>
+        </div>
+        <div class="gig-right">
+          <div class="gig-budget">TZS 15,000</div>
+          <button class="btn btn-ghost btn-sm" disabled>Imejazwa</button>
+        </div>
+      </div>
+
+      <div class="gig-card">
+        <div class="gig-left">
+          <span class="gig-status open">OPEN</span>
+          <div class="gig-title">Maandishi ya Bidhaa (Product Descriptions) — Bidhaa 30</div>
+          <div class="gig-meta"><span>✍️ Content</span><span>⏱ Deadline: wiki 1</span><span>👥 19 wameomba</span></div>
+        </div>
+        <div class="gig-right">
+          <div class="gig-budget">TZS 30,000</div>
+          <button class="btn btn-cyan btn-sm" onclick="openApplyModal()">Omba Kazi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VIEW: BECOME FREELANCER ================= -->
+  <div class="view" id="view-apply">
+    <div class="flow-tracker">
+      <div class="flow-step done"><div class="flow-circle">1</div><div class="flow-lbl">Opportunity</div></div>
+      <div class="flow-step active"><div class="flow-circle">2</div><div class="flow-lbl">Apply</div></div>
+      <div class="flow-step"><div class="flow-circle">3</div><div class="flow-lbl">Review</div></div>
+      <div class="flow-step"><div class="flow-circle">4</div><div class="flow-lbl">Accepted</div></div>
+      <div class="flow-step"><div class="flow-circle">5</div><div class="flow-lbl">Task</div></div>
+      <div class="flow-step"><div class="flow-circle">6</div><div class="flow-lbl">Payment</div></div>
+    </div>
+
+    <div id="applyFormWrap">
+      <div class="apply-grid">
+        <div class="panel">
+          <h3>Fomu ya Kujiunga kama Freelancer</h3>
+          <div class="form-grid-2">
+            <div class="form-row"><label>Jina Kamili</label><input type="text" id="flName" placeholder="Kelvin Fred Pela"></div>
+            <div class="form-row"><label>Namba ya Simu</label><input type="text" id="flPhone" placeholder="+255 7XX XXX XXX"></div>
+          </div>
+          <div class="form-row"><label>Barua Pepe</label><input type="email" id="flEmail" placeholder="wewe@mfano.com"></div>
+          <div class="form-row"><label>Chagua Ujuzi Wako (Zaidi ya 1 inaruhusiwa)</label>
+            <div class="skill-picker" id="skillPicker">
+              <div class="skill-pick">🎨 Graphic Design</div>
+              <div class="skill-pick">🎬 Video Editing</div>
+              <div class="skill-pick">🌐 Web Development</div>
+              <div class="skill-pick">📱 Social Media</div>
+              <div class="skill-pick">🏁 Tournament Referee</div>
+              <div class="skill-pick">✍️ Content Writing</div>
+              <div class="skill-pick">🎮 Game Testing</div>
+            </div>
+          </div>
+          <div class="form-row"><label>Link ya Portfolio (Hiari)</label><input type="text" id="flPortfolio" placeholder="https://..."></div>
+          <div class="form-row"><label>Jieleze kwa Ufupi</label><textarea id="flBio" placeholder="Niambie kuhusu uzoefu wako na kazi ulizowahi kufanya..."></textarea></div>
+          <div class="msg-box" id="flMsg" style="display:none; padding:.7rem .9rem; border-radius:8px; font-size:.82rem; margin-bottom:.8rem;"></div>
+          <button class="btn btn-cyan btn-full" id="submitFlBtn">Tuma Maombi</button>
+        </div>
+
+        <div class="panel">
+          <h3>Jinsi Inavyofanya Kazi</h3>
+          <div style="font-size:.85rem; color:var(--muted); line-height:1.8;">
+            <p><b style="color:var(--text);">1. Apply</b> — Jaza fomu na ujuzi wako.</p>
+            <p><b style="color:var(--text);">2. Review</b> — Timu yetu (na AI) inakagua maombi ndani ya masaa 48.</p>
+            <p><b style="color:var(--text);">3. Accepted</b> — Ukikubaliwa, profile yako inaonekana kwenye "Tafuta Freelancer".</p>
+            <p><b style="color:var(--text);">4. Task</b> — Unaanza kupokea/kuomba kazi (gigs) zinazolingana na ujuzi wako.</p>
+            <p><b style="color:var(--text);">5. Payment</b> — Ukikamilisha kazi, malipo yanatoka kwenye Escrow moja kwa moja kwenye Wallet yako.</p>
+          </div>
+          <div class="commission-note">💡 Platform inachukua commission ndogo (10%) kwa kila kazi iliyokamilika — hakuna ada ya kujiunga.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="applyConfirmWrap" style="display:none;">
+      <div class="panel confirm-box">
+        <div class="confirm-icon">✓</div>
+        <h2 style="font-size:1.5rem; margin-bottom:.6rem;">Maombi Yamepokelewa!</h2>
+        <p style="color:var(--muted); max-width:420px; margin:0 auto 1.4rem;">Asante Kelvin — timu yetu (ikisaidiwa na AI) itakagua profile yako ndani ya masaa 48. Utapata taarifa kupitia SMS/Email pindi ukikubaliwa.</p>
+        <button class="btn btn-cyan" onclick="switchTab('gigs')">Ona Fursa za Kazi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 LifeIsGameTZ. Youth Marketplace — Jenga Ujuzi, Pata Kipato.</footer>
+
+<script>
+  function switchTab(name){
+    document.querySelectorAll('.yh-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function openApplyModal(){
+    switchTab('apply');
+  }
+
+  // ---------- Category chips ----------
+  document.querySelectorAll('.cat-chips').forEach(group=>{
+    group.querySelectorAll('.chip').forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        group.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+  });
+
+  // ---------- Skill picker (multi-select) ----------
+  document.querySelectorAll('.skill-pick').forEach(pick=>{
+    pick.addEventListener('click', ()=> pick.classList.toggle('selected'));
+  });
+</script>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const statusLabels = { open:'OPEN', review:'KWENYE REVIEW', in_progress:'INAENDELEA', completed:'IMEKAMILIKA', cancelled:'IMEFUTWA' };
+  const statusClass = { open:'open', review:'review', in_progress:'progress', completed:'review', cancelled:'review' };
+  const catIcons = { Design:'🎨', 'Video Editing':'🎬', 'Web Dev':'🌐', Content:'✍️', Referee:'🏁', 'Social Media':'📱' };
+
+  function daysLeft(deadline){
+    if(!deadline) return '—';
+    const diff = Math.ceil((new Date(deadline) - new Date()) / (1000*60*60*24));
+    return diff > 0 ? `siku ${diff}` : 'leo';
+  }
+
+  async function loadGigs(){
+    try{
+      const { data, error } = await supabase.from('youth_gigs').select('*').order('created_at', { ascending:false });
+      if(error) throw error;
+      if(!data || !data.length) return; // baki na mfano wa static
+
+      const list = document.getElementById('gigList');
+      list.innerHTML = data.map(g => `
+        <div class="gig-card">
+          <div class="gig-left">
+            <span class="gig-status ${statusClass[g.status]||'open'}">${statusLabels[g.status]||g.status.toUpperCase()}</span>
+            <div class="gig-title">${g.title}</div>
+            <div class="gig-meta"><span>${catIcons[g.category]||'💼'} ${g.category}</span><span>⏱ Deadline: ${daysLeft(g.deadline)}</span></div>
+          </div>
+          <div class="gig-right">
+            <div class="gig-budget">TZS ${Number(g.budget).toLocaleString('en-US')}</div>
+            ${g.status === 'open'
+              ? `<button class="btn btn-cyan btn-sm apply-gig-btn" data-gig-id="${g.id}">Omba Kazi</button>`
+              : `<button class="btn btn-ghost btn-sm" disabled>Maombi Yamefungwa</button>`}
+          </div>
+        </div>`).join('');
+
+      document.querySelectorAll('.apply-gig-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=> applyToGig(btn.dataset.gigId, btn));
+      });
+    } catch(err){
+      console.warn('Gigs load failed, tunabaki na mfano wa static:', err.message);
+    }
+  }
+
+  async function applyToGig(gigId, btn){
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){
+      alert('Tafadhali Ingia/Jisajili kwanza kabla ya kuomba kazi hii.');
+      window.location.href = 'login.html';
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Inatuma...';
+    const { error } = await supabase.from('gig_applications').insert({
+      gig_id: gigId,
+      freelancer_id: session.user.id,
+      status: 'applied'
+    });
+    if(error){
+      alert('Imeshindwa kutuma ombi: ' + error.message);
+      btn.disabled = false; btn.textContent = 'Omba Kazi';
+    } else {
+      btn.textContent = '✓ Umeomba';
+    }
+  }
+
+  // ---------- Become Freelancer: andika freelancer_profiles halisi ----------
+  document.getElementById('submitFlBtn').addEventListener('click', async ()=>{
+    const msgBox = document.getElementById('flMsg');
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session){
+      msgBox.style.display = 'block';
+      msgBox.style.background = 'var(--magenta-soft)'; msgBox.style.color = 'var(--magenta)';
+      msgBox.textContent = 'Tafadhali Ingia/Jisajili kwanza ili maombi yako yaunganishwe na akaunti yako.';
+      setTimeout(()=> window.location.href = 'login.html', 1800);
+      return;
+    }
+
+    const skills = [...document.querySelectorAll('.skill-pick.selected')].map(s => s.textContent.trim());
+    const bio = document.getElementById('flBio').value;
+    const portfolio = document.getElementById('flPortfolio').value;
+
+    const btn = document.getElementById('submitFlBtn');
+    btn.disabled = true; btn.textContent = 'Inatuma...';
+
+    const { error } = await supabase.from('freelancer_profiles').upsert({
+      user_id: session.user.id,
+      bio: bio,
+      skills: skills,
+      portfolio_url: portfolio || null,
+      status: 'pending'
+    });
+
+    btn.disabled = false; btn.textContent = 'Tuma Maombi';
+
+    if(error){
+      msgBox.style.display = 'block';
+      msgBox.style.background = 'var(--magenta-soft)'; msgBox.style.color = 'var(--magenta)';
+      msgBox.textContent = 'Imeshindwa: ' + error.message;
+      return;
+    }
+
+    document.getElementById('applyFormWrap').style.display = 'none';
+    document.getElementById('applyConfirmWrap').style.display = 'block';
+    document.querySelectorAll('.flow-step').forEach((s,i)=>{ if(i <= 1) s.classList.add('done'); });
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  loadGigs();
+</script>
+</body>
+</html>

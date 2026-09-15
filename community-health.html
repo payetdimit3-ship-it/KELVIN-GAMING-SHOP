@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Msaada wa Jamii — LifeIsGameTZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C11; --bg-alt: #0F1219; --panel: #151922; --panel-2: #1B202B; --border: #262C3A;
+    --text: #EEF2F7; --muted: #8890A3;
+    --cyan: #1BE7E3; --cyan-soft: rgba(27,231,227,0.12); --cyan-glow: rgba(27,231,227,0.4);
+    --green2: #3ECF8E; --green2-soft: rgba(62,207,142,0.12);
+    --amber: #F5B942; --amber-soft: rgba(245,185,66,0.14);
+    --red: #E5545E; --red-soft: rgba(229,84,94,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--bg); color:var(--text); font-family:'Rajdhani', sans-serif; font-size:16px; overflow-x:hidden; }
+  h1,h2,h3,.logo{ font-family:'Orbitron', sans-serif; }
+  a{ text-decoration:none; color:inherit; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:0 1.4rem; }
+
+  .grid-bg{ position:fixed; inset:0; z-index:-2;
+    background-image:linear-gradient(rgba(27,231,227,0.04) 1px, transparent 1px),linear-gradient(90deg, rgba(27,231,227,0.04) 1px, transparent 1px);
+    background-size:42px 42px; -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%); mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%); }
+
+  /* ---------- Emergency banner (daima inaonekana) ---------- */
+  .emergency-bar{
+    background:var(--red-soft); border-bottom:1px solid var(--red); color:var(--red);
+    text-align:center; padding:.6rem 1rem; font-size:.85rem; font-weight:600;
+  }
+  .emergency-bar b{ text-decoration:underline; }
+
+  .navbar{ position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1.6rem; padding:1rem 1.4rem;
+    background:rgba(10,12,17,0.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+  .logo .mark{ width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg, var(--green2), var(--cyan));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  .nav-links{ display:flex; gap:1.6rem; margin-left:1rem; }
+  .nav-links a{ font-weight:600; font-size:.95rem; color:var(--muted); }
+  .nav-links a.active, .nav-links a:hover{ color:var(--green2); }
+  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
+  .btn{ font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.9rem; padding:.6rem 1.2rem; border-radius:8px; cursor:pointer; border:1px solid transparent; }
+  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
+
+  .ch-hero{ padding:2.6rem 0 1.4rem; text-align:center; }
+  .eyebrow{ color:var(--green2); font-weight:600; letter-spacing:1.5px; font-size:.8rem; }
+  .ch-hero h1{ font-size:clamp(1.8rem, 4.5vw, 2.6rem); font-weight:900; margin:.7rem 0 .6rem; }
+  .ch-hero p{ color:var(--muted); font-size:.98rem; max-width:600px; margin:0 auto; }
+
+  .ch-tabs{ display:flex; justify-content:center; gap:.6rem; padding:1.8rem 0 1.4rem; flex-wrap:wrap; }
+  .ch-tab{ padding:.65rem 1.1rem; border-radius:30px; font-size:.85rem; font-weight:600; cursor:pointer;
+    border:1px solid var(--border); color:var(--muted); background:var(--panel); }
+  .ch-tab.active{ background:var(--green2); color:#052015; border-color:var(--green2); }
+
+  .view{ display:none; padding-bottom:3.5rem; }
+  .view.active{ display:block; }
+
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.4rem; margin-bottom:1.2rem; }
+  .panel h3{ font-size:1rem; font-weight:700; margin-bottom:.9rem; }
+
+  .disclaimer{
+    display:flex; gap:.6rem; align-items:flex-start; background:var(--amber-soft); border:1px solid var(--amber);
+    border-radius:10px; padding:.8rem; font-size:.8rem; color:var(--amber); margin-bottom:1.2rem;
+  }
+
+  /* ---------- Urgency badge ---------- */
+  .urgency-low{ color:var(--green2); }
+  .urgency-med{ color:var(--amber); }
+  .urgency-high{ color:var(--red); }
+
+  /* ---------- Chat ---------- */
+  .chat-box{ display:flex; flex-direction:column; height:440px; }
+  .chat-head{ display:flex; align-items:center; gap:.7rem; padding-bottom:1rem; border-bottom:1px solid var(--border); margin-bottom:1rem; }
+  .chat-avatar{ width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--green2),var(--cyan));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  .chat-head strong{ font-size:.92rem; }
+  .chat-head span{ display:block; font-size:.74rem; color:var(--green2); }
+  .chat-body{ flex:1; overflow-y:auto; padding-right:.4rem; }
+  .m-msg{ margin-bottom:.9rem; max-width:88%; padding:.6rem .85rem; border-radius:10px; line-height:1.55; font-size:.87rem; }
+  .m-msg.bot{ background:var(--panel-2); }
+  .m-msg.me{ background:var(--green2-soft); color:var(--green2); margin-left:auto; }
+  .m-msg.crisis{ background:var(--red-soft); border:1px solid var(--red); color:var(--text); }
+  .chat-input{ display:flex; gap:.6rem; margin-top:.9rem; }
+  .chat-input input{ flex:1; background:var(--bg-alt); border:1px solid var(--border); border-radius:20px; padding:.6rem 1rem; color:var(--text); font-size:.88rem; outline:none; font-family:inherit; }
+  .chat-send{ width:38px; height:38px; border-radius:50%; border:none; background:var(--green2); color:#052015; cursor:pointer; }
+  .quick-replies{ display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.7rem; }
+  .qr-btn{ font-size:.76rem; padding:.4rem .8rem; border-radius:20px; border:1px solid var(--border); background:var(--panel-2); color:var(--muted); cursor:pointer; }
+
+  /* ---------- Professional cards ---------- */
+  .pro-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:1.1rem; }
+  .pro-card{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.2rem; }
+  .pro-top{ display:flex; gap:.8rem; align-items:center; margin-bottom:.7rem; }
+  .pro-avatar{ width:46px; height:46px; border-radius:50%; background:var(--panel-2); display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
+  .pro-name{ font-weight:700; font-size:.95rem; }
+  .pro-role{ font-size:.78rem; color:var(--muted); }
+  .verified-tag{ display:inline-flex; align-items:center; gap:.3rem; color:var(--green2); font-size:.72rem; margin-top:.2rem; }
+  .pro-avail{ font-size:.8rem; color:var(--muted); margin-bottom:.9rem; }
+
+  /* ---------- Resource cards ---------- */
+  .resource-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.1rem; }
+  .resource-card{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.2rem; }
+  .resource-card .ic{ font-size:1.6rem; margin-bottom:.6rem; }
+  .resource-card h4{ font-size:.92rem; margin-bottom:.4rem; }
+  .resource-card p{ font-size:.8rem; color:var(--muted); line-height:1.5; }
+
+  footer{ border-top:1px solid var(--border); padding:2rem 0; background:var(--bg-alt); text-align:center; color:var(--muted); font-size:.82rem; margin-top:2rem; }
+
+  @media (max-width: 900px){ .pro-grid{ grid-template-columns:1fr; } .resource-grid{ grid-template-columns:1fr; } }
+  @media (max-width: 720px){ .nav-links{ display:none; } }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<div class="emergency-bar">
+  🚨 Kama uko kwenye <b>DHARURA</b> (hatari ya haraka kwako au mtu mwingine): piga <b>112</b> (Dharura ya Jumla) au <b>116</b> (Msaada wa Kisaikolojia — Simu Bure, Saa 24) SASA HIVI.
+</div>
+
+<div class="navbar">
+  <a href="home.html" class="logo"><div class="mark">🤝</div>LifeIsGameTZ</a>
+  <div class="nav-links">
+    <a href="home.html">Home</a>
+    <a href="academy.html">Academy</a>
+    <a href="youth-marketplace.html">Youth Marketplace</a>
+    <a href="community-health.html" class="active">Msaada wa Jamii</a>
+    <a href="community-fund.html">Community Fund</a>
+  </div>
+  <div class="nav-actions">
+    <a href="login.html" class="btn btn-ghost">Ingia</a>
+  </div>
+</div>
+
+<section class="ch-hero">
+  <div class="wrap">
+    <div class="eyebrow">COMMUNITY HELP CENTER</div>
+    <h1>Msaada wa Jamii</h1>
+    <p>Elimu ya afya, msaada wa kisaikolojia, na muunganiko na wataalamu waliothibitishwa — kwa faragha na bila hukumu.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="ch-tabs">
+    <div class="ch-tab active" data-tab="health" onclick="switchTab('health')">🩺 AI Health Assistant</div>
+    <div class="ch-tab" data-tab="recovery" onclick="switchTab('recovery')">❤️ Recovery Support</div>
+    <div class="ch-tab" data-tab="professionals" onclick="switchTab('professionals')">👨‍⚕️ Wataalamu</div>
+    <div class="ch-tab" data-tab="education" onclick="switchTab('education')">📚 Elimu ya Jamii</div>
+  </div>
+
+  <!-- ================= AI HEALTH ASSISTANT ================= -->
+  <div class="view active" id="view-health">
+    <div class="disclaimer">⚠️ AI Health Assistant <b>haifanyi kazi kama daktari</b> — haitoi diagnosis au dawa. Inatoa elimu ya jumla tu na inakushauri uonane na mtaalamu pale inapohitajika. Kwa dharura, piga 112/116 mara moja.</div>
+
+    <div class="panel chat-box">
+      <div class="chat-head">
+        <div class="chat-avatar">🩺</div>
+        <div><strong>AI Health Assistant</strong><span>🟢 Tayari kusikiliza</span></div>
+      </div>
+      <div class="chat-body" id="healthChatBody">
+        <div class="m-msg bot">Habari, mimi ni Msaidizi wa Afya. Niambie unachojisikia au kinachokusumbua, tuzungumze hatua kwa hatua.</div>
+      </div>
+      <div class="quick-replies">
+        <div class="qr-btn" onclick="sendHealthQuick('Nina homa na maumivu ya kichwa')">Nina homa na maumivu ya kichwa</div>
+        <div class="qr-btn" onclick="sendHealthQuick('Nahisi wasiwasi/stress sana')">Nahisi wasiwasi/stress sana</div>
+        <div class="qr-btn" onclick="sendHealthQuick('Nataka kujua kuhusu matumizi salama ya internet')">Matumizi salama ya internet</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="healthInput" placeholder="Andika unachojisikia...">
+        <button class="chat-send" onclick="sendHealth()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= RECOVERY SUPPORT ================= -->
+  <div class="view" id="view-recovery">
+    <div class="disclaimer">❤️ Sehemu hii haihukumu. Lengo ni kukusikiliza na kukusaidia kupanga hatua za kupata msaada wa kitaalamu — siyo kukupa matibabu ya moja kwa moja.</div>
+
+    <div class="panel chat-box">
+      <div class="chat-head">
+        <div class="chat-avatar">❤️</div>
+        <div><strong>Recovery Support</strong><span>🟢 Uko salama hapa</span></div>
+      </div>
+      <div class="chat-body" id="recoveryChatBody">
+        <div class="m-msg bot">Habari, nafurahi umefikia hapa. Chochote unachopitia, hujachelewa kuomba msaada. Niambie kwa uhuru — sitakuhukumu.</div>
+      </div>
+      <div class="quick-replies">
+        <div class="qr-btn" onclick="sendRecoveryQuick('Ninatumia dawa za kulevya na nataka kuacha')">Nataka kuacha matumizi ya dawa</div>
+        <div class="qr-btn" onclick="sendRecoveryQuick('Ninataka tu kuongea na mtu')">Nataka tu kuongea na mtu</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="recoveryInput" placeholder="Andika ulichonacho moyoni...">
+        <button class="chat-send" onclick="sendRecovery()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PROFESSIONAL NETWORK ================= -->
+  <div class="view" id="view-professionals">
+    <div class="pro-grid">
+      <div class="pro-card">
+        <div class="pro-top">
+          <div class="pro-avatar">👩‍⚕️</div>
+          <div><div class="pro-name">Dr. Rehema N.</div><div class="pro-role">Daktari Mkuu (General Practitioner)</div><div class="verified-tag">✔ Verified</div></div>
+        </div>
+        <div class="pro-avail">📍 Dar es Salaam · Mtandaoni + Ana kwa ana</div>
+        <button class="btn btn-ghost" style="width:100%;">Ongea na Mtaalamu</button>
+      </div>
+      <div class="pro-card">
+        <div class="pro-top">
+          <div class="pro-avatar">🧑‍⚕️</div>
+          <div><div class="pro-name">Peter L.</div><div class="pro-role">Mshauri wa Kisaikolojia (Counselor)</div><div class="verified-tag">✔ Verified</div></div>
+        </div>
+        <div class="pro-avail">📍 Mtandaoni · Saa za jioni</div>
+        <button class="btn btn-ghost" style="width:100%;">Ongea na Mtaalamu</button>
+      </div>
+      <div class="pro-card">
+        <div class="pro-top">
+          <div class="pro-avatar">👩‍⚕️</div>
+          <div><div class="pro-name">Grace P.</div><div class="pro-role">Muuguzi wa Afya ya Akili</div><div class="verified-tag">✔ Verified</div></div>
+        </div>
+        <div class="pro-avail">📍 Mwanza · Ana kwa ana</div>
+        <button class="btn btn-ghost" style="width:100%;">Ongea na Mtaalamu</button>
+      </div>
+      <div class="pro-card">
+        <div class="pro-top">
+          <div class="pro-avatar">🧑‍⚕️</div>
+          <div><div class="pro-name">Said O.</div><div class="pro-role">Mshauri wa Addiction Recovery</div><div class="verified-tag">✔ Verified</div></div>
+        </div>
+        <div class="pro-avail">📍 Mtandaoni · Saa 24 kwa dharura</div>
+        <button class="btn btn-ghost" style="width:100%;">Ongea na Mtaalamu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= EDUCATION ================= -->
+  <div class="view" id="view-education">
+    <div class="resource-grid">
+      <div class="resource-card"><div class="ic">🧠</div><h4>Afya ya Akili — Misingi</h4><p>Kuelewa stress, wasiwasi, na dalili za kutafuta msaada mapema.</p></div>
+      <div class="resource-card"><div class="ic">🌐</div><h4>Matumizi Salama ya Internet</h4><p>Jinsi ya kujilinda dhidi ya cyberbullying, matapeli, na maudhui hatarishi.</p></div>
+      <div class="resource-card"><div class="ic">💊</div><h4>Elimu ya Dawa za Kulevya</h4><p>Ukweli kuhusu madhara na jinsi ya kusaidia rafiki anayehitaji msaada.</p></div>
+      <div class="resource-card"><div class="ic">💰</div><h4>Financial &amp; Digital Literacy</h4><p>Misingi ya kutunza pesa, akiba, na kutumia huduma za kidijitali salama.</p></div>
+      <div class="resource-card"><div class="ic">🧭</div><h4>Youth Guidance</h4><p>Ushauri wa jumla wa kimaisha kwa vijana — elimu, kazi, na malengo.</p></div>
+      <div class="resource-card"><div class="ic">📞</div><h4>Huduma Rasmi za Serikali</h4><p>Links na taarifa za huduma za afya na ustawi wa jamii za serikalini.</p></div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 LifeIsGameTZ. Msaada wa Jamii — Uko Salama Hapa. Dharura: 112 / 116.</footer>
+
+<script>
+  function switchTab(name){
+    document.querySelectorAll('.ch-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  // Maneno yanayoashiria dharura - hutuma crisis response papo hapo badala ya triage ya kawaida
+  const crisisWords = ['kujiua','kujidhuru','kufa','sitaki kuishi','overdose','nimemaliza dawa zote'];
+  const CRISIS_MSG = '🚨 Naona unaweza kuwa kwenye hatari ya haraka. Tafadhali piga <b>112</b> (Dharura) au <b>116</b> (Msaada wa Kisaikolojia, bure, saa 24) SASA HIVI, au mwambie mtu unayemwamini aliye karibu nawe. Hujachelewa kuomba msaada — uko na thamani.';
+
+  function containsCrisis(text){
+    const t = text.toLowerCase();
+    return crisisWords.some(w => t.includes(w));
+  }
+
+  // ---------- AI Health Assistant chat ----------
+  const healthBody = document.getElementById('healthChatBody');
+  function addHealthMsg(text, who){
+    const div = document.createElement('div');
+    div.className = 'm-msg ' + who;
+    div.innerHTML = text;
+    healthBody.appendChild(div);
+    healthBody.scrollTop = healthBody.scrollHeight;
+  }
+  function healthReplyFor(text){
+    if(containsCrisis(text)) return {msg: CRISIS_MSG, cls:'crisis'};
+    const t = text.toLowerCase();
+    if(t.includes('homa') || t.includes('kichwa')){
+      return {msg:'Pole sana. Homa na maumivu ya kichwa yanaweza kusababishwa na mambo mengi (malaria, mafua, stress, upungufu wa maji). <span class="urgency-med">🟡 Kiwango: Kinahitaji tahadhari</span> — kama homa imedumu zaidi ya siku 2, au una kutapika/kuchanganyikiwa, tafadhali onana na daktari haraka. Je, umepima joto la mwili?', cls:'bot'};
+    }
+    if(t.includes('wasiwasi') || t.includes('stress') || t.includes('msongo')){
+      return {msg:'Ninakusikia. Wasiwasi na msongo ni hisia za kawaida, lakini zikiendelea muda mrefu zinahitaji tahadhari. <span class="urgency-low">🟢 Kiwango: Ushauri wa jumla</span> — jaribu kupumua taratibu, kuongea na mtu unayemwamini, na kupumzika. Kama inaathiri maisha yako ya kila siku, ningependekeza uongee na mshauri wa kisaikolojia kwenye tab ya "Wataalamu". Je, hii imeanza lini?', cls:'bot'};
+    }
+    if(t.includes('internet')){
+      return {msg:'Vizuri kuuliza! Kwa matumizi salama ya internet: usishirikishe taarifa binafsi (namba za simu, address, picha nyeti) na watu usiowajua, tumia password imara, na muwe waangalifu na link/ofa za "bure" zinazoonekana za kushangaza. Ungependa nikupe vidokezo zaidi vya kujikinga na cyberbullying?', cls:'bot'};
+    }
+    return {msg:'Asante kwa kunieleza. Ili nikusaidie vizuri zaidi: dalili zimeanza lini, na je una dalili nyingine kama kutapika, maumivu makali, kupumua kwa shida au kuchanganyikiwa? (Kumbuka: mimi si mbadala wa daktari — kwa hali yoyote inayozidi kuwa mbaya, tafadhali onana na mtaalamu.)', cls:'bot'};
+  }
+  function sendHealthQuick(text){ document.getElementById('healthInput').value = text; sendHealth(); }
+  function sendHealth(){
+    const input = document.getElementById('healthInput');
+    const text = input.value.trim();
+    if(!text) return;
+    addHealthMsg(text, 'me');
+    input.value = '';
+    setTimeout(()=>{
+      const r = healthReplyFor(text);
+      addHealthMsg(r.msg, r.cls);
+    }, 600);
+  }
+  document.getElementById('healthInput').addEventListener('keydown', e=>{ if(e.key === 'Enter') sendHealth(); });
+
+  // ---------- Recovery Support chat ----------
+  const recoveryBody = document.getElementById('recoveryChatBody');
+  function addRecoveryMsg(text, who){
+    const div = document.createElement('div');
+    div.className = 'm-msg ' + who;
+    div.innerHTML = text;
+    recoveryBody.appendChild(div);
+    recoveryBody.scrollTop = recoveryBody.scrollHeight;
+  }
+  function recoveryReplyFor(text){
+    if(containsCrisis(text)) return {msg: CRISIS_MSG, cls:'crisis'};
+    const t = text.toLowerCase();
+    if(t.includes('dawa za kulevya') || t.includes('acha')){
+      return {msg:'Nakusikia, na hilo ni uamuzi wa ujasiri mkubwa. Hujachelewa. Naweza kukusaidia kupanga hatua za kupata msaada wa kitaalamu (rehabilitation/counseling), na tukiwa tunaongea, ukiona dalili za dharura (kutaka kujidhuru), tafadhali piga 112/116 mara moja. Ungependa nikuunganishe na mshauri wa Recovery kwenye tab ya "Wataalamu"?', cls:'bot'};
+    }
+    if(t.includes('kuongea na mtu') || t.includes('ongea')){
+      return {msg:'Sawa kabisa, nipo hapa kukusikiliza. Chochote unachohisi ni sahihi kukieleza. Ungependa kuniambia zaidi kuhusu kinachoendelea?', cls:'bot'};
+    }
+    return {msg:'Asante kwa kuwa mkweli. Niko hapa kukusikiliza bila kuhukumu — tuendelee kwa hatua yako mwenyewe. Ungependa tuzungumze zaidi, au unataka nikuunganishe na mtaalamu wa kibinadamu sasa?', cls:'bot'};
+  }
+  function sendRecoveryQuick(text){ document.getElementById('recoveryInput').value = text; sendRecovery(); }
+  function sendRecovery(){
+    const input = document.getElementById('recoveryInput');
+    const text = input.value.trim();
+    if(!text) return;
+    addRecoveryMsg(text, 'me');
+    input.value = '';
+    setTimeout(()=>{
+      const r = recoveryReplyFor(text);
+      addRecoveryMsg(r.msg, r.cls);
+    }, 600);
+  }
+  document.getElementById('recoveryInput').addEventListener('keydown', e=>{ if(e.key === 'Enter') sendRecovery(); });
+</script>
+</body>
+</html>

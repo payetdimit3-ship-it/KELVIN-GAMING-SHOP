@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart &amp; Checkout — LifeIsGameTZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C11;
+    --bg-alt: #0F1219;
+    --panel: #151922;
+    --panel-2: #1B202B;
+    --border: #262C3A;
+    --text: #EEF2F7;
+    --muted: #8890A3;
+    --cyan: #1BE7E3;
+    --cyan-soft: rgba(27,231,227,0.12);
+    --cyan-glow: rgba(27,231,227,0.55);
+    --magenta: #FF3E9C;
+    --magenta-soft: rgba(255,62,156,0.12);
+    --magenta-glow: rgba(255,62,156,0.55);
+    --amber: #F5B942;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Rajdhani', sans-serif; font-size:16px; overflow-x:hidden;
+  }
+  h1,h2,h3,.logo,.price-new{ font-family:'Orbitron', sans-serif; }
+  a{ text-decoration:none; color:inherit; }
+  .wrap{ max-width:1140px; margin:0 auto; padding:0 1.4rem; }
+
+  .grid-bg{
+    position:fixed; inset:0; z-index:-2;
+    background-image:
+      linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
+    background-size:42px 42px;
+    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
+    mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
+  }
+  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.3; }
+  .glow-1{ width:480px; height:480px; background:var(--cyan); top:-180px; left:-160px; }
+  .glow-2{ width:420px; height:420px; background:var(--magenta); top:60px; right:-180px; }
+
+  /* ---------- Navbar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1.6rem;
+    padding:1rem 1.4rem; background:rgba(10,12,17,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+  .logo .mark{
+    width:34px; height:34px; border-radius:8px;
+    background:linear-gradient(135deg, var(--cyan), var(--magenta));
+    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+  }
+  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
+  .btn{
+    font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.9rem;
+    padding:.6rem 1.2rem; border-radius:8px; cursor:pointer; border:1px solid transparent;
+  }
+  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
+
+  /* ---------- Steps ---------- */
+  .steps{ display:flex; justify-content:center; gap:0; padding:2rem 0 1rem; }
+  .step{ display:flex; align-items:center; gap:.6rem; }
+  .step-circle{
+    width:30px; height:30px; border-radius:50%; background:var(--panel); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:700; color:var(--muted);
+  }
+  .step.active .step-circle{ background:var(--cyan); color:#05181A; border-color:var(--cyan); }
+  .step.done .step-circle{ background:var(--cyan-soft); color:var(--cyan); border-color:var(--cyan); }
+  .step-label{ font-size:.82rem; color:var(--muted); }
+  .step.active .step-label{ color:var(--text); font-weight:600; }
+  .step-divider{ width:60px; height:1px; background:var(--border); margin:0 .8rem; }
+
+  h1.page-title{ font-size:1.7rem; font-weight:800; text-align:center; margin-bottom:2rem; }
+
+  /* ---------- Layout ---------- */
+  .checkout-body{ display:grid; grid-template-columns:1.5fr 1fr; gap:1.6rem; padding-bottom:4rem; }
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.4rem; margin-bottom:1.2rem; }
+  .panel h3{ font-size:1.05rem; font-weight:700; margin-bottom:1rem; }
+
+  /* ---------- Cart items ---------- */
+  .cart-item{ display:flex; gap:1rem; align-items:center; padding:.9rem 0; border-bottom:1px solid var(--border); }
+  .cart-item:last-child{ border-bottom:none; }
+  .ci-thumb{
+    width:60px; height:60px; border-radius:10px; background:linear-gradient(135deg, var(--panel-2), var(--bg-alt));
+    display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0;
+  }
+  .ci-info{ flex:1; min-width:0; }
+  .ci-title{ font-weight:600; font-size:.92rem; margin-bottom:.2rem; }
+  .ci-meta{ font-size:.76rem; color:var(--muted); }
+  .ci-qty{ display:flex; align-items:center; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .ci-qty button{ width:28px; height:28px; background:var(--panel-2); border:none; color:var(--text); cursor:pointer; }
+  .ci-qty input{ width:34px; text-align:center; background:var(--bg-alt); border:none; color:var(--text); font-family:inherit; }
+  .ci-price{ font-weight:700; color:var(--cyan); font-size:.95rem; min-width:90px; text-align:right; }
+  .ci-remove{ background:none; border:none; color:var(--muted); cursor:pointer; font-size:1rem; }
+  .ci-remove:hover{ color:var(--magenta); }
+
+  .promo-row{ display:flex; gap:.6rem; margin-top:.5rem; }
+  .promo-row input{
+    flex:1; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px;
+    padding:.6rem .8rem; color:var(--text); font-family:inherit; font-size:.88rem; outline:none;
+  }
+  .promo-row input:focus{ border-color:var(--cyan); }
+  .promo-msg{ font-size:.78rem; margin-top:.5rem; display:none; }
+  .promo-msg.show{ display:block; color:var(--cyan); }
+
+  /* ---------- Contact / delivery form ---------- */
+  .form-row{ margin-bottom:.9rem; }
+  .form-row label{ display:block; font-size:.8rem; color:var(--muted); margin-bottom:.35rem; }
+  .form-row input, .form-row select{
+    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px;
+    padding:.65rem .8rem; color:var(--text); font-family:inherit; font-size:.9rem; outline:none;
+  }
+  .form-row input:focus, .form-row select:focus{ border-color:var(--cyan); }
+  .form-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+
+  /* ---------- Payment methods ---------- */
+  .pay-methods{ display:grid; grid-template-columns:repeat(2,1fr); gap:.8rem; }
+  .pay-option{
+    border:1px solid var(--border); border-radius:10px; padding:.9rem; cursor:pointer;
+    display:flex; align-items:center; gap:.7rem; font-size:.88rem; font-weight:600;
+    transition:border-color .15s, background .15s;
+  }
+  .pay-option .ic{ font-size:1.3rem; }
+  .pay-option.selected{ border-color:var(--cyan); background:var(--cyan-soft); color:var(--cyan); }
+  .mno-fields{ margin-top:1rem; display:none; }
+  .mno-fields.show{ display:block; }
+
+  /* ---------- Order summary ---------- */
+  .summary-row{ display:flex; justify-content:space-between; font-size:.88rem; color:var(--muted); margin-bottom:.6rem; }
+  .summary-row.total{ color:var(--text); font-weight:700; font-size:1.15rem; border-top:1px solid var(--border); padding-top:.8rem; margin-top:.6rem; }
+  .summary-row.total .val{ color:var(--cyan); font-family:'Orbitron', sans-serif; }
+
+  .escrow-note{
+    display:flex; gap:.6rem; align-items:flex-start; background:var(--cyan-soft); border:1px solid var(--cyan);
+    border-radius:10px; padding:.8rem; font-size:.8rem; color:var(--cyan); margin-top:1rem;
+  }
+
+  .btn-cyan{ background:var(--cyan); color:#05181A; box-shadow:0 0 24px var(--cyan-glow); font-size:1rem; padding:.9rem; width:100%; margin-top:1rem; }
+
+  /* ---------- Confirmation ---------- */
+  .confirm-box{ text-align:center; padding:3.5rem 1rem; }
+  .confirm-icon{
+    width:80px; height:80px; border-radius:50%; background:var(--cyan-soft); color:var(--cyan);
+    display:flex; align-items:center; justify-content:center; font-size:2.4rem; margin:0 auto 1.2rem;
+  }
+  .confirm-box h2{ font-size:1.7rem; margin-bottom:.6rem; }
+  .confirm-box p{ color:var(--muted); max-width:420px; margin:0 auto 1.6rem; }
+  .order-id{
+    display:inline-block; background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    padding:.6rem 1.2rem; font-family:'Orbitron', sans-serif; color:var(--cyan); letter-spacing:1px; margin-bottom:1.6rem;
+  }
+
+  footer{ border-top:1px solid var(--border); padding:2rem 0; background:var(--bg-alt); text-align:center; color:var(--muted); font-size:.82rem; margin-top:2rem; }
+
+  @media (max-width: 860px){
+    .checkout-body{ grid-template-columns:1fr; }
+    .form-grid-2{ grid-template-columns:1fr; }
+    .pay-methods{ grid-template-columns:1fr; }
+    .step-divider{ width:24px; }
+    .step-label{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-blob glow-1"></div>
+<div class="glow-blob glow-2"></div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <a href="home.html" class="logo"><div class="mark">🎮</div>LifeIsGameTZ</a>
+  <div class="nav-actions">
+    <a href="store.html" class="btn btn-ghost">← Rudi Store</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- STEP INDICATOR -->
+  <div class="steps" id="stepsBar">
+    <div class="step active" data-step="1"><div class="step-circle">1</div><div class="step-label">Cart</div></div>
+    <div class="step-divider"></div>
+    <div class="step" data-step="2"><div class="step-circle">2</div><div class="step-label">Delivery</div></div>
+    <div class="step-divider"></div>
+    <div class="step" data-step="3"><div class="step-circle">3</div><div class="step-label">Malipo</div></div>
+    <div class="step-divider"></div>
+    <div class="step" data-step="4"><div class="step-circle">4</div><div class="step-label">Uthibitisho</div></div>
+  </div>
+
+  <!-- ================= STEP 1: CART ================= -->
+  <div id="view-1">
+    <h1 class="page-title">Cart Yako</h1>
+    <div class="checkout-body">
+      <div>
+        <div class="panel">
+          <h3>Bidhaa (3)</h3>
+
+          <div class="cart-item">
+            <div class="ci-thumb">🎮</div>
+            <div class="ci-info">
+              <div class="ci-title">FC 26 — Standard Edition</div>
+              <div class="ci-meta">PC · Digital Key</div>
+            </div>
+            <div class="ci-qty"><button class="qminus">−</button><input type="text" value="1" readonly><button class="qplus">+</button></div>
+            <div class="ci-price" data-unit="45000">TZS 45,000</div>
+            <button class="ci-remove">✕</button>
+          </div>
+
+          <div class="cart-item">
+            <div class="ci-thumb">⚽</div>
+            <div class="ci-info">
+              <div class="ci-title">eFootball Coins — 5,000</div>
+              <div class="ci-meta">eFootball 2026</div>
+            </div>
+            <div class="ci-qty"><button class="qminus">−</button><input type="text" value="2" readonly><button class="qplus">+</button></div>
+            <div class="ci-price" data-unit="12000">TZS 24,000</div>
+            <button class="ci-remove">✕</button>
+          </div>
+
+          <div class="cart-item">
+            <div class="ci-thumb">🎧</div>
+            <div class="ci-info">
+              <div class="ci-title">Gaming Headset RGB Pro</div>
+              <div class="ci-meta">Universal · Accessory</div>
+            </div>
+            <div class="ci-qty"><button class="qminus">−</button><input type="text" value="1" readonly><button class="qplus">+</button></div>
+            <div class="ci-price" data-unit="65000">TZS 65,000</div>
+            <button class="ci-remove">✕</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Promo Code</h3>
+          <div class="promo-row">
+            <input type="text" id="promoInput" placeholder="Weka promo code...">
+            <button class="btn btn-ghost" id="promoBtn">Tumia</button>
+          </div>
+          <div class="promo-msg" id="promoMsg">✓ Promo "GAME10" imetumika — umepata punguzo la 10%</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <h3>Muhtasari wa Order</h3>
+          <div class="summary-row"><span>Jumla ndogo</span><span id="sumSubtotal">TZS 134,000</span></div>
+          <div class="summary-row"><span>Punguzo</span><span id="sumDiscount">TZS 0</span></div>
+          <div class="summary-row"><span>Ada ya Huduma</span><span>TZS 2,000</span></div>
+          <div class="summary-row total"><span>Jumla</span><span class="val" id="sumTotal">TZS 136,000</span></div>
+          <button class="btn btn-cyan" id="toStep2">Endelea kwa Delivery →</button>
+          <div class="escrow-note">🔐 Fedha zako zinalindwa na mfumo wetu wa Escrow hadi order ithibitishwe.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STEP 2: DELIVERY ================= -->
+  <div id="view-2" style="display:none;">
+    <h1 class="page-title">Taarifa za Delivery</h1>
+    <div class="checkout-body">
+      <div>
+        <div class="panel">
+          <h3>Taarifa Zako</h3>
+          <div class="form-grid-2">
+            <div class="form-row"><label>Jina Kamili</label><input type="text" placeholder="Kelvin Fred Pela"></div>
+            <div class="form-row"><label>Namba ya Simu</label><input type="text" placeholder="+255 7XX XXX XXX"></div>
+          </div>
+          <div class="form-row"><label>Barua Pepe</label><input type="email" placeholder="wewe@mfano.com"></div>
+          <div class="form-row"><label>Delivery Method</label>
+            <select>
+              <option>Digital Delivery (Email/Account) — Bure</option>
+              <option>Pickup — Dar es Salaam</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h3>Muhtasari</h3>
+          <div class="summary-row"><span>Jumla ndogo</span><span>TZS 134,000</span></div>
+          <div class="summary-row total"><span>Jumla</span><span class="val">TZS 136,000</span></div>
+          <button class="btn btn-cyan" id="toStep3">Endelea kwa Malipo →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STEP 3: PAYMENT ================= -->
+  <div id="view-3" style="display:none;">
+    <h1 class="page-title">Chagua Njia ya Malipo</h1>
+    <div class="checkout-body">
+      <div>
+        <div class="panel">
+          <h3>Njia za Malipo <span style="font-size:.7rem; color:var(--muted); font-weight:400;">— powered by AzamPay</span></h3>
+          <div class="pay-methods" id="payMethods">
+            <div class="pay-option selected" data-method="mpesa"><span class="ic">📱</span> M-Pesa</div>
+            <div class="pay-option" data-method="tigopesa"><span class="ic">📱</span> Tigo Pesa</div>
+            <div class="pay-option" data-method="airtel"><span class="ic">📱</span> Airtel Money</div>
+            <div class="pay-option" data-method="azampesa"><span class="ic">📱</span> AzamPesa</div>
+            <div class="pay-option" data-method="halopesa"><span class="ic">📱</span> HaloPesa</div>
+            <div class="pay-option" data-method="wallet"><span class="ic">💳</span> Wallet Balance</div>
+            <div class="pay-option" data-method="card"><span class="ic">🏦</span> Bank (CRDB/NMB)</div>
+          </div>
+          <div class="mno-fields show" id="mnoFields">
+            <div class="form-row"><label>Namba ya Simu ya Malipo</label><input type="text" placeholder="+255 7XX XXX XXX"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h3>Muhtasari</h3>
+          <div class="summary-row"><span>Jumla ndogo</span><span>TZS 134,000</span></div>
+          <div class="summary-row"><span>Ada ya Huduma</span><span>TZS 2,000</span></div>
+          <div class="summary-row total"><span>Jumla ya Kulipa</span><span class="val">TZS 136,000</span></div>
+          <button class="btn btn-cyan" id="toStep4">🔐 Lipa Sasa</button>
+          <div class="escrow-note">Utapokea push notification kwenye simu yako kuthibitisha malipo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STEP 4: CONFIRMATION ================= -->
+  <div id="view-4" style="display:none;">
+    <div class="panel confirm-box">
+      <div class="confirm-icon">✓</div>
+      <h2>Order Imethibitishwa!</h2>
+      <p>Asante Kelvin — malipo yako yamepokelewa na yanalindwa na Escrow hadi delivery ikamilike. Bidhaa za digital zitatumwa kwenye email yako ndani ya dakika chache.</p>
+      <div class="order-id" id="orderIdDisplay">ORDER #LGT-48213</div>
+      <div>
+        <a href="store.html" class="btn btn-ghost" style="margin-right:.6rem;">Endelea Kununua</a>
+        <a href="home.html" class="btn btn-cyan" style="display:inline-flex; width:auto;">Rudi Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 LifeIsGameTZ. Malipo yote yamelindwa na Escrow System.</footer>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const views = { 1: document.getElementById('view-1'), 2: document.getElementById('view-2'), 3: document.getElementById('view-3'), 4: document.getElementById('view-4') };
+  const stepEls = document.querySelectorAll('.step');
+
+  function goToStep(n){
+    Object.values(views).forEach(v => v.style.display = 'none');
+    views[n].style.display = 'block';
+    stepEls.forEach(s=>{
+      const sn = parseInt(s.dataset.step, 10);
+      s.classList.remove('active','done');
+      if(sn < n) s.classList.add('done');
+      if(sn === n) s.classList.add('active');
+    });
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  document.getElementById('toStep2').addEventListener('click', ()=> goToStep(2));
+  document.getElementById('toStep3').addEventListener('click', ()=> goToStep(3));
+
+  document.getElementById('toStep4').addEventListener('click', async ()=> {
+    const btn = document.getElementById('toStep4');
+    const original = btn.textContent;
+    btn.textContent = '⏳ Inachakata...';
+    btn.disabled = true;
+
+    const orderNumber = 'LGT-' + Math.floor(10000 + Math.random()*89999);
+    const subtotal = parseInt(document.getElementById('sumSubtotal').textContent.replace(/\D/g,''), 10) || 0;
+    const total = 136000; // kutoka muhtasari wa step 3 (demo static)
+    const paymentMethodEl = document.querySelector('.pay-option.selected');
+    const paymentMethod = paymentMethodEl ? paymentMethodEl.dataset.method : 'mpesa';
+
+    try{
+      const { data: orderRow, error: orderErr } = await supabase
+        .from('orders')
+        .insert({
+          order_number: orderNumber,
+          status: 'pending',
+          escrow_status: 'held',
+          payment_method: paymentMethod,
+          subtotal: subtotal,
+          discount: 0,
+          service_fee: 2000,
+          total: total,
+          delivery_method: 'digital'
+        })
+        .select()
+        .single();
+
+      if(orderErr) throw orderErr;
+
+      // Jaribu kuandika order_items kwa kila bidhaa kwenye cart (kwa kutafuta product_id kwa title)
+      const items = [];
+      document.querySelectorAll('.cart-item').forEach(row=>{
+        const title = row.querySelector('.ci-title').textContent.trim();
+        const qty = parseInt(row.querySelector('.ci-qty input').value, 10);
+        const unit = parseInt(row.querySelector('.ci-price').dataset.unit, 10);
+        items.push({ title, qty, unit });
+      });
+
+      for(const item of items){
+        const { data: prod } = await supabase.from('products').select('id').eq('title', item.title).maybeSingle();
+        await supabase.from('order_items').insert({
+          order_id: orderRow.id,
+          product_id: prod ? prod.id : null,
+          quantity: item.qty,
+          unit_price: item.unit
+        });
+      }
+
+      // ---------- Piga simu Edge Function ya AzamPay (STK Push halisi) ----------
+      // Hii itafanya kazi tu baada ya: (1) kudeploy azampay-checkout function,
+      // (2) kuweka AzamPay secrets. Kabla ya hapo, itashindwa kimya kimya na
+      // order itabaki 'pending' — bado tunaendelea na demo confirmation flow.
+      const mnoPhone = document.querySelector('#mnoFields input')?.value || '';
+      const providerMap = { mpesa:'Mpesa', tigopesa:'Tigo', airtel:'Airtel', halopesa:'Halopesa', azampesa:'Azampesa' };
+      if(providerMap[paymentMethod] && mnoPhone){
+        try{
+          await supabase.functions.invoke('azampay-checkout', {
+            body: { orderId: orderRow.id, amount: total, phone: mnoPhone, provider: providerMap[paymentMethod] }
+          });
+        } catch(fnErr){
+          console.warn('azampay-checkout function haijadeploy bado (hii ni sawa kwa sasa):', fnErr.message);
+        }
+      }
+
+      document.getElementById('orderIdDisplay').textContent = 'ORDER #' + orderNumber;
+      goToStep(4);
+      showPushToast('🔐', 'Escrow Alert', 'Malipo yako ya TZS 136,000 yamepokelewa na yamewekwa Escrow. Order #' + orderNumber);
+    } catch(err){
+      console.warn('Imeshindwa kuandika order Supabase (endelea na demo flow):', err.message);
+      goToStep(4);
+      showPushToast('🔐', 'Escrow Alert', 'Malipo yako ya TZS 136,000 yamepokelewa na yamewekwa Escrow.');
+    } finally {
+      btn.textContent = original;
+      btn.disabled = false;
+    }
+  });
+
+  // ---------- Push Notification Toast (escrow/order alerts) ----------
+  function showPushToast(icon, title, body){
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed; top:1rem; right:1rem; z-index:100; background:var(--panel); border:1px solid var(--cyan); border-radius:10px; padding:.8rem 1rem; display:flex; gap:.7rem; max-width:300px; box-shadow:0 8px 24px rgba(0,0,0,.4);';
+    toast.innerHTML = `<div style="font-size:1.3rem;">${icon}</div><div><div style="font-size:.85rem; font-weight:700;">${title}</div><div style="font-size:.78rem; color:var(--muted);">${body}</div></div>`;
+    document.body.appendChild(toast);
+    setTimeout(()=>{ toast.style.opacity = '0'; toast.style.transition = 'opacity .4s'; setTimeout(()=> toast.remove(), 400); }, 4500);
+  }
+
+  // ---------- Cart quantity + totals ----------
+  function recalcTotals(){
+    let subtotal = 0;
+    document.querySelectorAll('.cart-item').forEach(item=>{
+      const unit = parseInt(item.querySelector('.ci-price').dataset.unit, 10);
+      const qty = parseInt(item.querySelector('.ci-qty input').value, 10);
+      const lineTotal = unit * qty;
+      item.querySelector('.ci-price').textContent = 'TZS ' + lineTotal.toLocaleString('en-US');
+      subtotal += lineTotal;
+    });
+    document.getElementById('sumSubtotal').textContent = 'TZS ' + subtotal.toLocaleString('en-US');
+    const fee = 2000;
+    document.getElementById('sumTotal').textContent = 'TZS ' + (subtotal + fee).toLocaleString('en-US');
+  }
+
+  document.querySelectorAll('.qplus').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const input = btn.parentElement.querySelector('input');
+      input.value = parseInt(input.value,10) + 1;
+      recalcTotals();
+    });
+  });
+  document.querySelectorAll('.qminus').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const input = btn.parentElement.querySelector('input');
+      const v = parseInt(input.value,10);
+      if(v > 1){ input.value = v - 1; recalcTotals(); }
+    });
+  });
+  document.querySelectorAll('.ci-remove').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      btn.closest('.cart-item').remove();
+      recalcTotals();
+    });
+  });
+
+  // ---------- Promo code ----------
+  document.getElementById('promoBtn').addEventListener('click', ()=>{
+    document.getElementById('promoMsg').classList.add('show');
+    document.getElementById('sumDiscount').textContent = 'TZS 13,400';
+  });
+
+  // ---------- Payment method select ----------
+  document.querySelectorAll('.pay-option').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      document.querySelectorAll('.pay-option').forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      const isMno = ['mpesa','tigopesa','airtel','halopesa','azampesa'].includes(opt.dataset.method);
+      document.getElementById('mnoFields').classList.toggle('show', isMno);
+    });
+  });
+</script>
+</body>
+</html>
