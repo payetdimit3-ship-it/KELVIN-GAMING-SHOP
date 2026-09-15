@@ -1666,7 +1666,7 @@
   // ---------- AI Boss Assistant panel ----------
   const bossPanel = document.getElementById('bossPanel');
   const bossChat = document.getElementById('bossChat');
-  function openBossPanel(){ bossPanel.classList.add('open'); }
+  function openBossPanel(){ bossPanel.classList.add('open'); loadBossHistory(); }
   function closeBossPanel(){ bossPanel.classList.remove('open'); }
   document.getElementById('bossFab').addEventListener('click', openBossPanel);
   document.getElementById('bossChipOpen').addEventListener('click', openBossPanel);
@@ -1678,6 +1678,62 @@
     div.textContent = text;
     bossChat.appendChild(div);
     bossChat.scrollTop = bossChat.scrollHeight;
+  }
+
+  // ---------- AI Memory: hifadhi na upakie historia ya mazungumzo ----------
+  let currentConversationId = null;
+  let bossHistoryLoaded = false;
+
+  async function ensureBossConversation(){
+    if(currentConversationId) return currentConversationId;
+    const { data: { session } } = await supabase.auth.getSession();
+    if(!session) return null; // bila login, hakuna memory (mazungumzo ni ya session hii tu)
+
+    const { data: existing } = await supabase
+      .from('ai_conversations')
+      .select('id')
+      .eq('user_id', session.user.id)
+      .eq('agent_key', 'business_manager')
+      .order('created_at', { ascending:false })
+      .limit(1)
+      .maybeSingle();
+
+    if(existing){
+      currentConversationId = existing.id;
+    } else {
+      const { data: created } = await supabase
+        .from('ai_conversations')
+        .insert({ user_id: session.user.id, agent_key: 'business_manager', channel: 'chat' })
+        .select('id')
+        .single();
+      currentConversationId = created ? created.id : null;
+    }
+    return currentConversationId;
+  }
+
+  async function loadBossHistory(){
+    if(bossHistoryLoaded) return;
+    bossHistoryLoaded = true;
+    const convId = await ensureBossConversation();
+    if(!convId) return;
+
+    const { data: messages } = await supabase
+      .from('ai_messages')
+      .select('sender, content, created_at')
+      .eq('conversation_id', convId)
+      .order('created_at', { ascending:true });
+
+    if(messages && messages.length){
+      bossChat.innerHTML = ''; // ondoa "Habari Boss, nikusaidie nini?" ya default
+      messages.forEach(m => addMsg(m.content, m.sender === 'user' ? 'me' : 'bot'));
+      addMsg('(Nimerudisha mazungumzo yetu ya awali — endelea pale tulipoishia.)', 'bot');
+    }
+  }
+
+  async function saveBossMessage(content, sender){
+    const convId = await ensureBossConversation();
+    if(!convId) return; // hakuna login -> hakuna memory ya kudumu
+    await supabase.from('ai_messages').insert({ conversation_id: convId, sender, content });
   }
 
   // ---------- Voice output (Text-to-Speech) ----------
@@ -1693,6 +1749,14 @@
   // ---------- Boss command intent handling (yenye data hai kutoka Supabase) ----------
   async function bossReplyFor(text){
     const t = text.toLowerCase();
+
+    if(t.includes('jana') || t.includes('automation') || t.includes('ripoti ya kila siku')){
+      try{
+        const { data } = await supabase.from('daily_reports').select('*').order('report_date', { ascending:false }).limit(1).maybeSingle();
+        if(data) return `Boss, ${data.summary_text}`;
+        return 'Bado hakuna ripoti ya kiotomatiki iliyotengenezwa (Automation Engine inahitaji kudeploy na pg_cron kuwekwa kwanza).';
+      } catch(e){ return 'Samahani Boss, nimeshindwa kupata ripoti ya jana.'; }
+    }
 
     if(t.includes('ripoti') || t.includes('mauzo') || t.includes('sales')){
       try{
@@ -1732,9 +1796,11 @@
     const text = input.value.trim();
     if(!text) return;
     addMsg(text, 'me');
+    saveBossMessage(text, 'user');
     input.value = '';
     const reply = await bossReplyFor(text);
     addMsg(reply, 'bot');
+    saveBossMessage(reply, 'ai');
     speakText(reply);
   }
   document.getElementById('bossSend').addEventListener('click', sendBossMessage);
@@ -1831,157 +1897,4 @@
   // SUPABASE LIVE DATA LOADERS
   // Ikiwa jedwali ni tupu au muunganiko umeshindwa, tunabaki na mfano wa
   // static uliopo tayari kwenye HTML (graceful fallback).
-  // =====================================================================
-
-  function formatTZS(n){ return 'TZS ' + Number(n||0).toLocaleString('en-US'); }
-
-  // ---------- Product Manager: bidhaa halisi ----------
-  async function loadProductsAdmin(){
-    try{
-      const { data, error } = await supabase.from('products').select('*, product_categories(name)').order('created_at', { ascending:false });
-      if(error) throw error;
-      if(!data || !data.length) return; // bado hakuna data -> baki na mfano
-
-      const tbody = document.getElementById('productsTableBody');
-      tbody.innerHTML = data.map(p => `
-        <tr>
-          <td>${p.title}</td>
-          <td>${(p.platforms||[]).join('/')}</td>
-          <td>${formatTZS(p.price)}</td>
-          <td>${p.is_digital ? '∞ Digital' : p.stock}</td>
-          <td>★ ${p.rating_avg || 0}</td>
-          <td><span class="pill ${p.status==='active' ? 'paid' : 'ended'}">${p.status==='active' ? 'Live' : 'Draft'}</span></td>
-          <td class="row-actions"><span>👁️</span><span>✏️</span><span>🗑️</span></td>
-        </tr>`).join('');
-    } catch(err){
-      console.warn('Products admin load failed, tunabaki na mfano wa static:', err.message);
-    }
-  }
-
-  // ---------- Users & Roles: watumiaji halisi ----------
-  async function loadUsersAdmin(){
-    try{
-      const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending:false });
-      if(error) throw error;
-      if(!data || !data.length) return;
-
-      const roleLabels = { owner:'👑 Owner', admin:'🛠️ Admin', staff:'🛠️ Staff', freelancer:'Freelancer', referee:'Referee', customer:'Customer' };
-      const tbody = document.getElementById('usersTableBody');
-      tbody.innerHTML = data.map(u => `
-        <tr>
-          <td>${u.full_name || '—'}</td>
-          <td><span class="pill pending">${roleLabels[u.role] || u.role}</span></td>
-          <td>—</td>
-          <td>${new Date(u.created_at).toLocaleDateString('sw-TZ', {month:'short', year:'numeric'})}</td>
-          <td><span class="pill paid">Active</span></td>
-          <td class="row-actions"><span>👁️</span><span>✏️</span><span>🚫</span></td>
-        </tr>`).join('');
-    } catch(err){
-      console.warn('Users admin load failed, tunabaki na mfano wa static:', err.message);
-    }
-  }
-
-  // ---------- Overview: stats halisi (users/orders count) ----------
-  async function loadOverviewStats(){
-    try{
-      const [{ count: userCount }, { count: orderCount }, { count: tournamentRegCount }] = await Promise.all([
-        supabase.from('profiles').select('*', { count:'exact', head:true }),
-        supabase.from('orders').select('*', { count:'exact', head:true }),
-        supabase.from('tournament_registrations').select('*', { count:'exact', head:true })
-      ]);
-      if(userCount !== null){
-        const el = document.querySelector('#page-overview .stat-card:nth-child(1) .num');
-        if(el) el.textContent = userCount.toLocaleString('en-US');
-      }
-      if(orderCount !== null){
-        const el = document.querySelector('#page-overview .stat-card:nth-child(3) .num');
-        if(el && orderCount > 0) el.textContent = orderCount + ' orders';
-      }
-      console.log('Live stats:', { userCount, orderCount, tournamentRegCount });
-    } catch(err){
-      console.warn('Overview stats load failed, tunabaki na mfano wa static:', err.message);
-    }
-  }
-
-  // ---------- Academy: vyeti halisi ----------
-  async function loadCertificatesAdmin(){
-    try{
-      const { data, error } = await supabase
-        .from('certificates')
-        .select('certificate_code, issued_at, profiles(full_name), courses(title)')
-        .order('issued_at', { ascending:false });
-      if(error) throw error;
-      if(!data || !data.length) return;
-
-      const tbody = document.getElementById('certificatesTableBody');
-      tbody.innerHTML = data.map(c => `
-        <tr>
-          <td>${c.certificate_code}</td>
-          <td>${c.profiles ? c.profiles.full_name : '—'}</td>
-          <td>${c.courses ? c.courses.title : '—'}</td>
-          <td>${new Date(c.issued_at).toLocaleDateString('sw-TZ', {day:'2-digit', month:'short', year:'numeric'})}</td>
-          <td class="row-actions"><span>👁️ Ona</span><span>✔️ Thibitisha</span></td>
-        </tr>`).join('');
-    } catch(err){
-      console.warn('Certificates admin load failed (unahitaji kuwa umelogin kama admin/owner), tunabaki na mfano wa static:', err.message);
-    }
-  }
-
-  // ---------- Wallet: balances halisi ----------
-  async function loadWalletsAdmin(){
-    try{
-      const { data, error } = await supabase
-        .from('wallets')
-        .select('balance, profiles(full_name)')
-        .order('balance', { ascending:false });
-      if(error) throw error;
-      if(!data || !data.length) return;
-
-      const tbody = document.getElementById('walletsTableBody');
-      tbody.innerHTML = data.map(w => `
-        <tr>
-          <td>${w.profiles ? w.profiles.full_name : '—'}</td>
-          <td style="color:var(--cyan); font-weight:700;">${formatTZS(w.balance)}</td>
-          <td>—</td>
-          <td>—</td>
-          <td><span class="pill pending">—</span></td>
-          <td class="row-actions"><span>👁️</span><span>✏️ Adjust</span></td>
-        </tr>`).join('');
-    } catch(err){
-      console.warn('Wallets admin load failed (unahitaji kuwa umelogin kama admin/owner), tunabaki na mfano wa static:', err.message);
-    }
-  }
-
-  // ---------- Affiliate Program: data halisi ----------
-  async function loadAffiliatesAdmin(){
-    try{
-      const { data, error } = await supabase
-        .from('affiliates')
-        .select('*, profiles(full_name)')
-        .order('commission_earned', { ascending:false });
-      if(error) throw error;
-      if(!data || !data.length) return;
-
-      const tbody = document.getElementById('affiliatesTableBody');
-      tbody.innerHTML = data.map(a => `
-        <tr>
-          <td>${a.profiles ? a.profiles.full_name : '—'}</td>
-          <td>${a.referral_code}</td>
-          <td>${a.clicks}</td>
-          <td>${a.conversions}</td>
-          <td style="color:var(--cyan); font-weight:700;">${formatTZS(a.commission_earned)}</td>
-        </tr>`).join('');
-    } catch(err){
-      console.warn('Affiliates admin load failed, tunabaki na mfano wa static:', err.message);
-    }
-  }
-
-  loadProductsAdmin();
-  loadUsersAdmin();
-  loadOverviewStats();
-  loadCertificatesAdmin();
-  loadWalletsAdmin();
-  loadAffiliatesAdmin();
-</script>
-</body>
-</html>
+  // ======================
