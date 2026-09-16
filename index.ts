@@ -1,70 +1,34 @@
-// supabase/functions/azampay-checkout/index.ts
+// supabase/functions/ai-chat/index.ts
 //
-// Hii Edge Function inapokea ombi la malipo kutoka frontend (cart.html /
-// tournament.html), inapata token kutoka AzamPay, kisha inaomba MNO
-// Checkout (STK Push) itumwe kwenye simu ya mteja.
-//
-// Imesahihishwa kwa mujibu wa AzamPay OpenAPI spec halisi (v1).
+// AI Chat halisi — inatumia Claude API (Anthropic) kujibu chochote
+// mteja anachouliza, ikiwa na taarifa za msingi za LifeIsGameTZ.
 //
 // DEPLOY:
-//   supabase functions deploy azampay-checkout
+//   supabase functions deploy ai-chat --no-verify-jwt
 //
-// WEKA SECRETS (mara moja tu, kabla ya deploy):
-//   supabase secrets set AZAMPAY_APP_NAME="LifeIsGameTZ"
-//   supabase secrets set AZAMPAY_CLIENT_ID="xxxx"
-//   supabase secrets set AZAMPAY_CLIENT_SECRET="xxxx"
-//   supabase secrets set AZAMPAY_API_KEY="xxxx"
-//   supabase secrets set AZAMPAY_ENV="sandbox"   # au "production"
-//   supabase secrets set SUPABASE_SERVICE_ROLE_KEY="xxxx"  (kutoka Settings->API)
+// WEKA SECRET (pata API key kutoka console.anthropic.com):
+//   supabase secrets set ANTHROPIC_API_KEY="sk-ant-xxxx"
 //
 // ITAITWA KUTOKA FRONTEND HIVI:
-//   const { data, error } = await supabase.functions.invoke('azampay-checkout', {
-//     body: { orderId, amount, phone, provider }
+//   const { data } = await supabase.functions.invoke('ai-chat', {
+//     body: { message: "swali la mteja", history: [...] }
 //   });
-//   // provider LAZIMA iwe mojawapo ya: "Airtel" | "Tigo" | "Halopesa" | "Azampesa" | "Mpesa"
-//   // (hizi ndizo enum values halisi za AzamPay Provider schema)
-
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const AZAMPAY_ENV = Deno.env.get('AZAMPAY_ENV') ?? 'sandbox';
-const TOKEN_URL = AZAMPAY_ENV === 'production'
-  ? 'https://authenticator.azampay.co.tz/AppRegistration/GenerateToken'
-  : 'https://authenticator-sandbox.azampay.co.tz/AppRegistration/GenerateToken';
-const CHECKOUT_URL = AZAMPAY_ENV === 'production'
-  ? 'https://checkout.azampay.co.tz/azampay/mno/checkout'
-  : 'https://sandbox.azampay.co.tz/azampay/mno/checkout';
-
-const VALID_PROVIDERS = ['Airtel', 'Tigo', 'Halopesa', 'Azampesa', 'Mpesa'];
+//   // data.reply ndiyo jibu la AI
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-let cachedToken: { value: string; expiresAt: number } | null = null;
+const SYSTEM_PROMPT = `Wewe ni "AI Msaidizi" wa LifeIsGameTZ — platform ya gaming, e-commerce, tournaments za eFootball, Youth Marketplace, na Digital Skills Academy nchini Tanzania.
 
-async function getAzamPayToken(): Promise<string> {
-  if (cachedToken && cachedToken.expiresAt > Date.now()) {
-    return cachedToken.value;
-  }
-  const res = await fetch(TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      appName: Deno.env.get('AZAMPAY_APP_NAME'),
-      clientId: Deno.env.get('AZAMPAY_CLIENT_ID'),
-      clientSecret: Deno.env.get('AZAMPAY_CLIENT_SECRET'),
-    }),
-  });
-  if (!res.ok) throw new Error('AzamPay token request failed: ' + res.status);
-  const json = await res.json();
-  // Response schema: { data: { accessToken, expire }, message, success, statusCode }
-  const accessToken = json?.data?.accessToken;
-  if (!accessToken) throw new Error('AzamPay token response haina data.accessToken');
+Jukumu lako: kusaidia wateja kwa maswali yoyote — kuhusu bidhaa (games, gift cards, eFootball coins), tournaments, Academy, Youth Marketplace, au maswali ya jumla ya gaming/teknolojia. Jibu kwa Kiswahili cha kawaida (au Kiingereza kama mteja anaandika Kiingereza), kwa ukarimu na ufupi unaofaa simu.
 
-  cachedToken = { value: accessToken, expiresAt: Date.now() + 50 * 60 * 1000 };
-  return accessToken;
-}
+Kanuni muhimu:
+- Usitoe ushauri wa kimatibabu wa uhakika (diagnosis/dawa) — kama swali ni la afya, mwelekeze kwenye "Msaada wa Jamii" (community-health.html) na umshauri aone daktari.
+- Usitoe taarifa za siri za akaunti za wateja wengine.
+- Kama hujui jibu maalum la order/akaunti mahususi, mwambie mteja awasiliane na msaada wa moja kwa moja au aangalie "Akaunti" yake.
+- Unaweza kujibu maswali ya jumla ya maisha/teknolojia pia — usikatae kujibu kwa sababu tu si gaming.`;
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -72,95 +36,62 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { orderId, amount, phone, provider } = await req.json();
-
-    if (!orderId || !amount || !phone || !provider) {
-      return new Response(JSON.stringify({ error: 'orderId, amount, phone, na provider vyote vinahitajika' }), {
-        status: 400,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      });
-    }
-    if (!VALID_PROVIDERS.includes(provider)) {
-      return new Response(JSON.stringify({ error: `provider lazima iwe mojawapo ya: ${VALID_PROVIDERS.join(', ')}` }), {
+    const { message, history } = await req.json();
+    if (!message) {
+      return new Response(JSON.stringify({ error: 'message inahitajika' }), {
         status: 400,
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });
     }
 
-    // ---------- Thibitisha bei kutoka database, SIYO kutoka client ----------
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    );
-
-    const { data: order, error: orderErr } = await supabaseAdmin
-      .from('orders')
-      .select('id, total, status')
-      .eq('id', orderId)
-      .single();
-
-    if (orderErr || !order) {
-      return new Response(JSON.stringify({ error: 'Order haijapatikana' }), {
-        status: 404,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      });
-    }
-    if (Number(order.total) !== Number(amount)) {
-      return new Response(JSON.stringify({ error: 'Kiasi hakilingani na order — imekataliwa kwa usalama' }), {
-        status: 400,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      });
-    }
-    if (order.status !== 'pending') {
-      return new Response(JSON.stringify({ error: 'Order hii tayari imeshughulikiwa' }), {
-        status: 400,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      });
-    }
-    // AzamPay CheckoutRequest.amount: value range 0 - 5,000,000 TZS
-    if (Number(order.total) > 5_000_000) {
-      return new Response(JSON.stringify({ error: 'Kiasi kinazidi ukomo wa AzamPay MNO Checkout (5,000,000 TZS). Tumia Bank Checkout kwa kiasi kikubwa zaidi.' }), {
-        status: 400,
+    const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
+    if (!apiKey) {
+      return new Response(JSON.stringify({
+        error: 'ANTHROPIC_API_KEY haijawekwa. Endesha: supabase secrets set ANTHROPIC_API_KEY="sk-ant-..."'
+      }), {
+        status: 500,
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });
     }
 
-    const accessToken = await getAzamPayToken();
+    // Jumlisha historia fupi ya mazungumzo (kama ipo) + ujumbe mpya
+    const messages = [
+      ...(Array.isArray(history) ? history.slice(-10) : []),
+      { role: 'user', content: message },
+    ];
 
-    // ---------- CheckoutRequest schema halisi: accountNumber, amount (number), currency, externalId, provider ----------
-    const checkoutRes = await fetch(CHECKOUT_URL, {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-        'X-API-Key': Deno.env.get('AZAMPAY_API_KEY')!,
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        accountNumber: phone,
-        amount: Number(order.total),   // schema inasema "number", siyo string
-        currency: 'TZS',
-        externalId: orderId,           // hii ndiyo itarudi kama "utilityref" kwenye callback
-        provider,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 500,
+        system: SYSTEM_PROMPT,
+        messages,
       }),
     });
 
-    const checkoutData = await checkoutRes.json();
-    // CheckoutResponse schema: { transactionId, message, success }
-
-    if (!checkoutRes.ok || checkoutData.success === false) {
-      return new Response(JSON.stringify({ error: checkoutData.message || 'Checkout imeshindwa', raw: checkoutData }), {
-        status: 400,
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('Anthropic API error:', errText);
+      return new Response(JSON.stringify({ error: 'AI haipatikani kwa sasa, jaribu tena baadaye.' }), {
+        status: 502,
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       });
     }
 
-    await supabaseAdmin.from('orders').update({ status: 'processing' }).eq('id', orderId);
+    const data = await res.json();
+    const reply = data?.content?.[0]?.text || 'Samahani, sikuweza kuelewa vizuri. Jaribu tena.';
 
-    return new Response(JSON.stringify({ success: true, checkout: checkoutData }), {
+    return new Response(JSON.stringify({ reply }), {
       headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    console.error('azampay-checkout error:', err);
+    console.error('ai-chat error:', err);
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
       headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
