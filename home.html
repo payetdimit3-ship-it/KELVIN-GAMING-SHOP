@@ -391,6 +391,7 @@
       </div>
     </div>
     <a href="cart.html" class="icon-btn" style="text-decoration:none;">🛒</a>
+    <a href="admin-dashboard.html" class="btn btn-ghost" id="adminLinkBtn" style="display:none; color:var(--gold); border-color:var(--gold);">👑 Admin Dashboard</a>
     <a href="login.html" class="btn btn-ghost" id="authBtn">Ingia</a>
     <button class="nav-toggle">☰</button>
   </div>
@@ -690,7 +691,7 @@
   <div class="bn-item"><span class="bn-ic">🛒</span>Store</div>
   <div class="bn-item"><span class="bn-ic">🏆</span>Tournaments</div>
   <div class="bn-item" id="bnChat"><span class="bn-ic">💬</span>Chat</div>
-  <a href="login.html" class="bn-item" style="color:inherit;"><span class="bn-ic">👤</span>Akaunti</a>
+  <a href="login.html" class="bn-item" id="bnAccountLink" style="color:inherit;"><span class="bn-ic">👤</span>Akaunti</a>
 </div>
 
 <script type="module">
@@ -718,6 +719,7 @@
   // ---------- Auth State: onyesha jina/Toka badala ya "Ingia" ukiwa umeingia ----------
   async function refreshAuthUI(){
     const authBtn = document.getElementById('authBtn');
+    const adminLinkBtn = document.getElementById('adminLinkBtn');
     const { data: { session } } = await supabase.auth.getSession();
 
     if(session){
@@ -732,15 +734,20 @@
           window.location.reload();
         }
       };
-      // Kama ni Owner/Admin/Staff, "Akaunti" bottom-nav iendelee kuelekeza Admin
+
       if(profile && ['owner','admin','staff'].includes(profile.role)){
-        const bnAccount = document.querySelector('.bn-item[href="login.html"]');
-        if(bnAccount) bnAccount.href = 'admin-dashboard.html';
+        adminLinkBtn.style.display = 'inline-flex';
+        document.getElementById('bnAccountLink').href = 'admin-dashboard.html';
+      } else {
+        adminLinkBtn.style.display = 'none';
+        document.getElementById('bnAccountLink').href = 'login.html';
       }
     } else {
       authBtn.textContent = 'Ingia';
       authBtn.href = 'login.html';
       authBtn.onclick = null;
+      adminLinkBtn.style.display = 'none';
+      document.getElementById('bnAccountLink').href = 'login.html';
     }
   }
 
