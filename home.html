@@ -816,13 +816,37 @@
     chatBody.appendChild(div);
     chatBody.scrollTop = chatBody.scrollHeight;
   }
+  let chatHistory = [];
   function sendChat(){
     const input = document.getElementById('chatInputText');
     const text = input.value.trim();
     if(!text) return;
     addChatMsg(text, 'me');
     input.value = '';
-    setTimeout(()=> addChatMsg('Asante! Timu yetu ya AI inachambua ombi lako na itakujibu papo hapo.', 'bot'), 500);
+    chatHistory.push({ role:'user', content: text });
+
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'msg bot';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.textContent = '💭 Inaandika...';
+    chatBody.appendChild(typingDiv);
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    supabase.functions.invoke('ai-chat', { body: { message: text, history: chatHistory.slice(0, -1) } })
+      .then(({ data, error })=>{
+        document.getElementById('typingIndicator')?.remove();
+        if(error || !data || data.error){
+          addChatMsg('Samahani, AI haipatikani kwa sasa (' + (data?.error || error?.message || 'muunganiko haujakamilika') + '). Jaribu tena baadaye au wasiliana na msaada.', 'bot');
+          return;
+        }
+        addChatMsg(data.reply, 'bot');
+        chatHistory.push({ role:'assistant', content: data.reply });
+      })
+      .catch(err=>{
+        document.getElementById('typingIndicator')?.remove();
+        addChatMsg('Samahani, kuna hitilafu ya muunganiko. Jaribu tena.', 'bot');
+        console.warn('ai-chat error:', err);
+      });
   }
   document.getElementById('chatSend').addEventListener('click', sendChat);
   document.getElementById('chatInputText').addEventListener('keydown', e=>{ if(e.key === 'Enter') sendChat(); });
