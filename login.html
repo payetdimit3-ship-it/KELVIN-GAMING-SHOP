@@ -1,201 +1,144 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ingia / Jisajili — LifeIsGameTZ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg: #0A0C11; --bg-alt: #0F1219; --panel: #151922; --panel-2: #1B202B; --border: #262C3A;
-    --text: #EEF2F7; --muted: #8890A3;
-    --cyan: #1BE7E3; --cyan-soft: rgba(27,231,227,0.12); --cyan-glow: rgba(27,231,227,0.55);
-    --magenta: #FF3E9C; --magenta-soft: rgba(255,62,156,0.12);
-    --red: #E5545E; --red-soft: rgba(229,84,94,0.14);
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{
-    background:var(--bg); color:var(--text); font-family:'Rajdhani', sans-serif; font-size:16px;
-    min-height:100vh; display:flex; align-items:center; justify-content:center; overflow-x:hidden; padding:1.4rem;
-  }
-  h1,.logo{ font-family:'Orbitron', sans-serif; }
-  a{ text-decoration:none; color:inherit; }
-
-  .grid-bg{ position:fixed; inset:0; z-index:-2;
-    background-image:linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
-    background-size:42px 42px; -webkit-mask-image:radial-gradient(circle at center, rgba(0,0,0,.9), transparent 70%); mask-image:radial-gradient(circle at center, rgba(0,0,0,.9), transparent 70%); }
-  .glow-blob{ position:fixed; border-radius:50%; filter:blur(120px); z-index:-1; opacity:.3; }
-  .glow-1{ width:480px; height:480px; background:var(--cyan); top:-160px; left:-160px; }
-  .glow-2{ width:420px; height:420px; background:var(--magenta); bottom:-160px; right:-160px; }
-
-  .auth-box{ width:100%; max-width:420px; }
-  .logo{ font-size:1.4rem; font-weight:800; display:flex; align-items:center; gap:.6rem; justify-content:center; margin-bottom:1.6rem; }
-  .logo .mark{ width:38px; height:38px; border-radius:9px; background:linear-gradient(135deg, var(--cyan), var(--magenta));
-    display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
-
-  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:1.8rem; }
-  .tabs{ display:flex; gap:.4rem; margin-bottom:1.4rem; background:var(--panel-2); border-radius:10px; padding:.3rem; }
-  .tab{ flex:1; text-align:center; padding:.6rem; border-radius:8px; font-size:.9rem; font-weight:600; color:var(--muted); cursor:pointer; }
-  .tab.active{ background:var(--cyan); color:#05181A; }
-
-  .view{ display:none; }
-  .view.active{ display:block; }
-
-  .form-row{ margin-bottom:1rem; }
-  .form-row label{ display:block; font-size:.8rem; color:var(--muted); margin-bottom:.4rem; }
-  .form-row input, .form-row select{
-    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px;
-    padding:.7rem .9rem; color:var(--text); font-family:inherit; font-size:.92rem; outline:none;
-  }
-  .form-row input:focus, .form-row select:focus{ border-color:var(--cyan); }
-
-  .btn{ font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.95rem; padding:.8rem; border-radius:8px; cursor:pointer; border:1px solid transparent; width:100%; }
-  .btn-cyan{ background:var(--cyan); color:#05181A; box-shadow:0 0 20px var(--cyan-glow); }
-  .btn-cyan:disabled{ opacity:.6; cursor:not-allowed; }
-
-  .msg-box{ display:none; padding:.7rem .9rem; border-radius:8px; font-size:.82rem; margin-bottom:1rem; }
-  .msg-box.show{ display:block; }
-  .msg-box.error{ background:var(--red-soft); color:var(--red); border:1px solid var(--red); }
-  .msg-box.success{ background:var(--cyan-soft); color:var(--cyan); border:1px solid var(--cyan); }
-
-  .switch-link{ text-align:center; font-size:.85rem; color:var(--muted); margin-top:1.2rem; }
-  .switch-link a{ color:var(--cyan); font-weight:600; cursor:pointer; }
-  .back-home{ text-align:center; margin-top:1.4rem; font-size:.82rem; color:var(--muted); }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ingia — GameHub</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .sidebar { width:240px; height:100vh; background:#080912; border-right:1px solid #24243a; position:fixed; left:0; top:0; padding:25px 18px; overflow-y:auto; z-index:200; }
+    .sidebar .logo { font-size:22px; font-weight:bold; margin-bottom:35px; text-align:center; }
+    .sidebar .logo span { color:#9b35ff; }
+    .menu a { display:flex; align-items:center; gap:10px; color:#ddd; padding:14px 15px; margin:4px 0; border-radius:10px; transition:0.3s; font-size:14px; text-decoration:none; }
+    .menu a:hover { background:#7525d8; color:#fff; }
+    .menu a.active { background:linear-gradient(90deg,#7725d8,#9c35ff); color:#fff; }
+    .cart-badge { background:#ff3eb5; color:#fff; font-size:11px; font-weight:bold; border-radius:20px; padding:1px 7px; margin-left:auto; }
+    .main { margin-left:240px; }
+    .topbar { display:flex; justify-content:flex-end; align-items:center; padding:18px 30px 0; }
+    @media(max-width:700px) {
+      .sidebar { width:64px; padding:15px 6px; }
+      .sidebar .logo { font-size:0; }
+      .sidebar .logo::before { content:"🎮"; font-size:24px; }
+      .menu a span.label { display:none; }
+      .main { margin-left:64px; }
+      .topbar { padding:12px 15px 0; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="grid-bg"></div>
-<div class="glow-blob glow-1"></div>
-<div class="glow-blob glow-2"></div>
-
-<div class="auth-box">
-  <a href="home.html" class="logo"><div class="mark">🎮</div>LifeIsGameTZ</a>
-
-  <div class="panel">
-    <div class="tabs">
-      <div class="tab active" data-tab="login" onclick="switchAuthTab('login')">Ingia</div>
-      <div class="tab" data-tab="signup" onclick="switchAuthTab('signup')">Jisajili</div>
-    </div>
-
-    <div class="msg-box" id="authMsg"></div>
-
-    <!-- LOGIN -->
-    <div class="view active" id="view-login">
-      <div class="form-row"><label>Barua Pepe</label><input type="email" id="loginEmail" placeholder="wewe@mfano.com"></div>
-      <div class="form-row"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
-      <button class="btn btn-cyan" id="loginBtn">Ingia</button>
-      <div class="switch-link">Huna akaunti? <a onclick="switchAuthTab('signup')">Jisajili hapa</a></div>
-    </div>
-
-    <!-- SIGNUP -->
-    <div class="view" id="view-signup">
-      <div class="form-row"><label>Jina Kamili</label><input type="text" id="signupName" placeholder="Kelvin Fred Pela"></div>
-      <div class="form-row"><label>Namba ya Simu</label><input type="text" id="signupPhone" placeholder="+255 7XX XXX XXX"></div>
-      <div class="form-row"><label>Barua Pepe</label><input type="email" id="signupEmail" placeholder="wewe@mfano.com"></div>
-      <div class="form-row"><label>Password</label><input type="password" id="signupPassword" placeholder="Angalau herufi 6"></div>
-      <button class="btn btn-cyan" id="signupBtn">Jisajili</button>
-      <div class="switch-link">Una akaunti tayari? <a onclick="switchAuthTab('login')">Ingia hapa</a></div>
-    </div>
+  <div class="sidebar">
+  <div class="logo">🎮 GAME<span>HUB</span></div>
+  <div class="menu">
+    <a href="index.html">🏠 <span class="label">Home</span></a>
+    <a href="shop.html">🎮 <span class="label">All Games</span></a>
+    <a href="categories.html">🗂️ <span class="label">Categories</span></a>
+    <a href="steamaccounts.html">👤 <span class="label">Steam Accounts</span></a>
+    <a href="efootball.html">⚽ <span class="label">eFootball Vikosi</span></a>
+    <a href="topup.html">💰 <span class="label">eFootball Coins</span></a>
+    <a href="giftcards.html">🎁 <span class="label">Gift Cards</span></a>
+    <a href="cloudgaming.html">☁️ <span class="label">Cloud Gaming</span></a>
+<a href="live.html">📺 <span class="label">Watch Live</span></a>
+    <a href="livescores.html">📊 <span class="label">Live Scores</span></a>
+    <a href="tournaments.html">🏆 <span class="label">Tournaments</span></a>
+    <a href="courses.html">🎓 <span class="label">Courses + AI</span></a>
+<a href="movies.html">🎬 <span class="label">Movies</span></a>
+    <a href="marketplace.html">🏪 <span class="label">Marketplace</span></a>
+    <a href="wishlist.html">❤️ <span class="label">Wishlist</span></a>
+    <a href="mygames.html">🕹️ <span class="label">My Games</span></a>
+    <a href="myorders.html">📦 <span class="label">My Orders</span></a>
+    <a href="requests.html">🔍 <span class="label">Requests</span></a>
+    <a href="profile.html">👤 <span class="label">Profile</span></a>
+    <a href="health.html">🩺 <span class="label">Health Support</span></a>
+    <a href="cart.html">🛒 <span class="label">Kikapu</span> <span class="cart-badge" id="cartCount">0</span></a>
+    <a href="contact.html">☎ <span class="label">Contact</span></a>
   </div>
-
-  <div class="back-home"><a href="home.html">← Rudi Home</a></div>
 </div>
 
-<script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <div class="main">
+    <div class="topbar">
+      <a href="login.html" class="btn-login">🔐 Login</a>
+    </div>
 
-  window.switchAuthTab = function(name){
-    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab === name));
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-    document.getElementById('view-' + name).classList.add('active');
-    hideMsg();
-  };
 
-  const msgBox = document.getElementById('authMsg');
-  function showMsg(text, type){
-    msgBox.textContent = text;
-    msgBox.className = 'msg-box show ' + type;
-  }
-  function hideMsg(){ msgBox.className = 'msg-box'; }
+  <section class="auth-page">
+    <div class="auth-box">
+      <h1>🔐 Ingia</h1>
+      <p class="auth-sub">Karibu tena! Ingia kuendelea kununua</p>
 
-  // ---------- Ikiwa tayari amelogin, mpeleke moja kwa moja (na ueleze kwa nini) ----------
-  (async ()=>{
-    const { data: { session } } = await supabase.auth.getSession();
-    if(session){
-      showMsg('Tayari umeshaingia. Tunakuelekeza...', 'success');
-      await routeUserAfterAuth(session.user.id);
-    }
-  })();
+      <form id="loginForm" class="payment-form">
+        <label>📧 Email</label>
+        <input type="email" id="email" required placeholder="juma@email.com">
 
-  async function routeUserAfterAuth(userId){
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).maybeSingle();
-    if(profile && (profile.role === 'owner' || profile.role === 'admin' || profile.role === 'staff')){
-      window.location.href = 'admin-dashboard.html';
-    } else {
-      window.location.href = 'home.html';
-    }
-  }
+        <label>🔑 Password</label>
+        <input type="password" id="password" required placeholder="••••••">
 
-  // ---------- LOGIN ----------
-  document.getElementById('loginBtn').addEventListener('click', async ()=>{
-    const btn = document.getElementById('loginBtn');
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    if(!email || !password){ showMsg('Tafadhali jaza barua pepe na password.', 'error'); return; }
+        <button type="submit" class="btn-primary">🔐 Ingia</button>
+        <p id="authMsg" class="pay-status"></p>
+      </form>
 
-    btn.disabled = true; btn.textContent = 'Inaingia...';
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    btn.disabled = false; btn.textContent = 'Ingia';
+      <p class="auth-switch">Huna account? <a href="register.html">Jiunge hapa</a></p>
+    </div>
+  </section>
 
-    if(error){ showMsg('Imeshindwa: ' + error.message, 'error'); return; }
-    showMsg('Umefanikiwa kuingia! Unaelekezwa...', 'success');
-    setTimeout(()=> routeUserAfterAuth(data.user.id), 800);
-  });
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <h3>🎮 GameHub</h3>
+        <p>Duka la gaming la Tanzania: game keys, top-ups, gift cards na rental.</p>
+      </div>
+      <div>
+        <h3>Links</h3>
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="cart.html">Kikapu</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <p>📱 +255 700 000 000</p>
+        <p>📧 info@gamehub.co.tz</p>
+        <p>💬 <a href="https://wa.me/255700000000" target="_blank">WhatsApp Support</a></p>
+      </div>
+    </div>
+    <p class="copyright">© 2026 GameHub. Haki zote zimehifadhiwa.</p>
+  </footer>
 
-  // ---------- SIGNUP ----------
-  document.getElementById('signupBtn').addEventListener('click', async ()=>{
-    const btn = document.getElementById('signupBtn');
-    const fullName = document.getElementById('signupName').value.trim();
-    const phone = document.getElementById('signupPhone').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const password = document.getElementById('signupPassword').value;
+  </div>
 
-    if(!fullName || !email || !password){ showMsg('Tafadhali jaza sehemu zote muhimu.', 'error'); return; }
-    if(password.length < 6){ showMsg('Password lazima iwe angalau herufi 6.', 'error'); return; }
+  <script src="app.js"></script>
+  <script src="chat.js"></script>
 
-    btn.disabled = true; btn.textContent = 'Inasajili...';
-    const { data, error } = await supabase.auth.signUp({ email, password });
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('authMsg');
+      const btn = e.target.querySelector('button');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: document.getElementById('email').value.trim(),
+            password: document.getElementById('password').value
+          })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          msg.textContent = '❌ ' + (data.error || 'Hitilafu');
+          btn.disabled = false;
+          return;
+        }
+        localStorage.setItem('gamehubToken', data.token);
+        localStorage.setItem('gamehubUser', JSON.stringify(data.user));
+        window.location.href = 'index.html';
+      } catch (err) {
+        msg.textContent = '❌ Hitilafu ya mtandao. Jaribu tena.';
+        btn.disabled = false;
+      }
+    });
+  </script>
 
-    if(error){
-      btn.disabled = false; btn.textContent = 'Jisajili';
-      showMsg('Imeshindwa: ' + error.message, 'error');
-      return;
-    }
-
-    // Tengeneza profile row (kama trigger ya DB haipo)
-    if(data.user){
-      await supabase.from('profiles').upsert({
-        id: data.user.id,
-        full_name: fullName,
-        phone: phone || null,
-        role: 'customer'
-      });
-    }
-
-    btn.disabled = false; btn.textContent = 'Jisajili';
-
-    if(data.session){
-      showMsg('Usajili umefanikiwa! Unaelekezwa...', 'success');
-      setTimeout(()=> routeUserAfterAuth(data.user.id), 800);
-    } else {
-      showMsg('Usajili umefanikiwa! Tafadhali kagua barua pepe yako kuthibitisha akaunti kabla ya kuingia.', 'success');
-    }
-  });
-</script>
 </body>
 </html>

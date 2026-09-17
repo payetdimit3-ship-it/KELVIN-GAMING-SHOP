@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kikapu — GameHub</title>
+  <title>FAQ — GameHub</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .faq-item { background:#15152a; border:1px solid #2a2a4a; border-radius:12px; padding:16px; margin-bottom:12px; }
+    .faq-item h3 { font-size:15px; margin-bottom:8px; color:#00e5ff; }
+    .faq-item p { color:#c9c9e0; font-size:14px; line-height:1.6; }
+  </style>
   <style>
     .sidebar { width:240px; height:100vh; background:#080912; border-right:1px solid #24243a; position:fixed; left:0; top:0; padding:25px 18px; overflow-y:auto; z-index:200; }
     .sidebar .logo { font-size:22px; font-weight:bold; margin-bottom:35px; text-align:center; }
@@ -26,7 +31,6 @@
   </style>
 </head>
 <body>
-
   <div class="sidebar">
   <div class="logo">🎮 GAME<span>HUB</span></div>
   <div class="menu">
@@ -60,47 +64,24 @@
       <a href="login.html" class="btn-login">🔐 Login</a>
     </div>
 
-  <section class="cart-page">
-    <h1>🛒 Kikapu Chako</h1>
-    <div id="cartItems"></div>
 
-    <div id="cartSummary" class="cart-summary" style="display:none;">
-      <div class="cart-total">
-        <span>JUMLA:</span>
-        <span id="cartTotal">0 TZS</span>
-      </div>
-      <div class="cart-actions">
-        <a href="checkout.html" class="btn-primary">💳 Enda Kulipa</a>
-        <button id="clearCart" class="btn-danger">🗑️ Futa Kikapu</button>
-      </div>
-      <p class="cart-note">💡 Baada ya malipo, bidhaa zako zitatumwa automatic kwenye email yako.</p>
-    </div>
+  <section class="product-page" style="max-width:750px;">
+    <h1 style="margin-bottom:20px;">❓ Maswali ya Kawaida (FAQ)</h1>
 
-    <div id="cartEmpty" class="cart-empty" style="display:none;">
-      <p>😕 Kikapu chako ni tupu.</p>
-      <a href="shop.html" class="btn-primary">🛒 Nenda Dukani</a>
-    </div>
+    <div class="faq-item"><h3>Malipo yanafanya kazi vipi?</h3><p>Unachagua bidhaa, unaenda checkout, unalipa kwa M-Pesa/Tigo/Airtel/HaloPesa au kadi kupitia ukurasa salama wa ClickPesa. Malipo yanathibitika automatic.</p></div>
+    <div class="faq-item"><h3>Nitapata bidhaa yangu lini?</h3><p>Mara moja baada ya malipo kuthibitika — angalia "My Orders" kupata key/account/download link yako.</p></div>
+    <div class="faq-item"><h3>Vipi kama sikupata bidhaa baada ya kulipa?</h3><p>Subiri dakika chache, kisha angalia "My Orders". Kama bado hujapata, wasiliana WhatsApp na tx reference yako.</p></div>
+    <div class="faq-item"><h3>Rental ya GeForce inafanya kazi vipi?</h3><p>Unanunua muda (dakika/masaa), timer inaanza automatic baada ya malipo. Fungua GeForce NOW na Steam account yako mwenyewe kucheza.</p></div>
+    <div class="faq-item"><h3>Naweza kuomba game isiyopo dukani?</h3><p>Ndiyo! Nenda "Requests", ingia, andika jina la game, piga kura — tukiona mahitaji makubwa tunaiongeza haraka.</p></div>
+    <div class="faq-item"><h3>Naweza kupata punguzo (discount)?</h3><p>Tunatoa discount codes mara kwa mara — fuatilia matangazo yetu au uliza AI Msaidizi.</p></div>
+    <div class="faq-item"><h3>Je AI Msaidizi anaweza kunisaidia nini?</h3><p>Bonyeza kitufe cha AI kona ya chini — anaweza kukusaidia na bei, bidhaa, malipo, na maswali mengine 24/7.</p></div>
   </section>
 
   <footer class="footer">
     <div class="footer-grid">
-      <div>
-        <h3>🎮 GameHub</h3>
-        <p>Duka la gaming la Tanzania: game keys, top-ups, gift cards na rental.</p>
-      </div>
-      <div>
-        <h3>Links</h3>
-        <a href="index.html">Home</a>
-        <a href="shop.html">Shop</a>
-        <a href="cart.html">Kikapu</a>
-        <a href="contact.html">Contact</a>
-      </div>
-      <div>
-        <h3>Contact</h3>
-        <p>📱 +255 700 000 000</p>
-        <p>📧 info@gamehub.co.tz</p>
-        <p>💬 <a href="https://wa.me/255700000000" target="_blank">WhatsApp Support</a></p>
-      </div>
+      <div><h3>🎮 GameHub</h3><p>Duka la gaming la Tanzania.</p></div>
+      <div><h3>Links</h3><a href="terms.html">Terms</a><a href="refund.html">Refund</a><a href="faq.html">FAQ</a></div>
+      <div><h3>Contact</h3><p>📱 +255 700 000 000</p><p>📧 info@gamehub.co.tz</p></div>
     </div>
     <p class="copyright">© 2026 GameHub. Haki zote zimehifadhiwa.</p>
   </footer>
@@ -109,66 +90,5 @@
 
   <script src="app.js"></script>
   <script src="chat.js"></script>
-
-  <script>
-    const cartItemsDiv = document.getElementById('cartItems');
-    const cartSummary = document.getElementById('cartSummary');
-    const cartEmpty = document.getElementById('cartEmpty');
-    const cartTotal = document.getElementById('cartTotal');
-
-    function renderCart() {
-      const cart = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-      const items = Object.values(cart);
-      cartItemsDiv.innerHTML = '';
-
-      if (items.length === 0) {
-        cartSummary.style.display = 'none';
-        cartEmpty.style.display = 'block';
-        return;
-      }
-
-      cartSummary.style.display = 'block';
-      cartEmpty.style.display = 'none';
-      let total = 0;
-
-      items.forEach(item => {
-        total += item.num * item.qty;
-        cartItemsDiv.innerHTML += `
-          <div class="cart-item">
-            <div class="cart-emoji">${item.emoji}</div>
-            <div class="cart-info">
-              <h3>${item.name}</h3>
-              <p>${item.price} × ${item.qty}</p>
-            </div>
-            <div class="cart-right">
-              <p class="cart-line-total">${(item.num * item.qty).toLocaleString()} TZS</p>
-              <button class="btn-remove" data-id="${item.id}">✖ Futa</button>
-            </div>
-          </div>
-        `;
-      });
-
-      cartTotal.textContent = total.toLocaleString() + ' TZS';
-
-      document.querySelectorAll('.btn-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const cart2 = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-          delete cart2[btn.dataset.id];
-          localStorage.setItem('gamehubCart', JSON.stringify(cart2));
-          renderCart();
-          window.updateCartBadge();
-        });
-      });
-    }
-
-    document.getElementById('clearCart').addEventListener('click', () => {
-      localStorage.removeItem('gamehubCart');
-      renderCart();
-      window.updateCartBadge();
-    });
-
-    renderCart();
-  </script>
-
 </body>
 </html>

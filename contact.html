@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kikapu — GameHub</title>
+  <title>About / Contact — GameHub</title>
   <link rel="stylesheet" href="style.css">
   <style>
     .sidebar { width:240px; height:100vh; background:#080912; border-right:1px solid #24243a; position:fixed; left:0; top:0; padding:25px 18px; overflow-y:auto; z-index:200; }
@@ -60,25 +60,16 @@
       <a href="login.html" class="btn-login">🔐 Login</a>
     </div>
 
-  <section class="cart-page">
-    <h1>🛒 Kikapu Chako</h1>
-    <div id="cartItems"></div>
 
-    <div id="cartSummary" class="cart-summary" style="display:none;">
-      <div class="cart-total">
-        <span>JUMLA:</span>
-        <span id="cartTotal">0 TZS</span>
-      </div>
-      <div class="cart-actions">
-        <a href="checkout.html" class="btn-primary">💳 Enda Kulipa</a>
-        <button id="clearCart" class="btn-danger">🗑️ Futa Kikapu</button>
-      </div>
-      <p class="cart-note">💡 Baada ya malipo, bidhaa zako zitatumwa automatic kwenye email yako.</p>
-    </div>
+  <section class="contact-page">
+    <h1>💬 About / Contact</h1>
+    <p style="color:#c9c9e0; margin-top:10px;">GameHub ni duka la gaming la Tanzania — game keys, top-up, gift cards, Steam accounts, na muda wa kukodi wa GeForce NOW. Malipo ni automatic kupitia M-Pesa, Tigo Pesa, Airtel Money na Halotel.</p>
 
-    <div id="cartEmpty" class="cart-empty" style="display:none;">
-      <p>😕 Kikapu chako ni tupu.</p>
-      <a href="shop.html" class="btn-primary">🛒 Nenda Dukani</a>
+    <div class="contact-card">
+      <p>📱 +255 786095758</p>
+      <p>📧 lifeisgametz@gmail.com</p>
+      <p>💬 <a href="https://wa.me/255786095758" target="_blank" style="color:#00e5ff;">Wasiliana kwa WhatsApp</a></p>
+      <a href="#" id="chatBtnLink" class="btn-primary" style="margin-top:16px; display:inline-block;">🤖 Zungumza na Msaidizi wa AI</a>
     </div>
   </section>
 
@@ -92,13 +83,13 @@
         <h3>Links</h3>
         <a href="index.html">Home</a>
         <a href="shop.html">Shop</a>
-        <a href="cart.html">Kikapu</a>
+        <a href="requests.html">Requests</a>
         <a href="contact.html">Contact</a>
       </div>
       <div>
         <h3>Contact</h3>
-        <p>📱 +255 700 000 000</p>
-        <p>📧 info@gamehub.co.tz</p>
+        <p>📱 +255 786095758</p>
+        <p>📧 lifeisgametz@gmail.com</p>
         <p>💬 <a href="https://wa.me/255700000000" target="_blank">WhatsApp Support</a></p>
       </div>
     </div>
@@ -109,65 +100,11 @@
 
   <script src="app.js"></script>
   <script src="chat.js"></script>
-
   <script>
-    const cartItemsDiv = document.getElementById('cartItems');
-    const cartSummary = document.getElementById('cartSummary');
-    const cartEmpty = document.getElementById('cartEmpty');
-    const cartTotal = document.getElementById('cartTotal');
-
-    function renderCart() {
-      const cart = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-      const items = Object.values(cart);
-      cartItemsDiv.innerHTML = '';
-
-      if (items.length === 0) {
-        cartSummary.style.display = 'none';
-        cartEmpty.style.display = 'block';
-        return;
-      }
-
-      cartSummary.style.display = 'block';
-      cartEmpty.style.display = 'none';
-      let total = 0;
-
-      items.forEach(item => {
-        total += item.num * item.qty;
-        cartItemsDiv.innerHTML += `
-          <div class="cart-item">
-            <div class="cart-emoji">${item.emoji}</div>
-            <div class="cart-info">
-              <h3>${item.name}</h3>
-              <p>${item.price} × ${item.qty}</p>
-            </div>
-            <div class="cart-right">
-              <p class="cart-line-total">${(item.num * item.qty).toLocaleString()} TZS</p>
-              <button class="btn-remove" data-id="${item.id}">✖ Futa</button>
-            </div>
-          </div>
-        `;
-      });
-
-      cartTotal.textContent = total.toLocaleString() + ' TZS';
-
-      document.querySelectorAll('.btn-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const cart2 = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-          delete cart2[btn.dataset.id];
-          localStorage.setItem('gamehubCart', JSON.stringify(cart2));
-          renderCart();
-          window.updateCartBadge();
-        });
-      });
-    }
-
-    document.getElementById('clearCart').addEventListener('click', () => {
-      localStorage.removeItem('gamehubCart');
-      renderCart();
-      window.updateCartBadge();
+    document.getElementById('chatBtnLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('ghChatBtn').click();
     });
-
-    renderCart();
   </script>
 
 </body>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kikapu — GameHub</title>
+  <title>Jiunge — GameHub</title>
   <link rel="stylesheet" href="style.css">
   <style>
     .sidebar { width:240px; height:100vh; background:#080912; border-right:1px solid #24243a; position:fixed; left:0; top:0; padding:25px 18px; overflow-y:auto; z-index:200; }
@@ -60,25 +60,30 @@
       <a href="login.html" class="btn-login">🔐 Login</a>
     </div>
 
-  <section class="cart-page">
-    <h1>🛒 Kikapu Chako</h1>
-    <div id="cartItems"></div>
 
-    <div id="cartSummary" class="cart-summary" style="display:none;">
-      <div class="cart-total">
-        <span>JUMLA:</span>
-        <span id="cartTotal">0 TZS</span>
-      </div>
-      <div class="cart-actions">
-        <a href="checkout.html" class="btn-primary">💳 Enda Kulipa</a>
-        <button id="clearCart" class="btn-danger">🗑️ Futa Kikapu</button>
-      </div>
-      <p class="cart-note">💡 Baada ya malipo, bidhaa zako zitatumwa automatic kwenye email yako.</p>
-    </div>
+  <section class="auth-page">
+    <div class="auth-box">
+      <h1>📝 Jiunge Nasi</h1>
+      <p class="auth-sub">Unda akaunti — weka oda na angalia historia yako</p>
 
-    <div id="cartEmpty" class="cart-empty" style="display:none;">
-      <p>😕 Kikapu chako ni tupu.</p>
-      <a href="shop.html" class="btn-primary">🛒 Nenda Dukani</a>
+      <form id="registerForm" class="payment-form">
+        <label>👤 Jina Kamili</label>
+        <input type="text" id="name" required placeholder="mfano: Juma Juma">
+
+        <label>📧 Email</label>
+        <input type="email" id="email" required placeholder="juma@email.com">
+
+        <label>📱 Namba ya Simu (hiari)</label>
+        <input type="tel" id="phone" placeholder="2557XXXXXXXX">
+
+        <label>🔑 Password (angalau herufi 4)</label>
+        <input type="password" id="password" required placeholder="••••••">
+
+        <button type="submit" class="btn-primary">📝 Jiunge</button>
+        <p id="authMsg" class="pay-status"></p>
+      </form>
+
+      <p class="auth-switch">Una account tayari? <a href="login.html">Ingia hapa</a></p>
     </div>
   </section>
 
@@ -111,63 +116,36 @@
   <script src="chat.js"></script>
 
   <script>
-    const cartItemsDiv = document.getElementById('cartItems');
-    const cartSummary = document.getElementById('cartSummary');
-    const cartEmpty = document.getElementById('cartEmpty');
-    const cartTotal = document.getElementById('cartTotal');
-
-    function renderCart() {
-      const cart = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-      const items = Object.values(cart);
-      cartItemsDiv.innerHTML = '';
-
-      if (items.length === 0) {
-        cartSummary.style.display = 'none';
-        cartEmpty.style.display = 'block';
-        return;
-      }
-
-      cartSummary.style.display = 'block';
-      cartEmpty.style.display = 'none';
-      let total = 0;
-
-      items.forEach(item => {
-        total += item.num * item.qty;
-        cartItemsDiv.innerHTML += `
-          <div class="cart-item">
-            <div class="cart-emoji">${item.emoji}</div>
-            <div class="cart-info">
-              <h3>${item.name}</h3>
-              <p>${item.price} × ${item.qty}</p>
-            </div>
-            <div class="cart-right">
-              <p class="cart-line-total">${(item.num * item.qty).toLocaleString()} TZS</p>
-              <button class="btn-remove" data-id="${item.id}">✖ Futa</button>
-            </div>
-          </div>
-        `;
-      });
-
-      cartTotal.textContent = total.toLocaleString() + ' TZS';
-
-      document.querySelectorAll('.btn-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const cart2 = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-          delete cart2[btn.dataset.id];
-          localStorage.setItem('gamehubCart', JSON.stringify(cart2));
-          renderCart();
-          window.updateCartBadge();
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('authMsg');
+      const btn = e.target.querySelector('button');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('name').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            password: document.getElementById('password').value
+          })
         });
-      });
-    }
-
-    document.getElementById('clearCart').addEventListener('click', () => {
-      localStorage.removeItem('gamehubCart');
-      renderCart();
-      window.updateCartBadge();
+        const data = await res.json();
+        if (!data.success) {
+          msg.textContent = '❌ ' + (data.error || 'Hitilafu');
+          btn.disabled = false;
+          return;
+        }
+        localStorage.setItem('gamehubToken', data.token);
+        localStorage.setItem('gamehubUser', JSON.stringify(data.user));
+        window.location.href = 'index.html';
+      } catch (err) {
+        msg.textContent = '❌ Hitilafu ya mtandao. Jaribu tena.';
+        btn.disabled = false;
+      }
     });
-
-    renderCart();
   </script>
 
 </body>

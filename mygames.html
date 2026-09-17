@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kikapu — GameHub</title>
+  <title>My Games — GameHub</title>
   <link rel="stylesheet" href="style.css">
   <style>
     .sidebar { width:240px; height:100vh; background:#080912; border-right:1px solid #24243a; position:fixed; left:0; top:0; padding:25px 18px; overflow-y:auto; z-index:200; }
@@ -60,25 +60,17 @@
       <a href="login.html" class="btn-login">🔐 Login</a>
     </div>
 
-  <section class="cart-page">
-    <h1>🛒 Kikapu Chako</h1>
-    <div id="cartItems"></div>
 
-    <div id="cartSummary" class="cart-summary" style="display:none;">
-      <div class="cart-total">
-        <span>JUMLA:</span>
-        <span id="cartTotal">0 TZS</span>
-      </div>
-      <div class="cart-actions">
-        <a href="checkout.html" class="btn-primary">💳 Enda Kulipa</a>
-        <button id="clearCart" class="btn-danger">🗑️ Futa Kikapu</button>
-      </div>
-      <p class="cart-note">💡 Baada ya malipo, bidhaa zako zitatumwa automatic kwenye email yako.</p>
-    </div>
+  <section class="mygames-page">
+    <h1>🎮 My Games</h1>
+    <p class="section-sub">Muda wako wa kucheza uliobaki (countdown live)</p>
 
-    <div id="cartEmpty" class="cart-empty" style="display:none;">
-      <p>😕 Kikapu chako ni tupu.</p>
-      <a href="shop.html" class="btn-primary">🛒 Nenda Dukani</a>
+    <div id="rentalsList" class="rentals-list"></div>
+
+    <div class="gfn-box">
+      <h2>🎮 Cheza Sasa — GeForce NOW</h2>
+      <p>Bonyeza hapa kucheza kwenye GeForce NOW. Kumbuka: utahitaji kuingia kwenye <strong>Steam yako mwenyewe</strong> (sio ya duka).</p>
+      <a href="https://play.geforcenow.com" target="_blank" class="btn-secondary">🚀 Fungua GeForce NOW</a>
     </div>
   </section>
 
@@ -92,8 +84,8 @@
         <h3>Links</h3>
         <a href="index.html">Home</a>
         <a href="shop.html">Shop</a>
-        <a href="cart.html">Kikapu</a>
-        <a href="contact.html">Contact</a>
+        <a href="rental.html">Rental</a>
+        <a href="mygames.html">My Games</a>
       </div>
       <div>
         <h3>Contact</h3>
@@ -111,63 +103,59 @@
   <script src="chat.js"></script>
 
   <script>
-    const cartItemsDiv = document.getElementById('cartItems');
-    const cartSummary = document.getElementById('cartSummary');
-    const cartEmpty = document.getElementById('cartEmpty');
-    const cartTotal = document.getElementById('cartTotal');
+    function renderRentals() {
+      const list = document.getElementById('rentalsList');
+      let rentals = JSON.parse(localStorage.getItem('gamehubRentals') || '[]');
+      const now = Date.now();
 
-    function renderCart() {
-      const cart = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-      const items = Object.values(cart);
-      cartItemsDiv.innerHTML = '';
+      const active = rentals.filter(r => r.endTime > now);
+      const expired = rentals.filter(r => r.endTime <= now);
+      localStorage.setItem('gamehubRentals', JSON.stringify(active));
 
-      if (items.length === 0) {
-        cartSummary.style.display = 'none';
-        cartEmpty.style.display = 'block';
+      if (!active.length && !expired.length) {
+        list.innerHTML = '<div class="cart-empty"><p>Hujakodi muda wowote bado.</p><a href="rental.html" class="btn-primary">⏱️ Kodisha Sasa</a></div>';
         return;
       }
 
-      cartSummary.style.display = 'block';
-      cartEmpty.style.display = 'none';
-      let total = 0;
+      list.innerHTML = '';
 
-      items.forEach(item => {
-        total += item.num * item.qty;
-        cartItemsDiv.innerHTML += `
-          <div class="cart-item">
-            <div class="cart-emoji">${item.emoji}</div>
-            <div class="cart-info">
-              <h3>${item.name}</h3>
-              <p>${item.price} × ${item.qty}</p>
-            </div>
-            <div class="cart-right">
-              <p class="cart-line-total">${(item.num * item.qty).toLocaleString()} TZS</p>
-              <button class="btn-remove" data-id="${item.id}">✖ Futa</button>
-            </div>
+      active.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'mygame-card active';
+        card.innerHTML = `
+          <div>
+            <h3>⏱️ ${r.name}</h3>
+            <p class="countdown" data-end="${r.endTime}">Inakokotoa...</p>
           </div>
-        `;
+          <span class="status-live">● LIVE</span>`;
+        list.appendChild(card);
       });
 
-      cartTotal.textContent = total.toLocaleString() + ' TZS';
+      expired.forEach(r => {
+        list.innerHTML += `
+          <div class="mygame-card expired">
+            <div><h3>⏱️ ${r.name}</h3><p style="color:#8f8faa;">Muda umemalizika</p></div>
+            <span class="status-done">IMEISHIA</span>
+          </div>`;
+      });
 
-      document.querySelectorAll('.btn-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const cart2 = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-          delete cart2[btn.dataset.id];
-          localStorage.setItem('gamehubCart', JSON.stringify(cart2));
-          renderCart();
-          window.updateCartBadge();
-        });
+      updateCountdowns();
+      setInterval(updateCountdowns, 1000);
+    }
+
+    function updateCountdowns() {
+      document.querySelectorAll('.countdown').forEach(el => {
+        const end = parseInt(el.dataset.end);
+        const diff = end - Date.now();
+        if (diff <= 0) { el.textContent = 'Muda umemalizika'; return; }
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        el.textContent = (h ? h + 'saa ' : '') + m + 'dk ' + s + 's imebaki';
       });
     }
 
-    document.getElementById('clearCart').addEventListener('click', () => {
-      localStorage.removeItem('gamehubCart');
-      renderCart();
-      window.updateCartBadge();
-    });
-
-    renderCart();
+    renderRentals();
   </script>
 
 </body>

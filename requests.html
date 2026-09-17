@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kikapu — GameHub</title>
+  <title>Game Requests — GameHub</title>
   <link rel="stylesheet" href="style.css">
   <style>
     .sidebar { width:240px; height:100vh; background:#080912; border-right:1px solid #24243a; position:fixed; left:0; top:0; padding:25px 18px; overflow-y:auto; z-index:200; }
@@ -60,25 +60,27 @@
       <a href="login.html" class="btn-login">🔐 Login</a>
     </div>
 
-  <section class="cart-page">
-    <h1>🛒 Kikapu Chako</h1>
-    <div id="cartItems"></div>
 
-    <div id="cartSummary" class="cart-summary" style="display:none;">
-      <div class="cart-total">
-        <span>JUMLA:</span>
-        <span id="cartTotal">0 TZS</span>
+  <section class="shop-banner">
+    <h1>🔍 Omba Game Yako</h1>
+    <p>Game haipo kwenye duka? Omba hapa — wengi wakiiomba, tunaiweka haraka!</p>
+  </section>
+
+  <section class="requests-page">
+    <div class="request-form">
+      <h2>📝 Omba Game Mpya</h2>
+      <div class="custom-row">
+        <input type="text" id="gameName" placeholder="Jina la game (mfano: Elden Ring)">
+        <button class="btn-primary" id="sendRequestBtn">📤 Tumia Ombi</button>
       </div>
-      <div class="cart-actions">
-        <a href="checkout.html" class="btn-primary">💳 Enda Kulipa</a>
-        <button id="clearCart" class="btn-danger">🗑️ Futa Kikapu</button>
-      </div>
-      <p class="cart-note">💡 Baada ya malipo, bidhaa zako zitatumwa automatic kwenye email yako.</p>
+      <p id="requestMsg" class="pay-status"></p>
     </div>
 
-    <div id="cartEmpty" class="cart-empty" style="display:none;">
-      <p>😕 Kikapu chako ni tupu.</p>
-      <a href="shop.html" class="btn-primary">🛒 Nenda Dukani</a>
+    <h2 style="margin-top:30px;">🗳️ Games Zinazoombwa</h2>
+    <p class="section-sub">Piga kura kwenye game unayoitaka — inayopata kura nyingi inaingia dukani kwanza!</p>
+
+    <div id="requestsList" class="requests-list">
+      <p style="color:#8f8faa; text-align:center;">Inapakia...</p>
     </div>
   </section>
 
@@ -92,7 +94,7 @@
         <h3>Links</h3>
         <a href="index.html">Home</a>
         <a href="shop.html">Shop</a>
-        <a href="cart.html">Kikapu</a>
+        <a href="requests.html">Requests</a>
         <a href="contact.html">Contact</a>
       </div>
       <div>
@@ -111,63 +113,74 @@
   <script src="chat.js"></script>
 
   <script>
-    const cartItemsDiv = document.getElementById('cartItems');
-    const cartSummary = document.getElementById('cartSummary');
-    const cartEmpty = document.getElementById('cartEmpty');
-    const cartTotal = document.getElementById('cartTotal');
+    const token = localStorage.getItem('gamehubToken');
 
-    function renderCart() {
-      const cart = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-      const items = Object.values(cart);
-      cartItemsDiv.innerHTML = '';
+    document.getElementById('sendRequestBtn').addEventListener('click', async () => {
+      const name = document.getElementById('gameName').value.trim();
+      const msg = document.getElementById('requestMsg');
+      if (!name) { msg.textContent = '❌ Andika jina la game kwanza.'; return; }
 
-      if (items.length === 0) {
-        cartSummary.style.display = 'none';
-        cartEmpty.style.display = 'block';
+      if (!token) {
+        msg.textContent = '🔐 Ingia kwanza kuomba game.';
+        setTimeout(() => { window.location.href = 'login.html'; }, 1200);
         return;
       }
 
-      cartSummary.style.display = 'block';
-      cartEmpty.style.display = 'none';
-      let total = 0;
-
-      items.forEach(item => {
-        total += item.num * item.qty;
-        cartItemsDiv.innerHTML += `
-          <div class="cart-item">
-            <div class="cart-emoji">${item.emoji}</div>
-            <div class="cart-info">
-              <h3>${item.name}</h3>
-              <p>${item.price} × ${item.qty}</p>
-            </div>
-            <div class="cart-right">
-              <p class="cart-line-total">${(item.num * item.qty).toLocaleString()} TZS</p>
-              <button class="btn-remove" data-id="${item.id}">✖ Futa</button>
-            </div>
-          </div>
-        `;
-      });
-
-      cartTotal.textContent = total.toLocaleString() + ' TZS';
-
-      document.querySelectorAll('.btn-remove').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const cart2 = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-          delete cart2[btn.dataset.id];
-          localStorage.setItem('gamehubCart', JSON.stringify(cart2));
-          renderCart();
-          window.updateCartBadge();
+      try {
+        const res = await fetch('/api/requests', {
+          method: 'POST',
+          headers: { 'Authorization': token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gameName: name })
         });
-      });
-    }
-
-    document.getElementById('clearCart').addEventListener('click', () => {
-      localStorage.removeItem('gamehubCart');
-      renderCart();
-      window.updateCartBadge();
+        const data = await res.json();
+        msg.textContent = data.message || (data.error || 'Hitilafu');
+        if (data.success) { document.getElementById('gameName').value = ''; loadRequests(); }
+      } catch (e) {
+        msg.textContent = '❌ Hitilafu ya mtandao. Jaribu tena.';
+      }
     });
 
-    renderCart();
+    async function loadRequests() {
+      const box = document.getElementById('requestsList');
+      try {
+        const res = await fetch('/api/requests');
+        const data = await res.json();
+        if (!data.success || data.requests.length === 0) {
+          box.innerHTML = '<p style="color:#8f8faa; text-align:center;">Hakuna ombi bado. Kuwa wa kwanza kuomba game yako! 🎮</p>';
+          return;
+        }
+        box.innerHTML = data.requests.map((r, i) => `
+          <div class="request-row ${i === 0 ? 'top-request' : ''}">
+            <div class="request-rank">${i === 0 ? '🏆' : '#' + (i + 1)}</div>
+            <div class="request-info">
+              <h3>${r.name}</h3>
+              <p>Kura: <strong>${r.votes}</strong> ${r.votes > 1 ? 'wateja wanaitaka' : 'mteja anaitaka'}</p>
+            </div>
+            <button class="btn-vote" data-id="${r.id}">👍 Naitaka</button>
+          </div>`).join('');
+
+        document.querySelectorAll('.btn-vote').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            if (!token) {
+              alert('🔐 Ingia kwanza kupiga kura.');
+              window.location.href = 'login.html';
+              return;
+            }
+            const vRes = await fetch('/api/requests/' + btn.dataset.id + '/vote', {
+              method: 'POST',
+              headers: { 'Authorization': token }
+            });
+            const vData = await vRes.json();
+            alert(vData.message || 'Hitilafu');
+            loadRequests();
+          });
+        });
+      } catch (e) {
+        box.innerHTML = '<p style="color:#ff3d71; text-align:center;">Hitilafu ya mtandao.</p>';
+      }
+    }
+
+    loadRequests();
   </script>
 
 </body>
