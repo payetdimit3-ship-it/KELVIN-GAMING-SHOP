@@ -186,6 +186,49 @@
     .features { grid-template-columns:1fr; }
     .search { width:100%; }
   }
+
+  /* ═══════════════════ NEON BLACK 3D PORTAL UI ═══════════════════ */
+  :root{--nb:#050508;--purple:#9b5cff;--cyan:#22d3ee;--pink:#ec4899;--glass:rgba(10,10,18,.54);}
+  body{background:var(--nb);background-image:radial-gradient(circle at 70% 8%,rgba(124,58,237,.10),transparent 25%),radial-gradient(circle at 30% 45%,rgba(34,211,238,.045),transparent 28%);}
+  .sidebar{background:rgba(5,5,8,.72)!important;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-right:1px solid rgba(155,92,255,.20)!important;box-shadow:12px 0 50px rgba(0,0,0,.38);}
+  .menu a{border:1px solid transparent!important;background:transparent!important;transition:.25s ease!important;}
+  .menu a:hover{border-color:rgba(34,211,238,.28)!important;background:rgba(34,211,238,.06)!important;box-shadow:inset 0 0 25px rgba(34,211,238,.04),0 0 18px rgba(34,211,238,.08);}
+  .menu a.active{background:linear-gradient(90deg,rgba(124,58,237,.30),rgba(34,211,238,.07))!important;border-color:rgba(155,92,255,.30)!important;}
+  .topbar{padding:8px 0;}
+  .search{background:rgba(10,10,16,.65)!important;border:1px solid rgba(155,92,255,.22)!important;backdrop-filter:blur(18px);box-shadow:0 0 25px rgba(124,58,237,.04);}
+  .login-btn{border-color:rgba(34,211,238,.55)!important;background:rgba(34,211,238,.06)!important;backdrop-filter:blur(14px);}
+
+  .energy-hero{position:relative;isolation:isolate;min-height:min(760px,calc(100vh - 105px));border:1px solid rgba(155,92,255,.24);border-radius:30px;overflow:hidden;background:#050508;box-shadow:0 30px 100px rgba(0,0,0,.65),inset 0 0 100px rgba(124,58,237,.06);}
+  #energyCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block;}
+  .energy-noise{position:absolute;inset:0;z-index:1;opacity:.08;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");mix-blend-mode:screen;}
+  .energy-grid{position:absolute;inset:auto 0 0;height:55%;z-index:1;opacity:.19;transform:perspective(500px) rotateX(58deg) scale(1.45);transform-origin:bottom;background-image:linear-gradient(rgba(34,211,238,.20) 1px,transparent 1px),linear-gradient(90deg,rgba(155,92,255,.18) 1px,transparent 1px);background-size:52px 52px;mask-image:linear-gradient(to top,black,transparent);}
+  .energy-vignette{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 72% 45%,transparent 0,rgba(5,5,8,.05) 24%,rgba(5,5,8,.70) 78%),linear-gradient(90deg,rgba(5,5,8,.94),rgba(5,5,8,.40) 50%,rgba(5,5,8,.12));}
+  .energy-content{position:relative;z-index:4;max-width:670px;padding:clamp(52px,9vw,110px) 5%;}
+  .energy-eyebrow{font-size:11px;letter-spacing:3px;color:#9ca3af;font-weight:900;margin-bottom:18px;display:flex;align-items:center;gap:10px;text-transform:uppercase;}
+  .pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px var(--cyan);animation:portalPulse 1.5s infinite;}
+  @keyframes portalPulse{50%{opacity:.35;transform:scale(.65)}}
+  .energy-content h1{font-size:clamp(42px,7vw,86px);line-height:.91;letter-spacing:-4px;font-weight:1000;margin:0 0 22px;text-shadow:0 0 30px rgba(124,58,237,.16);}
+  .energy-content h1 span{color:transparent;background:linear-gradient(100deg,var(--purple),var(--cyan),var(--pink));-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 16px rgba(34,211,238,.20));}
+  .energy-content p{max-width:590px;color:#aeb3c3;font-size:15px;line-height:1.75;}
+  .energy-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px;}
+  .energy-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 19px;border-radius:12px;font-size:12px;font-weight:1000;letter-spacing:.7px;border:1px solid rgba(255,255,255,.12);transition:.25s;}
+  .energy-primary{background:linear-gradient(110deg,#7c3aed,#a855f7);box-shadow:0 0 28px rgba(124,58,237,.27);}
+  .energy-primary:hover{transform:translateY(-3px);box-shadow:0 0 40px rgba(168,85,247,.40);}
+  .energy-glass{background:rgba(255,255,255,.045);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);color:#e9edf7;}
+  .energy-glass:hover{border-color:rgba(34,211,238,.5);background:rgba(34,211,238,.07);transform:translateY(-3px);}
+  .energy-stats{display:flex;gap:0;margin-top:44px;width:min(600px,100%);border:1px solid rgba(255,255,255,.08);background:rgba(7,7,12,.42);backdrop-filter:blur(18px);border-radius:16px;overflow:hidden;}
+  .energy-stats div{flex:1;padding:15px 17px;border-right:1px solid rgba(255,255,255,.07);}.energy-stats div:last-child{border-right:0;}
+  .energy-stats strong{display:block;font-size:18px;color:#fff;}.energy-stats span{display:block;font-size:8px;letter-spacing:1.3px;color:#7f879a;margin-top:3px;}
+  .energy-core-label{position:absolute;z-index:5;right:28px;top:28px;padding:11px 14px;border:1px solid rgba(34,211,238,.20);background:rgba(5,5,8,.38);backdrop-filter:blur(15px);border-radius:12px;text-align:right;}
+  .energy-core-label span{display:block;color:#67e8f9;font-size:8px;letter-spacing:2px;font-weight:900;}.energy-core-label strong{font-family:monospace;font-size:14px;letter-spacing:2px;}
+  .energy-scroll{position:absolute;z-index:5;bottom:19px;left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:3px;color:#6f7687;display:flex;gap:12px;align-items:center;white-space:nowrap;}.energy-scroll span{color:var(--cyan);font-size:16px;animation:scrollBounce 1.2s infinite;}
+  @keyframes scrollBounce{50%{transform:translateY(5px)}}
+  .energy-copy-card{background:rgba(10,10,16,.52)!important;border:1px solid rgba(155,92,255,.16)!important;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,.30);}
+  .energy-copy-card h2{font-size:clamp(30px,5vw,48px);margin:7px 0;line-height:1.05;text-align:left;}.energy-copy-card h2 span{color:var(--purple);}
+  .trailer-zone{margin-top:26px;padding:0!important;}.trailer-heading{display:flex;justify-content:space-between;align-items:end;margin:0 0 16px;}.section-kicker{font-size:9px;letter-spacing:2px;color:var(--cyan);font-weight:900;}.trailer-heading h2{font-size:27px;margin-top:5px;text-align:left;}.trailer-all{font-size:12px;color:#a855f7;}
+  .trailer-card{background:rgba(10,10,16,.62)!important;border:1px solid rgba(155,92,255,.16)!important;box-shadow:0 20px 50px rgba(0,0,0,.30)!important;backdrop-filter:blur(18px);transition:.3s;}.trailer-card:hover{transform:translateY(-5px);border-color:rgba(34,211,238,.38)!important;box-shadow:0 20px 70px rgba(34,211,238,.08)!important;}
+  .feature,.game,.rental-promo,.ai-showcase,.payment-strip,.offer{background:rgba(10,10,16,.58)!important;border-color:rgba(155,92,255,.15)!important;backdrop-filter:blur(18px);}
+  @media(max-width:700px){.energy-hero{min-height:650px;border-radius:22px}.energy-content{padding:75px 22px 35px}.energy-content h1{font-size:47px;letter-spacing:-2.5px}.energy-content p{font-size:13px}.energy-stats{margin-top:28px}.energy-stats div{padding:12px 9px}.energy-stats strong{font-size:14px}.energy-stats span{font-size:7px}.energy-core-label{right:15px;top:15px}.energy-scroll{display:none}.trailer-heading{align-items:start}.trailer-heading h2{font-size:22px}.trailer-all{margin-top:8px}}
 </style>
 </head>
 <body>
@@ -234,23 +277,38 @@
       <a href="login.html" class="login-btn" id="topLoginBtn">👤 Login / Sign Up</a>
     </div>
 
-    <!-- HERO TRAILER STAGE — content comes from Admin Dashboard -->
-    <section class="pro-hero-stage" id="heroTrailerStage">
-      <div class="hero-stage-media" id="heroStageMedia">
-        <div class="hero-stage-empty"><span>🎬</span><strong>Loading featured trailer…</strong></div>
+    <!-- ═══════════════════ 3D NEON ENERGY HERO ═══════════════════ -->
+    <section class="energy-hero" id="energyHero">
+      <canvas id="energyCanvas" aria-hidden="true"></canvas>
+      <div class="energy-noise"></div>
+      <div class="energy-grid"></div>
+      <div class="energy-vignette"></div>
+      <div class="energy-content">
+        <div class="energy-eyebrow"><span class="pulse-dot"></span> LIFEISGAMETZ • NEXT GEN GAMING ARENA</div>
+        <h1>ENTER THE <span>ENERGY</span><br>OF GAMING.</h1>
+        <p>Games, digital products, tournaments, live action, Academy na AI — experience GameHub kwenye mazingira ya neon yanayoishi pamoja na muda.</p>
+        <div class="energy-actions">
+          <a href="shop.html" class="energy-btn energy-primary">🎮 EXPLORE GAMES <span>↗</span></a>
+          <a href="live.html" class="energy-btn energy-glass">📺 WATCH LIVE</a>
+          <a href="academy.html" class="energy-btn energy-glass">⚡ ACADEMY</a>
+        </div>
+        <div class="energy-stats">
+          <div><strong>4K</strong><span>VISUAL EXPERIENCE</span></div>
+          <div><strong>24/7</strong><span>AI SUPPORT</span></div>
+          <div><strong>TZS</strong><span>LOCAL PAYMENTS</span></div>
+        </div>
       </div>
-      <div class="hero-stage-shade"></div>
-      <div class="hero-stage-controls" id="heroStageDots"></div>
+      <div class="energy-core-label"><span>LIVE CORE</span><strong id="energyClock">--:--:--</strong></div>
+      <div class="energy-scroll">SCROLL TO ENTER <span>↓</span></div>
     </section>
 
-    <!-- HERO COPY — placed UNDER the trailer so the video stays clean -->
-    <section class="hero-copy-below">
+    <!-- HERO SUPPORT COPY — below the 3D experience -->
+    <section class="hero-copy-below energy-copy-card">
       <div>
         <span class="welcome">LIFEISGAMETZ • GAMEHUB</span>
-        <h1>CHEZA. <span>JIFUNZE.</span> SHINDA.</h1>
+        <h2>CHEZA. <span>JIFUNZE.</span> SHINDA.</h2>
         <div class="slogan">GAMING • DIGITAL ECONOMY • COMMUNITY</div>
         <p>Duka la gaming la Tanzania lenye games, digital products, tournaments, live football, Academy, youth opportunities na AI assistants — yote sehemu moja.</p>
-        <div class="buttons"><a href="shop.html" class="btn primary">🎮 Explore Games</a><a href="academy.html" class="btn secondary">🎓 Gaming Academy</a><a href="live.html" class="btn secondary">📺 Watch Live</a></div>
       </div>
       <div class="hero-copy-trust"><span>⚡ Fast Delivery</span><span>🛡️ Secure Payments</span><span>🤖 AI Support</span></div>
     </section>
@@ -352,6 +410,68 @@
     <br><br>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js"></script>
+  <script>
+  (() => {
+    const canvas = document.getElementById('energyCanvas');
+    if (!canvas || !window.THREE) return;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
+    camera.position.set(0, 0, 7.8);
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true, powerPreference:'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x000000, 0);
+
+    const group = new THREE.Group(); scene.add(group);
+    const core = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.0, 4),
+      new THREE.MeshBasicMaterial({ color:0x7c3aed, wireframe:true, transparent:true, opacity:.72 })
+    );
+    group.add(core);
+
+    const knot = new THREE.Mesh(
+      new THREE.TorusKnotGeometry(1.55, .20, 220, 28, 2, 3),
+      new THREE.MeshBasicMaterial({ color:0x22d3ee, wireframe:true, transparent:true, opacity:.62 })
+    );
+    knot.rotation.x=.35; group.add(knot);
+
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(2.35,.018,16,160),
+      new THREE.MeshBasicMaterial({color:0xec4899,transparent:true,opacity:.85})
+    );
+    ring.rotation.x=Math.PI/2.2; group.add(ring);
+
+    const count = 1700, pos = new Float32Array(count*3), sizes = new Float32Array(count);
+    for(let i=0;i<count;i++){
+      const r=2.0+Math.random()*2.8, a=Math.random()*Math.PI*2, z=(Math.random()-.5)*3.2;
+      pos[i*3]=Math.cos(a)*r; pos[i*3+1]=Math.sin(a)*r; pos[i*3+2]=z;
+      sizes[i]=Math.random();
+    }
+    const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    const particles=new THREE.Points(geo,new THREE.PointsMaterial({color:0x8b5cf6,size:.026,transparent:true,opacity:.72,sizeAttenuation:true}));
+    group.add(particles);
+
+    const light1=new THREE.PointLight(0x7c3aed, 20, 9); light1.position.set(2,1,3); scene.add(light1);
+    const light2=new THREE.PointLight(0x22d3ee, 14, 8); light2.position.set(-2,-1,2); scene.add(light2);
+    const light3=new THREE.PointLight(0xec4899, 10, 7); light3.position.set(0,3,1); scene.add(light3);
+
+    const clockEl=document.getElementById('energyClock');
+    function resize(){const w=canvas.clientWidth||window.innerWidth,h=canvas.clientHeight||600;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+    window.addEventListener('resize',resize,{passive:true}); resize();
+    const reduce=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function animate(t){
+      const time=t*.001;
+      group.rotation.y=time*.10; group.rotation.x=Math.sin(time*.22)*.08;
+      knot.rotation.z=time*.22; core.rotation.z=-time*.28; ring.rotation.z=time*.16;
+      particles.rotation.y=-time*.035;
+      const pulse=.75+.25*Math.sin(time*2.1);
+      core.material.opacity=.5+.22*pulse; light1.intensity=13+12*pulse; light2.intensity=8+8*(1-pulse); light3.intensity=7+7*pulse;
+      if(clockEl){ const d=new Date(); clockEl.textContent=d.toLocaleTimeString('en-GB',{hour12:false}); }
+      renderer.render(scene,camera); if(!reduce) requestAnimationFrame(animate);
+    }
+    if(reduce) renderer.render(scene,camera); else requestAnimationFrame(animate);
+  })();
+  </script>
   <script src="app.js"></script>
   <script src="chat.js"></script>
 
