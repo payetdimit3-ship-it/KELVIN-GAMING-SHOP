@@ -2,9 +2,21 @@
 
 // 1. KUSIMAMIA CART (KIKAPU)
 function getCart() {
-  const raw = JSON.parse(localStorage.getItem('gamehubCart') || '{}');
-  if (Array.isArray(raw)) return raw;
-  return Object.values(raw || {});
+  let raw = {};
+  try { raw = JSON.parse(localStorage.getItem('gamehubCart') || '{}'); } catch (e) { raw = {}; }
+  const list = Array.isArray(raw) ? raw : Object.values(raw || {});
+  return list.map((item, index) => ({
+    id: String(item.id ?? item.productId ?? ('cart-' + index)),
+    name: String(item.name || item.title || 'Bidhaa'),
+    emoji: item.emoji || '🎮',
+    price: item.price ?? item.num ?? 0,
+    num: Number(item.num ?? item.priceNumber ?? (typeof item.price === 'number' ? item.price : String(item.price || 0).replace(/[^\d.]/g,''))) || 0,
+    qty: Math.max(1, Number(item.qty ?? item.quantity ?? 1) || 1),
+    downloadLink: item.downloadLink || '',
+    accountUser: item.accountUser || '',
+    accountPassword: item.accountPassword || '',
+    rentalMinutes: item.rentalMinutes || null
+  }));
 }
 
 function saveCart(cart) {
