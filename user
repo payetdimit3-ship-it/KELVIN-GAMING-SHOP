@@ -1,0 +1,58 @@
+-- 7. cart_items (Kikapu)
+cart_items (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  game_id UUID,
+  quantity INTEGER,
+  added_at TIMESTAMP
+)
+
+-- 8. wishlists (Vitu mtu anapenda)
+wishlists (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  game_id UUID,
+  added_at TIMESTAMP
+)
+
+-- 9. orders (Oda)
+orders (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  total_amount NUMERIC,
+  status TEXT,  -- 'pending', 'paid', 'completed', 'cancelled'
+  payment_method TEXT,
+  payment_ref TEXT,
+  created_at TIMESTAMP
+)
+
+-- 10. order_items (Vitu vya oda)
+order_items (
+  id UUID PRIMARY KEY,
+  order_id UUID,
+  game_id UUID,
+  quantity INTEGER,
+  price NUMERIC
+)
+
+-- 11. wallet_transactions (Pesa)
+wallet_transactions (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  amount NUMERIC,
+  type TEXT,  -- 'deposit', 'withdraw', 'purchase', 'refund'
+  status TEXT,
+  reference TEXT,
+  created_at TIMESTAMP
+)
+
+-- 12. notifications (Taarifa)
+notifications (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  title TEXT,
+  message TEXT,
+  type TEXT,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP
+)

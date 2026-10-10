@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Center - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+  }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .faq-item.open .faq-answer { max-height: 300px; padding-top: 12px; }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: all 0.3s ease; }
+  .faq-arrow { transition: transform 0.3s; }
+  @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .live-pulse { animation: livePulse 1.5s infinite; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search support, tickets, users..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <button class="w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
+          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Super Admin
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/admin.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games</span>
+      </a>
+      <a href="/admin/products.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>Products</span>
+      </a>
+      <a href="/admin/orders.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Orders</span>
+      </a>
+      <a href="/admin/users.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>Users</span>
+      </a>
+      <a href="/admin/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <span>Live TV / eSports</span>
+      </a>
+      <a href="/admin/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies</span>
+      </a>
+      <a href="/admin/courses.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+        <span>Academy</span>
+      </a>
+      <a href="/admin/coupons.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+        <span>Coupons & Discounts</span>
+      </a>
+      <a href="/admin/withdrawals.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Withdraw Requests</span>
+      </a>
+      <a href="/admin/analytics.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Analytics</span>
+      </a>
+      <a href="/support.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>Support</span>
+      </a>
+      <a href="/admin/settings.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Settings</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Get more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- HEADER ROW -->
+    <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
+      <!-- Header Card -->
+      <div class="xl:col-span-2 gradient-card rounded-2xl border border-dark-4 p-5 relative overflow-hidden">
+        <div class="absolute right-0 top-0 bottom-0 w-1/2 opacity-40 pointer-events-none">
+          <div class="w-full h-full bg-gradient-to-l from-primary/20 to-transparent"></div>
+        </div>
+        <div class="relative flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0">
+            <svg class="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-white">Support Center</h1>
+            <p class="text-sm text-gray-400">We are here to help! Manage tickets, answer user inquiries, and keep your community happy.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Promo -->
+      <div class="xl:col-span-2 gradient-card rounded-2xl border border-dark-4 p-5 relative overflow-hidden">
+        <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-30">
+          <svg class="w-20 h-20 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </div>
+        <div class="relative">
+          <div class="text-xl font-extrabold text-white leading-tight">Fast Support</div>
+          <div class="text-xl font-extrabold text-primary leading-tight mb-1">Better Experience</div>
+          <div class="text-xs text-gray-400">Your satisfaction is our priority</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
+        <div class="w-11 h-11 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+        </div>
+        <div>
+          <div class="text-[10px] text-gray-500">Total Tickets</div>
+          <div class="text-xl font-bold text-white" id="stat-total">0</div>
+          <div class="text-[9px] text-green-400">↗ +12%</div>
+        </div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
+        <div class="w-11 h-11 rounded-lg bg-green-500/20 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        </div>
+        <div>
+          <div class="text-[10px] text-gray-500">Resolved</div>
+          <div class="text-xl font-bold text-white" id="stat-resolved">0</div>
+          <div class="text-[9px] text-green-400">↗ +18%</div>
+        </div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
+        <div class="w-11 h-11 rounded-lg bg-orange-500/20 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <div class="text-[10px] text-gray-500">Pending</div>
+          <div class="text-xl font-bold text-white" id="stat-pending">0</div>
+          <div class="text-[9px] text-red-400">↘ -5%</div>
+        </div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
+        <div class="w-11 h-11 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div>
+          <div class="text-[10px] text-gray-500">Avg. Response Time</div>
+          <div class="text-xl font-bold text-white">1h 24m</div>
+          <div class="text-[9px] text-green-400">↘ -32%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRID: Main + Right -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+      <!-- LEFT -->
+      <div class="xl:col-span-2 space-y-6">
+
+        <!-- Recent Support Tickets -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-white font-bold">Recent Support Tickets</h2>
+            <a href="/admin/support-tickets.html" class="gradient-primary text-white text-xs font-semibold px-4 py-1.5 rounded-lg">View All Tickets →</a>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead>
+                <tr class="text-gray-500 border-b border-dark-4">
+                  <th class="text-left py-2 font-semibold">ID</th>
+                  <th class="text-left py-2 font-semibold">User</th>
+                  <th class="text-left py-2 font-semibold">Subject</th>
+                  <th class="text-left py-2 font-semibold">Category</th>
+                  <th class="text-center py-2 font-semibold">Priority</th>
+                  <th class="text-center py-2 font-semibold">Status</th>
+                  <th class="text-right py-2 font-semibold">Date</th>
+                </tr>
+              </thead>
+              <tbody id="tickets-body">
+                <tr><td colspan="7" class="text-center text-gray-500 py-8">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4 Quick Action Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <button onclick="openTicketModal()" class="gradient-primary rounded-xl p-4 text-left hover:opacity-90 transition group relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+            <div class="relative">
+              <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+              </div>
+              <div class="text-white font-bold text-sm">Create New Ticket</div>
+              <div class="text-white/80 text-[10px]">Start a new support ticket</div>
+              <div class="text-white text-right mt-2">→</div>
+            </div>
+          </button>
+          <a href="/community.html" class="bg-blue-600 rounded-xl p-4 text-left hover:opacity-90 transition group relative overflow-hidden">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              </div>
+              <div class="text-white font-bold text-sm">Live Chat</div>
+              <div class="text-white/80 text-[10px]">Chat with our support team</div>
+              <div class="text-white text-right mt-2">→</div>
+            </div>
+          </a>
+          <button onclick="scrollToFaq()" class="bg-green-600 rounded-xl p-4 text-left hover:opacity-90 transition group relative overflow-hidden">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+              </div>
+              <div class="text-white font-bold text-sm">Help Center</div>
+              <div class="text-white/80 text-[10px]">Browse FAQ and guides</div>
+              <div class="text-white text-right mt-2">→</div>
+            </div>
+          </button>
+          <a href="mailto:support@lifeisgametz.com" class="bg-pink-600 rounded-xl p-4 text-left hover:opacity-90 transition group relative overflow-hidden">
+            <div class="relative">
+              <div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center mb-3">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              </div>
+              <div class="text-white font-bold text-sm">Email Support</div>
+              <div class="text-white/80 text-[10px] break-all">support@lifeisgametz.com</div>
+              <div class="text-white text-right mt-2">→</div>
+            </div>
+          </a>
+        </div>
+
+        <!-- FAQ + Support Categories -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- FAQ -->
+          <div class="gradient-card rounded-2xl border border-dark-4 p-5" id="faq-section">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-white font-bold">Frequently Asked Questions</h2>
+              <a href="/faq.html" class="text-xs text-primary">View All FAQs →</a>
+            </div>
+            <div id="faq-list" class="space-y-2">
+              <div class="text-center text-gray-500 text-xs py-4">Loading...</div>
+            </div>
+          </div>
+
+          <!-- Support Categories -->
+          <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+            <h2 class="text-white font-bold mb-4">Support Categories</h2>
+            <div id="support-categories" class="space-y-2">
+              <div class="text-center text-gray-500 text-xs py-4">Loading...</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="space-y-4">
+
+        <!-- Live Chat -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              <h3 class="text-white font-bold">Live Chat</h3>
+            </div>
+            <span class="text-[10px] text-green-400 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-green-400 live-pulse"></span>
+              Online
+            </span>
+          </div>
+
+          <div class="flex gap-2 mb-4">
+            <button class="flex-1 gradient-primary text-white text-xs font-semibold py-2 rounded-lg">Open Chat</button>
+          </div>
+
+          <div class="space-y-3" id="live-chat-list">
+            <div class="text-center text-gray-500 text-xs py-4">Loading...</div>
+          </div>
+
+          <a href="#" class="text-xs text-primary mt-3 block">View All Conversations →</a>
+        </div>
+
+        <!-- System Status -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-bold">System Status</h3>
+            <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-green-400 live-pulse"></span>
+              All Systems Operational
+            </span>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Website & Dashboard</span>
+              <span class="text-green-400 font-semibold">Online</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Game Servers</span>
+              <span class="text-green-400 font-semibold">Online</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Payment Gateway</span>
+              <span class="text-green-400 font-semibold">Online</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Live Streaming</span>
+              <span class="text-green-400 font-semibold">Online</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Database</span>
+              <span class="text-green-400 font-semibold">Online</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Support System</span>
+              <span class="text-green-400 font-semibold">Online</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Contact -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold mb-4">Quick Contact</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <a href="https://wa.me/255712345678" class="bg-dark-3 rounded-xl p-3 text-center hover:bg-dark-4 transition">
+              <div class="w-9 h-9 mx-auto rounded-lg bg-green-500/20 flex items-center justify-center mb-2">
+                <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              </div>
+              <div class="text-[10px] text-white font-semibold">WhatsApp</div>
+              <div class="text-[9px] text-gray-500">+255 712 345 678</div>
+              <div class="text-[9px] text-gray-500 mt-1">Chat with us</div>
+            </a>
+            <a href="mailto:support@lifeisgametz.com" class="bg-dark-3 rounded-xl p-3 text-center hover:bg-dark-4 transition">
+              <div class="w-9 h-9 mx-auto rounded-lg bg-blue-500/20 flex items-center justify-center mb-2">
+                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              </div>
+              <div class="text-[10px] text-white font-semibold">Email</div>
+              <div class="text-[9px] text-gray-500 break-all">support@lifeisgametz.com</div>
+              <div class="text-[9px] text-gray-500 mt-1">Send Email</div>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-6 mt-4 border-t border-dark-4 text-xs text-gray-500">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded gradient-primary flex items-center justify-center text-white text-[9px] font-bold">L</div>
+          <span class="text-white font-bold">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></span>
+          <span>Play • Learn • Earn</span>
+        </div>
+        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+        <div class="flex gap-4">
+          <a href="/help" class="hover:text-primary">Help</a>
+          <a href="/terms" class="hover:text-primary">Terms</a>
+          <a href="/privacy" class="hover:text-primary">Privacy</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<!-- MODAL: New Ticket -->
+<div id="ticket-modal" class="hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-dark-2 border border-dark-4 rounded-2xl w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold text-white">Create New Ticket</h3>
+      <button onclick="closeTicketModal()" class="text-gray-400 hover:text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="ticket-form" class="space-y-3">
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Subject</label>
+        <input type="text" id="ticket-subject" required placeholder="Brief description of issue" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Category</label>
+        <select id="ticket-category" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+          <option value="Account">Account & Profile</option>
+          <option value="Products">Games & Products</option>
+          <option value="Payments">Payments & Withdrawals</option>
+          <option value="Technical">Technical Support</option>
+          <option value="Partnerships">Partnerships</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Priority</label>
+        <select id="ticket-priority" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+          <option value="Low">Low</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Message</label>
+        <textarea id="ticket-message" rows="4" required placeholder="Describe your issue in detail..." class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary"></textarea>
+      </div>
+      <button type="submit" class="w-full gradient-primary text-white font-bold py-3 rounded-lg">Create Ticket</button>
+    </form>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// MODAL
+function openTicketModal() {
+  document.getElementById('ticket-modal').classList.remove('hidden');
+}
+function closeTicketModal() {
+  document.getElementById('ticket-modal').classList.add('hidden');
+}
+function scrollToFaq() {
+  document.getElementById('faq-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+// FAQ TOGGLE
+function toggleFaq(el) {
+  el.closest('.faq-item').classList.toggle('open');
+}
+
+// LOAD DATA
+async function loadSupport() {
+  // Stats
+  document.getElementById('stat-total').textContent = '142';
+  document.getElementById('stat-resolved').textContent = '128';
+  document.getElementById('stat-pending').textContent = '11';
+
+  // Tickets
+  const { data: tickets } = await db.from('support_tickets').select('*').order('created_at', { ascending: false }).limit(5);
+  renderTickets(tickets || []);
+
+  // FAQ
+  const { data: faqs } = await db.from('faqs').select('*').eq('is_active', true).order('display_order');
+  renderFaq(faqs || []);
+
+  // Support Categories
+  const { data: categories } = await db.from('support_categories').select('*').eq('is_active', true);
+  renderCategories(categories || []);
+
+  // Live Chat (mock)
+  renderLiveChat();
+
+  // Check user for ticket creation
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    const { data: profile } = await db.from('profiles').select('*').eq('id', session.user.id).single();
+    if (profile) {
+      // Do nothing for now
+    }
+  }
+}
+
+function renderTickets(tickets) {
+  const tbody = document.getElementById('tickets-body');
+  if (!tickets || tickets.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500 py-8 text-xs">Hakuna tickets bado</td></tr>`;
+    return;
+  }
+
+  const priorityColors = {
+    'High': 'bg-red-500/20 text-red-400',
+    'Medium': 'bg-orange-500/20 text-orange-400',
+    'Low': 'bg-blue-500/20 text-blue-400'
+  };
+  const statusColors = {
+    'Open': 'bg-red-500/20 text-red-400',
+    'In Progress': 'bg-blue-500/20 text-blue-400',
+    'Resolved': 'bg-green-500/20 text-green-400',
+    'Closed': 'bg-gray-500/20 text-gray-400'
+  };
+
+  tbody.innerHTML = tickets.map(t => `
+    <tr class="border-b border-dark-4 hover:bg-dark-3 cursor-pointer">
+      <td class="py-3 text-gray-400 font-mono text-[11px]">#TKT-${String(t.ticket_number || t.id.slice(0,3)).padStart(3, '0')}</td>
+      <td class="py-3">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded-full gradient-primary flex items-center justify-center text-white text-[9px] font-bold">${(t.user_name || 'U').charAt(0).toUpperCase()}</div>
+          <span class="text-white text-[11px]">${t.user_name || 'User'}</span>
+        </div>
+      </td>
+      <td class="py-3 text-gray-200 text-[11px]">${t.subject}</td>
+      <td class="py-3 text-gray-400 text-[11px]">${t.category}</td>
+      <td class="py-3 text-center"><span class="text-[9px] ${priorityColors[t.priority] || ''} px-2 py-0.5 rounded">${t.priority}</span></td>
+      <td class="py-3 text-center"><span class="text-[9px] ${statusColors[t.status] || ''} px-2 py-0.5 rounded">${t.status}</span></td>
+      <td class="py-3 text-right text-gray-500 text-[10px]">${new Date(t.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+    </tr>
+  `).join('');
+}
+
+function renderFaq(faqs) {
+  const container = document.getElementById('faq-list');
+  if (!faqs || faqs.length === 0) {
+    container.innerHTML = `<div class="text-center text-gray-500 text-xs py-4">Hakuna FAQs bado</div>`;
+    return;
+  }
+
+  container.innerHTML = faqs.slice(0, 6).map(f => `
+    <div class="faq-item gradient-card rounded-lg border border-dark-4">
+      <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-3 text-left">
+        <span class="text-xs text-white font-semibold flex items-center gap-2">
+          <span class="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold shrink-0">?</span>
+          ${f.question}
+        </span>
+        <svg class="faq-arrow w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      <div class="faq-answer px-3 pb-3 text-[11px] text-gray-400">${f.answer}</div>
+    </div>
+  `).join('');
+}
+
+function renderCategories(categories) {
+  const container = document.getElementById('support-categories');
+  if (!categories || categories.length === 0) {
+    container.innerHTML = `<div class="text-center text-gray-500 text-xs py-4">Hakuna categories bado</div>`;
+    return;
+  }
+
+  const colorClasses = {
+    blue: 'bg-blue-500/20 text-blue-400',
+    purple: 'bg-purple-500/20 text-purple-400',
+    green: 'bg-green-500/20 text-green-400',
+    orange: 'bg-orange-500/20 text-orange-400',
+    cyan: 'bg-cyan-500/20 text-cyan-400',
+    yellow: 'bg-yellow-500/20 text-yellow-400'
+  };
+
+  const iconMap = {
+    user: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>',
+    gamepad: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+    'credit-card': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>',
+    wrench: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>',
+    handshake: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>',
+    question: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'
+  };
+
+  container.innerHTML = categories.map(c => `
+    <a href="/support/category.html?slug=${c.slug}" class="bg-dark-3 rounded-lg p-3 flex items-center gap-3 hover:bg-dark-4 transition group">
+      <div class="w-9 h-9 rounded-lg ${colorClasses[c.color] || 'bg-primary/20 text-primary'} flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">${iconMap[c.icon] || iconMap.question}</svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-xs text-white font-bold">${c.name}</div>
+        <div class="text-[10px] text-gray-500 truncate">${c.description}</div>
+      </div>
+      <svg class="w-3 h-3 text-gray-500 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </a>
+  `).join('');
+}
+
+function renderLiveChat() {
+  const mock = [
+    { name: 'Juma Kaiz', message: 'Hi, I need help with my eFootball account.', time: '2m ago', avatar: 'J' },
+    { name: 'Aisha M.', message: 'When will the next tournament start?', time: '8m ago', avatar: 'A' },
+    { name: 'Mzee Sports', message: "I'm having issues with payment.", time: '15m ago', avatar: 'M' },
+    { name: 'Fatma Ali', message: 'Thanks for the support, my issue is solved!', time: '1h ago', avatar: 'F' }
+  ];
+
+  document.getElementById('live-chat-list').innerHTML = mock.map(c => `
+    <div class="flex items-start gap-2">
+      <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white text-xs font-bold shrink-0 relative">
+        ${c.avatar}
+        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-dark-2"></span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-white font-semibold">${c.name}</span>
+          <span class="text-[9px] text-gray-500">${c.time}</span>
+        </div>
+        <div class="text-[10px] text-gray-400 truncate">${c.message}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// CREATE TICKET
+document.getElementById('ticket-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    alert('Tafadhali ingia kwanza');
+    window.location.href = '/login.html';
+    return;
+  }
+
+  const { data: profile } = await db.from('profiles').select('username, full_name').eq('id', session.user.id).single();
+
+  const subject = document.getElementById('ticket-subject').value;
+  const category = document.getElementById('ticket-category').value;
+  const priority = document.getElementById('ticket-priority').value;
+  const message = document.getElementById('ticket-message').value;
+
+  const ticketNumber = String(Date.now()).slice(-6);
+
+  const { error } = await db.from('support_tickets').insert({
+    ticket_number: ticketNumber,
+    user_id: session.user.id,
+    user_name: profile?.username || profile?.full_name || 'User',
+    subject: subject,
+    category: category,
+    priority: priority,
+    status: 'Open',
+    message: message
+  });
+
+  if (error) {
+    alert('Kosa: ' + error.message);
+    return;
+  }
+
+  alert('✅ Ticket imetengenezwa! Namba: #TKT-' + ticketNumber);
+  closeTicketModal();
+  window.location.reload();
+});
+
+document.addEventListener('DOMContentLoaded', loadSupport);
+</script>
+
+</body>
+</html>

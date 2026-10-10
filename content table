@@ -1,0 +1,35 @@
+-- 13. courses (Kozi)
+courses (
+  id UUID PRIMARY KEY,
+  title TEXT,
+  description TEXT,
+  image_url TEXT,
+  price NUMERIC,
+  rating NUMERIC,
+  students_count INTEGER,
+  instructor TEXT,
+  is_active BOOLEAN,
+  created_at TIMESTAMP
+)
+
+-- 14. course_enrollments (Wanafunzi)
+course_enrollments (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  course_id UUID,
+  progress INTEGER DEFAULT 0,
+  enrolled_at TIMESTAMP
+)
+
+-- 15. live_matches (Live Football)
+live_matches (
+  id UUID PRIMARY KEY,
+  home_team TEXT,
+  away_team TEXT,
+  home_score INTEGER,
+  away_score INTEGER,
+  match_time TEXT,
+  status TEXT,  -- 'live', 'upcoming', 'finished'
+  is_active BOOLEAN,
+  created_at TIMESTAMP
+)

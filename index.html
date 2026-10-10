@@ -1,213 +1,638 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>LIFEISGAMETZ — Play • Learn • Earn</title>
-  <meta name="description" content="Duka la gaming la Tanzania: game keys, top-up, gift cards, live football, Academy na AI assistants.">
-  <link rel="stylesheet" href="zoneplay-full.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeisGameTz - Play • Learn • Earn</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#7c3aed',
+          'primary-dark': '#6d28d9',
+          dark: '#0a0a1a',
+          'dark-2': '#0f0f1e',
+          'dark-3': '#1a1a2e',
+          'dark-4': '#252540',
+        },
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #6d28d9; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .skeleton { background: linear-gradient(90deg, #1a1a2e 25%, #252540 50%, #1a1a2e 75%); background-size: 200% 100%; animation: skeleton-loading 1.5s infinite; }
+  @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .live-pulse { animation: pulse-red 2s infinite; }
+  @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+</style>
 </head>
-<body>
-<div class="main">
+<body class="min-h-screen">
 
-  <!-- HERO -->
-  <section class="zp-hero" aria-label="Matangazo makuu">
-    <div class="zp-slider" id="zpSlider" role="region" aria-roledescription="carousel" aria-label="Featured">
-      <div id="zpSlides"></div>
-      <button class="zp-arrow prev" id="zpPrev" aria-label="Iliyotangulia"></button>
-      <button class="zp-arrow next" id="zpNext" aria-label="Inayofuata"></button>
-      <div class="zp-dots" id="zpDots"></div>
-    </div>
-    <div class="zp-promos">
-      <a class="zp-promo" href="rental.html" style="--art:linear-gradient(140deg,#0e7490,#1e1b4b)">
-        <span class="zp-pi" data-ic="cloud"></span>
-        <small>GEFORCE NOW</small><h3>Kodisha Muda</h3><span>Cheza PC games bila kudownload — kuanzia 300 TZS.</span>
-      </a>
-      <a class="zp-promo" href="efootball.html" style="--art:linear-gradient(140deg,#6d28d9,#831843)">
-        <span class="zp-pi" data-ic="ball"></span>
-        <small>EFOOTBALL</small><h3>Coins &amp; Vikosi</h3><span>Top-up salama, delivery papo hapo.</span>
-      </a>
-    </div>
-  </section>
-
-  <div class="zp-trust">
-    <div><span data-ic="bolt"></span><p style="margin:0"><b>Delivery ya haraka</b><span>Bidhaa zinafika baada ya malipo</span></p></div>
-    <div><span data-ic="shield"></span><p style="margin:0"><b>100% Salama</b><span>Malipo yaliyolindwa</span></p></div>
-    <div><span data-ic="wallet"></span><p style="margin:0"><b>Bei nafuu</b><span>Kwa kila mchezaji</span></p></div>
-    <div><span data-ic="headset"></span><p style="margin:0"><b>Msaada 24/7</b><span>AI na WhatsApp</span></p></div>
-  </div>
-
-  <div id="dynamicBanners" hidden></div>
-
-  <!-- CATEGORIES -->
-  <div class="zp-sec"><h2>Chagua Platform</h2><a href="categories.html">Zote <span data-ic="chevr"></span></a></div>
-  <div class="zp-cats" id="zpCats"></div>
-
-  <!-- POPULAR -->
-  <div class="zp-sec"><h2>Games Maarufu</h2><a href="shop.html">Angalia Zote <span data-ic="chevr"></span></a></div>
-  <div class="zp-grid c5 hscroll" id="featuredGames" aria-live="polite">
-    <div class="zp-empty"><p>Inapakia...</p></div>
-  </div>
-
-  <!-- MORE WORLDS -->
-  <div class="zp-sec"><h2>Zaidi ya Gaming</h2></div>
-  <div class="zp-strips">
-    <a class="zp-strip" href="live.html" style="--art:linear-gradient(120deg,#0f3d91,#0a1240)"><span class="zp-pi">📺</span><h3>Live TV / Sports</h3><span>Mechi na matukio live, na matokeo ya papo hapo.</span></a>
-    <a class="zp-strip" href="movies.html" style="--art:linear-gradient(120deg,#7a1fa2,#1b0d4a)"><span class="zp-pi">🎬</span><h3>Movies</h3><span>Filamu na video zilizopakiwa na admin.</span></a>
-    <a class="zp-strip" href="academy.html" style="--art:linear-gradient(120deg,#0e7490,#0a1a4a)"><span class="zp-pi">🎓</span><h3>Academy</h3><span>Jifunze coding, design, AI na biashara ya kidijitali.</span></a>
-    <a class="zp-strip" href="opportunities.html" style="--art:linear-gradient(120deg,#b45309,#4a0d3a)"><span class="zp-pi">💼</span><h3>Youth Opportunities</h3><span>Kazi, creator work, testing na tournaments.</span></a>
-    <a class="zp-strip" href="marketplace.html" style="--art:linear-gradient(120deg,#166534,#0a2a4a)"><span class="zp-pi">🏪</span><h3>Creator Marketplace</h3><span>Uza guides, graphics, templates na huduma.</span></a>
-    <a class="zp-strip" href="community.html" style="--art:linear-gradient(120deg,#be185d,#1b0d4a)"><span class="zp-pi">🤝</span><h3>Community Help</h3><span>Elimu ya afya, usalama mtandaoni na ushauri kwa vijana.</span></a>
-  </div>
-
-  <!-- AI -->
-  <div class="zp-sec"><h2>Msaidizi wa AI</h2></div>
-  <section class="zp-ai" id="ai">
-    <div>
-      <span class="zp-slide-tag">AI MSAIDIZI WA GAMEHUB</span>
-      <h2>Uliza Chochote — Jibu Papo Hapo</h2>
-      <p>AI inajua bei, bidhaa na mfumo wa malipo. Inakusaidia kununua, kuomba game au kutatua tatizo — kwa Kiswahili, wakati wowote.</p>
-      <div class="zp-ai-ex" id="aiExamples">
-        <button class="zp-chip" type="button">FIFA 25 bei gani?</button>
-        <button class="zp-chip" type="button">Naomba muda wa masaa 3 GeForce</button>
-        <button class="zp-chip" type="button">Sijapata bidhaa yangu</button>
+<!-- ============================================
+     TOP BAR
+     ============================================ -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/>
+        </svg>
       </div>
-      <p style="margin:16px 0 0;display:flex;gap:10px;flex-wrap:wrap"><button class="zp-btn" id="openAiBtn" type="button"><span data-ic="bot"></span>Zungumza na AI</button><a class="zp-btn ghost" href="ai.html"><span data-ic="chevr"></span>Fungua AI Assistant</a></p>
-    </div>
-    <div class="zp-ai-orb" data-ic="bot"></div>
-  </section>
+      <div>
+        <div class="text-white font-extrabold text-lg leading-none tracking-tight">
+          LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span>
+        </div>
+        <div class="text-[10px] text-gray-400 tracking-widest font-medium">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
 
-  <!-- PAYMENTS -->
-  <div class="zp-sec"><h2>Njia za Malipo</h2></div>
-  <section class="zp-pay">
-    <div class="chips"><span>M-Pesa (Vodacom)</span><span>Tigo Pesa</span><span>Airtel Money</span><span>Halotel</span></div>
-    <p>Malipo ni automatic kupitia AzamPay. Ukipata tatizo, tuma pesa moja kwa moja kwa <strong>0786 095 758 — Amina Mwinyi</strong>, kisha wasiliana nasi WhatsApp na namba ya muamala (ref) kupata bidhaa yako.</p>
-  </section>
+    <!-- Search Bar -->
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" placeholder="Tafuta game, filamu, kozi, bidhaa..." 
+          class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary transition">
+      </div>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="flex items-center gap-2 shrink-0">
+      
+      <!-- Notifications -->
+      <button class="relative w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center transition">
+        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+        <span id="notif-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>
+      </button>
+
+      <!-- Cart -->
+      <button class="relative w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center transition">
+        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <span id="cart-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">0</span>
+      </button>
+
+      <!-- Wallet / Enter -->
+      <div id="wallet-section" class="hidden md:flex items-center gap-2 bg-dark-3 hover:bg-dark-4 rounded-full px-4 py-2 cursor-pointer transition">
+        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+        </svg>
+        <span id="wallet-text" class="text-sm font-semibold text-gray-200">TSh 0</span>
+      </div>
+
+      <!-- Profile / Enter -->
+      <div id="profile-section" class="flex items-center gap-2 bg-dark-3 hover:bg-dark-4 rounded-full pl-1 pr-3 py-1 cursor-pointer transition">
+        <div id="profile-avatar" class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        </div>
+        <div class="hidden md:block">
+          <div id="profile-name" class="text-sm font-semibold text-gray-200 leading-tight">Enter</div>
+          <div id="profile-role" class="text-[10px] text-gray-500 leading-tight">Bonyeza kuingia</div>
+        </div>
+        <svg class="w-4 h-4 text-gray-400 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<!-- ============================================
+     MAIN LAYOUT
+     ============================================ -->
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:block w-64 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16 overflow-y-auto max-h-[calc(100vh-64px)]">
+    <nav id="sidebar-nav" class="py-4">
+      <div class="px-4 py-2">
+        <div class="skeleton h-10 rounded-lg mb-2"></div>
+        <div class="skeleton h-10 rounded-lg mb-2"></div>
+        <div class="skeleton h-10 rounded-lg mb-2"></div>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Mobile Search -->
+    <div class="md:hidden">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" placeholder="Tafuta..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+      </div>
+    </div>
+
+    <!-- HERO SECTION -->
+    <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+      
+      <!-- Hero Banner -->
+      <div class="xl:col-span-2">
+        <div id="hero-banner" class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden h-64 md:h-80 flex items-center justify-center">
+          <div class="text-center px-6">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-dark-3 flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Hakuna Banners Bado</h3>
+            <p class="text-gray-400 text-sm">Ongeza banners kupitia Admin Dashboard</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Access Cards -->
+      <div class="space-y-3">
+        
+        <!-- PS5 Games -->
+        <a href="/category/ps5" class="flex items-center justify-between gradient-card rounded-2xl border border-dark-4 p-4 hover:border-primary transition group">
+          <div>
+            <div class="text-xs text-primary font-semibold mb-1">PlayStation</div>
+            <div class="text-white font-bold">PS5 Games</div>
+            <div class="text-xs text-gray-400 flex items-center gap-1 mt-1">Explore Now 
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </div>
+          </div>
+          <div class="w-20 h-20 flex items-center justify-center">
+            <svg class="w-12 h-12 text-gray-400 group-hover:text-primary transition" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M7 6a5 5 0 00-5 5v4a5 5 0 005 5c1.5 0 2.5-.5 3-1.5.5 1 1.5 1.5 3 1.5s2.5-.5 3-1.5c.5 1 1.5 1.5 3 1.5a5 5 0 005-5v-4a5 5 0 00-5-5H7zm1 4v2H6v2h2v2h2v-2h2v-2h-2v-2H8zm7.5 1a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm3 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3z"/>
+            </svg>
+          </div>
+        </a>
+
+        <!-- Switch Games -->
+        <a href="/category/nintendo" class="flex items-center justify-between gradient-card rounded-2xl border border-dark-4 p-4 hover:border-primary transition group">
+          <div>
+            <div class="text-xs text-primary font-semibold mb-1">Nintendo Switch</div>
+            <div class="text-white font-bold">Switch Games</div>
+            <div class="text-xs text-gray-400 flex items-center gap-1 mt-1">Explore Now 
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </div>
+          </div>
+          <div class="w-20 h-20 flex items-center justify-center">
+            <svg class="w-12 h-12 text-gray-400 group-hover:text-primary transition" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M10 2H6a4 4 0 00-4 4v12a4 4 0 004 4h4V2zm-2 6a2 2 0 110 4 2 2 0 010-4zm8-6h-4v20h4a4 4 0 004-4V6a4 4 0 00-4-4zm2 6a2 2 0 110 4 2 2 0 010-4z"/>
+            </svg>
+          </div>
+        </a>
+
+        <!-- PC Games -->
+        <a href="/category/pc" class="flex items-center justify-between gradient-card rounded-2xl border border-dark-4 p-4 hover:border-primary transition group">
+          <div>
+            <div class="text-xs text-primary font-semibold mb-1">PC Games</div>
+            <div class="text-white font-bold">High Performance</div>
+            <div class="text-xs text-gray-400 flex items-center gap-1 mt-1">Explore Now 
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </div>
+          </div>
+          <div class="w-20 h-20 flex items-center justify-center">
+            <svg class="w-12 h-12 text-gray-400 group-hover:text-primary transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- TRENDING GAMES -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+          <span class="text-2xl">🔥</span> Trending Games
+        </h2>
+        <a href="/games" class="text-sm text-primary hover:text-primary-dark flex items-center gap-1 font-semibold">
+          Explore All 
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </a>
+      </div>
+      <div id="trending-games" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4"></div>
+    </section>
+
+    <!-- CATEGORIES + SPECIAL OFFERS + MY GAMES -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Browse By Categories -->
+      <section class="lg:col-span-2">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+            <span class="text-2xl">🎮</span> Browse By Categories
+          </h2>
+          <a href="/categories" class="text-sm text-primary hover:text-primary-dark flex items-center gap-1 font-semibold">
+            Explore All 
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </a>
+        </div>
+        <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+      </section>
+
+      <!-- Right Column -->
+      <div class="space-y-6">
+
+        <!-- Special Offers -->
+        <section>
+          <h2 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+            <span>🎁</span> Special Offers
+          </h2>
+          <div id="special-offers" class="gradient-card rounded-2xl border border-dark-4 p-6 text-center">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-dark-3 flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
+              </svg>
+            </div>
+            <div class="text-gray-400 text-sm">Hakuna offers bado</div>
+          </div>
+        </section>
+
+        <!-- My Games -->
+        <section>
+          <h2 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+            <span>🎯</span> My Games
+          </h2>
+          <div id="my-games" class="gradient-card rounded-2xl border border-dark-4 p-6 text-center">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-dark-3 flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div class="text-gray-400 text-sm">Hakuna games bado</div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- LIVE FOOTBALL + POPULAR COURSES -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Live Football -->
+      <section class="lg:col-span-2">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span>⚽</span> Live Football
+          </h2>
+          <a href="/live-scores" class="text-sm text-primary hover:text-primary-dark flex items-center gap-1 font-semibold">
+            View All Matches 
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </a>
+        </div>
+        <div id="live-matches" class="gradient-card rounded-2xl border border-dark-4 p-6 text-center">
+          <div class="text-gray-400 text-sm">Hakuna mechi bado</div>
+        </div>
+      </section>
+
+      <!-- Popular Courses -->
+      <section>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>📚</span> Popular Courses
+          </h2>
+          <a href="/courses" class="text-xs text-primary hover:text-primary-dark font-semibold">Explore All</a>
+        </div>
+        <div id="popular-courses" class="gradient-card rounded-2xl border border-dark-4 p-6 text-center">
+          <div class="text-gray-400 text-sm">Hakuna courses bado</div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="mt-12 pt-8 border-t border-dark-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div>
+          <div class="text-white font-extrabold text-lg mb-2">
+            LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span>
+          </div>
+          <p class="text-sm text-gray-400">Play • Learn • Earn</p>
+          <p class="text-xs text-gray-500 mt-3">Platform yako ya gaming, kozi, na biashara Tanzania.</p>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-3 text-sm">Quick Links</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="/" class="hover:text-primary transition">Home</a></li>
+            <li><a href="/games" class="hover:text-primary transition">Games</a></li>
+            <li><a href="/courses" class="hover:text-primary transition">Courses</a></li>
+            <li><a href="/community" class="hover:text-primary transition">Community</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-3 text-sm">Support</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="/help" class="hover:text-primary transition">Help Center</a></li>
+            <li><a href="/contact" class="hover:text-primary transition">Contact Us</a></li>
+            <li><a href="/terms" class="hover:text-primary transition">Terms</a></li>
+            <li><a href="/privacy" class="hover:text-primary transition">Privacy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-3 text-sm">Follow Us</h4>
+          <div class="flex gap-3">
+            <a href="#" class="w-9 h-9 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center transition">
+              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
+            <a href="#" class="w-9 h-9 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center transition">
+              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            </a>
+            <a href="#" class="w-9 h-9 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center transition">
+              <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="text-center text-xs text-gray-500 pt-6 border-t border-dark-4">
+        © 2026 LifeisGameTz. Haki zote zimehifadhiwa.
+      </div>
+    </footer>
+
+  </main>
 </div>
 
-<script src="zoneplay-shell.js"></script>
-<script src="zp-catalog.js"></script>
-<script src="app.js"></script>
-<script src="chat.js"></script>
+<!-- ============================================
+     CONFIG (Inatengenezwa na build.sh)
+     ============================================ -->
+<script src="config.js"></script>
+
+<!-- ============================================
+     JAVASCRIPT
+     ============================================ -->
 <script>
-(function(){
-  var esc = ZP.esc;
-  // Fill icon placeholders
-  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
-  document.getElementById('zpPrev').innerHTML = ZP.icon('chevl');
-  document.getElementById('zpNext').innerHTML = ZP.icon('chevr');
+// ============================================
+// SUPABASE CLIENT (kutoka config.js)
+// ============================================
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
 
-  /* ---------- Categories ---------- */
-  var catsEl = document.getElementById('zpCats');
-  function renderCats(list){
-    var counts = {};
-    (list||[]).forEach(function(p){ if(p.platform) counts[p.platform]=(counts[p.platform]||0)+1; });
-    catsEl.innerHTML = ZP.PLATFORMS.map(function(pl){
-      var n = counts[pl.key]||0;
-      return '<a class="zp-cat" href="shop.html?cat='+pl.key+'"><span class="zp-ci" style="--art:'+pl.art+'">'+ZP.icon(pl.icon)+'</span><b>'+esc(pl.label)+'</b><small>'+(n? n+' bidhaa':'Angalia')+'</small></a>';
-    }).join('') +
-    '<a class="zp-cat" href="giftcards.html"><span class="zp-ci" style="--art:linear-gradient(135deg,#f59e0b,#c2255c)">'+ZP.icon('gift')+'</span><b>Gift Cards</b><small>Steam • PSN</small></a>'+
-    '<a class="zp-cat" href="efootball.html"><span class="zp-ci" style="--art:linear-gradient(135deg,#16a34a,#0b5a8a)">'+ZP.icon('ball')+'</span><b>Top-Up</b><small>eFootball</small></a>';
-  }
-  renderCats([]);
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('❌ Supabase env variables hazipo! Weka kwenye Render Environment.');
+  document.body.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0a0a1a;color:#fff;font-family:Inter,sans-serif;text-align:center;padding:20px;">
+      <div>
+        <h1 style="color:#7c3aed;font-size:24px;margin-bottom:10px;">⚠️ Configuration Error</h1>
+        <p style="color:#9ca3af;">Supabase URL na Anon Key hazipo.</p>
+        <p style="color:#6b7280;font-size:14px;margin-top:10px;">Weka kwenye Render Environment Variables.</p>
+      </div>
+    </div>
+  `;
+  throw new Error('Supabase config missing');
+}
 
-  /* ---------- Featured games ---------- */
-  var grid = document.getElementById('featuredGames');
-  ZP.loadProducts().then(function(list){
-    renderCats(list);
-    grid.innerHTML = list.slice(0,10).map(ZP.card).join('') || '<div class="zp-empty"><h3>Bado hakuna bidhaa</h3><p>Admin akiongeza bidhaa zitaonekana hapa.</p></div>';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ============================================
+// SIDEBAR MENU
+// ============================================
+async function loadSidebar() {
+  const { data, error } = await db
+    .from('sidebar_menu')
+    .select('*')
+    .eq('is_active', true)
+    .order('display_order');
+
+  if (error || !data) return;
+
+  const groups = {};
+  data.forEach(item => {
+    if (!groups[item.group_name]) groups[item.group_name] = [];
+    groups[item.group_name].push(item);
   });
 
-  /* ---------- Hero ---------- */
-  function ytId(u){ var m=(u||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/); return m?m[1]:null; }
-  function safeUrl(u){ u=String(u||''); return /^(https?:\/\/|\/|[\w-]+\.html)/i.test(u) ? u : 'shop.html'; }
-  var DEFAULT_SLIDES = [
-    {tag:'LIFEISGAMETZ', title:'CHEZA. JIFUNZE. SHINDA.', desc:'Duka la gaming la Tanzania lenye games, digital products, tournaments, live football, Academy na AI assistants — yote sehemu moja.', emoji:'🎮', art:'linear-gradient(120deg,#1a0a56,#0a1f6b 60%,#062a5c)', cta:['Explore Games','shop.html'], cta2:['Gaming Academy','academy.html']},
-    {tag:'DUKA', title:'GAME KEYS & GIFT CARDS', desc:'Games za kudownload moja kwa moja, gift cards na Steam accounts. Lipa kwa M-Pesa, Tigo Pesa, Airtel Money au Halotel.', emoji:'🎁', art:'linear-gradient(120deg,#3b0a5c,#141a6b 60%,#0a2a5c)', cta:['Nunua Sasa','shop.html'], cta2:['Gift Cards','giftcards.html']},
-    {tag:'LIVE', title:'TAZAMA LIVE FOOTBALL', desc:'Mechi live, matokeo ya papo hapo, filamu na video — kila kitu ndani ya LIFEISGAMETZ.', emoji:'⚽', art:'linear-gradient(120deg,#0a3a5c,#0a1a6b 60%,#2a0a5c)', cta:['Watch Live','live.html'], cta2:['Live Scores','livescores.html']}
-  ];
-  var slidesEl=document.getElementById('zpSlides'), dotsEl=document.getElementById('zpDots'), slider=document.getElementById('zpSlider');
-  var slides=[], cur=0, timer=null, paused=false;
-  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
 
-  function slideHtml(s,i){
-    var media='';
-    if (s.yt) media='<iframe data-yt="'+s.yt+'" title="'+esc(s.title)+'" allow="autoplay; encrypted-media" tabindex="-1"></iframe>';
-    else if (s.video) media='<video muted loop playsinline preload="metadata"'+(s.poster?' poster="'+esc(s.poster)+'"':'')+'><source src="'+esc(s.video)+'"></video>';
-    else if (s.image) media='<img src="'+esc(s.image)+'" alt="" onerror="this.remove()">';
-    var big = (!media && s.emoji) ? '<span class="zp-bigemoji" aria-hidden="true">'+esc(s.emoji)+'</span>' : '';
-    var price = s.price ? '<span class="zp-price">'+ZP.money(s.price)+'<small>TZS</small></span>' : '';
-    return '<div class="zp-slide'+(i===0?' on':'')+'" role="group" aria-roledescription="slide" aria-label="'+(i+1)+'">'+
-      '<div class="zp-slide-bg" style="--art:'+(s.art||ZP.art(s.title))+'">'+media+big+'</div>'+
-      '<div class="zp-slide-body"><span class="zp-slide-tag">'+esc(s.tag||'FEATURED')+'</span><h2>'+esc(s.title)+'</h2>'+(s.desc?'<p>'+esc(s.desc)+'</p>':'')+
-      '<div class="zp-slide-cta">'+price+'<a class="zp-btn" href="'+esc(s.cta[1])+'">'+esc(s.cta[0])+'</a>'+(s.cta2?'<a class="zp-btn ghost" href="'+esc(s.cta2[1])+'">'+esc(s.cta2[0])+'</a>':'')+'</div></div></div>';
-  }
-  var startedSlides={};
-  function playOverlay(el,i){
-    if (el.querySelector('.zp-ds-play')) return;
-    var b=document.createElement('button'); b.type='button'; b.className='zp-ds-play';
-    b.innerHTML=ZP.icon('play')+'<span>Data Saver iko wazi — bonyeza kucheza</span>';
-    b.addEventListener('click',function(e){ e.stopPropagation(); startedSlides[i]=true; b.remove(); media(i,true); });
-    el.appendChild(b);
-  }
-  function media(i,on){
-    var el=slidesEl.children[i]; if(!el) return;
-    var hasEmbed=el.querySelector('iframe,video');
-    if (on && ZP.dataSaver() && hasEmbed && !startedSlides[i]){ playOverlay(el,i); return; }
-    var f=el.querySelector('iframe'); if(f){ if(on){ var id=f.dataset.yt; f.src='https://www.youtube.com/embed/'+id+'?autoplay=1&mute=1&controls=0&loop=1&playlist='+id+'&rel=0&modestbranding=1&playsinline=1'; } else f.removeAttribute('src'); }
-    var v=el.querySelector('video'); if(v){ if(on && !reduce){ v.muted=true; var p=v.play(); p&&p.catch&&p.catch(function(){}); } else v.pause(); }
-  }
-  function show(i){
-    if(!slides.length) return;
-    media(cur,false); cur=(i+slides.length)%slides.length;
-    Array.prototype.forEach.call(slidesEl.children,function(el,n){ el.classList.toggle('on',n===cur); });
-    Array.prototype.forEach.call(dotsEl.children,function(el,n){ el.classList.toggle('on',n===cur); el.setAttribute('aria-current',n===cur?'true':'false'); });
-    media(cur,true);
-  }
-  function tick(){ clearInterval(timer); if(slides.length>1 && !reduce) timer=setInterval(function(){ if(!paused && !document.hidden) show(cur+1); },8000); }
-  function build(list){
-    slides=list;
-    slidesEl.innerHTML=slides.map(slideHtml).join('');
-    dotsEl.innerHTML=slides.map(function(s,i){ return '<button type="button" aria-label="Slide '+(i+1)+'" class="'+(i===0?'on':'')+'"></button>'; }).join('');
-    dotsEl.querySelectorAll('button').forEach(function(b,i){ b.addEventListener('click',function(){ show(i); tick(); }); });
-    var multi=slides.length>1; document.getElementById('zpPrev').style.display=multi?'':'none'; document.getElementById('zpNext').style.display=multi?'':'none'; dotsEl.style.display=multi?'':'none';
-    cur=0; media(0,true); tick();
-  }
-  build(DEFAULT_SLIDES);
-  document.getElementById('zpPrev').addEventListener('click',function(){ show(cur-1); tick(); });
-  document.getElementById('zpNext').addEventListener('click',function(){ show(cur+1); tick(); });
-  slider.addEventListener('mouseenter',function(){ paused=true; });
-  slider.addEventListener('mouseleave',function(){ paused=false; });
-  slider.addEventListener('focusin',function(){ paused=true; });
-  slider.addEventListener('focusout',function(){ paused=false; });
-  var x0=null;
-  slider.addEventListener('touchstart',function(e){ x0=e.touches[0].clientX; },{passive:true});
-  slider.addEventListener('touchend',function(e){ if(x0==null) return; var dx=e.changedTouches[0].clientX-x0; x0=null; if(Math.abs(dx)>45){ show(cur+(dx<0?1:-1)); tick(); } });
+  const iconMap = {
+    home: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>',
+    store: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>',
+    games: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+    psp: '<circle cx="12" cy="12" r="10"/><path d="M12 8v8m-4-4h8"/>',
+    ps2: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/>',
+    ps3: '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M7 12h10"/>',
+    nintendo: '<path d="M10 2H6a4 4 0 00-4 4v12a4 4 0 004 4h4V2zm8 0h-4v20h4a4 4 0 004-4V6a4 4 0 00-4-4z"/>',
+    android: '<path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4483-.9993.9993-.9993c.5511 0 .9993.4483.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4483-.9993.9993-.9993c.5511 0 .9993.4483.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.2439 13.8533 7.8508 12 7.8508s-3.5902.3931-5.1367 1.0989L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3435-4.1021-2.6892-7.5743-6.1185-9.4396"/>',
+    pc: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
+    movies: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>',
+    tv: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
+    scores: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>',
+    academy: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>',
+    cloud: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>',
+    efootball: '<circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/><path d="M2 12h20"/>',
+    gift: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>',
+    community: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/>',
+    health: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>',
+    ai: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>',
+    marketplace: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>',
+    wishlist: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>',
+    cart: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>',
+    library: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>',
+    profile: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>'
+  };
 
-  // Admin-fed slides: product trailers + banners, then the defaults
-  Promise.all([
-    ZP.loadProducts(),
-    fetch('/api/banners').then(function(r){ return r.json(); }).catch(function(){ return {}; })
-  ]).then(function(res){
-    var prods=res[0]||[], banners=(res[1]&&res[1].banners)||[];
-    var fromProducts=prods.filter(function(p){ return p.admin && (p.trailerUrl||p.imageUrl); }).slice(0,4).map(function(p){
-      var id=ytId(p.trailerUrl);
-      return {tag:(p.type||'GAME').toUpperCase(), title:p.name, desc:p.desc, price:p.price, yt:id, video:(!id&&p.trailerUrl)?p.trailerUrl:'', image:(!p.trailerUrl)?p.imageUrl:'', poster:p.imageUrl, emoji:p.emoji, art:ZP.art(p.name), cta:['Nunua Sasa',ZP.href(p)]};
+  Object.keys(groups).forEach(groupName => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'mb-4';
+    
+    const title = document.createElement('div');
+    title.className = 'px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 font-bold';
+    title.textContent = groupName;
+    groupEl.appendChild(title);
+
+    groups[groupName].forEach(item => {
+      const link = document.createElement('a');
+      link.href = item.link || '#';
+      link.className = 'flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition group';
+      link.innerHTML = `
+        <svg class="w-5 h-5 text-gray-400 group-hover:text-primary transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          ${iconMap[item.icon] || iconMap.games}
+        </svg>
+        <span>${item.label}</span>
+      `;
+      groupEl.appendChild(link);
     });
-    var fromBanners=banners.slice(0,3).map(function(b){ return {tag:'GAMEHUB UPDATE', title:b.title||'Habari mpya', desc:b.description, emoji:'📢', art:'linear-gradient(120deg,#3b0a5c,#0a2a6b)', cta:[b.buttonText||'Angalia',safeUrl(b.buttonUrl)]}; });
-    var all=fromProducts.concat(fromBanners);
-    if (all.length) build(all.concat(DEFAULT_SLIDES.slice(0, Math.max(0,3-all.length))));
-  });
 
-  /* ---------- AI helpers ---------- */
-  function openChat(text){
-    var b=document.getElementById('ghChatBtn'), box=document.getElementById('ghChatBox');
-    if(box && box.style.display!=='block' && b) b.click();
-    if(text){ var i=document.getElementById('ghChatInput'); if(i){ i.value=text; i.focus(); } }
+    nav.appendChild(groupEl);
+  });
+}
+
+// ============================================
+// CATEGORIES
+// ============================================
+async function loadCategories() {
+  const { data, error } = await db
+    .from('categories')
+    .select('*')
+    .eq('is_active', true)
+    .order('display_order');
+
+  const grid = document.getElementById('categories-grid');
+
+  if (error || !data || data.length === 0) {
+    grid.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm">Hakuna categories bado</div>`;
+    return;
   }
-  document.getElementById('openAiBtn').addEventListener('click',function(){ openChat(); });
-  document.querySelectorAll('#aiExamples .zp-chip').forEach(function(c){ c.addEventListener('click',function(){ openChat(c.textContent); }); });
-})();
+
+  const emojiMap = {
+    'action-adventure': '🎯',
+    'racing': '🏎️',
+    'sports': '⚽',
+    'rpg': '⚔️',
+    'strategy': '♟️',
+    'shooting': '🔫'
+  };
+
+  grid.innerHTML = data.map(cat => `
+    <a href="/category/${cat.slug}" class="group relative gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition">
+      <div class="aspect-square flex flex-col items-center justify-center p-4">
+        ${cat.image_url 
+          ? `<img src="${cat.image_url}" alt="${cat.name}" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition">`
+          : `<div class="absolute inset-0 flex items-center justify-center text-6xl opacity-20 group-hover:opacity-40 transition">${emojiMap[cat.slug] || '🎮'}</div>`
+        }
+        <div class="relative z-10 text-center">
+          <div class="text-2xl mb-1">${emojiMap[cat.slug] || '🎮'}</div>
+          <div class="text-xs font-semibold text-white drop-shadow-lg">${cat.name}</div>
+        </div>
+      </div>
+    </a>
+  `).join('');
+}
+
+// ============================================
+// TRENDING GAMES
+// ============================================
+async function loadTrendingGames() {
+  const { data, error } = await db
+    .from('games')
+    .select('*, categories(name, slug)')
+    .eq('is_active', true)
+    .eq('is_trending', true)
+    .order('created_at', { ascending: false })
+    .limit(6);
+
+  const container = document.getElementById('trending-games');
+
+  if (error || !data || data.length === 0) {
+    container.innerHTML = Array(6).fill(0).map(() => `
+      <div class="gradient-card rounded-xl border border-dark-4 overflow-hidden">
+        <div class="aspect-[3/4] bg-dark-3 flex items-center justify-center">
+          <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div class="p-3">
+          <div class="h-3 bg-dark-3 rounded mb-2"></div>
+          <div class="h-3 bg-dark-3 rounded w-2/3 mb-3"></div>
+          <div class="h-4 bg-dark-3 rounded w-1/2 mb-3"></div>
+          <div class="h-8 bg-dark-3 rounded"></div>
+        </div>
+      </div>
+    `).join('');
+    return;
+  }
+
+  container.innerHTML = data.map(game => {
+    const finalPrice = game.discount_price || game.price;
+    const hasDiscount = game.discount_price && game.discount_price < game.price;
+    
+    return `
+      <a href="/game/${game.id}" class="group gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition">
+        <div class="aspect-[3/4] bg-dark-3 relative overflow-hidden">
+          ${game.image_url 
+            ? `<img src="${game.image_url}" alt="${game.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">`
+            : `<div class="w-full h-full flex items-center justify-center text-gray-600">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              </div>`
+          }
+          ${hasDiscount ? `<div class="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded">-${game.discount_percent}%</div>` : ''}
+        </div>
+        <div class="p-3">
+          <h3 class="text-sm font-semibold text-white mb-2 line-clamp-2 group-hover:text-primary transition">${game.title}</h3>
+          <div class="flex flex-wrap gap-1 mb-2">
+            ${(game.platforms || []).slice(0, 3).map(p => `<span class="text-[10px] px-1.5 py-0.5 bg-dark-3 rounded text-gray-400">${p}</span>`).join('')}
+          </div>
+          <div class="flex items-center gap-1 mb-2">
+            <div class="flex text-yellow-400 text-xs">${'★'.repeat(Math.round(game.rating || 0))}${'☆'.repeat(5 - Math.round(game.rating || 0))}</div>
+            <span class="text-[10px] text-gray-500">${game.reviews_count || 0}</span>
+          </div>
+          <div class="flex items-baseline gap-2 mb-3">
+            <span class="text-primary font-bold text-sm">TSh ${finalPrice.toLocaleString()}</span>
+            ${hasDiscount ? `<span class="text-gray-500 text-xs line-through">TSh ${game.price.toLocaleString()}</span>` : ''}
+          </div>
+          <button class="w-full gradient-primary text-white text-xs font-semibold py-2 rounded-lg hover:opacity-90 transition">
+            Add to Cart
+          </button>
+        </div>
+      </a>
+    `;
+  }).join('');
+}
+
+// ============================================
+// AUTH STATE
+// ============================================
+async function checkAuth() {
+  const { data: { session } } = await db.auth.getSession();
+  
+  if (!session) {
+    document.getElementById('profile-name').textContent = 'Enter';
+    document.getElementById('profile-role').textContent = 'Bonyeza kuingia';
+    document.getElementById('wallet-text').textContent = 'TSh 0';
+    return;
+  }
+
+  const { data: profile } = await db
+    .from('profiles')
+    .select('*')
+    .eq('id', session.user.id)
+    .single();
+
+  if (profile) {
+    document.getElementById('profile-name').textContent = profile.full_name || profile.username || 'User';
+    document.getElementById('profile-role').textContent = profile.is_premium ? 'Premium User' : 'User';
+    document.getElementById('wallet-text').textContent = `TSh ${(profile.wallet_balance || 0).toLocaleString()}`;
+  }
+}
+
+// ============================================
+// INIT
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadSidebar();
+  loadCategories();
+  loadTrendingGames();
+  checkAuth();
+
+  db.auth.onAuthStateChange(() => {
+    checkAuth();
+  });
+});
 </script>
+
 </body>
 </html>

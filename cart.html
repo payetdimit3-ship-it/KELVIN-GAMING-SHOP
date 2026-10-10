@@ -1,121 +1,428 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Kikapu Chako — LIFEISGAMETZ</title>
-  <link rel="stylesheet" href="zoneplay-full.css">
-</head>
-<body>
-<div class="main">
-
-  <header class="zp-page-head">
-    <div class="zp-ph-ic" data-ic="cart"></div>
-    <div><h1>Kikapu Chako</h1><p id="sub">Hakiki bidhaa zako kisha uende kulipa.</p></div>
-    <div class="zp-ph-side opt"><a class="zp-btn ghost" href="shop.html"><span data-ic="chevl"></span>Endelea Kununua</a></div>
-  </header>
-
-  <div id="filled" class="ct-layout" hidden>
-    <section class="ct-list" id="items" aria-label="Bidhaa kwenye kikapu"></section>
-    <aside class="ct-sum" aria-label="Muhtasari">
-      <header><h3>Muhtasari</h3></header>
-      <div class="ct-row"><span id="countLbl">Bidhaa</span><span id="countVal"></span></div>
-      <div class="ct-total"><span>JUMLA</span><strong id="total">0 TZS</strong></div>
-      <a class="zp-btn" href="checkout.html" id="payBtn"></a>
-      <button class="zp-btn ghost" id="clearBtn" type="button"></button>
-      <div class="ct-pay"><span>M-Pesa</span><span>Tigo Pesa</span><span>Airtel Money</span><span>Halotel</span></div>
-      <p class="ct-note">💡 Baada ya malipo, bidhaa zako zitatumwa automatic kwenye email yako.</p>
-    </aside>
-  </div>
-
-  <div id="empty" hidden>
-    <div class="zp-empty" style="margin-top:6px">
-      <h3>Kikapu chako ni tupu</h3>
-      <p>Ongeza games, top-up au muda wa kucheza, kisha urudi hapa kulipa.</p>
-      <a class="zp-btn" href="shop.html" id="shopBtn"></a>
-    </div>
-    <div class="zp-sec"><h2>Unaweza Kupenda</h2><a href="shop.html">Zote <span data-ic="chevr"></span></a></div>
-    <section class="zp-grid c5 hscroll" id="suggest"></section>
-  </div>
-</div>
-<div class="rn-toast" id="toast" role="status" aria-live="polite"></div>
-
-<script src="zoneplay-shell.js"></script>
-<script src="zp-catalog.js"></script>
-<script src="app.js"></script>
-<script src="chat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
-(function(){
-  var esc=ZP.esc, MAXQ=99;
-  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
-  document.getElementById('payBtn').innerHTML=ZP.icon('wallet')+'Enda Kulipa';
-  document.getElementById('shopBtn').innerHTML=ZP.icon('bag')+'Nenda Dukani';
-  var clearBtn=document.getElementById('clearBtn'); clearBtn.innerHTML=ZP.icon('x')+'Futa Kikapu';
-
-  function readCart(){
-    try{ var raw=JSON.parse(localStorage.getItem('gamehubCart')||'{}'); return Array.isArray(raw)?Object.fromEntries(raw.map(function(x,i){ return [x.id||('cart-'+i),x]; })):(raw||{}); }
-    catch(e){ return {}; }
-  }
-  function save(c){ try{ localStorage.setItem('gamehubCart',JSON.stringify(c)); }catch(e){} if(typeof window.updateCartBadge==='function') window.updateCartBadge(); ZP.updateCart(); }
-  function qtyOf(i){ return Math.max(1,Number(i.qty!=null?i.qty:i.quantity!=null?i.quantity:1)||1); }
-  function numOf(i){
-    var v=i.num!=null?i.num:i.priceNumber!=null?i.priceNumber:(typeof i.price==='number'?i.price:String(i.price||0).replace(/[^\d.]/g,''));
-    return Number(v)||0;
-  }
-  function money(n){ return Number(n||0).toLocaleString()+' TZS'; }
-
-  /* undo */
-  var snapshot=null, toastTimer;
-  function toast(msg,undo){
-    var t=document.getElementById('toast'); t.textContent=msg;
-    if (undo){ var b=document.createElement('button'); b.type='button'; b.textContent='Tendua'; b.addEventListener('click',function(){ if(snapshot){ save(snapshot); snapshot=null; render(); } t.classList.remove('on'); }); t.appendChild(b); }
-    t.classList.add('on'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.classList.remove('on'); },5000);
-  }
-
-  var suggested=false;
-  function render(){
-    var cart=readCart(), items=Object.keys(cart).map(function(k){ var i=cart[k]; if(!i.id) i.id=k; return i; });
-    var filled=document.getElementById('filled'), empty=document.getElementById('empty');
-    filled.hidden=!items.length; empty.hidden=!!items.length;
-    document.getElementById('sub').textContent=items.length?'Hakiki bidhaa zako kisha uende kulipa.':'Hakuna bidhaa bado.';
-    if (!items.length){
-      if(!suggested){ suggested=true; ZP.loadProducts().then(function(list){ document.getElementById('suggest').innerHTML=list.slice(0,10).map(ZP.card).join(''); }); }
-      return;
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#7c3aed', 'primary-dark': '#6d28d9',
+          dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540',
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] }
+      }
     }
-    var total=0, count=0;
-    document.getElementById('items').innerHTML=items.map(function(i){
-      var q=qtyOf(i), n=numOf(i); total+=n*q; count+=q;
-      return '<article class="ct-item" data-id="'+esc(i.id)+'">'+
-        '<div class="ct-thumb" style="--art:'+ZP.art(i.name)+'" aria-hidden="true">'+esc(i.emoji||'🎮')+'</div>'+
-        '<div class="ct-info"><h3>'+esc(i.name||'Bidhaa')+'</h3><small>'+money(n)+' kila moja</small></div>'+
-        '<div class="ct-qty" role="group" aria-label="Idadi"><button type="button" data-act="dec" aria-label="Punguza"'+(q<=1?' disabled':'')+'>−</button><output aria-live="polite">'+q+'</output><button type="button" data-act="inc" aria-label="Ongeza"'+(q>=MAXQ?' disabled':'')+'>+</button></div>'+
-        '<div class="ct-line">'+money(n*q)+'</div>'+
-        '<button class="ct-del" type="button" data-act="del" aria-label="Futa '+esc(i.name||'bidhaa')+'">'+ZP.icon('x')+'</button></article>';
-    }).join('');
-    document.getElementById('total').textContent=money(total);
-    document.getElementById('countLbl').textContent=items.length===1?'Bidhaa 1':'Bidhaa '+items.length;
-    document.getElementById('countVal').textContent=count+(count===1?' kipande':' vipande');
+  }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div>
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Tafuta game, filamu, kozi, bidhaa..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+      </button>
+      <button class="relative w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span id="cart-count-top" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">0</span>
+      </button>
+      <div class="hidden md:flex items-center gap-2 bg-dark-3 rounded-full px-4 py-2">
+        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        <span id="top-wallet" class="text-sm font-semibold text-gray-200">TSh 0</span>
+      </div>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-full pl-1 pr-3 py-1">
+        <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        </div>
+        <div class="hidden md:block">
+          <div id="top-name" class="text-sm font-semibold text-gray-200 leading-tight">User</div>
+          <div class="text-[10px] text-gray-500 leading-tight">User</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:block w-64 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16 overflow-y-auto max-h-[calc(100vh-64px)]">
+    <nav id="sidebar-nav" class="py-4">
+      <div class="px-4 py-2"><div class="skeleton h-10 rounded-lg"></div></div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 min-w-0">
+
+    <!-- Breadcrumb + Title -->
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+          <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-white">Your Cart</h1>
+          <p id="cart-subtitle" class="text-sm text-gray-400">Umeweka bidhaa 0 kwenye kikapu chako.</p>
+        </div>
+      </div>
+      <a href="/games" class="text-sm text-primary hover:text-primary-dark flex items-center gap-1 font-semibold">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Continue Shopping
+      </a>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- LEFT: Cart Items -->
+      <div class="lg:col-span-2 space-y-4">
+
+        <!-- Table Header -->
+        <div class="hidden md:grid grid-cols-12 gap-3 px-4 py-3 bg-dark-2 border border-dark-4 rounded-xl text-xs text-gray-400 font-semibold">
+          <div class="col-span-6">Bidhaa</div>
+          <div class="col-span-2 text-center">Bei</div>
+          <div class="col-span-2 text-center">Kiasi</div>
+          <div class="col-span-2 text-right">Jumla</div>
+        </div>
+
+        <!-- Items Container -->
+        <div id="cart-items" class="space-y-3">
+          <!-- Inajazwa na JS -->
+        </div>
+
+        <!-- Security Badge -->
+        <div class="gradient-card rounded-xl border border-dark-4 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <div>
+              <div class="text-sm text-white font-semibold">Malipo yako ni salama 100%</div>
+              <div class="text-xs text-gray-400">Tunatumia usalama wa kiwango cha juu kwa ajili kulinda maelezo yako.</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] bg-white text-blue-900 font-bold px-2 py-1 rounded">VISA</span>
+            <span class="text-[10px] bg-white text-red-600 font-bold px-2 py-1 rounded">MC</span>
+            <span class="text-[10px] bg-green-600 text-white font-bold px-2 py-1 rounded">M-PESA</span>
+            <span class="text-[10px] bg-red-600 text-white font-bold px-2 py-1 rounded">airtel</span>
+            <span class="text-[10px] bg-blue-700 text-white font-bold px-2 py-1 rounded">tigo</span>
+          </div>
+        </div>
+
+        <!-- Back Button -->
+        <a href="/games" class="inline-flex items-center gap-2 px-4 py-2.5 bg-dark-3 hover:bg-dark-4 border border-dark-4 rounded-xl text-sm text-white font-semibold transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          Endelea Kununua
+        </a>
+
+      </div>
+
+      <!-- RIGHT: Summary -->
+      <div class="space-y-4">
+
+        <!-- Order Summary -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
+              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            </div>
+            <h3 class="text-white font-bold">Muhtasari wa Agizo</h3>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-400">Jumla ya Bidhaa (<span id="item-count">0</span>)</span>
+              <span id="subtotal" class="text-white font-semibold">TSh 0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Punguzo</span>
+              <span id="discount" class="text-green-400 font-semibold">- TSh 0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400">Usafirishaji</span>
+              <span id="shipping" class="text-white font-semibold">TSh 0</span>
+            </div>
+            <div class="flex justify-between pt-3 border-t border-dark-4">
+              <span class="text-white font-bold text-lg">Jumla Kuu</span>
+              <span id="total" class="text-primary font-extrabold text-xl">TSh 0</span>
+            </div>
+          </div>
+
+          <a href="/checkout.html" id="checkout-btn" class="mt-5 w-full gradient-primary text-white font-semibold py-3 rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            Endelea Kulipa
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </a>
+
+          <div class="mt-3 flex items-center justify-center gap-2 text-xs text-gray-500">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            Malipo Salama • Inatumia SSL Encryption
+          </div>
+        </div>
+
+        <!-- Add More -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M7 6a5 5 0 00-5 5v4a5 5 0 005 5c1.5 0 2.5-.5 3-1.5.5 1 1.5 1.5 3 1.5s2.5-.5 3-1.5c.5 1 1.5 1.5 3 1.5a5 5 0 005-5v-4a5 5 0 00-5-5H7z"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="text-white font-bold mb-1">Unataka kuongeza zaidi?</div>
+              <div class="text-xs text-gray-400 mb-3">Angalia games zaidi, movies, kozi na bidhaa nyingine.</div>
+              <a href="/games" class="inline-flex items-center gap-1 text-xs text-primary border border-primary rounded-lg px-3 py-1.5 hover:bg-primary/10 transition font-semibold">
+                Rudi kwenye Duka
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-sm text-white font-bold mb-3">Vifaa vya Kulipa</h3>
+          <div class="flex flex-wrap gap-2">
+            <span class="text-[10px] bg-white text-blue-900 font-bold px-2 py-1 rounded">VISA</span>
+            <span class="text-[10px] bg-white text-red-600 font-bold px-2 py-1 rounded">MC</span>
+            <span class="text-[10px] bg-green-600 text-white font-bold px-2 py-1 rounded">M-PESA</span>
+            <span class="text-[10px] bg-red-600 text-white font-bold px-2 py-1 rounded">airtel</span>
+            <span class="text-[10px] bg-blue-700 text-white font-bold px-2 py-1 rounded">tigo pesa</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-3">Tunakubali njia zote za malipo maarufu.</p>
+        </div>
+
+        <!-- Premium -->
+        <div class="gradient-primary rounded-2xl p-5 relative overflow-hidden">
+          <div class="absolute top-2 right-2 text-4xl opacity-30">👑</div>
+          <div class="relative">
+            <div class="text-white font-bold mb-1">Ni Mteja wa Premium?</div>
+            <div class="text-white/80 text-xs mb-3">Pata punguzo zaidi, ofa maalum na pointi za loyalty!</div>
+            <button class="bg-white text-primary font-bold text-xs px-4 py-2 rounded-lg">Angalia Faida</button>
+          </div>
+        </div>
+
+        <!-- Promo -->
+        <div class="gradient-primary rounded-2xl p-5 text-center">
+          <div class="text-3xl mb-2">🎁</div>
+          <div class="text-white font-bold mb-1">Get 10% OFF</div>
+          <div class="text-white/80 text-xs mb-3">on your next purchase</div>
+          <button class="bg-white text-primary font-bold text-xs px-4 py-2 rounded-lg">Shop Now</button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let cartItems = [];
+
+async function loadCart() {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    window.location.href = '/login.html';
+    return;
   }
 
-  document.getElementById('items').addEventListener('click',function(e){
-    var b=e.target.closest('[data-act]'); if(!b) return;
-    var row=b.closest('.ct-item'), id=row.dataset.id, cart=readCart(), it=cart[id]; if(!it) return;
-    var act=b.dataset.act;
-    if (act==='del'){ snapshot=JSON.parse(JSON.stringify(cart)); delete cart[id]; save(cart); render(); toast('Imeondolewa kwenye kikapu',true); return; }
-    var q=qtyOf(it)+(act==='inc'?1:-1); q=Math.min(MAXQ,Math.max(1,q));
-    it.qty=q; delete it.quantity; save(cart); render();
-  });
+  // Profile
+  const { data: profile } = await db.from('profiles').select('*').eq('id', session.user.id).single();
+  if (profile) {
+    document.getElementById('top-name').textContent = profile.full_name || profile.username;
+    document.getElementById('top-wallet').textContent = `TSh ${(profile.wallet_balance || 0).toLocaleString()}`;
+  }
 
-  var armed=false, armTimer;
-  clearBtn.addEventListener('click',function(){
-    if (!armed){ armed=true; clearBtn.textContent='Una uhakika? Bonyeza tena'; clearTimeout(armTimer); armTimer=setTimeout(function(){ armed=false; clearBtn.innerHTML=ZP.icon('x')+'Futa Kikapu'; },3500); return; }
-    armed=false; clearTimeout(armTimer); clearBtn.innerHTML=ZP.icon('x')+'Futa Kikapu';
-    snapshot=readCart(); save({}); render(); toast('Kikapu kimefutwa',true);
-  });
+  // Cart
+  const { data } = await db
+    .from('cart_items')
+    .select('*, games(id, title, price, discount_price, image_url, platforms)')
+    .eq('user_id', session.user.id)
+    .order('added_at', { ascending: false });
 
-  window.addEventListener('storage',render);
-  render();
-})();
+  cartItems = data || [];
+  renderCart();
+}
+
+function renderCart() {
+  const container = document.getElementById('cart-items');
+  const count = cartItems.length;
+
+  document.getElementById('cart-subtitle').textContent = `Umeweka bidhaa ${count} kwenye kikapu chako.`;
+  document.getElementById('cart-count-top').textContent = count;
+  document.getElementById('item-count').textContent = count;
+
+  if (count === 0) {
+    container.innerHTML = `
+      <div class="gradient-card rounded-2xl border border-dark-4 p-12 text-center">
+        <div class="text-5xl mb-3">🛒</div>
+        <div class="text-white font-bold text-lg mb-2">Kikapu ni tupu</div>
+        <div class="text-sm text-gray-400 mb-4">Ongeza games kwenye kikapu chako</div>
+        <a href="/games" class="inline-block gradient-primary text-white text-sm font-semibold px-5 py-2.5 rounded-lg">Nenda Dukani</a>
+      </div>
+    `;
+    document.getElementById('subtotal').textContent = 'TSh 0';
+    document.getElementById('total').textContent = 'TSh 0';
+    document.getElementById('checkout-btn').classList.add('pointer-events-none', 'opacity-50');
+    return;
+  }
+
+  container.innerHTML = cartItems.map(item => {
+    const game = item.games;
+    const price = game.discount_price || game.price;
+    const itemTotal = price * item.quantity;
+    const platforms = (game.platforms || []).slice(0, 3);
+
+    return `
+      <div class="gradient-card rounded-xl border border-dark-4 p-3 md:p-4">
+        <!-- Desktop -->
+        <div class="hidden md:grid grid-cols-12 gap-3 items-center">
+          <div class="col-span-6 flex items-center gap-3">
+            <div class="w-16 h-16 rounded-lg bg-dark-3 shrink-0 overflow-hidden">
+              ${game.image_url ? `<img src="${game.image_url}" class="w-full h-full object-cover">` : ''}
+            </div>
+            <div class="min-w-0">
+              <div class="text-sm text-white font-semibold line-clamp-1">${game.title}</div>
+              <div class="flex gap-1 mt-1">
+                ${platforms.map(p => `<span class="text-[9px] bg-dark-3 text-gray-400 px-1.5 py-0.5 rounded">${p}</span>`).join('')}
+              </div>
+              <div class="text-[10px] text-green-400 mt-1 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                Inapatikana • Digital Download
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2 text-center text-sm text-white font-semibold">TSh ${price.toLocaleString()}</div>
+          <div class="col-span-2 flex items-center justify-center gap-2">
+            <button onclick="changeQty('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-white text-sm">−</button>
+            <span class="text-white font-semibold w-6 text-center">${item.quantity}</span>
+            <button onclick="changeQty('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-white text-sm">+</button>
+          </div>
+          <div class="col-span-1 text-right text-sm text-white font-bold">TSh ${itemTotal.toLocaleString()}</div>
+          <div class="col-span-1 text-right">
+            <button onclick="removeItem('${item.id}')" class="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500/30 flex items-center justify-center text-red-400 ml-auto">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile -->
+        <div class="md:hidden flex gap-3">
+          <div class="w-20 h-20 rounded-lg bg-dark-3 shrink-0 overflow-hidden">
+            ${game.image_url ? `<img src="${game.image_url}" class="w-full h-full object-cover">` : ''}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm text-white font-semibold">${game.title}</div>
+            <div class="text-xs text-gray-400 mt-1">TSh ${price.toLocaleString()}</div>
+            <div class="flex items-center gap-2 mt-2">
+              <button onclick="changeQty('${item.id}', -1)" class="w-6 h-6 rounded bg-dark-3 flex items-center justify-center text-white text-xs">−</button>
+              <span class="text-xs text-white">${item.quantity}</span>
+              <button onclick="changeQty('${item.id}', 1)" class="w-6 h-6 rounded bg-dark-3 flex items-center justify-center text-white text-xs">+</button>
+              <button onclick="removeItem('${item.id}')" class="ml-auto text-red-400 text-xs">Futa</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Totals
+  const subtotal = cartItems.reduce((sum, item) => sum + ((item.games.discount_price || item.games.price) * item.quantity), 0);
+  document.getElementById('subtotal').textContent = `TSh ${subtotal.toLocaleString()}`;
+  document.getElementById('total').textContent = `TSh ${subtotal.toLocaleString()}`;
+  document.getElementById('checkout-btn').classList.remove('pointer-events-none', 'opacity-50');
+}
+
+async function changeQty(itemId, delta) {
+  const item = cartItems.find(i => i.id === itemId);
+  if (!item) return;
+  const newQty = item.quantity + delta;
+  if (newQty < 1) return removeItem(itemId);
+
+  await db.from('cart_items').update({ quantity: newQty }).eq('id', itemId);
+  item.quantity = newQty;
+  renderCart();
+}
+
+async function removeItem(itemId) {
+  if (!confirm('Una uhakika kutaka kufuta?')) return;
+  await db.from('cart_items').delete().eq('id', itemId);
+  cartItems = cartItems.filter(i => i.id !== itemId);
+  renderCart();
+}
+
+// Sidebar
+async function loadSidebar() {
+  const { data } = await db.from('sidebar_menu').select('*').eq('is_active', true).order('display_order');
+  if (!data) return;
+  const groups = {};
+  data.forEach(item => {
+    if (!groups[item.group_name]) groups[item.group_name] = [];
+    groups[item.group_name].push(item);
+  });
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  const iconMap = { home: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>', games: '<circle cx="12" cy="12" r="10"/>', cart: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>', profile: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>' };
+  Object.keys(groups).forEach(groupName => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'mb-4';
+    const title = document.createElement('div');
+    title.className = 'px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 font-bold';
+    title.textContent = groupName;
+    groupEl.appendChild(title);
+    groups[groupName].forEach(item => {
+      const link = document.createElement('a');
+      link.href = item.link || '#';
+      link.className = 'flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition';
+      link.innerHTML = `<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${iconMap[item.icon] || iconMap.games}</svg><span>${item.label}</span>`;
+      groupEl.appendChild(link);
+    });
+    nav.appendChild(groupEl);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadSidebar();
+  loadCart();
+});
 </script>
+
 </body>
 </html>

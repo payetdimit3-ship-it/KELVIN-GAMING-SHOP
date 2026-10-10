@@ -3,470 +3,472 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dar Cup — Weekly Championship | LifeIsGameTZ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Tournaments - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+  }
+</script>
 <style>
-  :root{
-    --bg: #0A0C11;
-    --bg-alt: #0F1219;
-    --panel: #151922;
-    --panel-2: #1B202B;
-    --border: #262C3A;
-    --text: #EEF2F7;
-    --muted: #8890A3;
-    --cyan: #1BE7E3;
-    --cyan-soft: rgba(27,231,227,0.12);
-    --cyan-glow: rgba(27,231,227,0.55);
-    --magenta: #FF3E9C;
-    --magenta-soft: rgba(255,62,156,0.12);
-    --magenta-glow: rgba(255,62,156,0.55);
-    --amber: #F5B942;
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{
-    background:var(--bg); color:var(--text);
-    font-family:'Rajdhani', sans-serif; font-size:16px; overflow-x:hidden;
-  }
-  h1,h2,h3,.logo,.price-new{ font-family:'Orbitron', sans-serif; }
-  a{ text-decoration:none; color:inherit; }
-  .wrap{ max-width:1140px; margin:0 auto; padding:0 1.4rem; }
-
-  .grid-bg{
-    position:fixed; inset:0; z-index:-2;
-    background-image:
-      linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
-    background-size:42px 42px;
-    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
-    mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 60%);
-  }
-  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.3; }
-  .glow-1{ width:480px; height:480px; background:var(--cyan); top:-180px; left:-160px; }
-  .glow-2{ width:420px; height:420px; background:var(--magenta); top:60px; right:-180px; }
-
-  /* ---------- Navbar ---------- */
-  .navbar{
-    position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:1.6rem;
-    padding:1rem 1.4rem; background:rgba(10,12,17,0.9); backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--border);
-  }
-  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
-  .logo .mark{
-    width:34px; height:34px; border-radius:8px;
-    background:linear-gradient(135deg, var(--cyan), var(--magenta));
-    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
-  }
-  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
-  .btn{
-    font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.9rem;
-    padding:.6rem 1.2rem; border-radius:8px; cursor:pointer; border:1px solid transparent;
-  }
-  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
-  .btn-cyan{ background:var(--cyan); color:#05181A; box-shadow:0 0 24px var(--cyan-glow); font-size:1rem; padding:.9rem; width:100%; margin-top:1rem; }
-
-  .breadcrumb{ font-size:.78rem; color:var(--muted); padding:1.2rem 0 0; }
-  .breadcrumb .cyan{ color:var(--cyan); }
-
-  /* ---------- Tournament header banner ---------- */
-  .t-banner{
-    background:linear-gradient(120deg, var(--panel) 0%, var(--panel-2) 100%);
-    border:1px solid var(--border); border-radius:18px; padding:2rem; margin:1.2rem 0 1.6rem;
-    position:relative; overflow:hidden;
-  }
-  .t-banner::before{
-    content:''; position:absolute; width:280px; height:280px; border-radius:50%;
-    background:var(--magenta); filter:blur(100px); opacity:.22; right:-100px; top:-100px;
-  }
-  .live-tag{
-    display:inline-flex; align-items:center; gap:.4rem; background:var(--magenta-soft);
-    color:var(--magenta); font-size:.75rem; font-weight:700; padding:.25rem .7rem;
-    border-radius:20px; margin-bottom:.8rem; position:relative; z-index:1;
-  }
-  .live-dot{ width:7px; height:7px; border-radius:50%; background:var(--magenta); animation:pulse 1.4s infinite; }
-  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
-  .t-banner h1{ font-size:2rem; font-weight:800; margin-bottom:.4rem; position:relative; z-index:1; }
-  .t-banner .meta{ color:var(--muted); font-size:.9rem; position:relative; z-index:1; }
-  .t-quick-stats{ display:flex; gap:2rem; margin-top:1.2rem; flex-wrap:wrap; position:relative; z-index:1; }
-  .t-quick-stats div{ text-align:left; }
-  .t-quick-stats .num{ font-weight:800; color:var(--cyan); font-size:1.25rem; }
-  .t-quick-stats .lbl{ font-size:.74rem; color:var(--muted); }
-
-  /* ---------- Steps ---------- */
-  .steps{ display:flex; justify-content:center; gap:0; padding:.5rem 0 1.6rem; }
-  .step{ display:flex; align-items:center; gap:.6rem; }
-  .step-circle{
-    width:30px; height:30px; border-radius:50%; background:var(--panel); border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:700; color:var(--muted);
-  }
-  .step.active .step-circle{ background:var(--cyan); color:#05181A; border-color:var(--cyan); }
-  .step.done .step-circle{ background:var(--cyan-soft); color:var(--cyan); border-color:var(--cyan); }
-  .step-label{ font-size:.8rem; color:var(--muted); }
-  .step.active .step-label{ color:var(--text); font-weight:600; }
-  .step-divider{ width:50px; height:1px; background:var(--border); margin:0 .7rem; }
-
-  h2.page-title{ font-size:1.5rem; font-weight:800; margin-bottom:1.4rem; }
-
-  .checkout-body{ display:grid; grid-template-columns:1.5fr 1fr; gap:1.6rem; padding-bottom:4rem; }
-  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.4rem; margin-bottom:1.2rem; }
-  .panel h3{ font-size:1.05rem; font-weight:700; margin-bottom:1rem; }
-
-  /* ---------- Rules / prize ---------- */
-  .rules-list{ list-style:none; }
-  .rules-list li{ display:flex; gap:.6rem; font-size:.88rem; color:var(--muted); margin-bottom:.7rem; line-height:1.5; }
-  .rules-list li .ic{ color:var(--cyan); flex-shrink:0; }
-  .prize-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; }
-  .prize-card{ background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:.9rem; text-align:center; }
-  .prize-card .rank{ font-size:1.4rem; margin-bottom:.3rem; }
-  .prize-card .amt{ font-weight:700; color:var(--cyan); font-size:1.05rem; }
-  .prize-card .lbl{ font-size:.72rem; color:var(--muted); }
-
-  .progress-track{ height:8px; background:var(--panel-2); border-radius:20px; overflow:hidden; margin-bottom:.4rem; }
-  .progress-fill{ height:100%; background:linear-gradient(90deg, var(--cyan), var(--magenta)); border-radius:20px; width:91%; }
-  .progress-lbl{ font-size:.78rem; color:var(--muted); }
-
-  /* ---------- Form ---------- */
-  .form-row{ margin-bottom:.9rem; }
-  .form-row label{ display:block; font-size:.8rem; color:var(--muted); margin-bottom:.35rem; }
-  .form-row input, .form-row select{
-    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px;
-    padding:.65rem .8rem; color:var(--text); font-family:inherit; font-size:.9rem; outline:none;
-  }
-  .form-row input:focus, .form-row select:focus{ border-color:var(--cyan); }
-  .form-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
-
-  /* ---------- Payment methods ---------- */
-  .pay-methods{ display:grid; grid-template-columns:repeat(2,1fr); gap:.8rem; }
-  .pay-option{
-    border:1px solid var(--border); border-radius:10px; padding:.9rem; cursor:pointer;
-    display:flex; align-items:center; gap:.7rem; font-size:.88rem; font-weight:600;
-    transition:border-color .15s, background .15s;
-  }
-  .pay-option .ic{ font-size:1.3rem; }
-  .pay-option.selected{ border-color:var(--cyan); background:var(--cyan-soft); color:var(--cyan); }
-  .mno-fields{ margin-top:1rem; display:none; }
-  .mno-fields.show{ display:block; }
-
-  .summary-row{ display:flex; justify-content:space-between; font-size:.88rem; color:var(--muted); margin-bottom:.6rem; }
-  .summary-row.total{ color:var(--text); font-weight:700; font-size:1.15rem; border-top:1px solid var(--border); padding-top:.8rem; margin-top:.6rem; }
-  .summary-row.total .val{ color:var(--cyan); font-family:'Orbitron', sans-serif; }
-  .escrow-note{
-    display:flex; gap:.6rem; align-items:flex-start; background:var(--cyan-soft); border:1px solid var(--cyan);
-    border-radius:10px; padding:.8rem; font-size:.8rem; color:var(--cyan); margin-top:1rem;
-  }
-
-  /* ---------- Confirmation ---------- */
-  .confirm-box{ text-align:center; padding:3.5rem 1rem; }
-  .confirm-icon{
-    width:80px; height:80px; border-radius:50%; background:var(--cyan-soft); color:var(--cyan);
-    display:flex; align-items:center; justify-content:center; font-size:2.4rem; margin:0 auto 1.2rem;
-  }
-  .confirm-box h2{ font-size:1.7rem; margin-bottom:.6rem; }
-  .confirm-box p{ color:var(--muted); max-width:440px; margin:0 auto 1.4rem; }
-  .bracket-slot{
-    display:inline-flex; align-items:center; gap:.6rem; background:var(--panel-2); border:1px solid var(--border);
-    border-radius:10px; padding:.8rem 1.4rem; margin-bottom:1.6rem;
-  }
-  .bracket-slot .slot-num{ font-family:'Orbitron', sans-serif; color:var(--magenta); font-size:1.3rem; font-weight:800; }
-  .bracket-slot .slot-lbl{ font-size:.75rem; color:var(--muted); text-align:left; }
-
-  footer{ border-top:1px solid var(--border); padding:2rem 0; background:var(--bg-alt); text-align:center; color:var(--muted); font-size:.82rem; margin-top:2rem; }
-
-  @media (max-width: 860px){
-    .checkout-body{ grid-template-columns:1fr; }
-    .form-grid-2{ grid-template-columns:1fr; }
-    .pay-methods{ grid-template-columns:1fr; }
-    .prize-grid{ grid-template-columns:1fr; }
-    .step-divider{ width:20px; }
-    .step-label{ display:none; }
-  }
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #0f0f1e; } ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .tab-pill.active { background: #7c3aed; color: white; }
 </style>
 </head>
-<body>
+<body class="min-h-screen">
 
-<div class="grid-bg"></div>
-<div class="glow-blob glow-1"></div>
-<div class="glow-blob glow-2"></div>
-
-<!-- NAVBAR -->
-<div class="navbar">
-  <a href="home.html" class="logo"><div class="mark">🎮</div>LifeIsGameTZ</a>
-  <div class="nav-actions">
-    <a href="home.html#tournaments" class="btn btn-ghost">← Tournaments Zote</a>
-  </div>
-</div>
-
-<div class="wrap">
-  <div class="breadcrumb"><a href="home.html">Home</a> / <a href="home.html#tournaments">Tournaments</a> / <span class="cyan">Dar Cup — Weekly</span></div>
-
-  <div class="t-banner">
-    <div class="live-tag"><span class="live-dot"></span> USAJILI UNAENDELEA</div>
-    <h1>Dar Cup — Weekly Championship</h1>
-    <div class="meta">eFootball 2026 · Single Elimination · Entry TZS 2,000</div>
-    <div class="t-quick-stats">
-      <div><div class="num" id="playersStatNum">58/64</div><div class="lbl">WACHEZAJI</div></div>
-      <div><div class="num">TZS 100K</div><div class="lbl">ZAWADI</div></div>
-      <div><div class="num">Jumapili</div><div class="lbl">TAREHE</div></div>
-      <div><div class="num">6h 20m</div><div class="lbl">USAJILI UNAFUNGA</div></div>
-    </div>
-  </div>
-
-  <!-- STEPS -->
-  <div class="steps" id="stepsBar">
-    <div class="step active" data-step="1"><div class="step-circle">1</div><div class="step-label">Maelezo</div></div>
-    <div class="step-divider"></div>
-    <div class="step" data-step="2"><div class="step-circle">2</div><div class="step-label">Mchezaji</div></div>
-    <div class="step-divider"></div>
-    <div class="step" data-step="3"><div class="step-circle">3</div><div class="step-label">Malipo</div></div>
-    <div class="step-divider"></div>
-    <div class="step" data-step="4"><div class="step-circle">4</div><div class="step-label">Uthibitisho</div></div>
-  </div>
-
-  <!-- ================= STEP 1: OVERVIEW ================= -->
-  <div id="view-1">
-    <h2 class="page-title">Maelezo ya Tournament</h2>
-    <div class="checkout-body">
-      <div>
-        <div class="panel">
-          <h3>Kanuni za Msingi</h3>
-          <ul class="rules-list">
-            <li><span class="ic">✔</span> Mechi moja moja (Single Elimination) — kushindwa mara moja kunatoa nje.</li>
-            <li><span class="ic">✔</span> Kila mechi ni Best of 1, dakika 6 kwa nusu (halves).</li>
-            <li><span class="ic">✔</span> Matokeo yanathibitishwa na AI Referee kwa screenshot ya scoreboard.</li>
-            <li><span class="ic">✔</span> Disputes zinatatuliwa na Tournament Manager ndani ya masaa 2.</li>
-            <li><span class="ic">✔</span> Kutokuwepo (no-show) ndani ya dakika 10 kunasababisha kutolewa nje.</li>
-          </ul>
-        </div>
-
-        <div class="panel">
-          <h3>Ugawaji wa Zawadi</h3>
-          <div class="prize-grid">
-            <div class="prize-card"><div class="rank">🥇</div><div class="amt">TZS 60,000</div><div class="lbl">Nafasi ya 1</div></div>
-            <div class="prize-card"><div class="rank">🥈</div><div class="amt">TZS 30,000</div><div class="lbl">Nafasi ya 2</div></div>
-            <div class="prize-card"><div class="rank">🥉</div><div class="amt">TZS 10,000</div><div class="lbl">Nafasi ya 3</div></div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <h3>Nafasi Zilizobaki</h3>
-          <div class="progress-track"><div class="progress-fill" id="slotsProgressFill"></div></div>
-          <div class="progress-lbl" id="slotsProgressLbl">58/64 nafasi zimejaa — 6 zimebaki</div>
-        </div>
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
       </div>
-
       <div>
-        <div class="panel">
-          <h3>Muhtasari</h3>
-          <div class="summary-row"><span>Entry Fee</span><span>TZS 2,000</span></div>
-          <div class="summary-row"><span>Ada ya Huduma</span><span>TZS 500</span></div>
-          <div class="summary-row total"><span>Jumla</span><span class="val">TZS 2,500</span></div>
-          <button class="btn btn-cyan" id="toStep2">Jiunge Tournament →</button>
-          <div class="escrow-note">🔐 Entry fee inawekwa Escrow na inarudishwa 100% ukitolewa nje kabla ya mechi ya kwanza.</div>
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search tournaments, games, or players..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <button class="w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </button>
+      <div class="hidden md:flex items-center gap-2 bg-dark-3 rounded-full px-4 py-2">
+        <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span id="top-wallet" class="text-sm font-semibold text-gray-200">TSh 0</span>
+      </div>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-full pl-1 pr-3 py-1">
+        <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        </div>
+        <div class="hidden md:block">
+          <div id="top-name" class="text-sm font-semibold text-gray-200 leading-tight">User</div>
+          <div class="text-[10px] text-gray-500 leading-tight">User</div>
         </div>
       </div>
     </div>
   </div>
+</header>
 
-  <!-- ================= STEP 2: PLAYER INFO ================= -->
-  <div id="view-2" style="display:none;">
-    <h2 class="page-title">Taarifa za Mchezaji</h2>
-    <div class="checkout-body">
-      <div>
-        <div class="panel">
-          <h3>Wewe ni Nani Kwenye Mchezo</h3>
-          <div class="form-grid-2">
-            <div class="form-row"><label>Jina Kamili</label><input type="text" id="playerFullName" placeholder="Kelvin Fred Pela"></div>
-            <div class="form-row"><label>Jina la Mchezaji (In-Game ID)</label><input type="text" id="playerInGameId" placeholder="KF_Pela254"></div>
+<div class="flex">
+
+  <aside class="hidden lg:block w-64 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16 overflow-y-auto max-h-[calc(100vh-64px)]">
+    <nav id="sidebar-nav" class="py-4">
+      <div class="px-4 py-2"><div class="skeleton h-10 rounded-lg"></div></div>
+    </nav>
+  </aside>
+
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- HERO BANNER -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-primary/30 via-purple-500/20 to-transparent"></div>
+      <div class="relative p-6 md:p-10">
+        <div class="flex items-center gap-4 mb-3">
+          <div class="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-3xl">🏆</div>
+          <div>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight">LIFEISGAME<span class="text-primary">TZ</span></h1>
+            <div class="text-3xl md:text-5xl font-extrabold text-primary -mt-2">TOURNAMENTS</div>
           </div>
-          <div class="form-grid-2">
-            <div class="form-row"><label>Namba ya Simu</label><input type="text" id="playerPhone" placeholder="+255 7XX XXX XXX"></div>
-            <div class="form-row"><label>Platform</label>
-              <select id="playerPlatform">
-                <option>PlayStation</option>
-                <option>PC</option>
-                <option>Xbox</option>
-                <option>Mobile</option>
-              </select>
+        </div>
+        <div class="text-white/90 font-bold tracking-[0.3em] text-sm md:text-base mb-6">PLAY • COMPETE • WIN</div>
+        <div class="flex flex-wrap gap-4 md:gap-8">
+          <div class="flex items-center gap-2 text-sm text-gray-300">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Real Players
+          </div>
+          <div class="flex items-center gap-2 text-sm text-gray-300">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+            Big Prizes
+          </div>
+          <div class="flex items-center gap-2 text-sm text-gray-300">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>
+            Global Tournaments
+          </div>
+          <div class="flex items-center gap-2 text-sm text-gray-300">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            24/7 Support
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS + FILTER -->
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="flex gap-2 flex-1 overflow-x-auto">
+        <button class="tab-pill active px-4 py-2 rounded-lg text-sm font-semibold bg-dark-3 text-gray-300 whitespace-nowrap" data-tab="all">All Tournaments</button>
+        <button class="tab-pill px-4 py-2 rounded-lg text-sm font-semibold bg-dark-3 text-gray-300 whitespace-nowrap flex items-center gap-2" data-tab="live">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>Live Now
+        </button>
+        <button class="tab-pill px-4 py-2 rounded-lg text-sm font-semibold bg-dark-3 text-gray-300 whitespace-nowrap" data-tab="upcoming">Upcoming</button>
+        <button class="tab-pill px-4 py-2 rounded-lg text-sm font-semibold bg-dark-3 text-gray-300 whitespace-nowrap" data-tab="completed">Completed</button>
+      </div>
+      <select class="bg-dark-3 border border-dark-4 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none">
+        <option>All Games</option>
+        <option>FC 25</option>
+        <option>PUBG Mobile</option>
+        <option>COD Mobile</option>
+        <option>eFootball</option>
+        <option>Free Fire</option>
+      </select>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Tournaments List -->
+      <div class="lg:col-span-2 space-y-4" id="tournaments-list">
+        <div class="text-center py-12 text-gray-500">Loading...</div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="space-y-4">
+
+        <!-- Ongoing Now -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>LIVE
+            </span>
+            <span class="text-xs text-gray-400">Ongoing Now</span>
+          </div>
+          <h3 class="text-white font-bold mb-2">FC 25 Championship</h3>
+          <div class="flex items-center gap-3 text-xs text-gray-400 mb-3">
+            <span>1,248 players</span>
+            <span>•</span>
+            <span>$10,000 Prize Pool</span>
+          </div>
+          <button class="w-full gradient-primary text-white text-sm font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Join Now
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </button>
+        </div>
+
+        <!-- Prize Pool -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center text-2xl">🏆</div>
+            <div>
+              <div class="text-sm text-white font-bold">Tournament Prize Pool</div>
+              <div class="text-2xl font-extrabold text-primary">TSh 150,000+</div>
+              <div class="text-xs text-gray-500">Total Prize Pool This Month</div>
             </div>
           </div>
-          <div class="form-row"><label>Timu Unayoitumia (Hiari)</label><input type="text" id="playerTeam" placeholder="Mfano: Manchester City"></div>
         </div>
-      </div>
-      <div>
-        <div class="panel">
-          <h3>Muhtasari</h3>
-          <div class="summary-row"><span>Entry Fee</span><span>TZS 2,000</span></div>
-          <div class="summary-row total"><span>Jumla</span><span class="val">TZS 2,500</span></div>
-          <button class="btn btn-cyan" id="toStep3">Endelea kwa Malipo →</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ================= STEP 3: PAYMENT ================= -->
-  <div id="view-3" style="display:none;">
-    <h2 class="page-title">Lipa Entry Fee</h2>
-    <div class="checkout-body">
-      <div>
-        <div class="panel">
-          <h3>Njia za Malipo <span style="font-size:.7rem; color:var(--muted); font-weight:400;">— powered by AzamPay</span></h3>
-          <div class="pay-methods">
-            <div class="pay-option selected" data-method="mpesa"><span class="ic">📱</span> M-Pesa</div>
-            <div class="pay-option" data-method="tigopesa"><span class="ic">📱</span> Tigo Pesa</div>
-            <div class="pay-option" data-method="airtel"><span class="ic">📱</span> Airtel Money</div>
-            <div class="pay-option" data-method="azampesa"><span class="ic">📱</span> AzamPesa</div>
-            <div class="pay-option" data-method="halopesa"><span class="ic">📱</span> HaloPesa</div>
-            <div class="pay-option" data-method="wallet"><span class="ic">💳</span> Wallet Balance</div>
+        <!-- Top Players -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-bold">Top Players</h3>
+            <a href="#" class="text-xs text-primary">View All →</a>
           </div>
-          <div class="mno-fields show" id="mnoFields">
-            <div class="form-row"><label>Namba ya Simu ya Malipo</label><input type="text" placeholder="+255 7XX XXX XXX"></div>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <div class="w-6 text-center text-yellow-400 font-bold">1</div>
+              <div class="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">M</div>
+              <div class="flex-1">
+                <div class="text-sm text-white font-semibold">MrLegend</div>
+              </div>
+              <div class="text-xs text-gray-400">2,450 pts</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-6 text-center text-gray-300 font-bold">2</div>
+              <div class="w-9 h-9 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xs">G</div>
+              <div class="flex-1">
+                <div class="text-sm text-white font-semibold">GhostKiller</div>
+              </div>
+              <div class="text-xs text-gray-400">2,310 pts</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-6 text-center text-orange-400 font-bold">3</div>
+              <div class="w-9 h-9 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400 font-bold text-xs">F</div>
+              <div class="flex-1">
+                <div class="text-sm text-white font-semibold">FlexZ</div>
+              </div>
+              <div class="text-xs text-gray-400">2,180 pts</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-6 text-center text-gray-400 font-bold">4</div>
+              <div class="w-9 h-9 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs">K</div>
+              <div class="flex-1">
+                <div class="text-sm text-white font-semibold">KelvinPro</div>
+              </div>
+              <div class="text-xs text-gray-400">1,980 pts</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-6 text-center text-gray-400 font-bold">5</div>
+              <div class="w-9 h-9 rounded-full bg-gray-500/20 flex items-center justify-center text-gray-400 font-bold text-xs">D</div>
+              <div class="flex-1">
+                <div class="text-sm text-white font-semibold">DarkShadow</div>
+              </div>
+              <div class="text-xs text-gray-400">1,760 pts</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div>
-        <div class="panel">
-          <h3>Muhtasari</h3>
-          <div class="summary-row"><span>Entry Fee</span><span>TZS 2,000</span></div>
-          <div class="summary-row"><span>Ada ya Huduma</span><span>TZS 500</span></div>
-          <div class="summary-row total"><span>Jumla ya Kulipa</span><span class="val">TZS 2,500</span></div>
-          <button class="btn btn-cyan" id="toStep4">🔐 Lipa &amp; Jiunge</button>
-          <div class="escrow-note">Utapokea push notification kuthibitisha malipo, kisha nafasi yako ya bracket itathibitishwa papo hapo.</div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ================= STEP 4: CONFIRMATION ================= -->
-  <div id="view-4" style="display:none;">
-    <div class="panel confirm-box">
-      <div class="confirm-icon">🏆</div>
-      <h2>Umejiunga na Dar Cup!</h2>
-      <p>Malipo yako yamepokelewa na yanalindwa na Escrow. Bracket itafunguliwa masaa 2 kabla ya tournament kuanza — utapata notification ya muda wa mechi yako ya kwanza.</p>
-      <div class="bracket-slot">
-        <div class="slot-num" id="slotNumDisplay">#59</div>
-        <div class="slot-lbl">NAFASI YAKO<br>KWENYE BRACKET</div>
-      </div>
-      <div>
-        <a href="home.html#tournaments" class="btn btn-ghost" style="margin-right:.6rem;">Tournaments Nyingine</a>
-        <a href="home.html" class="btn btn-cyan" style="display:inline-flex; width:auto;">Rudi Home</a>
+        <!-- Join Promo -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5 relative overflow-hidden">
+          <div class="absolute inset-0 opacity-20">
+            <svg viewBox="0 0 200 200" fill="none"><circle cx="150" cy="100" r="100" fill="#7c3aed"/></svg>
+          </div>
+          <div class="relative">
+            <div class="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center mb-3 mx-auto">
+              <svg class="w-7 h-7 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M7 6a5 5 0 00-5 5v4a5 5 0 005 5c1.5 0 2.5-.5 3-1.5.5 1 1.5 1.5 3 1.5s2.5-.5 3-1.5c.5 1 1.5 1.5 3 1.5a5 5 0 005-5v-4a5 5 0 00-5-5H7z"/></svg>
+            </div>
+            <h3 class="text-center text-white font-bold mb-1">Join Tournaments</h3>
+            <div class="text-center text-primary font-bold mb-2">Earn Rewards</div>
+            <p class="text-center text-xs text-gray-400 mb-4">Compete, win prizes, and become a legend!</p>
+            <button class="w-full gradient-primary text-white text-sm font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2">
+              View Tournaments →
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="gradient-card rounded-xl border border-dark-4 p-3 text-center">
+            <div class="text-lg">🏆</div>
+            <div class="text-lg font-bold text-white">12</div>
+            <div class="text-[10px] text-gray-500">Active Tournaments</div>
+          </div>
+          <div class="gradient-card rounded-xl border border-dark-4 p-3 text-center">
+            <div class="text-lg">👥</div>
+            <div class="text-lg font-bold text-white">5,248</div>
+            <div class="text-[10px] text-gray-500">Total Players</div>
+          </div>
+          <div class="gradient-card rounded-xl border border-dark-4 p-3 text-center">
+            <div class="text-lg">💰</div>
+            <div class="text-lg font-bold text-white">150K+</div>
+            <div class="text-[10px] text-gray-500">Total Prize Pool</div>
+          </div>
+        </div>
+
       </div>
     </div>
-  </div>
+
+  </main>
 </div>
 
-<footer>© 2026 LifeIsGameTZ. Entry fees zote zinalindwa na Escrow System.</footer>
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let allTournaments = [];
+let activeTab = 'all';
 
-  const views = { 1: document.getElementById('view-1'), 2: document.getElementById('view-2'), 3: document.getElementById('view-3'), 4: document.getElementById('view-4') };
-  const stepEls = document.querySelectorAll('.step');
+document.querySelectorAll('.tab-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-pill').forEach(b => b.classList.remove('active', 'bg-primary'));
+    btn.classList.add('active', 'bg-primary');
+    activeTab = btn.dataset.tab;
+    renderTournaments();
+  });
+});
 
-  function goToStep(n){
-    Object.values(views).forEach(v => v.style.display = 'none');
-    views[n].style.display = 'block';
-    stepEls.forEach(s=>{
-      const sn = parseInt(s.dataset.step, 10);
-      s.classList.remove('active','done');
-      if(sn < n) s.classList.add('done');
-      if(sn === n) s.classList.add('active');
-    });
-    window.scrollTo({top:0, behavior:'smooth'});
+function timeAgo(date) {
+  const now = new Date();
+  const d = new Date(date);
+  const diff = Math.max(0, d - now);
+  return {
+    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hrs: Math.floor((diff / (1000 * 60 * 60)) % 24),
+    min: Math.floor((diff / (1000 * 60)) % 60),
+    sec: Math.floor((diff / 1000) % 60)
+  };
+}
+
+function renderCountdown(target, label) {
+  return `
+    <div class="text-xs text-gray-400 mb-1">${label}</div>
+    <div class="flex gap-1">
+      <div class="bg-dark-3 rounded px-2 py-1 text-center min-w-[34px]"><div class="text-white text-sm font-bold" data-countdown="${target}" data-unit="days">00</div><div class="text-[8px] text-gray-500">Days</div></div>
+      <div class="bg-dark-3 rounded px-2 py-1 text-center min-w-[34px]"><div class="text-white text-sm font-bold" data-countdown="${target}" data-unit="hrs">00</div><div class="text-[8px] text-gray-500">Hrs</div></div>
+      <div class="bg-dark-3 rounded px-2 py-1 text-center min-w-[34px]"><div class="text-white text-sm font-bold" data-countdown="${target}" data-unit="min">00</div><div class="text-[8px] text-gray-500">Min</div></div>
+      <div class="bg-dark-3 rounded px-2 py-1 text-center min-w-[34px]"><div class="text-white text-sm font-bold" data-countdown="${target}" data-unit="sec">00</div><div class="text-[8px] text-gray-500">Sec</div></div>
+    </div>
+  `;
+}
+
+function renderTournaments() {
+  const container = document.getElementById('tournaments-list');
+  const filtered = activeTab === 'all' ? allTournaments : allTournaments.filter(t => t.status === activeTab);
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="gradient-card rounded-2xl border border-dark-4 p-12 text-center">
+        <div class="text-5xl mb-3">🏆</div>
+        <div class="text-white font-bold mb-2">Hakuna tournaments bado</div>
+        <div class="text-sm text-gray-400">Admin ataongeza tournaments kupitia Admin Dashboard</div>
+      </div>
+    `;
+    return;
   }
 
-  document.getElementById('toStep2').addEventListener('click', ()=> goToStep(2));
-  document.getElementById('toStep3').addEventListener('click', ()=> goToStep(3));
+  const statusConfig = {
+    live: { label: 'LIVE', color: 'bg-red-500', icon: '<span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>' },
+    upcoming: { label: 'UPCOMING', color: 'bg-yellow-500', icon: '' },
+    completed: { label: 'COMPLETED', color: 'bg-gray-500', icon: '' }
+  };
 
-  // ---------- Onyesha nafasi halisi zilizobaki (live) ----------
-  async function loadTournamentOverview(){
-    try{
-      const { data: tourney, error } = await supabase.from('tournaments').select('id, max_players').eq('title', 'Dar Cup — Weekly Championship').maybeSingle();
-      if(error || !tourney) return;
-      const { count } = await supabase.from('tournament_registrations').select('*', { count:'exact', head:true }).eq('tournament_id', tourney.id);
-      const players = count || 0;
-      const max = tourney.max_players;
-      const pct = Math.min(100, Math.round((players/max)*100));
-      const remaining = max - players;
+  container.innerHTML = filtered.map(t => {
+    const sc = statusConfig[t.status] || statusConfig.upcoming;
+    const countdownTarget = t.status === 'upcoming' ? t.starts_at : t.ends_at;
+    const countdownLabel = t.status === 'upcoming' ? 'Starts In' : 'Ends In';
+    
+    return `
+      <div class="gradient-card rounded-2xl border border-dark-4 p-4 flex flex-col md:flex-row gap-4">
+        <!-- Image -->
+        <div class="w-full md:w-48 h-32 rounded-xl overflow-hidden bg-dark-3 shrink-0 relative">
+          ${t.image_url ? `<img src="${t.image_url}" class="w-full h-full object-cover">` : ''}
+          <span class="absolute top-2 left-2 ${sc.color} text-white text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1">${sc.icon}${sc.label}</span>
+        </div>
 
-      document.getElementById('playersStatNum').textContent = `${players}/${max}`;
-      document.getElementById('slotsProgressFill').style.width = pct + '%';
-      document.getElementById('slotsProgressLbl').textContent = `${players}/${max} nafasi zimejaa — ${remaining} zimebaki`;
-    } catch(err){
-      console.warn('Tournament overview live data haikupatikana, tunabaki na mfano wa static:', err.message);
+        <!-- Info -->
+        <div class="flex-1 min-w-0">
+          <h3 class="text-white font-bold mb-1">${t.title}</h3>
+          <p class="text-xs text-gray-400 mb-2">${t.description || ''}</p>
+          <div class="flex flex-wrap gap-2 mb-3">
+            ${t.game_name ? `<span class="text-[10px] bg-dark-3 text-gray-300 px-2 py-0.5 rounded">${t.game_name}</span>` : ''}
+            ${t.format ? `<span class="text-[10px] bg-dark-3 text-gray-300 px-2 py-0.5 rounded">${t.format}</span>` : ''}
+          </div>
+          <div class="flex flex-wrap gap-4 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-yellow-400">🏆</span>
+              <div>
+                <div class="text-[10px] text-gray-500">Prize Pool</div>
+                <div class="text-white font-semibold">TSh ${(t.prize_pool || 0).toLocaleString()}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-primary">🎫</span>
+              <div>
+                <div class="text-[10px] text-gray-500">Entry Fee</div>
+                <div class="text-white font-semibold">TSh ${(t.entry_fee || 0).toLocaleString()}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-blue-400">👥</span>
+              <div>
+                <div class="text-[10px] text-gray-500">Players</div>
+                <div class="text-white font-semibold">${t.current_players || 0} / ${t.max_players || 0}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Countdown + Action -->
+        <div class="md:w-48 shrink-0 flex flex-col justify-between gap-3">
+          ${countdownTarget ? renderCountdown(countdownTarget, countdownLabel) : ''}
+          <button class="w-full gradient-primary text-white text-xs font-semibold py-2.5 rounded-lg">
+            ${t.status === 'upcoming' ? 'Join Tournament' : t.status === 'live' ? 'Register Now' : 'View Results'} →
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Start countdown timers
+  updateCountdowns();
+}
+
+function updateCountdowns() {
+  document.querySelectorAll('[data-countdown]').forEach(el => {
+    const target = new Date(el.dataset.countdown);
+    const unit = el.dataset.unit;
+    const now = new Date();
+    const diff = Math.max(0, target - now);
+    let val = 0;
+    if (unit === 'days') val = Math.floor(diff / (1000 * 60 * 60 * 24));
+    else if (unit === 'hrs') val = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    else if (unit === 'min') val = Math.floor((diff / (1000 * 60)) % 60);
+    else if (unit === 'sec') val = Math.floor((diff / 1000) % 60);
+    el.textContent = String(val).padStart(2, '0');
+  });
+}
+
+setInterval(updateCountdowns, 1000);
+
+async function loadTournaments() {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    const { data: profile } = await db.from('profiles').select('*').eq('id', session.user.id).single();
+    if (profile) {
+      document.getElementById('top-name').textContent = profile.full_name || profile.username;
+      document.getElementById('top-wallet').textContent = `TSh ${(profile.wallet_balance || 0).toLocaleString()}`;
     }
   }
-  loadTournamentOverview();
 
-  document.getElementById('toStep4').addEventListener('click', async ()=> {
-    const btn = document.getElementById('toStep4');
-    const original = btn.textContent;
-    btn.textContent = '⏳ Inachakata...';
-    btn.disabled = true;
+  const { data } = await db.from('tournaments').select('*').eq('is_active', true).order('starts_at', { ascending: true });
+  allTournaments = data || [];
+  renderTournaments();
+}
 
-    const inGameId = document.getElementById('playerInGameId').value || 'Player';
-    const platform = document.getElementById('playerPlatform').value;
-    const team = document.getElementById('playerTeam').value;
-
-    try{
-      const { data: tourney, error: tErr } = await supabase
-        .from('tournaments')
-        .select('id, max_players')
-        .eq('title', 'Dar Cup — Weekly Championship')
-        .maybeSingle();
-      if(tErr) throw tErr;
-      if(!tourney) throw new Error('Tournament haijapatikana Supabase — hakikisha umeendesha supabase_seed_tournament.sql');
-
-      const { count } = await supabase
-        .from('tournament_registrations')
-        .select('*', { count: 'exact', head: true })
-        .eq('tournament_id', tourney.id);
-
-      const bracketSlot = (count || 0) + 1;
-
-      const { error: regErr } = await supabase.from('tournament_registrations').insert({
-        tournament_id: tourney.id,
-        in_game_id: inGameId,
-        platform: platform,
-        team_name: team,
-        bracket_slot: bracketSlot,
-        status: 'registered',
-        payment_status: 'completed'
-      });
-      if(regErr) throw regErr;
-
-      document.getElementById('slotNumDisplay').textContent = '#' + bracketSlot;
-      goToStep(4);
-      showPushToast('🏆', 'Umejiunga!', 'Umepata nafasi #' + bracketSlot + ' kwenye bracket ya Dar Cup — Weekly.');
-    } catch(err){
-      console.warn('Imeshindwa kuandika registration Supabase (endelea na demo flow):', err.message);
-      goToStep(4);
-      showPushToast('🏆', 'Umejiunga!', 'Umepata nafasi #59 kwenye bracket ya Dar Cup — Weekly.');
-    } finally {
-      btn.textContent = original;
-      btn.disabled = false;
-    }
+async function loadSidebar() {
+  const { data } = await db.from('sidebar_menu').select('*').eq('is_active', true).order('display_order');
+  if (!data) return;
+  const groups = {};
+  data.forEach(item => {
+    if (!groups[item.group_name]) groups[item.group_name] = [];
+    groups[item.group_name].push(item);
   });
-
-  // ---------- Push Notification Toast ----------
-  function showPushToast(icon, title, body){
-    const toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed; top:1rem; right:1rem; z-index:100; background:var(--panel); border:1px solid var(--cyan); border-radius:10px; padding:.8rem 1rem; display:flex; gap:.7rem; max-width:300px; box-shadow:0 8px 24px rgba(0,0,0,.4);';
-    toast.innerHTML = `<div style="font-size:1.3rem;">${icon}</div><div><div style="font-size:.85rem; font-weight:700;">${title}</div><div style="font-size:.78rem; color:var(--muted);">${body}</div></div>`;
-    document.body.appendChild(toast);
-    setTimeout(()=>{ toast.style.opacity = '0'; toast.style.transition = 'opacity .4s'; setTimeout(()=> toast.remove(), 400); }, 4500);
-  }
-
-  document.querySelectorAll('.pay-option').forEach(opt=>{
-    opt.addEventListener('click', ()=>{
-      document.querySelectorAll('.pay-option').forEach(o=>o.classList.remove('selected'));
-      opt.classList.add('selected');
-      const isMno = ['mpesa','tigopesa','airtel','azampesa','halopesa'].includes(opt.dataset.method);
-      document.getElementById('mnoFields').classList.toggle('show', isMno);
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  const iconMap = {
+    home: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>',
+    store: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>',
+    games: '<circle cx="12" cy="12" r="10"/>',
+    trophy: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>',
+    tv: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
+    live: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/>',
+    betting: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+    cart: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>',
+    profile: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>',
+    wallet: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>',
+    health: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>'
+  };
+  Object.keys(groups).forEach(groupName => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'mb-4';
+    const title = document.createElement('div');
+    title.className = 'px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 font-bold';
+    title.textContent = groupName;
+    groupEl.appendChild(title);
+    groups[groupName].forEach(item => {
+      const link = document.createElement('a');
+      link.href = item.link || '#';
+      const isActive = window.location.pathname.includes(item.link?.replace('/', '').replace('.html', '')) && item.link !== '/';
+      link.className = `flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm ${isActive ? 'bg-primary text-white' : 'text-gray-300 hover:bg-dark-3 hover:text-white'} transition`;
+      link.innerHTML = `<svg class="w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">${iconMap[item.icon] || iconMap.games}</svg><span>${item.label}</span>`;
+      groupEl.appendChild(link);
     });
+    nav.appendChild(groupEl);
   });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadSidebar();
+  loadTournaments();
+});
 </script>
+
 </body>
 </html>

@@ -1,0 +1,33 @@
+-- 21. settings (API keys na settings zote)
+settings (
+  id UUID PRIMARY KEY,
+  key TEXT UNIQUE,       -- 'ai_gemini_key', 'clickpesa_client_id'
+  value TEXT,            -- encrypted for secrets
+  category TEXT,         -- 'ai', 'payment', 'site'
+  is_secret BOOLEAN DEFAULT false,
+  updated_at TIMESTAMP,
+  updated_by UUID
+)
+
+-- 22. sidebar_menu (Menu ya sidebar)
+sidebar_menu (
+  id UUID PRIMARY KEY,
+  group_name TEXT,       -- 'Home & Store', 'Media & Learning'
+  label TEXT,            -- 'Games', 'Movies'
+  icon TEXT,
+  link TEXT,
+  display_order INTEGER,
+  is_active BOOLEAN
+)
+
+-- 23. audit_logs (Kila admin anachofanya)
+audit_logs (
+  id UUID PRIMARY KEY,
+  admin_id UUID,
+  action TEXT,
+  table_name TEXT,
+  record_id UUID,
+  old_data JSONB,
+  new_data JSONB,
+  created_at TIMESTAMP
+)

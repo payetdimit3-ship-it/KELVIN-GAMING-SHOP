@@ -1,0 +1,81 @@
+-- 1. profiles (Watumiaji)
+profiles (
+  id UUID PRIMARY KEY,
+  username TEXT,
+  email TEXT,
+  phone TEXT,
+  avatar_url TEXT,
+  role TEXT DEFAULT 'user',  -- 'user', 'admin', 'seller'
+  wallet_balance NUMERIC DEFAULT 0,
+  is_premium BOOLEAN DEFAULT false,
+  created_at TIMESTAMP
+)
+
+-- 2. games (Michezo)
+games (
+  id UUID PRIMARY KEY,
+  title TEXT,
+  description TEXT,
+  price NUMERIC,
+  discount_price NUMERIC,
+  category_id UUID,
+  platforms TEXT[],  -- ['PS5', 'PS4', 'PC']
+  image_url TEXT,
+  rating NUMERIC,
+  reviews_count INTEGER,
+  stock INTEGER,
+  is_trending BOOLEAN,
+  is_featured BOOLEAN,
+  is_active BOOLEAN,
+  created_at TIMESTAMP
+)
+
+-- 3. game_links (Links nyingi kwa game moja) ⭐
+game_links (
+  id UUID PRIMARY KEY,
+  game_id UUID,
+  link_type TEXT,  -- 'download', 'official', 'trailer', 'guide'
+  link_url TEXT,
+  label TEXT,
+  created_at TIMESTAMP
+)
+
+-- 4. categories (Aina za games)
+categories (
+  id UUID PRIMARY KEY,
+  name TEXT,        -- 'Action & Adventure'
+  slug TEXT,        -- 'action-adventure'
+  image_url TEXT,
+  icon TEXT,
+  is_active BOOLEAN,
+  created_at TIMESTAMP
+)
+
+-- 5. banners (Hero banners)
+banners (
+  id UUID PRIMARY KEY,
+  title TEXT,
+  subtitle TEXT,
+  image_url TEXT,
+  button_text TEXT,
+  button_link TEXT,
+  price NUMERIC,
+  discount_price NUMERIC,
+  platform TEXT,
+  is_active BOOLEAN,
+  display_order INTEGER,
+  created_at TIMESTAMP
+)
+
+-- 6. special_offers (Special Offers)
+special_offers (
+  id UUID PRIMARY KEY,
+  title TEXT,
+  image_url TEXT,
+  price NUMERIC,
+  discount_price NUMERIC,
+  discount_percent INTEGER,
+  button_link TEXT,
+  is_active BOOLEAN,
+  created_at TIMESTAMP
+)

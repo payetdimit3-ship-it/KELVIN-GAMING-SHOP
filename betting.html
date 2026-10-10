@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sports Betting - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+  }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .sport-tab.active { background: #7c3aed; color: white; }
+  .odd-btn { transition: all 0.15s; }
+  .odd-btn:hover { background: rgba(124,58,237,0.2); border-color: #7c3aed; }
+  .odd-btn.selected { background: #7c3aed; color: white; }
+  .bet-type-tab.active { background: #7c3aed; color: white; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div>
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search for teams, leagues, or events..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="hidden md:flex items-center gap-2 bg-dark-3 rounded-full px-4 py-2">
+        <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span id="top-wallet" class="text-sm font-semibold text-gray-200">TSh 0</span>
+        <button class="text-primary text-lg leading-none">+</button>
+      </div>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-full pl-1 pr-3 py-1">
+        <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        </div>
+        <div class="hidden md:block">
+          <div id="top-name" class="text-sm font-semibold text-gray-200 leading-tight">User</div>
+          <div class="text-[10px] text-gray-500 leading-tight">User</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:block w-64 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16 overflow-y-auto max-h-[calc(100vh-64px)]">
+    <nav id="sidebar-nav" class="py-4">
+      <div class="px-4 py-2"><div class="skeleton h-10 rounded-lg"></div></div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- HERO BANNER -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden h-56 md:h-64">
+      <!-- Background gradient -->
+      <div class="absolute inset-0 bg-gradient-to-r from-purple-900/60 via-purple-700/40 to-pink-900/40"></div>
+      
+      <!-- Content -->
+      <div class="relative h-full flex items-center justify-between p-6 md:p-10">
+        <div class="z-10">
+          <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-2">SPORTS <span class="text-primary">BETTING</span></h1>
+          <p class="text-sm md:text-base text-gray-200 tracking-widest mb-6">BIGGER ODDS • LIVE BETTING • FAST PAYOUTS</p>
+          <button class="gradient-primary text-white font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:opacity-90 transition">
+            BET NOW
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </button>
+        </div>
+
+        <!-- Features -->
+        <div class="hidden md:flex flex-col gap-4 z-10">
+          <div class="flex items-center gap-3 text-white">
+            <div class="w-9 h-9 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </div>
+            <span class="text-sm font-semibold">LIVE MATCHES</span>
+          </div>
+          <div class="flex items-center gap-3 text-white">
+            <div class="w-9 h-9 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <span class="text-sm font-semibold">BEST ODDS</span>
+          </div>
+          <div class="flex items-center gap-3 text-white">
+            <div class="w-9 h-9 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <span class="text-sm font-semibold">FAST WITHDRAWALS</span>
+          </div>
+        </div>
+
+        <!-- Soccer ball decoration -->
+        <div class="absolute right-10 bottom-2 w-32 h-32 opacity-30 pointer-events-none">
+          <svg viewBox="0 0 100 100" fill="white"><circle cx="50" cy="50" r="40" fill="white" opacity="0.3"/></svg>
+        </div>
+      </div>
+
+      <!-- Carousel dots -->
+      <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+        <span class="w-6 h-1.5 rounded-full bg-primary"></span>
+        <span class="w-2 h-1.5 rounded-full bg-white/30"></span>
+        <span class="w-2 h-1.5 rounded-full bg-white/30"></span>
+      </div>
+    </div>
+
+    <!-- SPORTS TABS -->
+    <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2" id="sports-tabs">
+      <!-- Inajazwa na JS -->
+    </div>
+
+    <!-- GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- LEFT: Matches -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- LIVE NOW -->
+        <div class="gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+          <div class="flex items-center justify-between p-4 border-b border-dark-4">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>LIVE
+              </span>
+              <h2 class="text-white font-bold">Live Now</h2>
+            </div>
+            <a href="#" class="text-xs text-primary hover:text-primary-dark font-semibold">View All Live</a>
+          </div>
+
+          <!-- Table Header -->
+          <div class="hidden md:grid grid-cols-12 gap-2 px-4 py-2 bg-dark-2/50 text-[10px] text-gray-500 font-semibold uppercase border-b border-dark-4">
+            <div class="col-span-1">Time</div>
+            <div class="col-span-3">Match</div>
+            <div class="col-span-2 text-center">1</div>
+            <div class="col-span-2 text-center">X</div>
+            <div class="col-span-2 text-center">2</div>
+            <div class="col-span-1 text-center">Over/Under</div>
+            <div class="col-span-1 text-center">BTTS</div>
+          </div>
+
+          <div id="live-matches" class="divide-y divide-dark-4"></div>
+        </div>
+
+        <!-- UPCOMING MATCHES -->
+        <div class="gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+          <div class="flex items-center gap-4 p-4 border-b border-dark-4">
+            <button class="tab-btn active text-white font-bold text-sm border-b-2 border-primary pb-1" data-tab="upcoming">Upcoming Matches</button>
+            <button class="tab-btn text-gray-400 text-sm pb-1" data-tab="leagues">Top Leagues</button>
+            <button class="tab-btn text-gray-400 text-sm pb-1" data-tab="popular">Popular Bets</button>
+          </div>
+
+          <!-- Table Header -->
+          <div class="hidden md:grid grid-cols-12 gap-2 px-4 py-2 bg-dark-2/50 text-[10px] text-gray-500 font-semibold uppercase border-b border-dark-4">
+            <div class="col-span-2">Date & Time</div>
+            <div class="col-span-5">Match</div>
+            <div class="col-span-1 text-center">1</div>
+            <div class="col-span-1 text-center">X</div>
+            <div class="col-span-1 text-center">2</div>
+            <div class="col-span-2 text-center">More</div>
+          </div>
+
+          <div id="upcoming-matches" class="divide-y divide-dark-4"></div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Bet Slip -->
+      <div class="space-y-4">
+
+        <!-- BET SLIP -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5 sticky top-20">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-bold">Bet Slip</h3>
+            <button onclick="clearBetSlip()" class="text-gray-400 hover:text-red-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+
+          <!-- Bet Type Tabs -->
+          <div class="flex gap-1 mb-4 p-1 bg-dark-3 rounded-lg">
+            <button class="bet-type-tab active flex-1 py-1.5 rounded text-xs font-semibold text-gray-400" data-type="single">Single</button>
+            <button class="bet-type-tab flex-1 py-1.5 rounded text-xs font-semibold text-gray-400" data-type="multiple">Multiple</button>
+            <button class="bet-type-tab flex-1 py-1.5 rounded text-xs font-semibold text-gray-400" data-type="system">System</button>
+          </div>
+
+          <!-- Selections -->
+          <div id="bet-selections" class="space-y-2 mb-4">
+            <div class="text-center text-gray-500 text-sm py-6">Hakuna selections bado</div>
+          </div>
+
+          <!-- Stake Input -->
+          <div class="mb-4">
+            <label class="text-xs text-gray-400 mb-1 block">Stake</label>
+            <div class="flex items-center gap-2">
+              <button onclick="changeStake(-100)" class="w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-white">−</button>
+              <div class="flex-1 relative">
+                <input type="number" id="stake-input" value="1000" min="100" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white text-center focus:outline-none focus:border-primary">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">TSh</span>
+              </div>
+              <button onclick="changeStake(100)" class="w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-white">+</button>
+            </div>
+          </div>
+
+          <!-- Potential Win -->
+          <div class="flex items-center justify-between mb-4 p-3 bg-dark-3 rounded-lg">
+            <span class="text-sm text-gray-400">Potential Win</span>
+            <span id="potential-win" class="text-lg font-bold text-white">TSh 0</span>
+          </div>
+
+          <!-- Place Bet -->
+          <button id="place-bet-btn" disabled class="w-full gradient-primary text-white font-bold py-3 rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Place Bet
+          </button>
+        </div>
+
+        <!-- BETSLIP QUICK -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold mb-3 text-sm">Betslip Quick</h3>
+          <div class="grid grid-cols-4 gap-2">
+            <button onclick="setStake(1000)" class="bg-dark-3 hover:bg-primary text-gray-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition">1K</button>
+            <button onclick="setStake(2000)" class="bg-dark-3 hover:bg-primary text-gray-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition">2K</button>
+            <button onclick="setStake(5000)" class="bg-dark-3 hover:bg-primary text-gray-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition">5K</button>
+            <button onclick="setStake(10000)" class="bg-dark-3 hover:bg-primary text-gray-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition">10K</button>
+          </div>
+        </div>
+
+        <!-- BETTING STATS -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold mb-4">Betting Stats</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-dark-3 rounded-lg p-3">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-lg">🏆</span>
+                <span class="text-[10px] text-gray-500">Total Bets</span>
+              </div>
+              <div class="text-lg font-bold text-white" id="stat-total-bets">1,248,532</div>
+            </div>
+            <div class="bg-dark-3 rounded-lg p-3">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-lg text-green-400">📈</span>
+                <span class="text-[10px] text-gray-500">Total Wins</span>
+              </div>
+              <div class="text-lg font-bold text-white" id="stat-total-wins">823,412</div>
+            </div>
+            <div class="bg-dark-3 rounded-lg p-3">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-lg text-red-400">📉</span>
+                <span class="text-[10px] text-gray-500">Total Losses</span>
+              </div>
+              <div class="text-lg font-bold text-white" id="stat-total-losses">425,120</div>
+            </div>
+            <div class="bg-dark-3 rounded-lg p-3">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-lg text-primary">🎯</span>
+                <span class="text-[10px] text-gray-500">Win Rate</span>
+              </div>
+              <div class="text-lg font-bold text-white" id="stat-win-rate">65.8%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EASY DEPOSITS -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold text-sm mb-1">EASY DEPOSITS & WITHDRAWALS</h3>
+          <p class="text-xs text-gray-500 mb-4">Play your way</p>
+          
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="text-[10px] bg-blue-900 text-white font-bold px-2 py-1 rounded">VISA</span>
+            <span class="text-[10px] bg-red-600 text-white font-bold px-2 py-1 rounded">MC</span>
+            <span class="text-[10px] bg-red-500 text-white font-bold px-2 py-1 rounded">airtel</span>
+            <span class="text-[10px] bg-green-600 text-white font-bold px-2 py-1 rounded">M-PESA</span>
+            <span class="text-[10px] bg-purple-700 text-white font-bold px-2 py-1 rounded">Skrill</span>
+            <span class="text-[10px] bg-blue-600 text-white font-bold px-2 py-1 rounded">PayPal</span>
+          </div>
+
+          <!-- Mobile icon -->
+          <div class="flex items-center justify-center gap-3 mb-4">
+            <div class="w-16 h-24 rounded-xl bg-gradient-to-b from-primary to-purple-900 flex items-center justify-center text-3xl">📱</div>
+            <div class="flex flex-col gap-2">
+              <div class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-xs font-bold text-white">TSh</div>
+              <div class="w-8 h-8 rounded-full bg-yellow-600 flex items-center justify-center text-xs">💰</div>
+            </div>
+          </div>
+
+          <button class="w-full gradient-primary text-white text-sm font-semibold py-2.5 rounded-lg">
+            Deposit Now
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="pt-8 mt-8 border-t border-dark-4 text-xs text-gray-500">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded gradient-primary flex items-center justify-center text-white text-[10px] font-bold">L</div>
+          <span class="text-white font-bold">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></span>
+          <span class="text-gray-500">Play • Learn • Earn</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="flex items-center gap-1"><span class="text-green-400">✓</span> Secure Payments</span>
+          <span class="flex items-center gap-1"><span class="text-green-400">✓</span> Fair Play</span>
+          <span class="flex items-center gap-1"><span class="text-green-400">✓</span> 24/7 Support</span>
+          <span class="flex items-center gap-1"><span class="text-green-400">✓</span> Licensed & Trusted</span>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-4 mt-4 pt-4 border-t border-dark-4">
+        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+        <div class="flex gap-4">
+          <a href="/terms" class="hover:text-primary">Terms & Conditions</a>
+          <a href="/privacy" class="hover:text-primary">Privacy Policy</a>
+          <a href="/responsible-gaming" class="hover:text-primary">Responsible Gaming</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let selectedSport = 'all';
+let betSelections = []; // [{matchId, matchName, oddType, oddValue, odds}]
+
+// SPORTS TABS
+const sports = [
+  { id: 'all', name: 'All Sports', count: 128, icon: '⚽' },
+  { id: 'football', name: 'Football', count: 62, icon: '⚽' },
+  { id: 'basketball', name: 'Basketball', count: 18, icon: '🏀' },
+  { id: 'tennis', name: 'Tennis', count: 22, icon: '🎾' },
+  { id: 'cricket', name: 'Cricket', count: 12, icon: '🏏' },
+  { id: 'esports', name: 'eSports', count: 8, icon: '🎮' },
+  { id: 'boxing', name: 'Boxing', count: 6, icon: '🥊' },
+  { id: 'others', name: 'Others', count: 0, icon: '🏆' }
+];
+
+function renderSportsTabs() {
+  document.getElementById('sports-tabs').innerHTML = sports.map(s => `
+    <button onclick="selectSport('${s.id}')" class="sport-tab ${s.id === selectedSport ? 'active' : ''} flex items-center gap-2 px-4 py-2 rounded-lg bg-dark-3 text-gray-300 hover:bg-dark-4 transition whitespace-nowrap">
+      <span>${s.icon}</span>
+      <span class="text-sm font-semibold">${s.name}</span>
+      <span class="text-[10px] bg-dark-4 px-1.5 py-0.5 rounded">${s.count}</span>
+    </button>
+  `).join('');
+}
+
+function selectSport(id) {
+  selectedSport = id;
+  renderSportsTabs();
+  loadMatches();
+}
+
+// MATCHES
+async function loadMatches() {
+  // LIVE
+  const { data: live } = await db.from('sports_matches').select('*').eq('status', 'live').eq('is_active', true).order('minute', { ascending: false });
+
+  const liveContainer = document.getElementById('live-matches');
+  if (!live || live.length === 0) {
+    liveContainer.innerHTML = `<div class="p-8 text-center text-gray-500 text-sm">Hakuna live matches bado</div>`;
+  } else {
+    liveContainer.innerHTML = live.map(m => renderLiveRow(m)).join('');
+  }
+
+  // UPCOMING
+  const { data: upcoming } = await db.from('sports_matches').select('*').eq('status', 'upcoming').eq('is_active', true).order('match_time', { ascending: true });
+  
+  const upcomingContainer = document.getElementById('upcoming-matches');
+  if (!upcoming || upcoming.length === 0) {
+    upcomingContainer.innerHTML = `<div class="p-8 text-center text-gray-500 text-sm">Hakuna upcoming matches bado</div>`;
+  } else {
+    upcomingContainer.innerHTML = upcoming.map(m => renderUpcomingRow(m)).join('');
+  }
+}
+
+function renderLiveRow(m) {
+  const isSelected = (type) => betSelections.some(s => s.matchId === m.id && s.oddType === type);
+  return `
+    <div class="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-dark-3/50 transition">
+      <div class="col-span-2 md:col-span-1 flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+        <span class="text-xs text-red-400 font-bold">${m.minute || 0}'</span>
+      </div>
+      <div class="col-span-10 md:col-span-3 flex items-center gap-2 min-w-0">
+        <div class="flex -space-x-2">
+          ${m.home_logo ? `<img src="${m.home_logo}" class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4">` : `<div class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4"></div>`}
+          ${m.away_logo ? `<img src="${m.away_logo}" class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4">` : `<div class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4"></div>`}
+        </div>
+        <div class="min-w-0">
+          <div class="text-xs text-white font-semibold truncate">${m.home_team} vs ${m.away_team}</div>
+          <div class="text-[10px] text-gray-500 truncate">${m.league || ''}</div>
+        </div>
+      </div>
+      <div class="col-span-4 md:col-span-2 text-center">
+        <div class="text-white font-bold text-sm">${m.home_score} - ${m.away_score}</div>
+      </div>
+      <div class="col-span-2 text-center">
+        <button onclick="addBet('${m.id}', '${m.home_team} vs ${m.away_team}', '1', ${m.odds_1})" class="odd-btn ${isSelected('1') ? 'selected' : ''} w-full bg-dark-3 border border-dark-4 rounded-lg py-1.5 text-xs font-bold text-white">${(m.odds_1 || 0).toFixed(2)}</button>
+      </div>
+      <div class="col-span-2 text-center">
+        <button onclick="addBet('${m.id}', '${m.home_team} vs ${m.away_team}', 'X', ${m.odds_x})" class="odd-btn ${isSelected('X') ? 'selected' : ''} w-full bg-dark-3 border border-dark-4 rounded-lg py-1.5 text-xs font-bold text-white">${(m.odds_x || 0).toFixed(2)}</button>
+      </div>
+      <div class="col-span-2 text-center">
+        <button onclick="addBet('${m.id}', '${m.home_team} vs ${m.away_team}', '2', ${m.odds_2})" class="odd-btn ${isSelected('2') ? 'selected' : ''} w-full bg-dark-3 border border-dark-4 rounded-lg py-1.5 text-xs font-bold text-white">${(m.odds_2 || 0).toFixed(2)}</button>
+      </div>
+      <div class="col-span-12 md:col-span-1 hidden md:block text-center text-[10px] text-gray-500">
+        O/U 2.5<br><span class="text-white">1.75 / 2.10</span>
+      </div>
+      <div class="col-span-12 md:col-span-1 hidden md:block text-center text-[10px] text-gray-500">
+        BTTS<br><span class="text-white">1.80 / 1.95</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderUpcomingRow(m) {
+  const isSelected = (type) => betSelections.some(s => s.matchId === m.id && s.oddType === type);
+  const date = m.match_time ? new Date(m.match_time).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-';
+  return `
+    <div class="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-dark-3/50 transition">
+      <div class="col-span-12 md:col-span-2 text-xs text-gray-400">
+        ${date}
+      </div>
+      <div class="col-span-8 md:col-span-5 flex items-center gap-2 min-w-0">
+        <div class="flex -space-x-2">
+          ${m.home_logo ? `<img src="${m.home_logo}" class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4">` : `<div class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4"></div>`}
+          ${m.away_logo ? `<img src="${m.away_logo}" class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4">` : `<div class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4"></div>`}
+        </div>
+        <div class="min-w-0">
+          <div class="text-xs text-white font-semibold truncate">${m.home_team} vs ${m.away_team}</div>
+          <div class="text-[10px] text-gray-500 truncate">${m.league || ''}</div>
+        </div>
+      </div>
+      <div class="col-span-4 md:col-span-1 text-center">
+        <button onclick="addBet('${m.id}', '${m.home_team} vs ${m.away_team}', '1', ${m.odds_1})" class="odd-btn ${isSelected('1') ? 'selected' : ''} w-full bg-dark-3 border border-dark-4 rounded-lg py-1.5 text-xs font-bold text-white">${(m.odds_1 || 0).toFixed(2)}</button>
+      </div>
+      <div class="col-span-4 md:col-span-1 text-center">
+        <button onclick="addBet('${m.id}', '${m.home_team} vs ${m.away_team}', 'X', ${m.odds_x})" class="odd-btn ${isSelected('X') ? 'selected' : ''} w-full bg-dark-3 border border-dark-4 rounded-lg py-1.5 text-xs font-bold text-white">${(m.odds_x || 0).toFixed(2)}</button>
+      </div>
+      <div class="col-span-4 md:col-span-1 text-center">
+        <button onclick="addBet('${m.id}', '${m.home_team} vs ${m.away_team}', '2', ${m.odds_2})" class="odd-btn ${isSelected('2') ? 'selected' : ''} w-full bg-dark-3 border border-dark-4 rounded-lg py-1.5 text-xs font-bold text-white">${(m.odds_2 || 0).toFixed(2)}</button>
+      </div>
+      <div class="col-span-12 md:col-span-1 hidden md:block text-center text-xs text-primary font-bold">+198</div>
+    </div>
+  `;
+}
+
+// BET SLIP
+function addBet(matchId, matchName, oddType, odds) {
+  if (!odds || odds <= 0) return;
+  
+  const existing = betSelections.findIndex(s => s.matchId === matchId && s.oddType === oddType);
+  
+  if (existing >= 0) {
+    // Already selected - remove
+    betSelections.splice(existing, 1);
+  } else {
+    // Remove any existing bet from same match (only one selection per match for single)
+    betSelections = betSelections.filter(s => s.matchId !== matchId);
+    betSelections.push({ matchId, matchName, oddType, odds: parseFloat(odds) });
+  }
+  
+  renderBetSlip();
+  loadMatches(); // Re-render to show selected state
+}
+
+function removeBet(index) {
+  betSelections.splice(index, 1);
+  renderBetSlip();
+  loadMatches();
+}
+
+function clearBetSlip() {
+  betSelections = [];
+  renderBetSlip();
+  loadMatches();
+}
+
+function renderBetSlip() {
+  const container = document.getElementById('bet-selections');
+  
+  if (betSelections.length === 0) {
+    container.innerHTML = `<div class="text-center text-gray-500 text-sm py-6">Hakuna selections bado</div>`;
+    document.getElementById('potential-win').textContent = 'TSh 0';
+    document.getElementById('place-bet-btn').disabled = true;
+    return;
+  }
+
+  container.innerHTML = betSelections.map((s, i) => `
+    <div class="bg-dark-3 rounded-lg p-3">
+      <div class="flex items-start justify-between mb-1">
+        <div class="text-xs text-white font-semibold truncate pr-2">${s.matchName}</div>
+        <button onclick="removeBet(${i})" class="text-gray-500 hover:text-red-400 shrink-0">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-[10px] text-gray-400">${s.oddType === '1' ? 'Home Win' : s.oddType === 'X' ? 'Draw' : 'Away Win'}</span>
+        <span class="text-sm text-primary font-bold">${s.odds.toFixed(2)}</span>
+      </div>
+    </div>
+  `).join('');
+
+  updatePotentialWin();
+  document.getElementById('place-bet-btn').disabled = false;
+}
+
+function updatePotentialWin() {
+  const stake = parseFloat(document.getElementById('stake-input').value) || 0;
+  const totalOdds = betSelections.reduce((prod, s) => prod * s.odds, 1);
+  const potentialWin = stake * totalOdds;
+  document.getElementById('potential-win').textContent = `TSh ${potentialWin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function changeStake(delta) {
+  const input = document.getElementById('stake-input');
+  input.value = Math.max(100, (parseFloat(input.value) || 0) + delta);
+  updatePotentialWin();
+}
+
+function setStake(amount) {
+  document.getElementById('stake-input').value = amount;
+  updatePotentialWin();
+}
+
+document.getElementById('stake-input').addEventListener('input', updatePotentialWin);
+
+// Place Bet
+document.getElementById('place-bet-btn').addEventListener('click', async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    window.location.href = '/login.html';
+    return;
+  }
+
+  const stake = parseFloat(document.getElementById('stake-input').value);
+  if (stake < 100) {
+    alert('Kiwango cha chini ni TSh 100');
+    return;
+  }
+
+  // Check wallet balance
+  const { data: profile } = await db.from('profiles').select('wallet_balance').eq('id', session.user.id).single();
+  if (!profile || profile.wallet_balance < stake) {
+    alert('Salio lako halitoshi. Tafadhali chaji mpila wako.');
+    return;
+  }
+
+  const totalOdds = betSelections.reduce((prod, s) => prod * s.odds, 1);
+  const potentialWin = stake * totalOdds;
+
+  // Create bet slip
+  const { error } = await db.from('bet_slips').insert({
+    user_id: session.user.id,
+    bet_type: 'single',
+    stake: stake,
+    potential_win: potentialWin,
+    selections: betSelections,
+    status: 'pending'
+  });
+
+  if (error) {
+    alert('Kosa: ' + error.message);
+    return;
+  }
+
+  // Deduct from wallet
+  await db.from('profiles').update({ wallet_balance: profile.wallet_balance - stake }).eq('id', session.user.id);
+
+  alert('✅ Bet imewekwa! Potential win: TSh ' + potentialWin.toLocaleString());
+  clearBetSlip();
+  window.location.reload();
+});
+
+// Bet type tabs
+document.querySelectorAll('.bet-type-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.bet-type-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// Match tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-white', 'border-b-2', 'border-primary'));
+    btn.classList.add('active', 'text-white', 'border-b-2', 'border-primary');
+    btn.classList.remove('text-gray-400');
+  });
+});
+
+// SIDEBAR
+async function loadSidebar() {
+  const { data } = await db.from('sidebar_menu').select('*').eq('is_active', true).order('display_order');
+  if (!data) return;
+  const groups = {};
+  data.forEach(item => {
+    if (!groups[item.group_name]) groups[item.group_name] = [];
+    groups[item.group_name].push(item);
+  });
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  const iconMap = {
+    home: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>',
+    store: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>',
+    games: '<circle cx="12" cy="12" r="10"/>',
+    trophy: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>',
+    tv: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
+    live: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/>',
+    betting: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+    cart: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>',
+    profile: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>',
+    wallet: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>',
+    health: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>'
+  };
+  Object.keys(groups).forEach(groupName => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'mb-4';
+    const title = document.createElement('div');
+    title.className = 'px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 font-bold';
+    title.textContent = groupName;
+    groupEl.appendChild(title);
+    groups[groupName].forEach(item => {
+      const link = document.createElement('a');
+      link.href = item.link || '#';
+      const isActive = window.location.pathname.includes(item.link?.replace('/', '').replace('.html', '')) && item.link !== '/';
+      link.className = `flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm ${isActive ? 'bg-primary text-white' : 'text-gray-300 hover:bg-dark-3 hover:text-white'} transition`;
+      link.innerHTML = `<svg class="w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">${iconMap[item.icon] || iconMap.games}</svg><span>${item.label}</span>`;
+      groupEl.appendChild(link);
+    });
+    nav.appendChild(groupEl);
+  });
+}
+
+// INIT
+async function init() {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    const { data: profile } = await db.from('profiles').select('*').eq('id', session.user.id).single();
+    if (profile) {
+      document.getElementById('top-name').textContent = profile.full_name || profile.username;
+      document.getElementById('top-wallet').textContent = `TSh ${(profile.wallet_balance || 0).toLocaleString()}`;
+    }
+  }
+  loadSidebar();
+  renderSportsTabs();
+  loadMatches();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>

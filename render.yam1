@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: lifesgametz
+    env: static
+    buildCommand: bash build.sh
+    staticPublishPath: ./dist
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false

@@ -1,0 +1,27 @@
+-- 19. businesses (Biashara zinazotangazwa)
+businesses (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  name TEXT,
+  description TEXT,
+  logo_url TEXT,
+  category TEXT,
+  contact TEXT,
+  is_active BOOLEAN,
+  created_at TIMESTAMP
+)
+
+-- 20. efootball_squads (Squad za eFootball)
+efootball_squads (
+  id UUID PRIMARY KEY,
+  title TEXT,
+  description TEXT,
+  price NUMERIC,
+  image_url TEXT,
+  gmail TEXT,        -- encrypted
+  password TEXT,     -- encrypted
+  is_sold BOOLEAN DEFAULT false,
+  buyer_id UUID,
+  sold_at TIMESTAMP,
+  created_at TIMESTAMP
+)

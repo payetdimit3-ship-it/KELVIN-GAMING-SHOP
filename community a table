@@ -1,0 +1,27 @@
+-- 16. chat_messages (Ujumbe wa chat)
+chat_messages (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  room_id TEXT,  -- 'community', 'category-action', n.k.
+  message TEXT,
+  is_ai BOOLEAN DEFAULT false,
+  created_at TIMESTAMP
+)
+
+-- 17. ai_conversations (Mazungumzo ya AI)
+ai_conversations (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  context TEXT,  -- 'community', 'category', 'course', 'business'
+  context_id UUID,
+  created_at TIMESTAMP
+)
+
+-- 18. ai_messages (Ujumbe wa AI)
+ai_messages (
+  id UUID PRIMARY KEY,
+  conversation_id UUID,
+  role TEXT,  -- 'user', 'assistant'
+  content TEXT,
+  created_at TIMESTAMP
+)

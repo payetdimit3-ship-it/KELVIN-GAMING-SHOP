@@ -3,922 +3,484 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LifeIsGameTZ — Gaming, Tournaments &amp; Digital Store</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg: #0A0C11;
-    --bg-alt: #0F1219;
-    --panel: #151922;
-    --panel-2: #1B202B;
-    --border: #262C3A;
-    --text: #EEF2F7;
-    --muted: #8890A3;
-    --cyan: #1BE7E3;
-    --cyan-soft: rgba(27,231,227,0.12);
-    --cyan-glow: rgba(27,231,227,0.55);
-    --magenta: #FF3E9C;
-    --magenta-soft: rgba(255,62,156,0.12);
-    --magenta-glow: rgba(255,62,156,0.55);
-    --amber: #F5B942;
+<title>LifeisGameTz - Play • Learn • Earn</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } }
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
-  body{
-    background:var(--bg); color:var(--text);
-    font-family:'Rajdhani', sans-serif; font-size:16px;
-    overflow-x:hidden; padding-bottom:0;
-  }
-  h1,h2,h3,.logo,.stat-num,.price-new{ font-family:'Orbitron', sans-serif; }
-  a{ text-decoration:none; color:inherit; }
-  .wrap{ max-width:1200px; margin:0 auto; padding:0 1.4rem; }
-  section{ padding:4rem 0; }
-  .eyebrow{ color:var(--cyan); font-weight:600; letter-spacing:1.5px; font-size:.82rem; }
-
-  /* ---------- Background texture ---------- */
-  .grid-bg{
-    position:fixed; inset:0; z-index:-2;
-    background-image:
-      linear-gradient(rgba(27,231,227,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(27,231,227,0.05) 1px, transparent 1px);
-    background-size:42px 42px;
-    -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 70%);
-    mask-image:linear-gradient(180deg, rgba(0,0,0,.9), transparent 70%);
-  }
-  .glow-blob{ position:fixed; border-radius:50%; filter:blur(110px); z-index:-1; opacity:.35; }
-  .glow-1{ width:520px; height:520px; background:var(--cyan); top:-180px; left:-160px; }
-  .glow-2{ width:460px; height:460px; background:var(--magenta); top:120px; right:-180px; }
-
-  /* ---------- Top utility ticker ---------- */
-  .ticker-bar{
-    background:#05070A; border-bottom:1px solid var(--border);
-    display:flex; align-items:center; overflow:hidden; white-space:nowrap;
-    font-size:.8rem; height:34px;
-  }
-  .ticker-tag{
-    flex-shrink:0; background:var(--magenta); color:#fff; font-weight:700;
-    padding:.3rem .8rem; display:flex; align-items:center; gap:.4rem; height:100%;
-    letter-spacing:.4px; z-index:2;
-  }
-  .ticker-tag .dot{ width:6px; height:6px; border-radius:50%; background:#fff; animation:pulse 1.4s infinite; }
-  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
-  .ticker-track{ display:flex; gap:2.5rem; padding-left:1.5rem; animation:scrollTicker 26s linear infinite; }
-  .ticker-track span{ color:var(--muted); }
-  .ticker-track b{ color:var(--text); }
-  @keyframes scrollTicker{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
-
-  /* ---------- Navbar ---------- */
-  .navbar{
-    position:sticky; top:0; z-index:50;
-    display:flex; align-items:center; gap:1.6rem;
-    padding:1rem 1.4rem; background:rgba(10,12,17,0.88);
-    backdrop-filter:blur(10px); border-bottom:1px solid var(--border);
-  }
-  .logo{ font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
-  .logo .mark{
-    width:34px; height:34px; border-radius:8px;
-    background:linear-gradient(135deg, var(--cyan), var(--magenta));
-    display:flex; align-items:center; justify-content:center; font-size:1.1rem;
-  }
-  .nav-links{ display:flex; gap:1.6rem; margin-left:1rem; }
-  .nav-links a{ font-weight:600; font-size:.95rem; color:var(--muted); transition:color .15s; }
-  .nav-links a:hover{ color:var(--cyan); }
-  .nav-actions{ margin-left:auto; display:flex; align-items:center; gap:.9rem; }
-  .icon-btn{
-    width:38px; height:38px; border-radius:8px; border:1px solid var(--border);
-    background:var(--panel); color:var(--muted); display:flex; align-items:center;
-    justify-content:center; cursor:pointer; font-size:1rem;
-  }
-  .nav-toggle{ display:none; background:none; border:none; color:var(--text); font-size:1.4rem; }
-
-  .btn{
-    font-family:'Rajdhani', sans-serif; font-weight:700; font-size:.95rem;
-    padding:.75rem 1.5rem; border-radius:8px; cursor:pointer; letter-spacing:.4px;
-    display:inline-flex; align-items:center; gap:.5rem; border:1px solid transparent;
-    transition:transform .15s, box-shadow .15s;
-  }
-  .btn:hover{ transform:translateY(-2px); }
-  .btn-cyan{ background:var(--cyan); color:#05181A; box-shadow:0 0 24px var(--cyan-glow); }
-  .btn-cyan:hover{ box-shadow:0 0 38px var(--cyan-glow); }
-  .btn-magenta-outline{
-    background:transparent; color:var(--magenta); border-color:var(--magenta);
-  }
-  .btn-magenta-outline:hover{ background:var(--magenta-soft); box-shadow:0 0 30px var(--magenta-glow); }
-  .btn-ghost{ background:var(--panel); color:var(--text); border-color:var(--border); }
-  .btn-sm{ padding:.5rem 1rem; font-size:.82rem; }
-  .btn-full{ width:100%; justify-content:center; }
-
-  /* ---------- Hero ---------- */
-  .hero{ padding:4rem 0 3rem; text-align:center; }
-  .hero h1{
-    font-size:clamp(2.4rem, 6vw, 4.4rem); font-weight:900; line-height:1.05;
-    letter-spacing:.5px; margin:1.1rem 0 1rem;
-    text-shadow:0 0 30px rgba(27,231,227,0.25);
-  }
-  .hero h1 .accent{ color:var(--magenta); text-shadow:0 0 30px var(--magenta-glow); }
-  .hero p{ color:var(--muted); font-size:1.15rem; max-width:620px; margin:0 auto 2rem; }
-  .hero-actions{ display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
-
-  /* ---------- Quick stats counter ---------- */
-  .stats-section{ padding:2.5rem 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-  .stats-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; text-align:center; }
-  .stats-grid .ic{ font-size:1.5rem; margin-bottom:.4rem; }
-  .stat-num{ font-size:2.1rem; font-weight:800; color:var(--cyan); }
-  .stat-lbl{ font-size:.8rem; color:var(--muted); letter-spacing:.5px; margin-top:.2rem; }
-
-  /* ---------- Categories ---------- */
-  .cat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
-  .cat-card{
-    background:var(--panel); border:1px solid var(--border); border-radius:12px;
-    padding:1.5rem 1rem; text-align:center; cursor:pointer;
-    transition:border-color .2s, transform .2s; position:relative; overflow:hidden;
-  }
-  .cat-card:hover{ border-color:var(--cyan); transform:translateY(-4px); }
-  .cat-card .ic{ font-size:2rem; margin-bottom:.6rem; }
-  .cat-card .lbl{ font-size:.95rem; font-weight:700; }
-  .cat-card .sub{ font-size:.76rem; color:var(--muted); margin-top:.2rem; }
-  .cat-card.live::after{
-    content:'LIVE'; position:absolute; top:.6rem; right:.6rem; background:var(--magenta);
-    color:#fff; font-size:.6rem; font-weight:700; padding:.15rem .4rem; border-radius:4px;
-  }
-
-  /* ---------- Section head ---------- */
-  .section-head{
-    display:flex; justify-content:space-between; align-items:flex-end;
-    margin-bottom:2rem; flex-wrap:wrap; gap:.8rem;
-  }
-  .section-head h2{ font-size:1.9rem; font-weight:800; margin-top:.4rem; }
-  .see-all{ color:var(--cyan); font-weight:600; font-size:.9rem; }
-
-  /* ---------- Product showcase ---------- */
-  .product-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; }
-  .product-card{
-    background:var(--panel); border:1px solid var(--border); border-radius:14px;
-    overflow:hidden; position:relative; transition:border-color .2s, transform .2s;
-  }
-  .product-card:hover{ border-color:var(--cyan); transform:translateY(-5px); }
-  .product-thumb{
-    height:140px; display:flex; align-items:center; justify-content:center;
-    font-size:2.6rem; background:linear-gradient(135deg, var(--panel-2), var(--bg-alt));
-    position:relative;
-  }
-  .badge{
-    position:absolute; top:.7rem; left:.7rem; color:#fff;
-    font-size:.66rem; font-weight:700; padding:.2rem .55rem; border-radius:5px; letter-spacing:.4px;
-  }
-  .badge.sale{ background:var(--magenta); }
-  .badge.best{ background:var(--cyan); color:#05181A; }
-  .product-info{ padding:1rem; }
-  .product-info .title{ font-weight:600; font-size:.98rem; margin-bottom:.25rem; }
-  .rating{ color:var(--amber); font-size:.8rem; margin-bottom:.5rem; }
-  .rating span{ color:var(--muted); margin-left:.3rem; }
-  .price-row{ display:flex; justify-content:space-between; align-items:center; }
-  .price-block{ display:flex; align-items:baseline; gap:.5rem; }
-  .price-new{ color:var(--cyan); font-weight:700; font-size:1.05rem; }
-  .price-old{ color:var(--muted); font-size:.82rem; text-decoration:line-through; }
-  .add-btn{
-    width:34px; height:34px; border-radius:8px; border:1px solid var(--cyan);
-    background:var(--cyan-soft); color:var(--cyan); cursor:pointer; font-size:1rem;
-  }
-
-  /* ---------- AI personalization widget ---------- */
-  .ai-reco-strip{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; }
-  .reco-card{
-    background:var(--panel); border:1px solid var(--cyan-soft); border-radius:14px;
-    padding:1.1rem; position:relative; transition:transform .2s;
-  }
-  .reco-card:hover{ transform:translateY(-4px); }
-  .match-badge{
-    display:inline-flex; align-items:center; gap:.3rem; background:var(--cyan-soft); color:var(--cyan);
-    font-size:.72rem; font-weight:700; padding:.2rem .55rem; border-radius:20px; margin-bottom:.7rem;
-  }
-  .reco-thumb{
-    height:110px; border-radius:10px; margin-bottom:.7rem; display:flex; align-items:center;
-    justify-content:center; font-size:2.2rem; background:linear-gradient(135deg, var(--panel-2), var(--bg-alt));
-  }
-  .reco-card .title{ font-weight:600; font-size:.92rem; margin-bottom:.2rem; }
-  .reco-card .why{ font-size:.76rem; color:var(--muted); }
-
-  /* ---------- Tournament cards ---------- */
-  .tourney-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
-  .tourney-card{
-    background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.3rem;
-    position:relative; overflow:hidden;
-  }
-  .tourney-card::before{
-    content:''; position:absolute; width:180px; height:180px; border-radius:50%;
-    background:var(--magenta); filter:blur(70px); opacity:.18; right:-70px; top:-70px;
-  }
-  .status-pill{
-    display:inline-block; font-size:.68rem; font-weight:700; padding:.2rem .6rem;
-    border-radius:20px; margin-bottom:.7rem; position:relative; z-index:1;
-  }
-  .status-pill.open{ background:var(--cyan-soft); color:var(--cyan); }
-  .status-pill.soon{ background:rgba(245,185,66,0.15); color:var(--amber); }
-  .status-pill.full{ background:rgba(255,255,255,0.08); color:var(--muted); }
-  .tourney-card h3{ font-size:1.15rem; font-weight:700; margin-bottom:.3rem; position:relative; z-index:1; }
-  .tourney-card .meta{ font-size:.8rem; color:var(--muted); margin-bottom:1rem; position:relative; z-index:1; }
-  .progress-track{
-    height:7px; background:var(--panel-2); border-radius:20px; overflow:hidden; margin-bottom:.4rem;
-    position:relative; z-index:1;
-  }
-  .progress-fill{ height:100%; background:linear-gradient(90deg, var(--cyan), var(--magenta)); border-radius:20px; }
-  .progress-lbl{ font-size:.75rem; color:var(--muted); margin-bottom:1rem; position:relative; z-index:1; }
-
-  /* ---------- PC Compatibility Checker ---------- */
-  .pc-checker{
-    background:var(--panel); border:1px solid var(--border); border-radius:18px;
-    padding:2.2rem; display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:center;
-  }
-  .pc-checker h2{ font-size:1.7rem; font-weight:800; margin-bottom:.5rem; }
-  .pc-checker p{ color:var(--muted); font-size:.92rem; margin-bottom:1rem; }
-  .form-row{ margin-bottom:.9rem; }
-  .form-row label{ display:block; font-size:.8rem; color:var(--muted); margin-bottom:.35rem; }
-  .form-row select, .form-row input{
-    width:100%; background:var(--bg-alt); border:1px solid var(--border); border-radius:8px;
-    padding:.65rem .8rem; color:var(--text); font-family:inherit; font-size:.9rem; outline:none;
-  }
-  .form-row select:focus, .form-row input:focus{ border-color:var(--cyan); }
-  .check-result{
-    margin-top:1rem; padding:1rem; border-radius:10px; font-size:.88rem; display:none;
-  }
-  .check-result.show{ display:block; }
-  .check-result.ok{ background:var(--cyan-soft); color:var(--cyan); border:1px solid var(--cyan); }
-  .check-result.bad{ background:var(--magenta-soft); color:var(--magenta); border:1px solid var(--magenta); }
-  .pc-visual{
-    background:linear-gradient(135deg, var(--panel-2), var(--bg-alt)); border-radius:14px;
-    height:100%; min-height:220px; display:flex; align-items:center; justify-content:center;
-    font-size:4rem; border:1px solid var(--border);
-  }
-
-  /* ---------- Footer ---------- */
-  footer{ border-top:1px solid var(--border); padding:3rem 0 5.5rem; background:var(--bg-alt); }
-  .footer-grid{ display:grid; grid-template-columns:1.5fr repeat(3,1fr); gap:2rem; margin-bottom:2rem; }
-  .footer-grid h4{ font-size:.85rem; margin-bottom:.9rem; color:var(--text); letter-spacing:.4px; }
-  .footer-grid a{ display:block; color:var(--muted); font-size:.88rem; margin-bottom:.55rem; }
-  .footer-grid a:hover{ color:var(--cyan); }
-  .footer-bottom{
-    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;
-    padding-top:1.5rem; border-top:1px solid var(--border); color:var(--muted); font-size:.82rem;
-  }
-  .socials{ display:flex; gap:.7rem; }
-
-  /* ---------- Floating AI chatbot ---------- */
-  .chat-fab{
-    position:fixed; bottom:1.4rem; right:1.4rem; z-index:60;
-    width:58px; height:58px; border-radius:50%;
-    background:linear-gradient(135deg, var(--cyan), #12a3a1);
-    display:flex; align-items:center; justify-content:center;
-    font-size:1.5rem; cursor:pointer; border:none; color:#05181A;
-    box-shadow:0 0 26px var(--cyan-glow);
-  }
-  .chat-panel{
-    position:fixed; bottom:5.4rem; right:1.4rem; z-index:61;
-    width:320px; max-width:calc(100vw - 2rem); height:430px;
-    background:var(--panel); border:1px solid var(--border);
-    border-radius:14px; display:none; flex-direction:column; overflow:hidden;
-    box-shadow:0 12px 40px rgba(0,0,0,.5);
-  }
-  .chat-panel.open{ display:flex; }
-  .chat-head{
-    padding:.8rem 1rem; border-bottom:1px solid var(--border);
-    display:flex; align-items:center; gap:.6rem; background:var(--bg-alt);
-  }
-  .chat-head .avatar{
-    width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--cyan),var(--magenta));
-    display:flex; align-items:center; justify-content:center;
-  }
-  .chat-head strong{ font-size:.88rem; }
-  .chat-head span{ display:block; font-size:.7rem; color:var(--cyan); }
-  .chat-close{ margin-left:auto; background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.1rem; }
-  .chat-body{ flex:1; padding:1rem; overflow-y:auto; font-size:.85rem; }
-  .msg{ margin-bottom:.8rem; max-width:85%; padding:.55rem .75rem; border-radius:10px; line-height:1.4; }
-  .msg.bot{ background:var(--panel-2); }
-  .msg.me{ background:var(--cyan-soft); color:var(--cyan); margin-left:auto; }
-  .chat-input{ display:flex; align-items:center; gap:.5rem; border-top:1px solid var(--border); padding:.6rem; }
-  .chat-input input{
-    flex:1; background:var(--panel-2); border:1px solid var(--border); border-radius:20px;
-    padding:.5rem .9rem; color:var(--text); font-size:.85rem; outline:none; font-family:inherit;
-  }
-  .chat-send{
-    width:34px; height:34px; border-radius:50%; border:none; background:var(--cyan);
-    color:#05181A; cursor:pointer; flex-shrink:0;
-  }
-
-  /* ---------- Bottom mobile nav ---------- */
-  .bottom-nav{
-    display:none; position:fixed; bottom:0; left:0; right:0; z-index:55;
-    background:rgba(10,12,17,0.96); backdrop-filter:blur(10px);
-    border-top:1px solid var(--border); padding:.5rem 0;
-    justify-content:space-around; align-items:center;
-  }
-  .bottom-nav .bn-item{
-    display:flex; flex-direction:column; align-items:center; gap:.15rem;
-    color:var(--muted); font-size:.65rem; font-weight:600; cursor:pointer;
-  }
-  .bottom-nav .bn-item .bn-ic{ font-size:1.15rem; }
-  .bottom-nav .bn-item.active{ color:var(--cyan); }
-
-  @media (max-width: 900px){
-    .cat-row{ grid-template-columns:repeat(2,1fr); }
-    .product-grid{ grid-template-columns:repeat(2,1fr); }
-    .ai-reco-strip{ grid-template-columns:repeat(2,1fr); }
-    .tourney-grid{ grid-template-columns:1fr; }
-    .stats-grid{ grid-template-columns:repeat(2,1fr); gap:1.6rem; }
-    .pc-checker{ grid-template-columns:1fr; }
-    .pc-visual{ min-height:160px; order:-1; }
-    .footer-grid{ grid-template-columns:1fr 1fr; }
-  }
-  @media (max-width: 760px){
-    .nav-links{ display:none; }
-    .nav-toggle{ display:block; }
-    .bottom-nav{ display:flex; }
-    footer{ padding-bottom:6rem; }
-    .chat-fab{ bottom:5rem; }
-    .chat-panel{ bottom:8.4rem; }
-  }
-</style>
-</head>
-<body>
-
-<div class="grid-bg"></div>
-<div class="glow-blob glow-1"></div>
-<div class="glow-blob glow-2"></div>
-
-<!-- TOP UTILITY TICKER -->
-<div class="ticker-bar">
-  <div class="ticker-tag"><span class="dot"></span> LIVE SCORES</div>
-  <div class="ticker-track">
-    <span><b>Simba SC</b> 2 - 1 <b>Yanga SC</b> · FT</span>
-    <span><b>Man City</b> 3 - 0 <b>Chelsea</b> · Premier League</span>
-    <span><b>Dar Cup</b> Round 3 inaendelea · 58 wachezaji wamebaki</span>
-    <span><b>Real Madrid</b> 1 - 1 <b>Barcelona</b> · 67'</span>
-    <span><b>FC26 Championship</b> usajili unafunga leo saa 8 usiku</span>
-    <span><b>Simba SC</b> 2 - 1 <b>Yanga SC</b> · FT</span>
-    <span><b>Man City</b> 3 - 0 <b>Chelsea</b> · Premier League</span>
-    <span><b>Dar Cup</b> Round 3 inaendelea · 58 wachezaji wamebaki</span>
-    <span><b>Real Madrid</b> 1 - 1 <b>Barcelona</b> · 67'</span>
-    <span><b>FC26 Championship</b> usajili unafunga leo saa 8 usiku</span>
-  </div>
-</div>
-
-<!-- NAVBAR -->
-<div class="navbar">
-  <div class="logo"><div class="mark">🎮</div>LifeIsGameTZ</div>
-  <div class="nav-links">
-    <a href="store.html">Store</a>
-    <a href="#tournaments">Tournaments</a>
-    <a href="leaderboard.html">Leaderboard</a>
-    <a href="community-marketplace.html">Marketplace</a>
-    <a href="agribusiness-hub.html">Vijana Uchumi</a>
-    <a href="community-health.html">Msaada wa Jamii</a>
-    <a href="creator-program.html">Creator Program</a>
-    <a href="affiliate-program.html">Affiliate</a>
-    <a href="community-fund.html">Community Fund</a>
-    <a href="youth-marketplace.html">Youth Marketplace</a>
-    <a href="#reco">Kwa Ajili Yako</a>
-    <a href="#pc-check">PC Checker</a>
-    <a href="academy.html">Academy</a>
-  </div>
-  <div class="nav-actions">
-    <button class="icon-btn">🔍</button>
-    <div style="position:relative;">
-      <button class="icon-btn" id="notifBell" style="position:relative;">🔔<span id="notifDot" style="position:absolute; top:-3px; right:-3px; width:9px; height:9px; border-radius:50%; background:var(--magenta); display:none;"></span></button>
-      <div id="notifPanel" style="display:none; position:absolute; top:48px; right:0; width:300px; max-width:80vw; background:var(--panel); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,.4); z-index:60; overflow:hidden;">
-        <div style="padding:.8rem 1rem; border-bottom:1px solid var(--border); font-weight:700; font-size:.9rem;">Notifications</div>
-        <div id="notifList" style="max-height:320px; overflow-y:auto;"></div>
-      </div>
-    </div>
-    <a href="cart.html" class="icon-btn" style="text-decoration:none;">🛒</a>
-    <a href="admin-dashboard.html" class="btn btn-ghost" id="adminLinkBtn" style="display:none; color:var(--gold); border-color:var(--gold);">👑 Admin Dashboard</a>
-    <a href="login.html" class="btn btn-ghost" id="authBtn">Ingia</a>
-    <button class="nav-toggle">☰</button>
-  </div>
-</div>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="wrap">
-    <div class="eyebrow">TANZANIA'S GAMING &amp; ESPORTS PLATFORM</div>
-    <h1>CHEZA. <span class="accent">SHINDANA.</span><br>LIPWA KWA UJUZI WAKO.</h1>
-    <p>Nunua games na gift cards, jiunge tournament za eFootball, na pata fursa za kipato kama kijana wa kidijitali — yote sehemu moja.</p>
-    <div class="hero-actions">
-      <a href="store.html" class="btn btn-cyan">🛒 Nunua Sasa</a>
-      <a href="tournament.html" class="btn btn-magenta-outline">🏆 Jiunge Tournament</a>
-    </div>
-  </div>
-</section>
-
-<!-- QUICK STATS COUNTER -->
-<section class="stats-section">
-  <div class="wrap">
-    <div class="stats-grid">
-      <div><div class="ic">🎮</div><div class="stat-num" data-target="500">0+</div><div class="stat-lbl">GAMES</div></div>
-      <div><div class="ic">👥</div><div class="stat-num" data-target="2" data-suffix="M+">0</div><div class="stat-lbl">WACHEZAJI</div></div>
-      <div><div class="ic">🛒</div><div class="stat-num" data-target="50" data-suffix="K+">0</div><div class="stat-lbl">MAUZO</div></div>
-      <div><div class="ic">🏆</div><div class="stat-num" data-target="86">0+</div><div class="stat-lbl">TOURNAMENTS/MWEZI</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- CATEGORY GRID -->
-<section id="store">
-  <div class="wrap">
-    <div class="section-head"><h2>Chagua Category</h2></div>
-    <div class="cat-row">
-      <div class="cat-card">
-        <div class="ic">🕹️</div>
-        <div class="lbl">Top Games</div>
-        <div class="sub">PC · PlayStation · Xbox</div>
-      </div>
-      <div class="cat-card">
-        <div class="ic">🔑</div>
-        <div class="lbl">Steam Accounts</div>
-        <div class="sub">Verified &amp; secure</div>
-      </div>
-      <div class="cat-card">
-        <div class="ic">⚽</div>
-        <div class="lbl">eFootball Coins</div>
-        <div class="sub">Top-up ya haraka</div>
-      </div>
-      <div class="cat-card live">
-        <div class="ic">📡</div>
-        <div class="lbl">Live Scores</div>
-        <div class="sub">Matokeo ya sasa hivi</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PRODUCT SHOWCASE -->
-<section>
-  <div class="wrap">
-    <div class="section-head">
-      <div><div class="eyebrow">BEST SELLERS</div><h2>Bidhaa Zinazouzwa Zaidi</h2></div>
-      <a href="store.html" class="see-all">Ona Zote →</a>
-    </div>
-    <div class="product-grid">
-      <div class="product-card">
-        <div class="product-thumb">🎮<span class="badge best">BESTSELLER</span></div>
-        <div class="product-info">
-          <div class="title">FC 26 — Standard Edition</div>
-          <div class="rating">★★★★★ <span>(482)</span></div>
-          <div class="price-row">
-            <div class="price-block"><span class="price-new">TZS 45,000</span><span class="price-old">60,000</span></div>
-            <button class="add-btn">+</button>
-          </div>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-thumb">🔑<span class="badge sale">SALE</span></div>
-        <div class="product-info">
-          <div class="title">Steam Account — 12 Games Bundle</div>
-          <div class="rating">★★★★☆ <span>(139)</span></div>
-          <div class="price-row">
-            <div class="price-block"><span class="price-new">TZS 80,000</span><span class="price-old">120,000</span></div>
-            <button class="add-btn">+</button>
-          </div>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-thumb">⚽</div>
-        <div class="product-info">
-          <div class="title">eFootball Coins — 5,000</div>
-          <div class="rating">★★★★★ <span>(910)</span></div>
-          <div class="price-row">
-            <div class="price-block"><span class="price-new">TZS 12,000</span></div>
-            <button class="add-btn">+</button>
-          </div>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-thumb">🎧<span class="badge sale">SALE</span></div>
-        <div class="product-info">
-          <div class="title">Gaming Headset RGB Pro</div>
-          <div class="rating">★★★★☆ <span>(76)</span></div>
-          <div class="price-row">
-            <div class="price-block"><span class="price-new">TZS 65,000</span><span class="price-old">85,000</span></div>
-            <button class="add-btn">+</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- AI PERSONALIZATION -->
-<section id="reco">
-  <div class="wrap">
-    <div class="section-head">
-      <div><div class="eyebrow">🤖 AI PERSONALIZATION</div><h2>Mapendekezo Kwa Wako</h2></div>
-    </div>
-    <div class="ai-reco-strip">
-      <div class="reco-card">
-        <div class="match-badge">⚡ 96% Match</div>
-        <div class="reco-thumb">🏎️</div>
-        <div class="title">Need for Speed Unbound</div>
-        <div class="why">Kwa sababu unapenda racing games</div>
-      </div>
-      <div class="reco-card">
-        <div class="match-badge">⚡ 91% Match</div>
-        <div class="reco-thumb">⚽</div>
-        <div class="title">eFootball 2026 Season Pass</div>
-        <div class="why">Kwa sababu unacheza tournaments mara kwa mara</div>
-      </div>
-      <div class="reco-card">
-        <div class="match-badge">⚡ 88% Match</div>
-        <div class="reco-thumb">🔫</div>
-        <div class="title">Call of Duty: Modern Ops</div>
-        <div class="why">Wachezaji wenye wasifu kama wako wanaipenda</div>
-      </div>
-      <div class="reco-card">
-        <div class="match-badge">⚡ 84% Match</div>
-        <div class="reco-thumb">🎧</div>
-        <div class="title">Wireless Gaming Headset</div>
-        <div class="why">Inaenda vizuri na games ulizonunua</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TOURNAMENT CARDS -->
-<section id="tournaments">
-  <div class="wrap">
-    <div class="section-head"><div><div class="eyebrow">LIGI ZA SASA</div><h2>Jiunge Tournament</h2></div></div>
-    <div class="tourney-grid">
-      <div class="tourney-card" id="darCupCard">
-        <span class="status-pill open">OPEN</span>
-        <h3>Dar Cup — Weekly</h3>
-        <div class="meta">eFootball 2026 · Entry TZS 2,000 · Zawadi TZS 100,000</div>
-        <div class="progress-track"><div class="progress-fill" id="darCupProgressFill" style="width:91%;"></div></div>
-        <div class="progress-lbl" id="darCupProgressLbl">58/64 wachezaji</div>
-        <a href="tournament.html" class="btn btn-cyan btn-sm btn-full">Jiunge Sasa</a>
-      </div>
-      <div class="tourney-card">
-        <span class="status-pill soon">SOON</span>
-        <h3>FC26 Championship</h3>
-        <div class="meta">FC 26 · Entry TZS 5,000 · Zawadi TZS 250,000</div>
-        <div class="progress-track"><div class="progress-fill" style="width:60%;"></div></div>
-        <div class="progress-lbl">19/32 wachezaji · Inaanza kesho</div>
-        <a href="tournament.html" class="btn btn-magenta-outline btn-sm btn-full">Sajili Sasa</a>
-      </div>
-      <div class="tourney-card">
-        <span class="status-pill full">FULL</span>
-        <h3>Zanzibar Gamers League</h3>
-        <div class="meta">eFootball 2026 · Free Entry · Zawadi TZS 50,000</div>
-        <div class="progress-track"><div class="progress-fill" style="width:100%;"></div></div>
-        <div class="progress-lbl">16/16 wachezaji · Bracket imefungwa</div>
-        <button class="btn btn-ghost btn-sm btn-full" disabled>Imejaa</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PC COMPATIBILITY CHECKER -->
-<section id="pc-check">
-  <div class="wrap">
-    <div class="pc-checker">
-      <div>
-        <div class="eyebrow">INTERACTIVE TOOL</div>
-        <h2>Angalia PC Yako</h2>
-        <p>Jaza specs za kompyuta yako tuone kama inaweza kutumia FC 26, Call of Duty na games nyingine kubwa.</p>
-        <div class="form-row">
-          <label>Processor (CPU)</label>
-          <select id="cpuSelect">
-            <option>Intel Core i3 / Ryzen 3</option>
-            <option>Intel Core i5 / Ryzen 5</option>
-            <option>Intel Core i7 / Ryzen 7 na juu zaidi</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <label>Graphics Card (GPU)</label>
-          <select id="gpuSelect">
-            <option>Integrated Graphics (bila GPU maalum)</option>
-            <option>GTX 1650 / RX 570</option>
-            <option>RTX 3060 na juu zaidi</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <label>RAM</label>
-          <select id="ramSelect">
-            <option>4GB</option>
-            <option>8GB</option>
-            <option>16GB na zaidi</option>
-          </select>
-        </div>
-        <button class="btn btn-cyan" id="checkBtn">🖥️ Angalia Utangamanifu</button>
-        <div class="check-result" id="checkResult"></div>
-      </div>
-      <div class="pc-visual">🖥️</div>
-    </div>
-  </div>
-</section>
-
-<!-- YOUTH / ACADEMY CTA -->
-<section id="academy">
-  <div class="wrap">
-    <div class="tourney-card" style="padding:2.5rem; text-align:center;">
-      <div class="eyebrow">DIGITAL SKILLS ACADEMY</div>
-      <h2 style="margin:.6rem 0 .6rem;">Jifunze, Ujenge Ujuzi, Upate Kazi</h2>
-      <p style="color:var(--muted); max-width:520px; margin:0 auto 1.4rem;">Kozi za bure na premium kwenye Web Development, Design, Video Editing na Gaming — ukiwa na cheti mwishoni.</p>
-      <a href="academy.html" class="btn btn-cyan">🎓 Anza Kujifunza</a>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="wrap">
-    <div class="footer-grid">
-      <div>
-        <div class="logo" style="margin-bottom:.8rem;"><div class="mark">🎮</div>LifeIsGameTZ</div>
-        <p style="color:var(--muted); font-size:.88rem; max-width:280px;">Gaming, Digital Economy na Youth Opportunities — sehemu moja, kwa Watanzania.</p>
-      </div>
-      <div>
-        <h4>STORE</h4>
-        <a href="#">Top Games</a>
-        <a href="#">Steam Accounts</a>
-        <a href="#">eFootball Coins</a>
-      </div>
-      <div>
-        <h4>COMMUNITY</h4>
-        <a href="#">Tournaments</a>
-        <a href="youth-marketplace.html">Youth Marketplace</a>
-        <a href="academy.html">Academy</a>
-      </div>
-      <div>
-        <h4>MAWASILIANO</h4>
-        <a href="#">📞 +255 700 000 000</a>
-        <a href="#">✉️ support@lifeisgametz.co.tz</a>
-        <a href="#">💬 Msaada wa Jamii</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <div>© 2026 LifeIsGameTZ. Haki zote zimehifadhiwa.</div>
-      <div class="socials">
-        <span class="icon-btn">📷</span>
-        <span class="icon-btn">🎵</span>
-        <span class="icon-btn">💬</span>
-      </div>
-    </div>
-  </div>
-</footer>
-
-<!-- FLOATING AI CHATBOT -->
-<button class="chat-fab" id="chatFab">💬</button>
-<div class="chat-panel" id="chatPanel">
-  <div class="chat-head">
-    <div class="avatar">🤖</div>
-    <div>
-      <strong>AI Msaidizi</strong>
-      <span>🟢 Online</span>
-    </div>
-    <button class="chat-close" id="chatClose">✕</button>
-  </div>
-  <div class="chat-body" id="chatBody">
-    <div class="msg bot">Habari! Nikusaidie kupata game, kujiunga tournament, au kuangalia order yako?</div>
-  </div>
-  <div class="chat-input">
-    <input type="text" id="chatInputText" placeholder="Andika ujumbe...">
-    <button class="chat-send" id="chatSend">➤</button>
-  </div>
-</div>
-
-<!-- BOTTOM MOBILE NAV -->
-<div class="bottom-nav">
-  <div class="bn-item active"><span class="bn-ic">🏠</span>Home</div>
-  <div class="bn-item"><span class="bn-ic">🛒</span>Store</div>
-  <div class="bn-item"><span class="bn-ic">🏆</span>Tournaments</div>
-  <div class="bn-item" id="bnChat"><span class="bn-ic">💬</span>Chat</div>
-  <a href="login.html" class="bn-item" id="bnAccountLink" style="color:inherit;"><span class="bn-ic">👤</span>Akaunti</a>
-</div>
-
-<script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-  const SUPABASE_URL = 'https://zcviroqygjtautfsyahs.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjdmlyb3F5Z2p0YXV0ZnN5YWhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Njc2ODcsImV4cCI6MjEwMjA0MzY4N30.IlEsUpRuT4sGqI9LQ1RVguJ6wlgp8YAXVNV0LCfjBnk';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  async function loadDarCupLive(){
-    try{
-      const { data: tourney, error } = await supabase.from('tournaments').select('id, max_players').eq('title', 'Dar Cup — Weekly Championship').maybeSingle();
-      if(error || !tourney) return;
-      const { count } = await supabase.from('tournament_registrations').select('*', { count:'exact', head:true }).eq('tournament_id', tourney.id);
-      const players = count || 0;
-      const max = tourney.max_players;
-      const pct = Math.min(100, Math.round((players/max)*100));
-      document.getElementById('darCupProgressFill').style.width = pct + '%';
-      document.getElementById('darCupProgressLbl').textContent = `${players}/${max} wachezaji`;
-    } catch(err){
-      console.warn('Dar Cup live data haikupatikana, tunabaki na mfano wa static:', err.message);
-    }
-  }
-  loadDarCupLive();
-
-  // ---------- Auth State: onyesha jina/Toka badala ya "Ingia" ukiwa umeingia ----------
-  async function refreshAuthUI(){
-    const authBtn = document.getElementById('authBtn');
-    const adminLinkBtn = document.getElementById('adminLinkBtn');
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if(session){
-      const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', session.user.id).maybeSingle();
-      const name = profile ? profile.full_name.split(' ')[0] : 'Akaunti';
-      authBtn.textContent = '👤 ' + name + ' · Toka';
-      authBtn.href = '#';
-      authBtn.onclick = async (e)=>{
-        e.preventDefault();
-        if(confirm('Una uhakika unataka kutoka?')){
-          await supabase.auth.signOut();
-          window.location.reload();
-        }
-      };
-
-      if(profile && ['owner','admin','staff'].includes(profile.role)){
-        adminLinkBtn.style.display = 'inline-flex';
-        document.getElementById('bnAccountLink').href = 'admin-dashboard.html';
-      } else {
-        adminLinkBtn.style.display = 'none';
-        document.getElementById('bnAccountLink').href = 'login.html';
-      }
-    } else {
-      authBtn.textContent = 'Ingia';
-      authBtn.href = 'login.html';
-      authBtn.onclick = null;
-      adminLinkBtn.style.display = 'none';
-      document.getElementById('bnAccountLink').href = 'login.html';
-    }
-  }
-
-  // Sasisha UI kila mara auth state inabadilika (login/logout kwenye tab yoyote)
-  supabase.auth.onAuthStateChange(()=> refreshAuthUI());
-  refreshAuthUI();
-  // ---------- Add to cart micro-interaction ----------
-  document.querySelectorAll('.add-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      btn.textContent = '✓';
-      btn.style.background = 'var(--cyan)';
-      btn.style.color = '#05181A';
-      setTimeout(()=>{ btn.textContent='+'; btn.style.background='var(--cyan-soft)'; btn.style.color='var(--cyan)'; }, 900);
-    });
-  });
-
-  // ---------- Stat counters ----------
-  const counters = document.querySelectorAll('.stat-num');
-  const animateCounter = (el) => {
-    const target = parseInt(el.dataset.target, 10);
-    const suffix = el.dataset.suffix || '+';
-    let cur = 0;
-    const step = Math.max(1, Math.ceil(target / 60));
-    const tick = () => {
-      cur += step;
-      if(cur >= target){ el.textContent = target + suffix; return; }
-      el.textContent = cur + suffix;
-      requestAnimationFrame(tick);
-    };
-    tick();
-  };
-  const obs = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){ animateCounter(e.target); obs.unobserve(e.target); }
-    });
-  }, { threshold: 0.5 });
-  counters.forEach(c => obs.observe(c));
-
-  // ---------- PC compatibility checker (demo logic) ----------
-  document.getElementById('checkBtn').addEventListener('click', ()=>{
-    const cpu = document.getElementById('cpuSelect').selectedIndex;
-    const gpu = document.getElementById('gpuSelect').selectedIndex;
-    const ram = document.getElementById('ramSelect').selectedIndex;
-    const score = cpu + gpu + ram;
-    const result = document.getElementById('checkResult');
-    result.classList.add('show');
-    if(score >= 4){
-      result.className = 'check-result show ok';
-      result.innerHTML = '✅ PC yako inaweza kucheza FC 26, COD na games nyingi kubwa kwa settings za juu.';
-    } else if(score >= 2){
-      result.className = 'check-result show ok';
-      result.innerHTML = '🟡 PC yako inaweza kucheza games nyingi kwa settings za kati. Kuongeza RAM/GPU kutaboresha uzoefu.';
-    } else {
-      result.className = 'check-result show bad';
-      result.innerHTML = '⚠️ PC yako inafaa zaidi kwa games nyepesi. Tunapendekeza kuboresha GPU/RAM kwa games kubwa.';
-    }
-  });
-
-  // ---------- Floating chat ----------
-  const chatFab = document.getElementById('chatFab');
-  const chatPanel = document.getElementById('chatPanel');
-  const chatBody = document.getElementById('chatBody');
-  function openChat(){ chatPanel.classList.add('open'); }
-  function toggleChat(){ chatPanel.classList.toggle('open'); }
-  chatFab.addEventListener('click', toggleChat);
-  document.getElementById('chatClose').addEventListener('click', toggleChat);
-  document.getElementById('bnChat').addEventListener('click', openChat);
-
-  function addChatMsg(text, who){
-    const div = document.createElement('div');
-    div.className = 'msg ' + who;
-    div.textContent = text;
-    chatBody.appendChild(div);
-    chatBody.scrollTop = chatBody.scrollHeight;
-  }
-  let chatHistory = [];
-  function sendChat(){
-    const input = document.getElementById('chatInputText');
-    const text = input.value.trim();
-    if(!text) return;
-    addChatMsg(text, 'me');
-    input.value = '';
-    chatHistory.push({ role:'user', content: text });
-
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'msg bot';
-    typingDiv.id = 'typingIndicator';
-    typingDiv.textContent = '💭 Inaandika...';
-    chatBody.appendChild(typingDiv);
-    chatBody.scrollTop = chatBody.scrollHeight;
-
-    supabase.functions.invoke('ai-chat', { body: { message: text, history: chatHistory.slice(0, -1) } })
-      .then(({ data, error })=>{
-        document.getElementById('typingIndicator')?.remove();
-        if(error || !data || data.error){
-          addChatMsg('Samahani, AI haipatikani kwa sasa (' + (data?.error || error?.message || 'muunganiko haujakamilika') + '). Jaribu tena baadaye au wasiliana na msaada.', 'bot');
-          return;
-        }
-        addChatMsg(data.reply, 'bot');
-        chatHistory.push({ role:'assistant', content: data.reply });
-      })
-      .catch(err=>{
-        document.getElementById('typingIndicator')?.remove();
-        addChatMsg('Samahani, kuna hitilafu ya muunganiko. Jaribu tena.', 'bot');
-        console.warn('ai-chat error:', err);
-      });
-  }
-  document.getElementById('chatSend').addEventListener('click', sendChat);
-  document.getElementById('chatInputText').addEventListener('keydown', e=>{ if(e.key === 'Enter') sendChat(); });
-
-  // ---------- Bottom nav active state ----------
-  document.querySelectorAll('.bn-item').forEach(item=>{
-    item.addEventListener('click', ()=>{
-      document.querySelectorAll('.bn-item').forEach(i=>i.classList.remove('active'));
-      item.classList.add('active');
-    });
-  });
-
-  // ---------- Push Notification Engine (toast + dropdown) ----------
-  const notifList = document.getElementById('notifList');
-  const notifDot = document.getElementById('notifDot');
-  let notifications = [];
-
-  function timeAgo(){ return 'Sasa hivi'; }
-
-  function pushNotification(icon, title, body){
-    notifications.unshift({icon, title, body, time: timeAgo()});
-    renderNotifList();
-    notifDot.style.display = 'block';
-    showToast(icon, title, body);
-  }
-
-  function renderNotifList(){
-    if(notifications.length === 0){
-      notifList.innerHTML = '<div style="padding:1.2rem; text-align:center; color:var(--muted); font-size:.85rem;">Hakuna notification bado.</div>';
-      return;
-    }
-    notifList.innerHTML = notifications.map(n => `
-      <div style="padding:.8rem 1rem; border-bottom:1px solid var(--border); display:flex; gap:.7rem;">
-        <div style="font-size:1.2rem;">${n.icon}</div>
-        <div>
-          <div style="font-size:.85rem; font-weight:600;">${n.title}</div>
-          <div style="font-size:.78rem; color:var(--muted);">${n.body}</div>
-          <div style="font-size:.68rem; color:var(--muted); margin-top:.2rem;">${n.time}</div>
-        </div>
-      </div>`).join('');
-  }
-
-  function showToast(icon, title, body){
-    const toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed; top:1rem; right:1rem; z-index:100; background:var(--panel); border:1px solid var(--cyan); border-radius:10px; padding:.8rem 1rem; display:flex; gap:.7rem; max-width:300px; box-shadow:0 8px 24px rgba(0,0,0,.4); animation:slideIn .3s ease;';
-    toast.innerHTML = `<div style="font-size:1.3rem;">${icon}</div><div><div style="font-size:.85rem; font-weight:700;">${title}</div><div style="font-size:.78rem; color:var(--muted);">${body}</div></div>`;
-    document.body.appendChild(toast);
-    setTimeout(()=>{ toast.style.opacity = '0'; toast.style.transition = 'opacity .4s'; setTimeout(()=> toast.remove(), 400); }, 4500);
-  }
-
-  document.getElementById('notifBell').addEventListener('click', (e)=>{
-    e.stopPropagation();
-    const panel = document.getElementById('notifPanel');
-    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-    notifDot.style.display = 'none';
-  });
-  document.addEventListener('click', ()=>{ document.getElementById('notifPanel').style.display = 'none'; });
-
-  // Demo: simulate live alerts zinazokuja (kama WebSocket/Supabase Realtime ingetuma)
-  renderNotifList();
-  setTimeout(()=> pushNotification('⚽', 'Goli!', 'Simba SC wamefunga — sasa 3-1 dhidi ya Yanga SC'), 3000);
-  setTimeout(()=> pushNotification('🏆', 'Tournament Alert', 'Dar Cup Round 3 inaanza baada ya dakika 10'), 9000);
 </script>
 <style>
-  @keyframes slideIn{ from{ transform:translateX(30px); opacity:0; } to{ transform:translateX(0); opacity:1; } }
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .live-pulse { animation: pulse-red 1.5s infinite; }
 </style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <button class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search games, products, users, or anything..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
+          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Super Admin
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span>Store</span>
+      </a>
+      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games</span>
+      </a>
+      <a href="/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies</span>
+      </a>
+      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <span>Live TV / eSports</span>
+      </a>
+      <a href="/livecore.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Live Scores</span>
+      </a>
+      <a href="/tournaments.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        <span>Tournament</span>
+      </a>
+      <a href="/betting.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Betting</span>
+      </a>
+      <a href="/courses.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+        <span>Academy</span>
+      </a>
+      <a href="/cloud-gaming.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+        <span>Cloud Gaming</span>
+      </a>
+      <a href="/efootball.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <span>eFootball / Top Up</span>
+      </a>
+      <a href="/gift-cards.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+        <span>Gift Cards</span>
+      </a>
+      <a href="/community.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+        <span>Community / Chat</span>
+      </a>
+      <a href="/ai.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        <span>AI Assistants</span>
+      </a>
+      <a href="/marketplace.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span>Marketplace</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
+        <span>More</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- HERO -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden h-56 md:h-64">
+      <div class="absolute inset-0 bg-gradient-to-r from-primary/40 via-purple-900/40 to-transparent"></div>
+      <div class="relative h-full flex items-center justify-between p-6 md:p-10">
+        <div class="z-10">
+          <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">
+            <span class="text-white">PLAY</span> <span class="text-primary">LEARN</span> <span class="text-cyan-400">EARN</span>
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 mt-2 mb-5 max-w-md">Your Ultimate Gaming & Entertainment Platform — Games, Movies, Live Sports, eFootball, Top Up, and More!</p>
+          <button class="gradient-primary text-white font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:opacity-90 transition">
+            Explore Now
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </button>
+        </div>
+        <div class="hidden md:block text-right z-10">
+          <div class="text-cyan-400 text-3xl font-extrabold italic">Game On!</div>
+        </div>
+      </div>
+      <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
+        <span class="w-6 h-1.5 rounded-full bg-primary"></span>
+        <span class="w-2 h-1.5 rounded-full bg-white/30"></span>
+        <span class="w-2 h-1.5 rounded-full bg-white/30"></span>
+      </div>
+    </div>
+
+    <!-- 7 CATEGORY CARDS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+      <a href="/games.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-primary/30 flex items-center justify-center text-lg mb-2">🎮</div>
+        <div class="text-xs text-white font-bold">Games</div>
+        <div class="text-[9px] text-gray-500">1500+ Games</div>
+      </a>
+      <a href="/movies.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-pink-500/30 flex items-center justify-center text-lg mb-2">🎬</div>
+        <div class="text-xs text-white font-bold">Movies</div>
+        <div class="text-[9px] text-gray-500">10,000+ Movies</div>
+      </a>
+      <a href="/live-tv.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-blue-500/30 flex items-center justify-center text-lg mb-2">📺</div>
+        <div class="text-xs text-white font-bold">Live TV</div>
+        <div class="text-[9px] text-gray-500">500+ Channels</div>
+      </a>
+      <a href="/tournaments.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-yellow-500/30 flex items-center justify-center text-lg mb-2">🏆</div>
+        <div class="text-xs text-white font-bold">eSports</div>
+        <div class="text-[9px] text-gray-500">Tournaments</div>
+      </a>
+      <a href="/efootball.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-green-500/30 flex items-center justify-center text-lg mb-2">⚽</div>
+        <div class="text-xs text-white font-bold">eFootball</div>
+        <div class="text-[9px] text-gray-500">Top Up & Coins</div>
+      </a>
+      <a href="/gift-cards.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-orange-500/30 flex items-center justify-center text-lg mb-2">🎁</div>
+        <div class="text-xs text-white font-bold">Gift Cards</div>
+        <div class="text-[9px] text-gray-500">Instant Delivery</div>
+      </a>
+      <a href="/cloud-gaming.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-cyan-500/30 flex items-center justify-center text-lg mb-2">☁️</div>
+        <div class="text-xs text-white font-bold">Cloud Gaming</div>
+        <div class="text-[9px] text-gray-500">Play Anywhere</div>
+      </a>
+    </div>
+
+    <!-- GRID: Main + Right -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+      <!-- LEFT: Popular Games + Latest Movies -->
+      <div class="xl:col-span-2 space-y-6">
+
+        <!-- Popular Games -->
+        <section>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <span>🔥</span> Popular Games
+            </h2>
+            <a href="/games.html" class="text-sm text-primary font-semibold">View All →</a>
+          </div>
+          <div id="popular-games" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
+          </div>
+        </section>
+
+        <!-- Latest Movies -->
+        <section>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <span>🎬</span> Latest Movies
+            </h2>
+            <a href="/movies.html" class="text-sm text-primary font-semibold">View All →</a>
+          </div>
+          <div id="latest-movies" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
+          </div>
+        </section>
+      </div>
+
+      <!-- RIGHT: Live Football + Community + Top Up + Live TV + Get More -->
+      <div class="space-y-4">
+
+        <!-- Live Football -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span>📺</span>
+              <h3 class="text-white font-bold text-sm">Live Football</h3>
+            </div>
+            <a href="/livecore.html" class="text-xs text-primary">View All →</a>
+          </div>
+          <div class="space-y-2" id="live-football">
+            <div class="text-center text-gray-500 text-xs py-4">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Join Community -->
+        <div class="gradient-card rounded-2xl border border-primary/30 p-4 relative overflow-hidden">
+          <div class="absolute top-2 right-2 text-3xl opacity-20">👑</div>
+          <div class="relative">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-lg">👑</span>
+              <h3 class="text-white font-bold text-sm">Join Our Community</h3>
+            </div>
+            <p class="text-xs text-gray-400 mb-3">Chat, make friends, join tournaments</p>
+            <button class="w-full gradient-primary text-white text-xs font-semibold py-2 rounded-lg">Join Now →</button>
+          </div>
+        </div>
+
+        <!-- Top Up & Gift Cards -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-white font-bold text-sm">Top Up & Gift Cards</h3>
+            <a href="/gift-cards.html" class="text-xs text-primary">View All →</a>
+          </div>
+          <p class="text-[10px] text-gray-500 mb-3">Fast • Safe • Reliable</p>
+          <div class="grid grid-cols-4 gap-2">
+            <div class="aspect-square rounded-lg bg-blue-600 flex items-center justify-center text-[9px] text-white font-bold text-center">PlayStation</div>
+            <div class="aspect-square rounded-lg bg-green-600 flex items-center justify-center text-[9px] text-white font-bold text-center">Xbox</div>
+            <div class="aspect-square rounded-lg bg-red-600 flex items-center justify-center text-[9px] text-white font-bold text-center">Nintendo</div>
+            <div class="aspect-square rounded-lg bg-blue-900 flex items-center justify-center text-[9px] text-white font-bold text-center">Steam</div>
+            <div class="aspect-square rounded-lg bg-green-500 flex items-center justify-center text-[9px] text-white font-bold text-center">Google Play</div>
+            <div class="aspect-square rounded-lg bg-gray-600 flex items-center justify-center text-[9px] text-white font-bold text-center">iTunes</div>
+            <div class="aspect-square rounded-lg bg-orange-500 flex items-center justify-center text-[9px] text-white font-bold text-center">Amazon</div>
+            <div class="aspect-square rounded-lg bg-green-700 flex items-center justify-center text-[9px] text-white font-bold text-center">Razer</div>
+          </div>
+        </div>
+
+        <!-- Live TV & Sports -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-white font-bold text-sm">Live TV & Sports</h3>
+            <a href="/live-tv.html" class="text-xs text-primary">View All →</a>
+          </div>
+          <div class="grid grid-cols-5 gap-2">
+            <div class="text-center">
+              <div class="w-9 h-9 mx-auto rounded-lg bg-dark-3 flex items-center justify-center text-sm mb-1">⚽</div>
+              <div class="text-[8px] text-gray-400">Premier</div>
+              <div class="text-[8px] text-red-500 font-bold">● Live</div>
+            </div>
+            <div class="text-center">
+              <div class="w-9 h-9 mx-auto rounded-lg bg-dark-3 flex items-center justify-center text-sm mb-1">🏆</div>
+              <div class="text-[8px] text-gray-400">La Liga</div>
+              <div class="text-[8px] text-red-500 font-bold">● Live</div>
+            </div>
+            <div class="text-center">
+              <div class="w-9 h-9 mx-auto rounded-lg bg-dark-3 flex items-center justify-center text-sm mb-1">⭐</div>
+              <div class="text-[8px] text-gray-400">UCL</div>
+              <div class="text-[8px] text-red-500 font-bold">● Live</div>
+            </div>
+            <div class="text-center">
+              <div class="w-9 h-9 mx-auto rounded-lg bg-dark-3 flex items-center justify-center text-sm mb-1">🏀</div>
+              <div class="text-[8px] text-gray-400">NBA</div>
+              <div class="text-[8px] text-red-500 font-bold">● Live</div>
+            </div>
+            <div class="text-center">
+              <div class="w-9 h-9 mx-auto rounded-lg bg-dark-3 flex items-center justify-center text-sm mb-1">🏈</div>
+              <div class="text-[8px] text-gray-400">NFL</div>
+              <div class="text-[8px] text-red-500 font-bold">● Live</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Get More -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-4">
+          <h3 class="text-white font-bold text-sm mb-1">Get More with LIFEISGAMETZ</h3>
+          <p class="text-[10px] text-gray-500 mb-3">Games, Movies, Sports, AI Tools, and much more!</p>
+          <a href="/store.html" class="w-full gradient-primary text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center">Explore All Features →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer Badges -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div>
+          <div class="text-xs text-white font-bold">Fast Delivery</div>
+          <div class="text-[10px] text-gray-500">Instant access after payment</div>
+        </div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div>
+          <div class="text-xs text-white font-bold">Secure Payments</div>
+          <div class="text-[10px] text-gray-500">Your data is safe with us</div>
+        </div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </div>
+        <div>
+          <div class="text-xs text-white font-bold">24/7 Support</div>
+          <div class="text-[10px] text-gray-500">We're always here to help</div>
+        </div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
+        <div>
+          <div class="text-xs text-white font-bold">Trusted by Gamers</div>
+          <div class="text-[10px] text-gray-500">Join thousands of happy users</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="pt-6 mt-4 border-t border-dark-4 text-xs text-gray-500">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+        <div class="flex gap-3">
+          <a href="#" class="w-7 h-7 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center text-white text-[10px]">f</a>
+          <a href="#" class="w-7 h-7 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center text-white text-[10px]">X</a>
+          <a href="#" class="w-7 h-7 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center text-white text-[10px]">▶</a>
+          <a href="#" class="w-7 h-7 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center text-white text-[10px]">✈</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function loadHome() {
+  // Popular Games
+  const { data: games } = await db.from('games').select('*').eq('is_active', true).eq('is_trending', true).limit(6);
+  const gContainer = document.getElementById('popular-games');
+  if (games && games.length > 0) {
+    gContainer.innerHTML = games.map(g => `
+      <a href="/game.html?id=${g.id}" class="gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition group">
+        <div class="aspect-[3/4] bg-dark-3 relative overflow-hidden">
+          ${g.image_url ? `<img src="${g.image_url}" class="w-full h-full object-cover group-hover:scale-105 transition">` : ''}
+          ${g.discount_price ? `<span class="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">-${g.discount_percent || 15}%</span>` : ''}
+        </div>
+        <div class="p-2">
+          <div class="text-xs text-white font-semibold truncate mb-1">${g.title}</div>
+          <div class="flex gap-1 mb-2">
+            ${(g.platforms || []).slice(0, 3).map(p => `<span class="text-[8px] bg-dark-3 px-1.5 py-0.5 rounded text-gray-400">${p}</span>`).join('')}
+          </div>
+          <div class="text-xs text-primary font-bold">TSh ${parseFloat(g.discount_price || g.price || 0).toLocaleString()}</div>
+        </div>
+      </a>
+    `).join('');
+  } else {
+    gContainer.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm">Hakuna games bado</div>`;
+  }
+
+  // Latest Movies
+  const { data: movies } = await db.from('movies').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(5);
+  const mContainer = document.getElementById('latest-movies');
+  if (movies && movies.length > 0) {
+    mContainer.innerHTML = movies.map(m => `
+      <a href="/movie.html?id=${m.id}" class="gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition group">
+        <div class="aspect-[2/3] bg-dark-3 relative overflow-hidden">
+          ${m.image_url ? `<img src="${m.image_url}" class="w-full h-full object-cover">` : ''}
+          <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition">
+            <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
+              <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="p-2">
+          <div class="text-xs text-white font-semibold truncate">${m.title}</div>
+          <div class="text-[10px] text-gray-500">${m.year || ''}</div>
+        </div>
+      </a>
+    `).join('');
+  } else {
+    mContainer.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm">Hakuna movies bado</div>`;
+  }
+
+  // Live Football
+  const { data: matches } = await db.from('sports_matches').select('*').eq('status', 'live').eq('is_active', true).limit(3);
+  const lfContainer = document.getElementById('live-football');
+  if (matches && matches.length > 0) {
+    lfContainer.innerHTML = matches.map(m => `
+      <div class="bg-dark-3 rounded-lg p-2 flex items-center gap-2">
+        <div class="w-7 h-7 rounded-full bg-dark-4 flex items-center justify-center text-[9px] font-bold text-gray-400 shrink-0">${(m.home_team || '?').charAt(0)}</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[10px] text-white font-semibold truncate">${m.home_team} vs ${m.away_team}</div>
+          <div class="text-[9px] text-gray-500">${m.league || ''}</div>
+        </div>
+        <div class="text-center px-2">
+          <div class="text-xs text-white font-bold">${m.home_score} - ${m.away_score}</div>
+        </div>
+        <span class="text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
+          <span class="w-1 h-1 rounded-full bg-white live-pulse"></span>
+          Live ${m.minute || 0}'
+        </span>
+      </div>
+    `).join('');
+  } else {
+    lfContainer.innerHTML = `<div class="text-center text-gray-500 text-xs py-4">Hakuna mechi live bado</div>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadHome);
+</script>
+
 </body>
 </html>
