@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Admin · Coupons - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Admin · Coupons
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'coupons-discounts.html',
+      pg: 'admin',
+      p: 'coupons',
+      admin: 1
+    }, function (a, q, A, pg) {
+      var CK = Object.keys(db.cps || {});
+      return '<h1>Coupons</h1><p class="sub">'
+        + 'Kodi za punguzo kwa wateja</p>'
+        + '<div class="panel">'
+        + '<form onsubmit="addCp(event)"><label>'
+        + 'Kodi<input name="c" required '
+        + 'placeholder="GAMER10"></label><label>'
+        + 'Punguzo %<input name="p" type="number" '
+        + 'min="1" max="90" required></label>'
+        + '<label>Max uses (hiari)'
+        + '<input name="m" type="number" min="1">'
+        + '</label><div class="full">'
+        + '<button class="btn" type="submit">'
+        + 'Create Coupon</button></div></form>'
+        + '</div><div class="panel">'
+        + (
+          CK.length
+            ? '<div class="tw"><table><tr><th>Kodi</th>'
+              + '<th>%</th><th>Zimetumika</th><th></th>'
+              + '</tr>'
+              + CK.map(function (k, i) {
+                var c = db.cps[k];
+                return '<tr><td>'
+                  + esc(c.code)
+                  + '</td><td>'
+                  + Number(c.percentOff)
+                  + '%</td><td>'
+                  + Number(c.uses)
+                  + (
+                    c.maxUses ? ' / ' + Number(c.maxUses) : ''
+                  )
+                  + '</td><td>'
+                  + '<button class="btn d" onclick="delCp('
+                  + i
+                  + ')">Futa</button></td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">Hakuna kodi bado.</div>'
+        )
+        + '</div>';
+    });
+  </script>
+
+</body>
+</html>

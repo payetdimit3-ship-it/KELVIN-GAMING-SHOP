@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>eFootball Squad Market - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: eFootball Squad Market
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'squad-market.html',
+      pg: 'squads',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var SQ = A.filter(function (p) {
+        return p.cat === 'eFootball Squad'
+          && (!q || p.title.toLowerCase().indexOf(q) > -1);
+      });
+      return '<div class="hero" '
+        + 'style="padding:44px 28px"><h1>'
+        + 'eFOOTBALL SQUAD MARKET</h1>'
+        + '<p class="sub" style="max-width:640px">'
+        + 'Nunua kikosi kilichokaguliwa. Akaunti '
+        + 'inalindwa na mfumo hadi malipo '
+        + 'yakamilike.</p>'
+        + '<a class="btn" href="sell-squad.html">'
+        + 'Uza kikosi chako</a></div><div '
+        + 'class="grid" '
+        + 'style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-top:14px">'
+        + [
+          '1. Muuzaji anawasilisha',
+          '2. Admin anakagua na kuchukua umiliki',
+          '3. Unalipa kupitia duka',
+          '4. Unapata Gmail + password'
+        ].map(function (t) {
+          return '<div class="card"><div class="b"><b>'
+            + t
+            + '</b></div></div>';
+        }).join('')
+        + '</div><h2>'
+        + SQ.length
+        + ' vikosi</h2>'
+        + (
+          SQ.length
+            ? '<div class="grid">'
+              + SQ.map(function (p) {
+                return '<div style="position:relative">'
+                  + card(p)
+                  + '<span class="pill on1" '
+                  + 'style="position:absolute;top:8px;left:8px">'
+                  + '✔ Imekaguliwa</span></div>';
+              }).join('')
+              + '</div>'
+            : emptyAdmin('Hakuna kikosi bado.')
+        )
+        + aiPanel(
+          'sq',
+          '🤖 Squad Assistant',
+          'Uliza kuhusu kununua au kuuza kikosi '
+            + 'kwa usalama. Usiandike password kwenye '
+            + 'chat.'
+        );
+    });
+  </script>
+
+</body>
+</html>

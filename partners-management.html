@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Admin · Partners - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Admin · Partners
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'partners-management.html',
+      pg: 'admin',
+      p: 'partners',
+      admin: 1
+    }, function (a, q, A, pg) {
+      return '<h1>Partners &amp; Matangazo</h1>'
+        + '<p class="sub">Maombi ya biashara na '
+        + 'msaidizi wa AI wa kupanga ushirikiano'
+        + '</p>'
+        + aiPanel(
+          'pt',
+          '🤝 AI Partnership Assistant',
+          'AI haina internet: inakusaidia kupanga '
+            + 'aina za washirika, kuandika proposal na '
+            + 'ujumbe, na kukagua utapeli. Thibitisha '
+            + 'kampuni yoyote mwenyewe.',
+          '<select name="md" '
+            + 'style="max-width:220px">'
+            + '<option value="find">'
+            + 'Tafuta aina za washirika</option>'
+            + '<option value="proposal">Andika proposal'
+            + '</option><option value="outreach">'
+            + 'Ujumbe wa kuwasiliana</option>'
+            + '<option value="packages">'
+            + 'Vifurushi vya matangazo</option>'
+            + '<option value="vet">'
+            + 'Kagua utapeli (vetting)</option>'
+            + '</select>'
+        )
+        + '<div class="panel">'
+        + '<h2 style="margin-top:0">'
+        + 'Maombi ya biashara ('
+        + db.inq.length
+        + ')</h2>'
+        + (
+          db.inq.length
+            ? '<div class="tw"><table><tr><th>Biashara'
+              + '</th><th>Mawasiliano</th><th>Ujumbe</th>'
+              + '<th>Tarehe</th><th></th></tr>'
+              + db.inq.map(function (x, i) {
+                return '<tr><td>'
+                  + esc(x.company)
+                  + '<br><small class="sub">'
+                  + esc(x.website)
+                  + '</small></td><td>'
+                  + esc(x.contact)
+                  + '<br>'
+                  + esc(x.phone)
+                  + '<br>'
+                  + esc(x.email)
+                  + '</td><td>'
+                  + esc(x.message)
+                  + (
+                    x.budget
+                      ? '<br><small class="sub">Bajeti: '
+                        + esc(x.budget)
+                        + '</small>'
+                      : ''
+                  )
+                  + '</td><td>'
+                  + new Date(x.createdAt).toLocaleDateString()
+                  + '</td><td>'
+                  + '<button class="btn d" onclick="delInq('
+                  + i
+                  + ')">Futa</button></td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">Hakuna maombi bado.</div>'
+        )
+        + '</div>';
+    });
+  </script>
+
+</body>
+</html>

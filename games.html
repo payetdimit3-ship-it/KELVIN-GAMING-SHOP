@@ -1,684 +1,87 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Detail - LifeisGameTz</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          primary: '#7c3aed', 'primary-dark': '#6d28d9',
-          dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540',
-        },
-        fontFamily: { sans: ['Inter', 'sans-serif'] }
-      }
-    }
-  }
-</script>
-<style>
-  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-track { background: #0f0f1e; }
-  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
-  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
-  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
-  .platform-btn.active { background: #7c3aed; color: white; }
-  .tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Games - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
 </head>
-<body class="min-h-screen">
+<body>
 
-<!-- TOP BAR -->
-<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
-  <div class="flex items-center justify-between px-4 py-3 gap-4">
-    <a href="/" class="flex items-center gap-3 shrink-0">
-      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
-      </div>
-      <div>
-        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
-        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
-      </div>
-    </a>
-    <div class="flex-1 max-w-2xl hidden md:block">
-      <div class="relative">
-        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" placeholder="Tafuta game, filamu, kozi, bidhaa..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
-      </div>
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
     </div>
-    <div class="flex items-center gap-2 shrink-0">
-      <button class="relative w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
-        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-      </button>
-      <button class="relative w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
-        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">2</span>
-      </button>
-      <div class="hidden md:flex items-center gap-2 bg-dark-3 rounded-full px-4 py-2">
-        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-        <span id="top-wallet" class="text-sm font-semibold text-gray-200">TSh 12,500</span>
-      </div>
-      <div class="flex items-center gap-2 bg-dark-3 rounded-full pl-1 pr-3 py-1">
-        <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        </div>
-        <div class="hidden md:block">
-          <div id="top-name" class="text-sm font-semibold text-gray-200 leading-tight">User</div>
-          <div class="text-[10px] text-gray-500 leading-tight">User</div>
-        </div>
-      </div>
-    </div>
+
   </div>
-</header>
 
-<div class="flex">
+  <div id="toast" role="status"></div>
 
-  <!-- SIDEBAR -->
-  <aside class="hidden lg:block w-64 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16 overflow-y-auto max-h-[calc(100vh-64px)]">
-    <nav id="sidebar-nav" class="py-4">
-      <div class="px-4 py-2"><div class="skeleton h-10 rounded-lg mb-2"></div></div>
-    </nav>
-  </aside>
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
 
-  <!-- MAIN -->
-  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
-
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-400">
-      <a href="/" class="hover:text-primary">Home</a>
-      <span>›</span>
-      <a href="/games" class="hover:text-primary">Games</a>
-      <span>›</span>
-      <span class="text-white font-semibold" id="breadcrumb-title">Game Detail</span>
-    </div>
-
-    <!-- GAME HEADER -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- LEFT: Gallery -->
-      <div class="lg:col-span-2 space-y-3">
-        
-        <!-- Main Image + Thumbnails -->
-        <div class="flex gap-3">
-          <!-- Thumbnails Column -->
-          <div class="flex flex-col gap-2 w-16 shrink-0" id="thumbnails">
-            <!-- Inajazwa na JS -->
-          </div>
-          
-          <!-- Main Image -->
-          <div class="flex-1 relative gradient-card rounded-2xl border border-dark-4 overflow-hidden aspect-[16/10]" id="main-image">
-            <div class="w-full h-full flex items-center justify-center">
-              <svg class="w-16 h-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            </div>
-            <span class="absolute top-3 left-3 bg-primary text-white text-xs font-bold px-3 py-1 rounded-lg">Best Seller</span>
-            <div class="absolute bottom-3 right-3 flex items-center gap-2">
-              <button class="w-8 h-8 rounded-full bg-dark-2/80 flex items-center justify-center hover:bg-dark-2">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-              </button>
-              <span class="text-xs text-white bg-dark-2/80 px-2 py-1 rounded">1/5</span>
-              <button class="w-8 h-8 rounded-full bg-dark-2/80 flex items-center justify-center hover:bg-dark-2">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Video Thumbnails -->
-        <div class="grid grid-cols-3 gap-3">
-          <div class="relative gradient-card rounded-xl border border-dark-4 overflow-hidden aspect-video">
-            <div class="w-full h-full bg-dark-3 flex items-center justify-center">
-              <span class="text-xs text-white font-semibold">GAMEPLAY TRAILER</span>
-            </div>
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="w-10 h-10 rounded-full bg-primary/80 flex items-center justify-center">
-                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              </div>
-            </div>
-          </div>
-          <div class="relative gradient-card rounded-xl border border-dark-4 overflow-hidden aspect-video">
-            <div class="w-full h-full bg-dark-3"></div>
-          </div>
-          <div class="relative gradient-card rounded-xl border border-dark-4 overflow-hidden aspect-video">
-            <div class="w-full h-full bg-dark-3 flex items-center justify-center">
-              <span class="text-xs text-white font-semibold">FC 26</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- RIGHT: Info -->
-      <div class="space-y-4">
-        
-        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-          
-          <!-- Title -->
-          <h1 id="game-title" class="text-2xl font-bold text-white mb-2">Game Title</h1>
-          
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-2 mb-3" id="game-tags">
-            <span class="text-xs bg-dark-3 text-gray-400 px-2 py-1 rounded">EA SPORTS</span>
-            <span class="text-xs bg-dark-3 text-gray-400 px-2 py-1 rounded">Sports</span>
-            <span class="text-xs bg-dark-3 text-gray-400 px-2 py-1 rounded">Football</span>
-            <span class="text-xs bg-dark-3 text-gray-400 px-2 py-1 rounded">Multiplayer</span>
-          </div>
-
-          <!-- Rating -->
-          <div class="flex items-center gap-2 mb-4">
-            <div class="flex text-yellow-400 text-sm">★★★★★</div>
-            <span id="game-rating" class="text-sm text-white font-semibold">4.7</span>
-            <span id="game-reviews" class="text-xs text-gray-500">(2,543 reviews)</span>
-          </div>
-
-          <!-- Platforms icons -->
-          <div class="flex flex-wrap gap-2 mb-4" id="game-platforms-icons">
-            <!-- Inajazwa na JS -->
-          </div>
-
-          <!-- Price -->
-          <div class="flex items-baseline gap-3 mb-4">
-            <span id="game-price" class="text-3xl font-extrabold text-white">TSh 0</span>
-            <span id="game-old-price" class="text-gray-500 line-through text-sm"></span>
-            <span id="game-discount" class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded"></span>
-          </div>
-
-          <!-- Delivery -->
-          <div class="bg-primary/10 border border-primary/30 rounded-xl p-3 mb-4 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            </div>
-            <div>
-              <div class="text-sm font-semibold text-white">Digital Download</div>
-              <div class="text-xs text-gray-400">Instant delivery after purchase</div>
-            </div>
-          </div>
-
-          <!-- Platform Select -->
-          <div class="mb-4">
-            <label class="block text-sm text-gray-300 mb-2 font-semibold">Select Platform</label>
-            <div class="grid grid-cols-5 gap-2" id="platform-select">
-              <!-- Inajazwa na JS -->
-            </div>
-          </div>
-
-          <!-- Quantity -->
-          <div class="mb-4">
-            <label class="block text-sm text-gray-300 mb-2 font-semibold">Quantity</label>
-            <div class="flex items-center gap-3">
-              <button onclick="changeQty(-1)" class="w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-white">−</button>
-              <span id="qty-display" class="text-white font-bold w-12 text-center">1</span>
-              <button onclick="changeQty(1)" class="w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-white">+</button>
-            </div>
-          </div>
-
-          <!-- Buttons -->
-          <div class="grid grid-cols-3 gap-2 mb-4">
-            <button id="add-to-cart" class="col-span-2 gradient-primary text-white font-semibold py-3 rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-              Add to Cart
-            </button>
-            <button id="add-wishlist" class="bg-dark-3 hover:bg-dark-4 border border-dark-4 rounded-xl flex items-center justify-center text-white">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-            </button>
-          </div>
-
-          <!-- Trust Badges -->
-          <div class="grid grid-cols-3 gap-2 pt-4 border-t border-dark-4">
-            <div class="text-center">
-              <svg class="w-5 h-5 text-primary mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              <div class="text-[10px] text-gray-400">Instant Delivery</div>
-            </div>
-            <div class="text-center">
-              <svg class="w-5 h-5 text-primary mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-              <div class="text-[10px] text-gray-400">Secure Payment</div>
-            </div>
-            <div class="text-center">
-              <svg class="w-5 h-5 text-primary mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-              <div class="text-[10px] text-gray-400">24/7 Support</div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Game Trailer Box -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-4">
-          <h3 class="text-sm font-bold text-white mb-3">Game Trailer</h3>
-          <div class="relative rounded-xl overflow-hidden aspect-video bg-dark-3">
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="w-12 h-12 rounded-full gradient-primary flex items-center justify-center cursor-pointer hover:scale-110 transition">
-                <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              </div>
-            </div>
-            <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-              <div class="text-xs text-white font-semibold">EA SPORTS FC 26 Official Trailer</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- TABS -->
-    <div class="flex gap-6 border-b border-dark-4 overflow-x-auto scrollbar-hide">
-      <button class="tab-btn active px-0 py-3 text-sm font-semibold border-b-2 border-transparent whitespace-nowrap" data-tab="overview">Overview</button>
-      <button class="tab-btn px-0 py-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent whitespace-nowrap" data-tab="features">Features</button>
-      <button class="tab-btn px-0 py-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent whitespace-nowrap" data-tab="requirements">System Requirements</button>
-      <button class="tab-btn px-0 py-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent whitespace-nowrap" data-tab="reviews">Reviews (2,543)</button>
-    </div>
-
-    <!-- TAB: Overview -->
-    <div id="tab-overview" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      <!-- About This Game -->
-      <div class="lg:col-span-2 gradient-card rounded-2xl border border-dark-4 p-6">
-        <h3 class="text-white font-bold mb-4">About This Game</h3>
-        <p id="game-description" class="text-sm text-gray-400 leading-relaxed mb-6">
-          Loading description...
-        </p>
-        <div class="space-y-3" id="game-features">
-          <!-- Inajazwa na JS -->
-        </div>
-      </div>
-
-      <!-- Game Info -->
-      <div class="gradient-card rounded-2xl border border-dark-4 p-6 space-y-4">
-        <h3 class="text-white font-bold mb-2">Game Info</h3>
-        <div class="space-y-3">
-          <div class="flex gap-3">
-            <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-            </div>
-            <div>
-              <div class="text-xs text-gray-500">Genre</div>
-              <div class="text-sm text-white font-semibold" id="info-genre">-</div>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            </div>
-            <div>
-              <div class="text-xs text-gray-500">Developer</div>
-              <div class="text-sm text-white font-semibold" id="info-developer">-</div>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            </div>
-            <div>
-              <div class="text-xs text-gray-500">Release Date</div>
-              <div class="text-sm text-white font-semibold" id="info-release">-</div>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
-            </div>
-            <div>
-              <div class="text-xs text-gray-500">Languages</div>
-              <div class="text-sm text-white font-semibold" id="info-languages">-</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: Features -->
-    <div id="tab-features" class="tab-content hidden gradient-card rounded-2xl border border-dark-4 p-6">
-      <h3 class="text-white font-bold mb-4">Features</h3>
-      <div id="features-list" class="space-y-3"></div>
-    </div>
-
-    <!-- TAB: Requirements -->
-    <div id="tab-requirements" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="gradient-card rounded-2xl border border-dark-4 p-6">
-        <h3 class="text-white font-bold mb-4">Minimum Requirements</h3>
-        <div id="min-req" class="space-y-2 text-sm"></div>
-      </div>
-      <div class="gradient-card rounded-2xl border border-dark-4 p-6">
-        <h3 class="text-white font-bold mb-4">Recommended Requirements</h3>
-        <div id="rec-req" class="space-y-2 text-sm"></div>
-      </div>
-    </div>
-
-    <!-- TAB: Reviews -->
-    <div id="tab-reviews" class="tab-content hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Rating Summary -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-6">
-          <div class="flex items-baseline gap-3 mb-2">
-            <div class="text-4xl font-extrabold text-white">4.7</div>
-            <div class="text-yellow-400 text-lg">★★★★★</div>
-          </div>
-          <div class="text-xs text-gray-500 mb-4">Based on 2,543 reviews</div>
-          
-          <div class="space-y-2">
-            <div class="flex items-center gap-2 text-xs">
-              <span class="text-gray-400 w-4">5★</span>
-              <div class="flex-1 bg-dark-3 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width:78%"></div></div>
-              <span class="text-gray-400 w-8 text-right">78%</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs">
-              <span class="text-gray-400 w-4">4★</span>
-              <div class="flex-1 bg-dark-3 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width:14%"></div></div>
-              <span class="text-gray-400 w-8 text-right">14%</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs">
-              <span class="text-gray-400 w-4">3★</span>
-              <div class="flex-1 bg-dark-3 rounded-full h-2"><div class="bg-yellow-500 h-2 rounded-full" style="width:5%"></div></div>
-              <span class="text-gray-400 w-8 text-right">5%</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs">
-              <span class="text-gray-400 w-4">2★</span>
-              <div class="flex-1 bg-dark-3 rounded-full h-2"><div class="bg-orange-500 h-2 rounded-full" style="width:2%"></div></div>
-              <span class="text-gray-400 w-8 text-right">2%</span>
-            </div>
-            <div class="flex items-center gap-2 text-xs">
-              <span class="text-gray-400 w-4">1★</span>
-              <div class="flex-1 bg-dark-3 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width:1%"></div></div>
-              <span class="text-gray-400 w-8 text-right">1%</span>
-            </div>
-          </div>
-
-          <button class="w-full gradient-primary text-white text-sm font-semibold py-2.5 rounded-lg mt-6">Write a Review</button>
-        </div>
-
-        <!-- Reviews List -->
-        <div class="lg:col-span-2 space-y-4" id="reviews-list">
-          <!-- Inajazwa na JS -->
-        </div>
-      </div>
-    </div>
-
-    <!-- RELATED PRODUCTS -->
-    <section>
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold text-white">Related Products</h2>
-        <a href="/games" class="text-sm text-primary hover:text-primary-dark flex items-center gap-1 font-semibold">View All →</a>
-      </div>
-      <div id="related-games" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"></div>
-    </section>
-
-  </main>
-</div>
-
-<script src="config.js"></script>
-<script>
-const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let currentGame = null;
-let selectedPlatform = 'PS5';
-let quantity = 1;
-
-// Tabs
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => {
-      b.classList.remove('active', 'text-primary', 'border-primary');
-      b.classList.add('text-gray-400', 'border-transparent');
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Games
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'games.html',
+      pg: 'games',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var cat = a[2] ? decodeURIComponent(a[2]) : '',
+        L = A.filter(function (p) {
+          return (!q || p.title.toLowerCase().indexOf(q) > -1)
+            && (!cat || p.cat === cat);
+        });
+      return '<h1>Store</h1><p class="sub">'
+        + 'Games zote zinazopatikana</p><div '
+        + 'class="row" '
+        + 'style="flex-wrap:wrap;margin-bottom:14px">'
+        + '<a class="btn '
+        + (cat ? 'o' : '')
+        + '" href="store.html">All</a>'
+        + CATS.map(function (c) {
+          return '<a class="btn '
+            + (cat === c ? '' : 'o')
+            + '" href="store.html?p='
+            + encodeURIComponent(c)
+            + '">'
+            + c
+            + '</a>';
+        }).join('')
+        + '</div>'
+        + (
+          L.length
+            ? '<div class="grid">'
+              + L.map(card).join('')
+              + '</div>'
+            : emptyAdmin('Hakuna game inayolingana.')
+        )
+        + advisorHtml(
+          'p:' + (cat || 'Store'),
+          cat || 'Store',
+          ''
+        );
     });
-    btn.classList.add('active', 'text-primary', 'border-primary');
-    btn.classList.remove('text-gray-400', 'border-transparent');
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-    document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
-  });
-});
-
-// Quantity
-function changeQty(delta) {
-  quantity = Math.max(1, quantity + delta);
-  document.getElementById('qty-display').textContent = quantity;
-}
-
-// Get game ID from URL
-function getGameId() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('id');
-}
-
-// Load game
-async function loadGame() {
-  const id = getGameId();
-  if (!id) {
-    document.getElementById('breadcrumb-title').textContent = 'No Game';
-    return;
-  }
-
-  const { data: game, error } = await db
-    .from('games')
-    .select('*, categories(name, slug)')
-    .eq('id', id)
-    .single();
-
-  if (error || !game) {
-    console.error(error);
-    return;
-  }
-
-  currentGame = game;
-  document.title = game.title + ' - LifeisGameTz';
-  document.getElementById('breadcrumb-title').textContent = game.title;
-  document.getElementById('game-title').textContent = game.title;
-  document.getElementById('game-description').textContent = game.description || 'Hakuna maelezo bado.';
-  document.getElementById('game-rating').textContent = (game.rating || 0).toFixed(1);
-  document.getElementById('game-reviews').textContent = `(${(game.reviews_count || 0).toLocaleString()} reviews)`;
-
-  // Price
-  const finalPrice = game.discount_price || game.price;
-  document.getElementById('game-price').textContent = `TSh ${finalPrice.toLocaleString()}`;
-  if (game.discount_price && game.discount_price < game.price) {
-    document.getElementById('game-old-price').textContent = `TSh ${game.price.toLocaleString()}`;
-    document.getElementById('game-discount').textContent = `-${game.discount_percent}%`;
-  }
-
-  // Info
-  document.getElementById('info-genre').textContent = game.categories?.name || '-';
-  document.getElementById('info-developer').textContent = game.developer || '-';
-  document.getElementById('info-release').textContent = game.release_date || '-';
-  document.getElementById('info-languages').textContent = (game.languages || []).join(', ') || '-';
-
-  // Platforms
-  const platforms = game.platforms || [];
-  const platformIcons = { 'PS5': 'PS5', 'PS4': 'PS4', 'XBOX': 'XBOX', 'PC': 'PC', 'Nintendo Switch': 'SWITCH', 'Switch': 'SWITCH' };
-  document.getElementById('game-platforms-icons').innerHTML = platforms.map(p => 
-    `<span class="text-xs bg-dark-3 text-gray-300 px-2 py-1 rounded">${platformIcons[p] || p}</span>`
-  ).join('');
-
-  // Platform select
-  document.getElementById('platform-select').innerHTML = platforms.map((p, i) => 
-    `<button onclick="selectPlatform('${p}', this)" class="platform-btn ${i === 0 ? 'active' : ''} py-2 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300 hover:bg-dark-4 transition">${platformIcons[p] || p}</button>`
-  ).join('');
-
-  // Thumbnails
-  const gallery = game.gallery_images || [];
-  document.getElementById('thumbnails').innerHTML = Array(5).fill(0).map((_, i) => `
-    <div class="w-16 h-16 rounded-lg border-2 ${i === 0 ? 'border-primary' : 'border-dark-4'} bg-dark-3 overflow-hidden cursor-pointer">
-      ${gallery[i] ? `<img src="${gallery[i]}" class="w-full h-full object-cover">` : ''}
-    </div>
-  `).join('');
-
-  // Main image
-  if (gallery[0]) {
-    document.getElementById('main-image').innerHTML = `<img src="${gallery[0]}" class="w-full h-full object-cover">`;
-  }
-
-  // Features (from description or separate)
-  const features = game.features || ['Authentic teams, leagues and players', 'Improved gameplay', 'Ultimate Team, Career Mode, Clubs', 'Cross-play and online multiplayer'];
-  document.getElementById('game-features').innerHTML = features.map(f => `
-    <div class="flex items-start gap-3">
-      <div class="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center shrink-0 mt-0.5">
-        <svg class="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-      </div>
-      <span class="text-sm text-gray-300">${f}</span>
-    </div>
-  `).join('');
-
-  document.getElementById('features-list').innerHTML = features.map(f => `
-    <div class="flex items-start gap-3 p-3 bg-dark-3 rounded-lg">
-      <svg class="w-5 h-5 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-      <span class="text-sm text-gray-300">${f}</span>
-    </div>
-  `).join('');
-
-  // Requirements (placeholder)
-  document.getElementById('min-req').innerHTML = `
-    <div class="text-gray-400">OS: Windows 10 64-bit</div>
-    <div class="text-gray-400">CPU: Intel Core i5-6600K</div>
-    <div class="text-gray-400">RAM: 8 GB</div>
-    <div class="text-gray-400">GPU: NVIDIA GTX 1050 Ti</div>
-    <div class="text-gray-400">Storage: 50 GB</div>
-  `;
-  document.getElementById('rec-req').innerHTML = `
-    <div class="text-gray-400">OS: Windows 11 64-bit</div>
-    <div class="text-gray-400">CPU: Intel Core i7-8700</div>
-    <div class="text-gray-400">RAM: 16 GB</div>
-    <div class="text-gray-400">GPU: NVIDIA RTX 2060</div>
-    <div class="text-gray-400">Storage: 50 GB SSD</div>
-  `;
-
-  // Reviews (placeholder)
-  document.getElementById('reviews-list').innerHTML = `
-    <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-      <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">J</div>
-        <div class="flex-1">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-white font-semibold text-sm">Juma Gamer</div>
-              <div class="text-yellow-400 text-xs">★★★★★</div>
-            </div>
-            <div class="text-xs text-gray-500">3 days ago</div>
-          </div>
-          <p class="text-sm text-gray-300 mt-2">Game ni nzuri sana! Graphics ni za hali ya juu na gameplay ni tamu. Nimefurahia sana. Asante LifeisGameTz!</p>
-        </div>
-      </div>
-    </div>
-    <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-      <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">R</div>
-        <div class="flex-1">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="text-white font-semibold text-sm">Rashid Pro</div>
-              <div class="text-yellow-400 text-xs">★★★★★</div>
-            </div>
-            <div class="text-xs text-gray-500">1 week ago</div>
-          </div>
-          <p class="text-sm text-gray-300 mt-2">Delivery ni ya haraka, nimepata ndani ya dakika 2. Asante!</p>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Related games
-  await loadRelatedGames(game.category_id, game.id);
-}
-
-function selectPlatform(platform, btn) {
-  selectedPlatform = platform;
-  document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-async function loadRelatedGames(categoryId, excludeId) {
-  const { data } = await db
-    .from('games')
-    .select('*')
-    .eq('is_active', true)
-    .eq('category_id', categoryId)
-    .neq('id', excludeId)
-    .limit(5);
-
-  const container = document.getElementById('related-games');
-  if (!data || data.length === 0) {
-    container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm">Hakuna games nyingine</div>`;
-    return;
-  }
-
-  container.innerHTML = data.map(game => {
-    const finalPrice = game.discount_price || game.price;
-    return `
-      <a href="/game.html?id=${game.id}" class="group gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition">
-        <div class="aspect-[3/4] bg-dark-3">
-          ${game.image_url ? `<img src="${game.image_url}" class="w-full h-full object-cover">` : ''}
-        </div>
-        <div class="p-3">
-          <h3 class="text-xs font-semibold text-white mb-1 line-clamp-2">${game.title}</h3>
-          <div class="text-primary font-bold text-xs mb-2">TSh ${finalPrice.toLocaleString()}</div>
-          <button class="w-full gradient-primary text-white text-[10px] font-semibold py-1.5 rounded">Add to Cart</button>
-        </div>
-      </a>
-    `;
-  }).join('');
-}
-
-// Add to cart
-document.getElementById('add-to-cart').addEventListener('click', async () => {
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) {
-    window.location.href = '/login.html';
-    return;
-  }
-
-  const { error } = await db.from('cart_items').insert({
-    user_id: session.user.id,
-    game_id: currentGame.id,
-    quantity: quantity
-  });
-
-  if (error) {
-    alert('Kosa: ' + error.message);
-    return;
-  }
-
-  alert('✅ Game imeongezwa kwenye kikapu!');
-});
-
-// Sidebar
-async function loadSidebar() {
-  const { data } = await db.from('sidebar_menu').select('*').eq('is_active', true).order('display_order');
-  if (!data) return;
-  const groups = {};
-  data.forEach(item => {
-    if (!groups[item.group_name]) groups[item.group_name] = [];
-    groups[item.group_name].push(item);
-  });
-  const nav = document.getElementById('sidebar-nav');
-  nav.innerHTML = '';
-  const iconMap = { home: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>', store: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>', games: '<circle cx="12" cy="12" r="10"/>', cart: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>', profile: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>', wishlist: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>', health: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>' };
-  Object.keys(groups).forEach(groupName => {
-    const groupEl = document.createElement('div');
-    groupEl.className = 'mb-4';
-    const title = document.createElement('div');
-    title.className = 'px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 font-bold';
-    title.textContent = groupName;
-    groupEl.appendChild(title);
-    groups[groupName].forEach(item => {
-      const link = document.createElement('a');
-      link.href = item.link || '#';
-      link.className = 'flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition';
-      link.innerHTML = `<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${iconMap[item.icon] || iconMap.games}</svg><span>${item.label}</span>`;
-      groupEl.appendChild(link);
-    });
-    nav.appendChild(groupEl);
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  loadSidebar();
-  loadGame();
-});
-</script>
+  </script>
 
 </body>
 </html>

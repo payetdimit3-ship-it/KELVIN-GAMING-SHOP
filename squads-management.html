@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Admin · Squads - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Admin · Squads
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'squads-management.html',
+      pg: 'admin',
+      p: 'squads',
+      admin: 1
+    }, function (a, q, A, pg) {
+      var PS = db.asq.filter(function (s) {
+        return s.status === 'pending_review';
+      }),
+        DN = db.asq.filter(function (s) {
+          return s.status !== 'pending_review';
+        });
+      return '<h1>Squads (eFootball)</h1>'
+        + '<p class="sub">Kagua, chukua umiliki wa '
+        + 'akaunti, kisha weka live.</p>'
+        + '<div class="panel">'
+        + '<h2 style="margin-top:0">'
+        + 'Weka kikosi chako (admin)</h2>'
+        + '<form onsubmit="admCreate(event)">'
+        + '<label>Jina la kikosi'
+        + '<input name="t" required></label><label>'
+        + 'Bei (TSh)<input name="p" type="number" '
+        + 'min="1000" required></label>'
+        + '<label class="full">Maelezo'
+        + '<textarea name="d" rows="2"></textarea>'
+        + '</label><label>Muhtasari mfupi'
+        + '<input name="s"></label><label>'
+        + 'Links za picha (kila mstari 1)'
+        + '<textarea name="pr" rows="2"></textarea>'
+        + '</label><label>Gmail ya akaunti'
+        + '<input name="e" type="email" required>'
+        + '</label><label>Password'
+        + '<input name="w" required></label>'
+        + '<div class="full">'
+        + '<button class="btn" type="submit">'
+        + 'Weka Live</button></div></form></div>'
+        + '<h2>Zinazosubiri ukaguzi ('
+        + PS.length
+        + ')</h2>'
+        + (
+          PS.length
+            ? PS.map(sqRev).join('')
+            : '<div class="empty">'
+              + 'Hakuna kikosi kinachosubiri.</div>'
+        )
+        + '<h2>Zilizokamilika</h2>'
+        + '<div class="panel">'
+        + (
+          DN.length
+            ? '<div class="tw"><table><tr><th>Kikosi'
+              + '</th><th>Muuzaji</th><th>Bei</th><th>'
+              + 'Hali</th></tr>'
+              + DN.map(function (x) {
+                return '<tr><td>'
+                  + esc(x.title)
+                  + '</td><td>'
+                  + esc(x.sellerEmail)
+                  + '</td><td>'
+                  + tsh(x.price)
+                  + '</td><td>'
+                  + esc(x.status)
+                  + (x.note ? ' — ' + esc(x.note) : '')
+                  + '</td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">Bado.</div>'
+        )
+        + '</div>';
+    });
+  </script>
+
+</body>
+</html>

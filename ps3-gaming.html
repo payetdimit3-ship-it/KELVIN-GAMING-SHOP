@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>PS3 Gaming - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: PS3 Gaming
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'ps3-gaming.html',
+      pg: 'platform',
+      p: 'PS3',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var pl = decodeURIComponent(a[2] || ''),
+        nm = (
+          PL.find(function (x) { return x[0] === pl; })
+            || [pl, pl]
+        )[1],
+        L2 = A.filter(function (p) {
+          return p.platform === pl
+            && (!q || p.title.toLowerCase().indexOf(q) > -1);
+        });
+      return '<div class="hero"><h1>'
+        + esc(nm.toUpperCase())
+        + '</h1><p class="sub">Games bora za '
+        + esc(nm)
+        + '.</p></div><h2>'
+        + L2.length
+        + ' Games</h2>'
+        + (
+          L2.length
+            ? '<div class="grid">'
+              + L2.map(card).join('')
+              + '</div>'
+            : emptyAdmin(
+              'Hakuna game ya ' + esc(pl) + ' bado.'
+            )
+        )
+        + advisorHtml('p:' + pl, pl, '');
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>My Games / Library - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: My Games / Library
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'my-games-library.html',
+      pg: 'library',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var l = libItems();
+      return '<h1>My Games / Library</h1>'
+        + '<p class="sub">Games ulizonunua</p>'
+        + (
+          l.length
+            ? '<div class="grid">'
+              + l.map(function (p) {
+                return '<div class="card">'
+                  + '<a href="product-details.html?p='
+                  + p.id
+                  + '">'
+                  + img(p)
+                  + '</a><div class="b"><b>'
+                  + esc(p.title)
+                  + '</b>'
+                  + codesHtml(p)
+                  + (
+                    linksHtml(p, 0)
+                      || (
+                        codesHtml(p)
+                          ? ''
+                          : '<span class="sub">Hakuna link bado</span>'
+                      )
+                  )
+                  + '</div></div>';
+              }).join('')
+              + '</div>'
+            : '<div class="empty">'
+              + 'Bado hujanunua game yoyote.</div>'
+        );
+    });
+  </script>
+
+</body>
+</html>

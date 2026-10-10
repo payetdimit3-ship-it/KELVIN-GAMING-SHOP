@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Support - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Support
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'contact-support.html',
+      pg: 'support',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var m = me() || {},
+        CT = [
+          'Malipo',
+          'Oda / Library',
+          'Akaunti',
+          'Download / Game',
+          'Squad Market',
+          'Biashara / Matangazo',
+          'Nyingine'
+        ];
+      return '<h1>Support</h1><p class="sub">Tuambie '
+        + 'tatizo lako na tutakujibu. Majibu ya '
+        + 'haraka yako kwenye '
+        + '<a href="faq-help.html">FAQ &amp; Help'
+        + '</a>.</p><div class="panel">'
+        + '<form onsubmit="sendTicket(event)">'
+        + '<label>Jina'
+        + '<input name="n" required value="'
+        + esc(m.name || '')
+        + '"></label><label>'
+        + 'Simu au email ya kukujibu'
+        + '<input name="c" required value="'
+        + esc(m.phone || m.email || '')
+        + '"></label><label>Aina ya tatizo'
+        + '<select name="k">'
+        + CT.map(function (c) {
+          return '<option>' + c + '</option>';
+        }).join('')
+        + '</select></label><label>'
+        + 'Namba ya oda (hiari)<input name="o" '
+        + 'placeholder="mf. GH123456789"></label>'
+        + '<label class="full">Ujumbe<textarea '
+        + 'name="m" rows="4" required '
+        + 'minlength="5"></textarea></label>'
+        + '<div class="full">'
+        + '<button class="btn" type="submit">Tuma'
+        + '</button></div></form></div>'
+        + '<p class="sub">'
+        + 'Usiandike password yako kwenye ujumbe.'
+        + '</p>';
+    });
+  </script>
+
+</body>
+</html>

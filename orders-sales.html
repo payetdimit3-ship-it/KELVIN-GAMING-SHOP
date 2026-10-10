@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Admin · Orders - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Admin · Orders
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'orders-sales.html',
+      pg: 'admin',
+      p: 'orders',
+      admin: 1
+    }, function (a, q, A, pg) {
+      return '<h1>Orders</h1><p class="sub">'
+        + 'Oda zote za wateja</p>'
+        + '<div class="panel">'
+        + (
+          db.orders.length
+            ? '<div class="tw"><table><tr><th>Order'
+              + '</th><th>Bidhaa</th><th>Amount</th><th>'
+              + 'Date</th><th>Status</th><th></th></tr>'
+              + db.orders.map(function (o) {
+                return '<tr><td>'
+                  + esc(o.ref)
+                  + '</td><td>'
+                  + esc(o.items.join(', '))
+                  + '</td><td>'
+                  + tsh(o.total)
+                  + '</td><td>'
+                  + o.date
+                  + '</td><td>'
+                  + esc(o.status || '')
+                  + '</td><td>'
+                  + (
+                    isAdm() && o.status === 'Pending'
+                      ? '<button class="btn" onclick="conf(\''
+                        + o.id
+                        + '\')">Confirm</button> '
+                        + '<button class="btn d" onclick="rej(\''
+                        + o.id
+                        + '\')">Reject</button>'
+                      : ''
+                  )
+                  + '</td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">Bado hakuna oda.</div>'
+        )
+        + '</div>';
+    });
+  </script>
+
+</body>
+</html>

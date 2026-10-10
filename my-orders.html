@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>My Orders - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: My Orders
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'my-orders.html',
+      pg: 'myorders',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var m = me();
+      if (!m)
+        return '<div class="empty">'
+          + 'Ingia kwanza ili uone oda zako.<br><br>'
+          + '<a class="btn" href="login.html">'
+          + 'Login / Register</a></div>';
+      var mo = db.orders.filter(function (o) {
+        return o.u === m.email;
+      }),
+        ST = {
+          Completed: 'on1',
+          Pending: 'off1',
+          Failed: 'off1'
+        };
+      return '<h1>My Orders</h1><p class="sub">'
+        + 'Oda zako zote na hali yake</p>'
+        + (
+          mo.length
+            ? '<div class="panel"><div class="tw">'
+              + '<table><tr><th>Order</th><th>Bidhaa</th>'
+              + '<th>Jumla</th><th>Tarehe</th><th>Hali'
+              + '</th></tr>'
+              + mo.map(function (o) {
+                return '<tr><td>'
+                  + esc(o.ref)
+                  + '</td><td>'
+                  + esc(o.items.join(', '))
+                  + '</td><td>'
+                  + tsh(o.total)
+                  + '</td><td>'
+                  + o.date
+                  + '</td><td><span class="pill '
+                  + (ST[o.status] || 'off1')
+                  + '">'
+                  + esc(o.status)
+                  + '</span></td></tr>';
+              }).join('')
+              + '</table></div></div><p class="sub">'
+              + 'Oda ikiwa <b>Pending</b>'
+              + ', subiri uthibitisho wa malipo. Ikiwa '
+              + '<b>Completed</b>'
+              + ', bidhaa zako ziko kwenye '
+              + '<a href="my-games-library.html">Library'
+              + '</a>. Una tatizo na oda? '
+              + '<a href="contact-support.html">'
+              + 'Wasiliana na Support</a>.</p>'
+            : '<div class="empty">Bado hujaagiza kitu.'
+              + '<br><br>'
+              + '<a class="btn" href="store.html">'
+              + 'Anza kununua</a></div>'
+        );
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Game - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Game
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'product-details.html',
+      pg: 'product',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var p = P(a[2]);
+      if (!p)
+        return '<div class="empty">Bidhaa haipatikani.</div>';
+      return '<div class="det"><div>'
+        + img(p)
+        + '</div><div><h1>'
+        + esc(p.title)
+        + '</h1><p><span class="tag">'
+        + esc(p.platform)
+        + '</span><span class="tag">'
+        + esc(p.cat)
+        + '</span></p><div class="price" '
+        + 'style="font-size:24px">'
+        + ptx(p)
+        + (
+          p.old > p.price
+            ? '<span class="old">' + tsh(p.old) + '</span>'
+            : ''
+        )
+        + '</div><p class="sub">'
+        + esc(p.desc)
+        + '</p>'
+        + linksHtml(p, 1)
+        + proofsHtml(p)
+        + '<div class="row" '
+        + 'style="margin-top:14px">'
+        + '<button class="btn"'
+        + (p.uses && p.stock < 1 ? ' disabled' : '')
+        + ' onclick="'
+        + act(p)
+        + '">'
+        + (
+          p.uses && p.stock < 1
+            ? 'Sold out'
+            : (p.free ? 'Get Free' : 'Add to Cart')
+        )
+        + '</button>'
+        + '<button class="btn o" onclick="wish(\''
+        + p.id
+        + '\')">'
+        + (
+          db.wish.indexOf(p.id) > -1
+            ? '♥ Wishlist'
+            : '♡ Wishlist'
+        )
+        + '</button></div></div></div>'
+        + advisorHtml('g:' + p.id, p.platform, p.title);
+    });
+  </script>
+
+</body>
+</html>

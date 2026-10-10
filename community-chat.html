@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Community - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Community
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'community-chat.html',
+      pg: 'community',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var m1 = me();
+      return '<h1>Community</h1><p class="sub">'
+        + 'Ongea na wachezaji wengine</p>'
+        + '<div class="panel"><div id="cm" '
+        + 'style="max-height:55vh;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:12px">'
+        + chatHtml()
+        + '</div><form class="row" '
+        + 'style="flex-wrap:wrap" '
+        + 'onsubmit="sendChat(event)">'
+        + (
+          m1
+            ? ''
+            : '<input name="n" placeholder="Jina" '
+              + 'style="width:120px" maxlength="32">'
+        )
+        + '<input name="m" '
+        + 'style="flex:1;min-width:140px" '
+        + 'placeholder="Andika ujumbe..." '
+        + 'maxlength="500" autocomplete="off" '
+        + 'required>'
+        + '<button class="btn" type="submit">Tuma'
+        + '</button><button class="btn o" '
+        + 'type="button" '
+        + 'onclick="askChatAI(this.form)">'
+        + '🤖 Uliza AI</button></form>'
+        + '<p class="sub" style="margin:10px 0 0">'
+        + 'Andika <b>@ai</b> mwanzoni (au bonyeza '
+        + '🤖 Uliza AI) ili AI ijibu swali lolote '
+        + 'hadharani, la gaming au la.</p></div>';
+    });
+  </script>
+
+</body>
+</html>

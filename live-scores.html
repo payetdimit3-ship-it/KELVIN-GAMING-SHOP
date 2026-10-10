@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Live Scores - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Live Scores
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'live-scores.html',
+      pg: 'live',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var LV = db.live;
+      return '<h1>Live Scores</h1><p class="sub">'
+        + 'Mechi za moja kwa moja na matokeo</p>'
+        + (
+          isAdm()
+            ? '<div class="panel">'
+              + '<h2 style="margin-top:0">Add Match</h2>'
+              + '<form onsubmit="addLive(event)">'
+              + '<label class="full">Title<input '
+              + 'name="t" required '
+              + 'placeholder="Real Madrid vs Barcelona">'
+              + '</label><label>League<input name="l">'
+              + '</label><label>Home<input name="h">'
+              + '</label><label>Away<input name="a">'
+              + '</label><label>Status<select name="s">'
+              + '<option>LIVE</option><option>UPCOMING'
+              + '</option><option>ENDED</option></select>'
+              + '</label><label>Start time'
+              + '<input name="st" placeholder="20:00">'
+              + '</label><label class="full">Stream URL'
+              + '<input name="u" type="url"></label>'
+              + '<div class="full">'
+              + '<button class="btn" type="submit">'
+              + 'Save Match</button></div></form></div>'
+            : ''
+        )
+        + (
+          LV.length
+            ? LV.map(function (s) {
+              var sc = (
+                s.homeScore == null ? '-' : s.homeScore
+              )
+                + ' : '
+                + (s.awayScore == null ? '-' : s.awayScore),
+                u = s.streamUrl || s.videoUrl;
+              return '<div class="panel"><div class="row sp" '
+                + 'style="flex-wrap:wrap"><div><b>'
+                + esc(s.title)
+                + '</b><div class="sub" style="margin:0">'
+                + esc(s.league)
+                + (
+                  s.startTime ? ' · ' + esc(s.startTime) : ''
+                )
+                + '</div></div><div class="row">'
+                + '<b style="font-size:20px">'
+                + esc(s.homeTeam)
+                + ' '
+                + sc
+                + ' '
+                + esc(s.awayTeam)
+                + '</b><span class="pill '
+                + (s.status === 'LIVE' ? 'on1' : 'off1')
+                + '">'
+                + esc(s.status)
+                + (s.minute ? ' ' + esc(s.minute) + "'" : '')
+                + '</span></div></div>'
+                + (
+                  u
+                    ? '<div style="margin-top:10px">'
+                      + player({ videoUrl: u })
+                      + '</div>'
+                    : ''
+                )
+                + (
+                  isAdm()
+                    ? '<form class="row" '
+                      + 'style="margin-top:10px;flex-wrap:wrap" '
+                      + 'onsubmit="setScore(event,\''
+                      + s.id
+                      + '\')"><input name="h" type="number" '
+                      + 'min="0" placeholder="Home" '
+                      + 'style="width:80px" value="'
+                      + (
+                        s.homeScore == null ? '' : s.homeScore
+                      )
+                      + '"><input name="a" type="number" min="0" '
+                      + 'placeholder="Away" style="width:80px" '
+                      + 'value="'
+                      + (
+                        s.awayScore == null ? '' : s.awayScore
+                      )
+                      + '"><input name="m" placeholder="Dk" '
+                      + 'style="width:70px" value="'
+                      + esc(s.minute || '')
+                      + '"><select name="s"><option'
+                      + (
+                        s.status === 'LIVE' ? ' selected' : ''
+                      )
+                      + '>LIVE</option><option'
+                      + (
+                        s.status === 'UPCOMING'
+                          ? ' selected'
+                          : ''
+                      )
+                      + '>UPCOMING</option><option'
+                      + (
+                        s.status === 'ENDED'
+                          ? ' selected'
+                          : ''
+                      )
+                      + '>ENDED</option></select>'
+                      + '<button class="btn" type="submit">Update'
+                      + '</button><button class="btn d" '
+                      + 'type="button" onclick="delLive(\''
+                      + s.id
+                      + '\')">Futa</button></form>'
+                    : ''
+                )
+                + '</div>';
+            }).join('')
+            : '<div class="empty">Hakuna mechi bado.</div>'
+        );
+    });
+  </script>
+
+</body>
+</html>

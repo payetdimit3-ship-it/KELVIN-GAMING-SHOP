@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Free Games - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Free Games
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'free-games.html',
+      pg: 'free',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var F = A.filter(function (p) {
+        return p.free
+          && (!q || p.title.toLowerCase().indexOf(q) > -1);
+      });
+      return '<div class="hero"><h1>FREE GAMES</h1>'
+        + '<p class="sub">Games za bure — bonyeza '
+        + 'Get Free uzipate kwenye Library.</p>'
+        + '</div><h2>'
+        + F.length
+        + ' Games</h2>'
+        + (
+          F.length
+            ? '<div class="grid">'
+              + F.map(card).join('')
+              + '</div>'
+            : emptyAdmin(
+              'Hakuna game ya bure bado. Chagua Type: '
+                + 'Free ukiongeza game.'
+            )
+        );
+    });
+  </script>
+
+</body>
+</html>

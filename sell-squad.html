@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Uza Kikosi - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Uza Kikosi
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'sell-squad.html',
+      pg: 'squads',
+      p: 'sell',
+      admin: 0
+    }, function (a, q, A, pg) {
+      if (!me())
+        return '<div class="empty">'
+          + 'Ingia kwanza ili uuze kikosi.<br><br>'
+          + '<a class="btn" href="login.html">'
+          + 'Login / Register</a></div>';
+      var SS = {
+        pending_review: 'Inakaguliwa',
+        live: 'Live',
+        rejected: 'Imekataliwa'
+      };
+      return '<h1>Uza Kikosi (eFootball)</h1>'
+        + '<p class="sub">'
+        + 'Salama kwa pande zote mbili.</p>'
+        + '<div class="panel">'
+        + '<h2 style="margin-top:0">'
+        + 'Jinsi mfumo unavyokulinda</h2>'
+        + '<ol style="line-height:1.7"><li>'
+        + 'Unawasilisha kikosi pamoja na ushahidi '
+        + 'na akaunti.</li><li>Admin anakagua, '
+        + 'anaingia kwenye akaunti, anabadilisha '
+        + 'password na kuiweka chini ya umiliki wa '
+        + 'duka. <b>Utapoteza ufikiaji</b>'
+        + ' — hakuna kurudi.</li><li>Mnunuzi '
+        + 'analipa kupitia duka tu. Hakuna malipo '
+        + 'nje ya mfumo.</li><li>Mnunuzi akilipa, '
+        + 'mfumo unampa akaunti; unapokea malipo '
+        + 'yako baada ya makubaliano na admin.</li>'
+        + '</ol><p class="sub">Credentials '
+        + 'zinahifadhiwa kwa usimbaji. Usitumie '
+        + 'password ya akaunti nyingine yoyote '
+        + 'muhimu.</p></div><div class="panel">'
+        + '<form onsubmit="subSq(event)"><label>'
+        + 'Jina la kikosi<input name="t" required>'
+        + '</label><label>Bei (TSh)<input name="p" '
+        + 'type="number" min="1000" required>'
+        + '</label><label class="full">Muhtasari '
+        + 'mfupi (mf. OVR, idadi ya legends)'
+        + '<input name="s"></label>'
+        + '<label class="full">Maelezo ya kikosi'
+        + '<textarea name="d" rows="3" required>'
+        + '</textarea></label><label class="full">'
+        + 'Links za picha za ushahidi (kila mstari '
+        + '1)<textarea name="pr" rows="3" '
+        + 'placeholder="https://..."></textarea>'
+        + '</label><label>Gmail ya akaunti'
+        + '<input name="e" type="email" required>'
+        + '</label><label>Password ya sasa<input '
+        + 'name="w" type="password" required>'
+        + '</label><div class="full">'
+        + '<button class="btn" type="submit">'
+        + 'Wasilisha kwa ukaguzi</button></div>'
+        + '</form></div><h2>Maombi yangu</h2>'
+        + (
+          db.sq.length
+            ? '<div class="panel"><div class="tw">'
+              + '<table><tr><th>Kikosi</th><th>Bei</th>'
+              + '<th>Hali</th></tr>'
+              + db.sq.map(function (x) {
+                return '<tr><td>'
+                  + esc(x.title)
+                  + '</td><td>'
+                  + tsh(x.price)
+                  + '</td><td>'
+                  + (SS[x.status] || esc(x.status))
+                  + (x.note ? ' — ' + esc(x.note) : '')
+                  + '</td></tr>';
+              }).join('')
+              + '</table></div></div>'
+            : '<div class="empty">'
+              + 'Bado hujawasilisha kikosi.</div>'
+        );
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Game Requests - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Game Requests
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'game-requests.html',
+      pg: 'requests',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var RQ = db.reqs;
+      return '<h1>Game Requests</h1><p class="sub">'
+        + 'Omba game usiyoiona — wengine wanapiga '
+        + 'kura</p><div class="panel">'
+        + '<form onsubmit="addReq(event)">'
+        + '<label class="full">Jina la game<input '
+        + 'name="g" required '
+        + 'placeholder="mf. Elden Ring"></label>'
+        + '<div class="full">'
+        + '<button class="btn" type="submit">'
+        + 'Omba Game</button></div></form></div>'
+        + (
+          RQ.length
+            ? '<div class="panel">'
+              + RQ.map(function (x) {
+                return '<div class="row sp" '
+                  + 'style="padding:8px 0;border-bottom:1px solid var(--line)">'
+                  + '<div><b>'
+                  + esc(x.name)
+                  + '</b><div class="sub" style="margin:0">'
+                  + Number(x.votes)
+                  + ' kura</div></div><div class="row">'
+                  + '<button class="btn o" '
+                  + 'onclick="voteReq(\''
+                  + x.id
+                  + '\')">▲ Piga kura</button>'
+                  + (
+                    isAdm()
+                      ? '<button class="btn d" onclick="delReq(\''
+                        + x.id
+                        + '\')">Futa</button>'
+                      : ''
+                  )
+                  + '</div></div>';
+              }).join('')
+              + '</div>'
+            : '<div class="empty" '
+              + 'style="margin-top:14px">'
+              + 'Hakuna maombi bado.</div>'
+        );
+    });
+  </script>
+
+</body>
+</html>

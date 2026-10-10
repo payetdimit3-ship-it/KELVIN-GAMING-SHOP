@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>FAQ &amp; Help - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: FAQ &amp; Help
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'faq-help.html',
+      pg: 'faq',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var F = [
+        [
+          'Ninalipaje?',
+          'Una njia mbili wakati wa Checkout. '
+            + 'ClickPesa: unapata ombi la malipo '
+            + 'kwenye simu yako (M-Pesa, Tigo Pesa, '
+            + 'Airtel Money au HaloPesa), '
+            + 'unathibitisha kwa PIN, na mfumo '
+            + 'unathibitisha mwenyewe. Manual: unatuma '
+            + 'pesa, kisha unaweka namba ya muamala '
+            + 'uliyopewa; admin anathibitisha malipo '
+            + 'yako.'
+        ],
+        [
+          'Nitapata lini bidhaa yangu?',
+          'Malipo yakithibitishwa, bidhaa '
+            + 'inaonekana kwenye Library yako: links, '
+            + 'kitufe cha Download, au code yako. '
+            + 'Malipo ya Manual yanasubiri admin '
+            + 'athibitishe, kwa hiyo yanaweza kuchukua '
+            + 'muda mrefu kuliko ClickPesa.'
+        ],
+        [
+          'Oda yangu inasema Pending, nifanye nini?',
+          'Pending ina maana malipo bado '
+            + 'hayajathibitishwa. Subiri kidogo; '
+            + 'ukilipa kwa Manual hakikisha namba ya '
+            + 'muamala uliyoweka ni sahihi. Ikichelewa '
+            + 'sana, tuma ombi kupitia ukurasa wa '
+            + 'Support na uweke namba ya oda.'
+        ],
+        [
+          'Code, gift card au akaunti yangu iko wapi?',
+          'Kwenye Library yako, chini ya bidhaa '
+            + 'husika, baada ya malipo kuthibitishwa. '
+            + 'Kila mteja anapewa code yake mwenyewe, '
+            + 'na kuna kitufe cha Copy.'
+        ],
+        [
+          'Games za bure zinafanyaje kazi?',
+          'Bonyeza Get Free kwenye game, nayo '
+            + 'inaingia kwenye Library. Ili kudownload '
+            + 'faili la game ya bure unahitaji kuwa '
+            + 'umeingia kwenye akaunti.'
+        ],
+        [
+          'Ninadownload vipi game niliyolipia?',
+          'Fungua Library au ukurasa wa game, '
+            + 'kisha bonyeza Download. Link ya '
+            + 'download inatolewa kwako tu na inafanya '
+            + 'kazi kwa dakika 10 tu; ikiisha, bonyeza '
+            + 'Download tena.'
+        ],
+        [
+          'Nitapataje punguzo la bei?',
+          'Weka kodi ya punguzo kwenye Checkout '
+            + 'kisha bonyeza Apply. Jumla mpya '
+            + 'inaonekana mara moja, na server '
+            + 'inahakiki kodi wakati wa malipo.'
+        ],
+        [
+          'Game Advisor ni nini, na ninaweza kuiamini?',
+          'Ni msaidizi wa AI anayekadiria kama '
+            + 'game litacheza kwenye simu au PC yako, '
+            + 'kulingana na specs unazotoa. Ni ushauri '
+            + 'tu, si uhakika wa 100%; angalia pia '
+            + 'mahitaji rasmi ya game kabla ya kununua.'
+        ],
+        [
+          'Squad Market inalindwa vipi?',
+          'Muuzaji anawasilisha kikosi, admin '
+            + 'anakagua na kuchukua umiliki wa akaunti '
+            + 'kabla kikosi hakijawekwa kwa mauzo, na '
+            + 'unalipa kupitia duka tu. Hatari bado '
+            + 'ipo: Konami au Google wanaweza kuzuia '
+            + 'akaunti zilizohamishwa, na hakuna '
+            + 'dhamana ya 100%. Usilipe kamwe nje ya '
+            + 'duka.'
+        ],
+        [
+          'Naweza kuuza kikosi changu?',
+          'Ndiyo. Ingia, fungua Uza Kikosi, na '
+            + 'uwasilishe kikosi chenye picha za '
+            + 'ushahidi. Admin akikubali, atachukua '
+            + 'umiliki wa akaunti, na wewe utapoteza '
+            + 'ufikiaji wake.'
+        ],
+        [
+          'Nataka kutangaza biashara yangu',
+          'Fungua ukurasa wa Biashara & Washirika '
+            + 'na ujaze fomu ya kuomba kutangaza. '
+            + 'Tutawasiliana nawe.'
+        ],
+        [
+          'Je, naweza kurudishiwa pesa?',
+          'Maombi ya kurudishiwa pesa '
+            + 'yanashughulikiwa kwa kila oda. Tuma '
+            + 'ombi kupitia ukurasa wa Support ukiweka '
+            + 'namba ya oda na sababu.'
+        ],
+        [
+          'Usalama wa akaunti yangu',
+          'Hatutakuomba password yako kwenye chat, '
+            + 'simu wala ujumbe. Usimpe mtu yeyote '
+            + 'password ya akaunti ya duka au ya Gmail.'
+        ]
+      ];
+      return '<h1>FAQ &amp; Help</h1><p class="sub">'
+        + 'Majibu ya maswali yanayoulizwa mara '
+        + 'nyingi</p>'
+        + F.map(function (x) {
+          return '<details><summary>'
+            + esc(x[0])
+            + '</summary><p>'
+            + esc(x[1])
+            + '</p></details>';
+        }).join('')
+        + '<div class="panel"><b>Bado una swali?'
+        + '</b><div class="row" '
+        + 'style="margin-top:10px;flex-wrap:wrap">'
+        + '<a class="btn" '
+        + 'href="contact-support.html">'
+        + 'Wasiliana na Support</a><a '
+        + 'class="btn o" href="ai-assistant.html">'
+        + 'Uliza AI Assistant</a></div></div>';
+    });
+  </script>
+
+</body>
+</html>

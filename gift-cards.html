@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Gift Cards - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Gift Cards
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'gift-cards.html',
+      pg: 'giftcards',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var gk = pg === 'giftcards' ? 'Gift Card' : 'Top Up',
+        G = A.filter(function (p) {
+          return p.cat === gk
+            && (!q || p.title.toLowerCase().indexOf(q) > -1);
+        });
+      return '<div class="hero"><h1>'
+        + (pg === 'giftcards' ? 'GIFT CARDS' : 'TOP UP')
+        + '</h1><p class="sub">'
+        + (
+          pg === 'giftcards'
+            ? 'Gift cards za PlayStation, Xbox, Steam '
+              + 'na zaidi — code inatumwa baada ya '
+              + 'malipo kuthibitishwa.'
+            : 'Top up coins na vifurushi vya games '
+              + 'unavyopenda.'
+        )
+        + '</p></div><h2>'
+        + G.length
+        + ' bidhaa</h2>'
+        + (
+          G.length
+            ? '<div class="grid">'
+              + G.map(card).join('')
+              + '</div>'
+            : emptyAdmin(
+              'Hakuna bidhaa ya '
+                + gk
+                + ' bado. Chagua Category: '
+                + gk
+                + ' ukiongeza bidhaa.'
+            )
+        );
+    });
+  </script>
+
+</body>
+</html>
