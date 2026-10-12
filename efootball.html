@@ -1,90 +1,340 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>eFootball Vikosi — LIFEISGAMETZ</title>
-  <link rel="stylesheet" href="zoneplay-full.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eFootball Top Up - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .coin-card { transition: transform 0.2s; }
+  .coin-card:hover { transform: translateY(-4px); }
+</style>
 </head>
-<body>
-<div class="main">
+<body class="min-h-screen">
 
-  <section class="ac-hero" style="background:linear-gradient(110deg,#0a1f5c,#2a0d6b 60%,#4a0d3a)">
-    <div>
-      <span class="zp-slide-tag">EFOOTBALL</span>
-      <h1>eFootball Vikosi</h1>
-      <p>Vikosi vya wachezaji maarufu kwa eFootball — delivery automatic baada ya malipo.</p>
-      <div class="ac-cta">
-        <a class="zp-btn" href="#vikosi"><span data-ic="ball"></span>Angalia Vikosi</a>
-        <a class="zp-btn ghost" href="topup.html"><span data-ic="wallet"></span>Coins &amp; Top-Up</a>
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <button class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search coins, packs, top ups..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
       </div>
     </div>
-    <div class="ac-stats" id="stats" hidden></div>
-  </section>
 
-  <nav class="zp-tabs" style="margin:16px 0 0" aria-label="eFootball">
-    <span class="zp-chip active" aria-current="page">Vikosi</span>
-    <a class="zp-chip" href="topup.html">Coins &amp; Top-Up</a>
-    <a class="zp-chip" href="tournaments.html">Tournaments</a>
-  </nav>
-
-  <div class="zp-sec" id="vikosi"><h2>Vikosi Vinavyopatikana</h2></div>
-  <div class="zp-toolbar">
-    <label class="zp-search"><span data-ic="search"></span><input type="search" id="searchBox" placeholder="Tafuta kikosi..." autocomplete="off" aria-label="Tafuta kikosi"></label>
-    <select id="sortSel" aria-label="Panga" style="height:36px;padding:0 12px;margin-left:auto">
-      <option value="new">Mpya kwanza</option>
-      <option value="low">Bei: chini → juu</option>
-      <option value="high">Bei: juu → chini</option>
-      <option value="az">A – Z</option>
-    </select>
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
+          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Super Admin
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <p class="zp-count" id="count" aria-live="polite"></p>
-  <section class="zp-grid" id="productGrid" aria-live="polite"><div class="zp-empty"><p>Inapakia...</p></div></section>
+</header>
 
-  <div class="zp-sec"><h2>Zaidi ya Vikosi</h2></div>
-  <section class="zp-strips">
-    <a class="zp-strip" href="topup.html" style="--art:linear-gradient(120deg,#166534,#0a2a4a)"><span class="zp-pi">🪙</span><h3>Coins &amp; Top-Up</h3><span>Packages za eFootball coins na top-up kwa bei nafuu.</span></a>
-    <a class="zp-strip" href="tournaments.html" style="--art:linear-gradient(120deg,#b45309,#4a0d3a)"><span class="zp-pi">🏆</span><h3>Tournaments</h3><span>Shindana na wachezaji wengine wa community.</span></a>
-    <a class="zp-strip" href="livescores.html" style="--art:linear-gradient(120deg,#0f3d91,#0a1240)"><span class="zp-pi">📊</span><h3>Live Scores</h3><span>Matokeo ya mechi za moja kwa moja.</span></a>
-  </section>
+<div class="flex">
 
-  <div class="rn-note" style="margin-top:22px"><span data-ic="shield"></span><span>Usishirikishe password yako ya account. Tumia taarifa zinazohitajika tu kwenye checkout.</span></div>
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span>Store</span>
+      </a>
+      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games</span>
+      </a>
+      <a href="/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies</span>
+      </a>
+      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <span>Live TV / eSports</span>
+      </a>
+      <a href="/community.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+        <span>Community / Chat</span>
+      </a>
+      <a href="/cloud-gaming.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+        <span>Cloud Gaming</span>
+      </a>
+      <a href="/efootball.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <span>eFootball / Top Up</span>
+      </a>
+      <a href="/gift-cards.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+        <span>Gift Cards</span>
+      </a>
+      <a href="/marketplace.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span>Marketplace</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <span class="text-white font-semibold">eFootball / Top Up</span>
+    </div>
+
+    <!-- HERO -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-primary/40 to-transparent"></div>
+      <div class="relative p-6 md:p-10 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        <div class="md:col-span-2 z-10">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="bg-white rounded-lg px-3 py-1.5 flex items-center gap-2">
+              <span class="text-blue-600 font-extrabold">e</span>
+              <span class="text-black font-extrabold text-sm">FOOTBALL</span>
+            </div>
+          </div>
+          <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-2">
+            TOP UP & <span class="text-primary">GET COINS</span>
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 mb-4 max-w-lg">Build your dream team. Buy eFootball coins, players and more. Play. Compete. Win.</p>
+          
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-4">
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span class="text-gray-200">Fast Delivery</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <span class="text-gray-200">Secure Payment</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span class="text-gray-200">Best Prices</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+              <span class="text-gray-200">24/7 Support</span>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block text-right z-10">
+          <div class="text-8xl">⚽</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- eFootball Coins Packages -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold text-white">eFootball Coins Packages</h2>
+          <p class="text-xs text-gray-500 mt-1">Choose your preferred package and get your coins instantly.</p>
+        </div>
+      </div>
+      <div id="coins-packages" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
+      </div>
+    </section>
+
+    <!-- Player Packs & Special Items -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold text-white">Player Packs & Special Items</h2>
+          <p class="text-xs text-gray-500 mt-1">Get exclusive players, managers and special items.</p>
+        </div>
+        <a href="#" class="text-sm text-primary font-semibold">View All →</a>
+      </div>
+      <div id="player-packs" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
+      </div>
+    </section>
+
+    <!-- Top Up Other Services -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold text-white">Top Up Other Services</h2>
+        </div>
+      </div>
+      <div id="other-services" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
+      </div>
+    </section>
+
+    <!-- Bottom Banner -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-primary/40 to-transparent"></div>
+      <div class="relative p-6 md:p-8 flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <div class="bg-white rounded-lg px-4 py-2 flex items-center gap-2">
+            <span class="text-blue-600 font-extrabold text-lg">e</span>
+            <span class="text-black font-extrabold">FOOTBALL</span>
+          </div>
+          <div>
+            <h3 class="text-xl md:text-2xl font-extrabold text-white mb-1">PLAY eFOOTBALL</h3>
+            <h3 class="text-xl md:text-2xl font-extrabold text-primary">BUILD YOUR DREAM TEAM!</h3>
+            <div class="flex flex-wrap gap-3 text-[10px] text-gray-300 mt-2">
+              <span>✅ Real Players</span>
+              <span>✅ Real Teams</span>
+              <span>✅ Real Football</span>
+            </div>
+          </div>
+        </div>
+        <button class="gradient-primary text-white font-bold px-6 py-3 rounded-lg">Join Now</button>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-6 mt-4 border-t border-dark-4 text-xs text-gray-500">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded gradient-primary flex items-center justify-center text-white text-[9px] font-bold">L</div>
+          <span class="text-white font-bold">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></span>
+          <span class="text-gray-500">Play • Learn • Earn</span>
+        </div>
+        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+        <div class="flex gap-4">
+          <a href="/terms" class="hover:text-primary">Terms</a>
+          <a href="/privacy" class="hover:text-primary">Privacy</a>
+          <a href="/contact" class="hover:text-primary">Contact</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
 </div>
 
-<script src="zoneplay-shell.js"></script>
-<script src="zp-catalog.js"></script>
-<script src="app.js"></script>
-<script src="chat.js"></script>
+<script src="config.js"></script>
 <script>
-(function(){
-  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
-  var all=null, q='', sort='new', grid=document.getElementById('productGrid'), countEl=document.getElementById('count');
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  function render(){
-    if (all===null){
-      grid.innerHTML='<div class="zp-empty"><h3>Imeshindikana kupakia vikosi</h3><p>Angalia mtandao kisha jaribu tena.</p><button class="zp-btn" type="button" onclick="location.reload()">Jaribu tena</button></div>';
-      countEl.textContent=''; return;
-    }
-    var term=q.trim().toLowerCase();
-    var list=all.filter(function(p){ return !term || (p.name+' '+p.type).toLowerCase().indexOf(term)>-1; });
-    if (sort==='low') list.sort(function(a,b){return a.price-b.price;});
-    else if (sort==='high') list.sort(function(a,b){return b.price-a.price;});
-    else if (sort==='az') list.sort(function(a,b){return a.name.localeCompare(b.name);});
-    else list.reverse();
-    countEl.textContent=all.length?list.length+' vikosi':'';
-    grid.innerHTML=list.length ? list.map(ZP.card).join('') :
-      '<div class="zp-empty"><h3>'+(all.length?'Hakuna kikosi kilichopatikana':'Hakuna kikosi kwa sasa')+'</h3><p>'+(all.length?'Jaribu neno lingine.':'Rudi baadaye au wasiliana nasi.')+'</p><a class="zp-btn" href="'+ZP.waLink('Habari, nahitaji kikosi cha eFootball')+'" target="_blank" rel="noopener">'+ZP.icon('chat')+'Wasiliana WhatsApp</a></div>';
-  }
-  document.getElementById('searchBox').addEventListener('input',function(e){ q=e.target.value; render(); });
-  document.getElementById('sortSel').addEventListener('change',function(e){ sort=e.target.value; render(); });
+const coinsPackages = [
+  { coins: 520, name: 'eFootball™ 520 Coins', price: 12000, icon: '💰', popular: false },
+  { coins: 1050, name: 'eFootball™ 1,050 Coins', price: 22000, icon: '💰💰', popular: false },
+  { coins: 2150, name: 'eFootball™ 2,150 Coins', price: 42000, icon: '💰💰💰', popular: true, badge: 'Most Popular' },
+  { coins: 3250, name: 'eFootball™ 3,250 Coins', price: 60000, icon: '💎', popular: false },
+  { coins: 5700, name: 'eFootball™ 5,700 Coins', price: 95000, icon: '💎💎', popular: false }
+];
 
-  ZP.loadSection('efootball').then(function(list){
-    all=list;
-    var st=document.getElementById('stats');
-    if (list && list.length){ st.hidden=false; st.innerHTML='<div class="ac-stat"><b>'+list.length+'</b><span>Vikosi</span></div>'; }
-    render();
-  });
-})();
+const playerPacks = [
+  { name: 'Epic Player Pack', price: 45000, icon: '⚽', color: 'from-purple-600 to-pink-600' },
+  { name: 'Legendary Pack', price: 75000, icon: '🏆', color: 'from-yellow-600 to-orange-600' },
+  { name: 'Manager Pack', price: 30000, icon: '👔', color: 'from-blue-600 to-cyan-600' },
+  { name: 'Special 150 Box', price: 25000, icon: '🎁', color: 'from-green-600 to-emerald-600' }
+];
+
+const otherServices = [
+  { name: 'eFootball Points', desc: 'GP (Event Rewards)', icon: '🎯' },
+  { name: 'eFootball GP', desc: 'GP (General Points)', icon: '⚡' },
+  { name: 'KONAMI ID', desc: '(Linked Account)', icon: '🆔' },
+  { name: 'Season Pass', desc: '(Exclusive Rewards)', icon: '🎫' }
+];
+
+function loadEfootball() {
+  // Coins Packages
+  const cContainer = document.getElementById('coins-packages');
+  cContainer.innerHTML = coinsPackages.map(p => `
+    <div class="coin-card gradient-card rounded-xl border ${p.popular ? 'border-primary' : 'border-dark-4'} p-4 text-center relative overflow-hidden">
+      ${p.badge ? `<span class="absolute top-2 right-2 text-[8px] bg-primary text-white px-1.5 py-0.5 rounded font-bold">${p.badge}</span>` : ''}
+      <div class="text-4xl mb-2">${p.icon}</div>
+      <div class="text-xs text-white font-semibold mb-1">${p.name}</div>
+      <div class="text-lg font-bold text-primary mb-3">TZS ${p.price.toLocaleString()}</div>
+      <button onclick="buyCoins('${p.name}', ${p.price})" class="w-full gradient-primary text-white text-xs font-bold py-2 rounded-lg">Buy Now</button>
+    </div>
+  `).join('');
+
+  // Player Packs
+  const pContainer = document.getElementById('player-packs');
+  pContainer.innerHTML = playerPacks.map(p => `
+    <div class="coin-card gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition">
+      <div class="aspect-square bg-gradient-to-br ${p.color} flex items-center justify-center text-5xl">${p.icon}</div>
+      <div class="p-3 text-center">
+        <div class="text-xs text-white font-bold mb-1">${p.name}</div>
+        <div class="text-sm font-bold text-primary mb-2">TZS ${p.price.toLocaleString()}</div>
+        <button onclick="buyCoins('${p.name}', ${p.price})" class="w-full gradient-primary text-white text-[10px] font-bold py-2 rounded-lg">Buy Now</button>
+      </div>
+    </div>
+  `).join('');
+
+  // Other Services
+  const oContainer = document.getElementById('other-services');
+  oContainer.innerHTML = otherServices.map(o => `
+    <div class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition">
+      <div class="w-12 h-12 mx-auto rounded-lg bg-primary/20 flex items-center justify-center text-2xl mb-2">${o.icon}</div>
+      <div class="text-xs text-white font-bold mb-0.5">${o.name}</div>
+      <div class="text-[10px] text-gray-500 mb-2">${o.desc}</div>
+      <button onclick="topUpService('${o.name}')" class="w-full gradient-primary text-white text-[10px] font-bold py-1.5 rounded-lg">Top Up</button>
+    </div>
+  `).join('');
+}
+
+async function buyCoins(name, price) {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { window.location.href = '/login.html'; return; }
+  alert(`✅ Umepanda: ${name}\nBei: TZS ${price.toLocaleString()}\n\nMalipo yatafanyika kwa M-Pesa, Tigo Pesa, au Airtel Money.`);
+}
+
+async function topUpService(name) {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { window.location.href = '/login.html'; return; }
+  alert(`✅ Top Up: ${name}\n\nUtapokea maelekezo ya malipo kwa email yako.`);
+}
+
+document.addEventListener('DOMContentLoaded', loadEfootball);
 </script>
+
 </body>
 </html>
