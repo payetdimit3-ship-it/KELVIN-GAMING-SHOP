@@ -1,0 +1,22 @@
+// js/supabase-client.js
+// Inaanzisha Supabase client - inatumika kwenye pages ZOTE
+
+(function() {
+  'use strict';
+  
+  // Check config
+  if (!window.ENV || !window.ENV.SUPABASE_URL || !window.ENV.SUPABASE_ANON_KEY) {
+    console.error('❌ Supabase config haipo! Weka kwenye Render Environment.');
+    window.DB = null;
+    return;
+  }
+
+  // Create Supabase client
+  const { createClient } = supabase;
+  window.DB = createClient(
+    window.ENV.SUPABASE_URL,
+    window.ENV.SUPABASE_ANON_KEY
+  );
+
+  console.log('✅ Supabase client ready!');
+})();

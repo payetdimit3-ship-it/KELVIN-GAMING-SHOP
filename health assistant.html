@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Assistant - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .quick-chip { transition: all 0.15s; }
+  .quick-chip:hover { border-color: #7c3aed; color: #a855f7; }
+  @keyframes pulse-green { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .online-pulse { animation: pulse-green 2s infinite; }
+  .typing-dot { animation: bounce 1.4s infinite; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <button class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search health topics, symptoms..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
+          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Super Admin
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span>Store</span>
+      </a>
+      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games</span>
+      </a>
+      <a href="/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies</span>
+      </a>
+      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <span>Live TV / eSports</span>
+      </a>
+      <a href="/community.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+        <span>Community / Chat</span>
+      </a>
+
+      <div class="px-4 py-2 mt-2 text-[10px] uppercase tracking-wider text-gray-500 font-bold">Health & AI</div>
+      <a href="/health-assistant.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span>Health Assistant</span>
+      </a>
+      <a href="/ai.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        <span>AI Assistants</span>
+      </a>
+
+      <a href="/courses.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+        <span>Academy</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <span class="text-white font-semibold">Health Assistant</span>
+    </div>
+
+    <!-- Header -->
+    <div class="flex items-start justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center">
+          <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-white">Health Assistant</h1>
+          <p class="text-sm text-gray-400">Your AI-powered health companion. Get instant advice, wellness tips, and answers to your health questions.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 bg-dark-3 border border-dark-4 rounded-lg px-3 py-2">
+        <div class="flex items-center gap-1">
+          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          <span class="text-[10px] text-gray-300">Powered by AI</span>
+        </div>
+        <span class="text-gray-500">•</span>
+        <span class="text-[10px] text-green-400 flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse"></span>
+          24/7 Available
+        </span>
+      </div>
+    </div>
+
+    <!-- Quick Service Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <button onclick="quickAsk('health advice')" class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-primary/20 flex items-center justify-center text-lg mb-2">
+          <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div class="text-xs text-white font-bold">Health Advice</div>
+        <div class="text-[9px] text-gray-500 mt-1">Get trusted health information</div>
+      </button>
+      <button onclick="quickAsk('symptoms')" class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-blue-500/20 flex items-center justify-center text-lg mb-2">
+          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+        <div class="text-xs text-white font-bold">Symptom Checker</div>
+        <div class="text-[9px] text-gray-500 mt-1">Understand your symptoms</div>
+      </button>
+      <button onclick="quickAsk('wellness tips')" class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-green-500/20 flex items-center justify-center text-lg mb-2">
+          <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        </div>
+        <div class="text-xs text-white font-bold">Wellness Tips</div>
+        <div class="text-[9px] text-gray-500 mt-1">Live healthier every day</div>
+      </button>
+      <button onclick="quickAsk('medication')" class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-cyan-500/20 flex items-center justify-center text-lg mb-2">
+          <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="text-xs text-white font-bold">Medication Guide</div>
+        <div class="text-[9px] text-gray-500 mt-1">Learn about medicines</div>
+      </button>
+      <button onclick="quickAsk('mental health')" class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition group">
+        <div class="w-10 h-10 mx-auto rounded-lg bg-pink-500/20 flex items-center justify-center text-lg mb-2">
+          <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        </div>
+        <div class="text-xs text-white font-bold">Mental Health</div>
+        <div class="text-[9px] text-gray-500 mt-1">Support & motivation</div>
+      </button>
+    </div>
+
+    <!-- GRID: Chat + Right Panel -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+      <!-- LEFT: Chat Area -->
+      <div class="xl:col-span-2 gradient-card rounded-2xl border border-dark-4 overflow-hidden flex flex-col min-h-[600px]">
+
+        <!-- Chat Header -->
+        <div class="p-5 border-b border-dark-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center relative">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+              <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-400 border-2 border-dark-2"></span>
+            </div>
+            <div>
+              <div class="text-sm text-white font-bold">Health Assistant</div>
+              <div class="text-[10px] text-green-400 flex items-center gap-1">
+                <span class="w-1 h-1 rounded-full bg-green-400 online-pulse"></span>
+                Always here to help you stay healthy
+              </div>
+            </div>
+          </div>
+          <button onclick="clearChat()" class="text-gray-400 hover:text-white text-xs flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Clear
+          </button>
+        </div>
+
+        <!-- Quick Suggestions -->
+        <div class="p-4 border-b border-dark-4">
+          <div class="text-[10px] text-gray-500 mb-2">Quick Suggestions</div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="quickAsk('I have a headache')" class="quick-chip bg-dark-3 border border-dark-4 rounded-full px-3 py-1.5 text-[11px] text-gray-300">🤕 I have a headache</button>
+            <button onclick="quickAsk('What are the symptoms of flu?')" class="quick-chip bg-dark-3 border border-dark-4 rounded-full px-3 py-1.5 text-[11px] text-gray-300">🤧 Symptoms of flu?</button>
+            <button onclick="quickAsk('How to boost immunity?')" class="quick-chip bg-dark-3 border border-dark-4 rounded-full px-3 py-1.5 text-[11px] text-gray-300">💪 Boost immunity</button>
+            <button onclick="quickAsk('Healthy diet plan')" class="quick-chip bg-dark-3 border border-dark-4 rounded-full px-3 py-1.5 text-[11px] text-gray-300">🥗 Healthy diet plan</button>
+            <button onclick="quickAsk('Stress and anxiety help')" class="quick-chip bg-dark-3 border border-dark-4 rounded-full px-3 py-1.5 text-[11px] text-gray-300">😰 Stress and anxiety help</button>
+            <button onclick="quickAsk('Workout routine')" class="quick-chip bg-dark-3 border border-dark-4 rounded-full px-3 py-1.5 text-[11px] text-gray-300">🏋️ Workout routine</button>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-5 space-y-4">
+          <!-- AI Welcome -->
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            </div>
+            <div class="bg-dark-3 rounded-2xl rounded-tl-sm px-4 py-3 max-w-lg">
+              <p class="text-sm text-gray-200">Hello! 👋 I'm your Health Assistant. I can help you with health advice, symptom checks, wellness tips, medication information and more. How can I help you today?</p>
+              <div class="text-[9px] text-gray-500 mt-1">11:21 AM</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input -->
+        <div class="p-4 border-t border-dark-4">
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <button class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+              </button>
+              <input type="text" id="chat-input" placeholder="Type your message..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-3 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary">
+            </div>
+            <button id="send-btn" class="w-11 h-11 rounded-full gradient-primary flex items-center justify-center hover:opacity-90 transition shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="space-y-4">
+
+        <!-- Health Tips -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-lg">💡</span>
+            <h3 class="text-white font-bold">Health Tips</h3>
+          </div>
+          <p class="text-[11px] text-gray-400 italic mb-4">Stay Healthy, Stay Strong</p>
+          <ul class="space-y-3 text-[11px] text-gray-300">
+            <li class="flex items-start gap-2">
+              <svg class="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <div>Drink enough water <span class="text-gray-500">(6 glasses a day)</span></div>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <div>Eat balanced meals <span class="text-gray-500">(fruits, vegetables, protein)</span></div>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <div>Exercise regularly <span class="text-gray-500">(at least 30 mins daily)</span></div>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <div>Get good sleep <span class="text-gray-500">(7-8 hours)</span></div>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-3.5 h-3.5 text-green-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <div>Manage stress <span class="text-gray-500">(meditation, hobbies)</span></div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Your Health Matters -->
+        <div class="gradient-card rounded-2xl border border-cyan/30 p-5 relative overflow-hidden">
+          <div class="absolute -top-2 -right-2 text-4xl opacity-20">👨‍⚕️</div>
+          <div class="relative">
+            <h3 class="text-white font-bold mb-1">Your Health Matters</h3>
+            <p class="text-[11px] text-gray-400 mb-3">Better health, better life. Use our AI assistant for instant support.</p>
+            <button class="w-full bg-cyan-500 hover:bg-cyan-400 text-white text-xs font-bold py-2 rounded-lg">Ask Now</button>
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="gradient-card rounded-2xl border border-yellow-500/30 p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <h3 class="text-white font-bold text-sm">Disclaimer</h3>
+          </div>
+          <p class="text-[10px] text-gray-400">This AI assistant provides general information and is not a substitute for professional medical advice. Always consult a doctor for serious health concerns.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-6 mt-4 border-t border-dark-4 text-xs text-gray-500">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded gradient-primary flex items-center justify-center text-white text-[9px] font-bold">L</div>
+          <span class="text-white font-bold">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></span>
+          <span class="text-gray-500">Play • Learn • Earn</span>
+        </div>
+        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+        <div class="flex gap-4">
+          <a href="/terms" class="hover:text-primary">Terms</a>
+          <a href="/privacy" class="hover:text-primary">Privacy</a>
+          <a href="/contact" class="hover:text-primary">Contact</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const messagesContainer = document.getElementById('chat-messages');
+const input = document.getElementById('chat-input');
+const sendBtn = document.getElementById('send-btn');
+
+let conversationHistory = [];
+
+// Quick ask from chips
+function quickAsk(text) {
+  input.value = text;
+  sendMessage();
+}
+
+function addMessage(text, isAI = false) {
+  const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const msg = document.createElement('div');
+  msg.className = 'flex gap-3 ' + (isAI ? '' : 'flex-row-reverse');
+  msg.innerHTML = isAI ? `
+    <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+    </div>
+    <div class="bg-dark-3 rounded-2xl rounded-tl-sm px-4 py-3 max-w-lg">
+      <div class="text-sm text-gray-200 whitespace-pre-line">${text}</div>
+      <div class="text-[9px] text-gray-500 mt-1">${time}</div>
+    </div>
+  ` : `
+    <div class="w-8 h-8 rounded-full bg-dark-3 flex items-center justify-center shrink-0 text-xs text-white font-bold">KF</div>
+    <div class="gradient-primary rounded-2xl rounded-tr-sm px-4 py-3 max-w-lg">
+      <div class="text-sm text-white whitespace-pre-line">${text}</div>
+      <div class="text-[9px] text-white/70 mt-1 text-right">${time}</div>
+    </div>
+  `;
+  messagesContainer.appendChild(msg);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showTyping() {
+  const msg = document.createElement('div');
+  msg.id = 'typing-indicator';
+  msg.className = 'flex gap-3';
+  msg.innerHTML = `
+    <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+    </div>
+    <div class="bg-dark-3 rounded-2xl rounded-tl-sm px-4 py-3">
+      <div class="flex gap-1">
+        <span class="w-2 h-2 rounded-full bg-gray-400 typing-dot"></span>
+        <span class="w-2 h-2 rounded-full bg-gray-400 typing-dot"></span>
+        <span class="w-2 h-2 rounded-full bg-gray-400 typing-dot"></span>
+      </div>
+    </div>
+  `;
+  messagesContainer.appendChild(msg);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+// Mock AI Response
+function getAIResponse(question) {
+  const q = question.toLowerCase();
+  
+  if (q.includes('headache') || q.includes('kichwa')) {
+    return `Based on your symptoms, it could be a viral infection (like a cold or flu), but I can't give a medical diagnosis. Here are some general tips:\n\n1. Rest and get enough sleep\n2. Drink plenty of fluids (water, tea, soup)\n3. Take paracetamol if safe for you\n4. Keep your forehead cool\n5. If symptoms worsen or last more than 3 days, see a doctor.\n\n⚠️ If you have severe headache, high fever (above 39°C), neck stiffness or blurred vision, go to a hospital immediately.`;
+  }
+  
+  if (q.includes('flu') || q.includes('mafua')) {
+    return `Common flu symptoms include:\n\n🤒 Fever and chills\n😷 Cough and sore throat\n🤧 Runny or stuffy nose\n😩 Body aches and fatigue\n🤕 Headache\n\n💡 Rest, drink plenty of fluids, and take paracetamol if needed. If symptoms last more than 5 days, please see a doctor.`;
+  }
+  
+  if (q.includes('immunity') || q.includes('kinga')) {
+    return `To boost your immunity naturally:\n\n🥗 Eat a balanced diet rich in fruits and vegetables\n💧 Stay hydrated (6-8 glasses of water daily)\n😴 Get 7-8 hours of quality sleep\n🏃 Exercise at least 30 minutes daily\n☀️ Get enough vitamin D from sunlight\n😌 Manage stress through meditation or hobbies\n🚭 Avoid smoking and excessive alcohol`;
+  }
+  
+  if (q.includes('diet') || q.includes('chakula')) {
+    return `A healthy diet plan:\n\n🌅 Breakfast: Oatmeal + fruits + eggs\n🥗 Lunch: Vegetables + protein (chicken/fish/beans) + brown rice\n🍎 Snack: Nuts or yogurt\n🍽️ Dinner: Light meal with vegetables and lean protein\n\n💧 Drink 6-8 glasses of water throughout the day\n🚫 Limit sugary drinks, fried food, and processed snacks`;
+  }
+  
+  if (q.includes('stress') || q.includes('anxiety') || q.includes('wasiwasi')) {
+    return `For stress and anxiety relief:\n\n🧘 Practice deep breathing (5 mins daily)\n🚶 Take a walk in nature\n📓 Write down your thoughts in a journal\n🎵 Listen to calming music\n👥 Talk to friends or family\n😴 Ensure proper sleep\n🧑‍⚕️ If stress is overwhelming, consider talking to a mental health professional.`;
+  }
+  
+  if (q.includes('workout') || q.includes('mazoezi')) {
+    return `Simple home workout routine:\n\n🔥 Warm-up: 5 mins stretching\n🏃 Cardio: 15 mins (jogging, jumping jacks)\n💪 Strength: 3 sets of push-ups, squats, lunges\n🧘 Cool-down: 5 mins stretching\n\n💡 Do this 3-4 times a week. Start slow and increase intensity gradually.`;
+  }
+  
+  if (q.includes('water') || q.includes('maji')) {
+    return `Staying hydrated is essential:\n\n💧 Aim for 6-8 glasses (about 2 liters) daily\n🏃 Increase intake if you exercise or live in hot climate\n☕ Drink water before meals\n🍋 Add lemon or mint for flavor\n⚠️ Signs of dehydration: dark urine, dry mouth, fatigue, dizziness`;
+  }
+  
+  return `Thank you for your question. I'm your Health Assistant, here to help with:\n\n💡 Health advice\n🔍 Symptom checker\n💪 Wellness tips\n💊 Medication information\n🧠 Mental health support\n\nPlease ask your specific health question and I'll do my best to help.\n\n⚠️ For serious concerns, always consult a doctor.`;
+}
+
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text) return;
+  
+  addMessage(text, false);
+  input.value = '';
+  conversationHistory.push({ role: 'user', content: text });
+
+  showTyping();
+  
+  // Simulate AI response delay
+  setTimeout(() => {
+    hideTyping();
+    const response = getAIResponse(text);
+    addMessage(response, true);
+    conversationHistory.push({ role: 'assistant', content: response });
+
+    // Save to Supabase (optional)
+    saveConversation(text, response);
+  }, 1200);
+}
+
+async function saveConversation(userMsg, aiMsg) {
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return;
+
+    // Save conversation
+    const { data: conv } = await db.from('ai_conversations').insert({
+      user_id: session.user.id,
+      context: 'health',
+      title: userMsg.substring(0, 50)
+    }).select().single();
+
+    if (conv) {
+      await db.from('ai_messages').insert([
+        { conversation_id: conv.id, role: 'user', content: userMsg },
+        { conversation_id: conv.id, role: 'assistant', content: aiMsg }
+      ]);
+    }
+  } catch (e) {
+    console.log('Save error:', e);
+  }
+}
+
+function clearChat() {
+  if (!confirm('Clear chat history?')) return;
+  messagesContainer.innerHTML = `
+    <div class="flex gap-3">
+      <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+      </div>
+      <div class="bg-dark-3 rounded-2xl rounded-tl-sm px-4 py-3 max-w-lg">
+        <p class="text-sm text-gray-200">Hello! 👋 I'm your Health Assistant. How can I help you today?</p>
+      </div>
+    </div>
+  `;
+  conversationHistory = [];
+}
+
+sendBtn.addEventListener('click', sendMessage);
+input.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendMessage();
+});
+</script>
+
+</body>
+</html>

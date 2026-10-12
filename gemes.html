@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Games - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .cat-tab.active { background: #7c3aed; color: white; }
+  .game-card:hover { transform: translateY(-4px); transition: all 0.3s; }
+  .filter-checkbox:checked { background: #7c3aed; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" id="search-input" placeholder="Search games..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200">Kevin Fred</div>
+          <div class="text-[9px] text-green-400">Super Admin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span>Store</span>
+      </a>
+      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games</span>
+      </a>
+      <a href="/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies</span>
+      </a>
+      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <span>Live TV / eSports</span>
+      </a>
+      <a href="/community.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+        <span>Community / Chat</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <span class="text-white font-semibold">Games</span>
+    </div>
+
+    <!-- HERO -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-purple-900/60 via-primary/40 to-transparent"></div>
+      <div class="relative p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        <div class="md:col-span-2 z-10">
+          <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-2">
+            DISCOVER AMAZING <span class="text-primary">GAMES</span>
+          </h1>
+          <p class="text-sm md:text-base text-gray-300 mb-4 max-w-lg">Play the latest games, explore new worlds, and enjoy endless fun.</p>
+          <div class="flex flex-wrap gap-3 text-xs mb-4">
+            <span class="flex items-center gap-1 text-gray-200">
+              <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Instant Play
+            </span>
+            <span class="flex items-center gap-1 text-gray-200">
+              <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              High Quality
+            </span>
+            <span class="flex items-center gap-1 text-gray-200">
+              <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              100% Safe
+            </span>
+            <span class="flex items-center gap-1 text-gray-200">
+              <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Free & Premium
+            </span>
+          </div>
+          <button class="gradient-primary text-white font-bold px-5 py-2.5 rounded-lg flex items-center gap-2">
+            Explore Now
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </button>
+        </div>
+        <div class="hidden md:block text-right z-10">
+          <div class="text-7xl">🎮</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRID: Filters Sidebar + Games Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+      <!-- FILTERS SIDEBAR (Left) -->
+      <aside class="lg:col-span-1 space-y-4 lg:sticky lg:top-20 h-fit">
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-bold flex items-center gap-2">
+              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+              Filter Games
+            </h3>
+            <button onclick="clearFilters()" class="text-[10px] text-primary font-semibold">Clear All</button>
+          </div>
+
+          <!-- Platform Filter -->
+          <div class="mb-5">
+            <div class="text-xs text-white font-semibold mb-2">Platform</div>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-platform rounded bg-dark-3 border-dark-4" value="PC">
+                PC <span class="ml-auto text-[9px] text-gray-500">126</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-platform rounded bg-dark-3 border-dark-4" value="PS5">
+                PS5 <span class="ml-auto text-[9px] text-gray-500">78</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-platform rounded bg-dark-3 border-dark-4" value="PS4">
+                PS4 <span class="ml-auto text-[9px] text-gray-500">65</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-platform rounded bg-dark-3 border-dark-4" value="Xbox">
+                Xbox <span class="ml-auto text-[9px] text-gray-500">52</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-platform rounded bg-dark-3 border-dark-4" value="Nintendo Switch">
+                Nintendo Switch <span class="ml-auto text-[9px] text-gray-500">34</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-platform rounded bg-dark-3 border-dark-4" value="Mobile">
+                Mobile <span class="ml-auto text-[9px] text-gray-500">28</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Genre Filter -->
+          <div class="mb-5">
+            <div class="text-xs text-white font-semibold mb-2">Genre</div>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-genre rounded bg-dark-3 border-dark-4" value="Action">
+                Action <span class="ml-auto text-[9px] text-gray-500">132</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-genre rounded bg-dark-3 border-dark-4" value="Adventure">
+                Adventure <span class="ml-auto text-[9px] text-gray-500">98</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-genre rounded bg-dark-3 border-dark-4" value="Sports">
+                Sports <span class="ml-auto text-[9px] text-gray-500">76</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-genre rounded bg-dark-3 border-dark-4" value="Racing">
+                Racing <span class="ml-auto text-[9px] text-gray-500">54</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-genre rounded bg-dark-3 border-dark-4" value="RPG">
+                RPG <span class="ml-auto text-[9px] text-gray-500">49</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-genre rounded bg-dark-3 border-dark-4" value="Shooter">
+                Shooter <span class="ml-auto text-[9px] text-gray-500">43</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Price Filter -->
+          <div>
+            <div class="text-xs text-white font-semibold mb-2">Price</div>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-price rounded bg-dark-3 border-dark-4" value="Free">
+                Free <span class="ml-auto text-[9px] text-gray-500">68</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-price rounded bg-dark-3 border-dark-4" value="Paid">
+                Paid <span class="ml-auto text-[9px] text-gray-500">214</span>
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white">
+                <input type="checkbox" class="filter-price rounded bg-dark-3 border-dark-4" value="On Sale">
+                On Sale <span class="ml-auto text-[9px] text-gray-500">32</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Popular Games Sidebar -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-bold text-sm">🔥 Popular Games</h3>
+            <a href="#" class="text-[10px] text-primary">View All →</a>
+          </div>
+          <div class="space-y-3">
+            <a href="/game.html" class="flex items-center gap-3 hover:bg-dark-3 p-2 rounded-lg transition">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-900/40 to-dark-2 flex items-center justify-center text-xl shrink-0">🚗</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] text-white font-semibold truncate">GTA V</div>
+                <div class="text-[9px] text-yellow-400">⭐ 4.9</div>
+              </div>
+              <span class="text-[9px] bg-primary text-white font-bold px-2 py-1 rounded shrink-0">Play</span>
+            </a>
+            <a href="/game.html" class="flex items-center gap-3 hover:bg-dark-3 p-2 rounded-lg transition">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-900/40 to-dark-2 flex items-center justify-center text-xl shrink-0">⚽</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] text-white font-semibold truncate">eFootball 2025</div>
+                <div class="text-[9px] text-yellow-400">⭐ 4.7</div>
+              </div>
+              <span class="text-[9px] bg-primary text-white font-bold px-2 py-1 rounded shrink-0">Play</span>
+            </a>
+            <a href="/game.html" class="flex items-center gap-3 hover:bg-dark-3 p-2 rounded-lg transition">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-900/40 to-dark-2 flex items-center justify-center text-xl shrink-0">⛏️</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] text-white font-semibold truncate">Minecraft</div>
+                <div class="text-[9px] text-yellow-400">⭐ 4.6</div>
+              </div>
+              <span class="text-[9px] bg-primary text-white font-bold px-2 py-1 rounded shrink-0">Play</span>
+            </a>
+            <a href="/game.html" class="flex items-center gap-3 hover:bg-dark-3 p-2 rounded-lg transition">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-red-900/40 to-dark-2 flex items-center justify-center text-xl shrink-0">🎯</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] text-white font-semibold truncate">Call of Duty: BO6</div>
+                <div class="text-[9px] text-yellow-400">⭐ 4.8</div>
+              </div>
+              <span class="text-[9px] bg-primary text-white font-bold px-2 py-1 rounded shrink-0">Play</span>
+            </a>
+            <a href="/game.html" class="flex items-center gap-3 hover:bg-dark-3 p-2 rounded-lg transition">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-900/40 to-dark-2 flex items-center justify-center text-xl shrink-0">🏎️</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] text-white font-semibold truncate">Forza Horizon 5</div>
+                <div class="text-[9px] text-yellow-400">⭐ 4.8</div>
+              </div>
+              <span class="text-[9px] bg-primary text-white font-bold px-2 py-1 rounded shrink-0">Play</span>
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- GAMES GRID (Right) -->
+      <div class="lg:col-span-3 space-y-4">
+
+        <!-- Category Tabs + Sort -->
+        <div class="flex flex-wrap gap-3 items-center">
+          <div class="flex gap-2 overflow-x-auto scrollbar-hide flex-1">
+            <button class="cat-tab active px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300 whitespace-nowrap flex items-center gap-1" data-cat="all">
+              <span>🎮</span> All Games
+            </button>
+            <button class="cat-tab px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300 whitespace-nowrap flex items-center gap-1" data-cat="action">
+              <span>💥</span> Action
+            </button>
+            <button class="cat-tab px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300 whitespace-nowrap flex items-center gap-1" data-cat="adventure">
+              <span>🗺️</span> Adventure
+            </button>
+            <button class="cat-tab px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300 whitespace-nowrap flex items-center gap-1" data-cat="sports">
+              <span>⚽</span> Sports
+            </button>
+            <button class="cat-tab px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300 whitespace-nowrap flex items-center gap-1" data-cat="racing">
+              <span>🏎️</span> Racing
+            </button>
+            <button class="cat-tab px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300 whitespace-nowrap flex items-center gap-1" data-cat="rpg">
+              <span>⚔️</span> RPG
+            </button>
+            <button class="cat-tab px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300 whitespace-nowrap flex items-center gap-1" data-cat="shooter">
+              <span>🎯</span> Shooter
+            </button>
+            <button class="cat-tab px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300 whitespace-nowrap flex items-center gap-1" data-cat="strategy">
+              <span>♟️</span> Strategy
+            </button>
+            <button class="cat-tab px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300 whitespace-nowrap flex items-center gap-1" data-cat="simulation">
+              <span>✈️</span> Simulation
+            </button>
+          </div>
+          <select class="bg-dark-3 border border-dark-4 rounded-lg px-3 py-1.5 text-xs text-gray-200 focus:outline-none">
+            <option>Sort by: Latest</option>
+            <option>Sort by: Popular</option>
+            <option>Sort by: Price Low</option>
+            <option>Sort by: Price High</option>
+            <option>Sort by: Rating</option>
+          </select>
+        </div>
+
+        <!-- Results Count -->
+        <div class="flex items-center justify-between">
+          <div class="text-xs text-gray-500">
+            Showing <span class="text-white font-semibold" id="results-count">0</span> games
+          </div>
+        </div>
+
+        <!-- Games Grid -->
+        <div id="games-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div class="col-span-full text-center py-12 text-gray-500 text-sm">Loading...</div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between pt-4 flex-wrap gap-3">
+          <div class="text-xs text-gray-500">Showing 221 - 240 of 320 games</div>
+          <div class="flex gap-1 flex-wrap justify-end">
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">‹</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">1</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">2</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">3</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">4</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">5</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">6</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">7</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">8</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">9</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">10</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">11</button>
+            <button class="w-7 h-7 rounded-lg bg-primary text-white text-xs font-bold">12</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">13</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">14</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">15</button>
+            <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="flex items-center justify-between flex-wrap gap-4 pt-6 border-t border-dark-4 text-xs text-gray-500">
+      <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+      <div class="flex items-center gap-4">
+        <a href="/terms" class="hover:text-primary">Terms</a>
+        <a href="/privacy" class="hover:text-primary">Privacy</a>
+        <a href="/contact" class="hover:text-primary">Contact</a>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allGames = [];
+let filteredGames = [];
+let activeCat = 'all';
+
+// MOCK DATA
+const mockGames = [
+  { id: 1, title: 'Grand Theft Auto V', category: 'Action', rating: 4.9, reviews: 12500, price: 65000, platforms: ['PC', 'PS5', 'PS4'], icon: '🚗', is_free: false, discount: 0 },
+  { id: 2, title: 'eFootball 2025', category: 'Sports', rating: 4.7, reviews: 9800, price: 25000, platforms: ['PC', 'PS5', 'PS4'], icon: '⚽', is_free: false, discount: 15 },
+  { id: 3, title: 'Call of Duty: Black Ops 6', category: 'Shooter', rating: 4.8, reviews: 11200, price: 95000, platforms: ['PC', 'PS5', 'Xbox'], icon: '🎯', is_free: false, discount: 10 },
+  { id: 4, title: 'Red Dead Redemption 2', category: 'Action', rating: 4.8, reviews: 10300, price: 80000, platforms: ['PC', 'PS4'], icon: '🤠', is_free: false, discount: 0 },
+  { id: 5, title: 'Marvel\'s Spider-Man 2', category: 'Action', rating: 4.7, reviews: 8900, price: 90000, platforms: ['PS5'], icon: '🕷️', is_free: false, discount: 15 },
+  { id: 6, title: 'EA SPORTS FC 25', category: 'Sports', rating: 4.6, reviews: 7800, price: 85000, platforms: ['PC', 'PS5', 'Xbox'], icon: '⚽', is_free: false, discount: 20 },
+  { id: 7, title: 'GTA San Andreas', category: 'Action', rating: 4.5, reviews: 6900, price: 30000, platforms: ['PC', 'PS2', 'PS4'], icon: '🌴', is_free: false, discount: 0 },
+  { id: 8, title: 'The Last of Us Part II', category: 'Adventure', rating: 4.9, reviews: 11500, price: 70000, platforms: ['PC', 'PS5'], icon: '🌿', is_free: false, discount: 0 },
+  { id: 9, title: 'God of War Ragnarök', category: 'Action', rating: 4.8, reviews: 10200, price: 80000, platforms: ['PC', 'PS5'], icon: '⚔️', is_free: false, discount: 10 },
+  { id: 10, title: 'FIFA 24', category: 'Sports', rating: 4.4, reviews: 5400, price: 70000, platforms: ['PC', 'PS5', 'Xbox'], icon: '⚽', is_free: false, discount: 0 },
+  { id: 11, title: 'Minecraft', category: 'Adventure', rating: 4.6, reviews: 8100, price: 50000, platforms: ['PC', 'Mobile', 'Xbox'], icon: '⛏️', is_free: false, discount: 0 },
+  { id: 12, title: 'Horizon Forbidden West', category: 'Adventure', rating: 4.7, reviews: 7300, price: 75000, platforms: ['PC', 'PS5'], icon: '🏹', is_free: false, discount: 20 },
+  { id: 13, title: 'Resident Evil 9', category: 'Action', rating: 4.5, reviews: 6200, price: 70000, platforms: ['PC', 'PS5'], icon: '🧟', is_free: false, discount: 0 },
+  { id: 14, title: 'Fortnite', category: 'Action', rating: 4.6, reviews: 9400, price: 0, platforms: ['PC', 'Mobile', 'PS5', 'Xbox'], icon: '🎮', is_free: true, discount: 0 },
+  { id: 15, title: 'Forza Horizon 5', category: 'Racing', rating: 4.8, reviews: 8900, price: 65000, platforms: ['PC', 'Xbox'], icon: '🏎️', is_free: false, discount: 0 },
+  { id: 16, title: 'Elden Ring', category: 'RPG', rating: 4.9, reviews: 12000, price: 80000, platforms: ['PC', 'PS5', 'Xbox'], icon: '⚔️', is_free: false, discount: 0 },
+  { id: 17, title: 'Cyberpunk 2077', category: 'RPG', rating: 4.7, reviews: 9100, price: 60000, platforms: ['PC', 'PS5', 'Xbox'], icon: '🌆', is_free: false, discount: 25 },
+  { id: 18, title: 'The Witcher 3: Wild Hunt', category: 'RPG', rating: 4.9, reviews: 13000, price: 55000, platforms: ['PC', 'PS5', 'Xbox'], icon: '🐺', is_free: false, discount: 20 },
+  { id: 19, title: 'Assassin\'s Creed Valhalla', category: 'Adventure', rating: 4.5, reviews: 6800, price: 60000, platforms: ['PC', 'PS5', 'Xbox'], icon: '🛡️', is_free: false, discount: 0 },
+  { id: 20, title: 'Mortal Kombat 1', category: 'Action', rating: 4.6, reviews: 7200, price: 65000, platforms: ['PC', 'PS5', 'Xbox'], icon: '🥋', is_free: false, discount: 10 },
+];
+
+// TABS
+document.querySelectorAll('.cat-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    filterGames();
+  });
+});
+
+// SEARCH
+document.getElementById('search-input').addEventListener('input', filterGames);
+
+// FILTERS
+document.querySelectorAll('.filter-platform, .filter-genre, .filter-price').forEach(cb => {
+  cb.addEventListener('change', filterGames);
+});
+
+async function loadGames() {
+  try {
+    const { data: games } = await db.from('games').select('*').eq('is_active', true).limit(50);
+    if (games && games.length > 0) {
+      allGames = games.map(g => ({
+        id: g.id,
+        title: g.title,
+        category: (g.categories && g.categories.name) || g.category || 'Action',
+        rating: g.rating || 4.5,
+        reviews: g.reviews_count || 0,
+        price: parseFloat(g.discount_price || g.price || 0),
+        platforms: g.platforms || ['PC'],
+        icon: '🎮',
+        is_free: (g.price || 0) === 0,
+        discount: g.discount_percent || 0
+      }));
+    } else {
+      allGames = mockGames;
+    }
+  } catch(e) {
+    allGames = mockGames;
+  }
+  filterGames();
+}
+
+function filterGames() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const platforms = Array.from(document.querySelectorAll('.filter-platform:checked')).map(cb => cb.value);
+  const genres = Array.from(document.querySelectorAll('.filter-genre:checked')).map(cb => cb.value);
+  const prices = Array.from(document.querySelectorAll('.filter-price:checked')).map(cb => cb.value);
+
+  filteredGames = allGames.filter(g => {
+    // Category filter
+    if (activeCat !== 'all' && g.category.toLowerCase() !== activeCat.toLowerCase()) return false;
+
+    // Search
+    if (search && !g.title.toLowerCase().includes(search)) return false;
+
+    // Platform filter
+    if (platforms.length > 0 && !g.platforms.some(p => platforms.includes(p))) return false;
+
+    // Genre filter
+    if (genres.length > 0 && !genres.includes(g.category)) return false;
+
+    // Price filter
+    if (prices.length > 0) {
+      if (prices.includes('Free') && g.is_free) return true;
+      if (prices.includes('Paid') && !g.is_free) return true;
+      if (prices.includes('On Sale') && g.discount > 0) return true;
+      return false;
+    }
+
+    return true;
+  });
+
+  renderGames();
+}
+
+function renderGames() {
+  const grid = document.getElementById('games-grid');
+  document.getElementById('results-count').textContent = filteredGames.length;
+
+  if (filteredGames.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full text-center py-12">
+        <div class="text-5xl mb-3">🎮</div>
+        <div class="text-white font-bold mb-2">Hakuna games zilizopatikana</div>
+        <div class="text-sm text-gray-500">Jaribu filters nyingine</div>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filteredGames.map(g => {
+    const discountPrice = g.discount > 0 ? g.price * (1 - g.discount / 100) : g.price;
+    return `
+      <a href="/game.html?id=${g.id}" class="game-card gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition group">
+        <div class="relative aspect-square bg-gradient-to-br from-purple-900/40 to-dark-2 flex items-center justify-center">
+          <div class="text-5xl">${g.icon}</div>
+          <span class="absolute top-2 left-2 text-[9px] bg-dark-2/80 text-white px-1.5 py-0.5 rounded font-semibold">${g.platforms[0]}</span>
+          ${g.is_free ? `<span class="absolute top-2 right-2 text-[9px] bg-green-500 text-white px-1.5 py-0.5 rounded font-bold">FREE</span>` : ''}
+          ${g.discount > 0 ? `<span class="absolute bottom-2 right-2 text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded font-bold">-${g.discount}%</span>` : ''}
+        </div>
+        <div class="p-3">
+          <div class="text-xs text-white font-semibold truncate mb-1">${g.title}</div>
+          <div class="text-[9px] text-gray-500 mb-2">${g.category}</div>
+          <div class="flex items-center gap-1 mb-2">
+            <span class="text-[10px] text-yellow-400">⭐ ${g.rating}</span>
+            <span class="text-[9px] text-gray-500">(${(g.reviews / 1000).toFixed(1)}K)</span>
+          </div>
+          <div class="flex items-baseline gap-1 mb-2">
+            ${g.is_free 
+              ? `<span class="text-sm text-green-400 font-bold">FREE</span>`
+              : `<span class="text-sm text-primary font-bold">TZS ${discountPrice.toLocaleString()}</span>
+                 ${g.discount > 0 ? `<span class="text-[9px] text-gray-500 line-through">${g.price.toLocaleString()}</span>` : ''}`
+            }
+          </div>
+          <button class="w-full gradient-primary text-white text-[10px] font-bold py-2 rounded-lg">Play Now</button>
+        </div>
+      </a>
+    `;
+  }).join('');
+}
+
+function clearFilters() {
+  document.querySelectorAll('.filter-platform, .filter-genre, .filter-price').forEach(cb => cb.checked = false);
+  document.getElementById('search-input').value = '';
+  activeCat = 'all';
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  document.querySelector('.cat-tab[data-cat="all"]').classList.add('active');
+  filterGames();
+}
+
+document.addEventListener('DOMContentLoaded', loadGames);
+</script>
+
+</body>
+</html>

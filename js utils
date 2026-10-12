@@ -1,0 +1,167 @@
+// js/utils.js
+// Helper functions zinazotumika kwenye pages zote
+
+window.Utils = {
+  
+  // Format price kwa TSh
+  formatPrice: function(amount) {
+    if (!amount && amount !== 0) return 'TSh 0';
+    return 'TSh ' + parseFloat(amount).toLocaleString('en-US');
+  },
+  
+  // Format price na $ 
+  formatUSD: function(amount) {
+    if (!amount && amount !== 0) return '$0.00';
+    return '$' + parseFloat(amount).toFixed(2);
+  },
+  
+  // Format date
+  formatDate: function(date) {
+    if (!date) return '-';
+    return new Date(date).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  },
+  
+  // Format date + time
+  formatDateTime: function(date) {
+    if (!date) return '-';
+    return new Date(date).toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  },
+  
+  // Time ago (2h ago, 5m ago, n.k.)
+  timeAgo: function(date) {
+    if (!date) return '';
+    const now = new Date();
+    const past = new Date(date);
+    const diffMs = now - past;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHr = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHr / 24);
+    
+    if (diffSec < 60) return diffSec + 's ago';
+    if (diffMin < 60) return diffMin + 'm ago';
+    if (diffHr < 24) return diffHr + 'h ago';
+    if (diffDay < 30) return diffDay + 'd ago';
+    return this.formatDate(date);
+  },
+  
+  // Truncate text
+  truncate: function(text, length = 50) {
+    if (!text) return '';
+    if (text.length <= length) return text;
+    return text.substring(0, length) + '...';
+  },
+  
+  // Slugify
+  slugify: function(text) {
+    return text.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  },
+  
+  // Debounce (kwa search inputs)
+  debounce: function(func, wait = 300) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  },
+  
+  // Show toast notification
+  toast: function(message, type = 'info', duration = 3000) {
+    const colors = {
+      success: 'bg-green-500',
+      error: 'bg-red-500',
+      warning: 'bg-orange-500',
+      info: 'bg-primary'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-2xl z-[9999] transition-all duration-300 transform translate-y-20 opacity-0`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.classList.remove('translate-y-20', 'opacity-0');
+    }, 10);
+    
+    setTimeout(() => {
+      toast.classList.add('translate-y-20', 'opacity-0');
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  },
+  
+  // Confirm dialog (custom)
+  confirm: function(message) {
+    return new Promise((resolve) => {
+      if (window.confirm(message)) {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    });
+  },
+  
+  // Copy to clipboard
+  copy: function(text) {
+    navigator.clipboard.writeText(text);
+    this.toast('✅ Imekopiwa!', 'success');
+  },
+  
+  // Get URL param
+  getParam: function(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+  },
+  
+  // Redirect
+  redirect: function(url) {
+    window.location.href = url;
+  },
+  
+  // Check if user is logged in
+  isLoggedIn: async function() {
+    if (!window.DB) return false;
+    const { data: { session } } = await window.DB.auth.getSession();
+    return !!session;
+  },
+  
+  // Get current user
+  getCurrentUser: async function() {
+    if (!window.DB) return null;
+    const { data: { session } } = await window.DB.auth.getSession();
+    return session ? session.user : null;
+  },
+  
+  // Get current profile
+  getCurrentProfile: async function() {
+    if (!window.DB) return null;
+    const { data: { session } } = await window.DB.auth.getSession();
+    if (!session) return null;
+    
+    const { data } = await window.DB
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+    
+    return data;
+  }
+};
+
+console.log('✅ Utils loaded!');

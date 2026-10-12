@@ -1,103 +1,233 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1,
-                 viewport-fit=cover">
-  <title>Register - LIFEISGAMETZ</title>
-  <link rel="stylesheet" href="assets/lgz.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#7c3aed', 'primary-dark': '#6d28d9',
+          dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540',
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .gradient-glow { background: radial-gradient(circle at center, rgba(124,58,237,0.4) 0%, transparent 70%); }
+</style>
 </head>
-<body>
+<body class="min-h-screen flex">
 
-  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
-  <div class="app">
+<!-- LEFT SIDE -->
+<div class="hidden lg:flex lg:w-1/2 relative gradient-card items-center justify-center p-12 overflow-hidden">
+  <div class="absolute inset-0 gradient-glow"></div>
+  <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(rgba(124,58,237,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.5) 1px, transparent 1px); background-size: 40px 40px;"></div>
 
-    <aside id="side"></aside>
-
-    <div style="min-width:0">
-      <header>
-        <button class="menu" aria-label="Menu"
-                onclick="side.classList.toggle('open')">
-          &#9776;
-        </button>
-        <input id="q" placeholder="Tafuta games..."
-               aria-label="Tafuta">
-        <div class="user" id="usr"></div>
-      </header>
-
-      <main id="main"></main>
+  <div class="relative z-10 max-w-md">
+    <div class="flex items-center gap-3 mb-12">
+      <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-white font-extrabold text-xl leading-none">
+          LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span>
+        </div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
     </div>
 
+    <h1 class="text-4xl font-extrabold text-white mb-4">Create Your Account</h1>
+    <p class="text-gray-400 mb-8">Join thousands of gamers and start your journey</p>
+
+    <ul class="space-y-4">
+      <li class="flex items-center gap-3 text-gray-300">
+        <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        Access to 40+ Pages
+      </li>
+      <li class="flex items-center gap-3 text-gray-300">
+        <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        Play & Learn
+      </li>
+      <li class="flex items-center gap-3 text-gray-300">
+        <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        Earn Rewards
+      </li>
+      <li class="flex items-center gap-3 text-gray-300">
+        <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        Join Community
+      </li>
+    </ul>
   </div>
 
-  <div id="toast" role="status"></div>
+  <!-- Gamer Image -->
+  <div class="absolute bottom-0 right-0 w-2/3 opacity-30">
+    <svg viewBox="0 0 400 300" fill="none">
+      <circle cx="200" cy="150" r="100" fill="#7c3aed" opacity="0.2"/>
+      <path d="M200 100 Q230 100 240 130 Q250 160 230 190 L170 190 Q150 160 160 130 Q170 100 200 100 Z" fill="#1a1a2e" stroke="#7c3aed" stroke-width="2"/>
+      <circle cx="200" cy="110" r="30" fill="#252540"/>
+    </svg>
+  </div>
+</div>
 
-  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
-  <script src="assets/lgz-core.js"></script>
+<!-- RIGHT SIDE -->
+<div class="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12">
+  <div class="w-full max-w-md">
+    
+    <div class="flex bg-dark-3 rounded-xl p-1 mb-6">
+      <a href="/login.html" class="flex-1 py-2.5 rounded-lg text-sm font-semibold text-gray-400 hover:text-white transition text-center">Login</a>
+      <button class="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-primary text-white transition">Register</button>
+    </div>
 
-  <!-- ========================================================
-       MSIMBO WA UKURASA HUU: Register
-       ======================================================== -->
-  <script>
-    LGZ.page({
-      file: 'register.html',
-      pg: 'register',
-      p: '',
-      admin: 0
-    }, function (a, q, A, pg) {
-      if (me())
-        return '<div class="empty">Umeingia tayari.<br>'
-          + '<br><a class="btn" href="profile.html">'
-          + 'Fungua Profile</a></div>';
-      var rg = pg === 'register';
-      return '<div class="auth"><div class="promo">'
-        + '<h1>'
-        + (rg ? 'Fungua Akaunti' : 'Welcome Back!')
-        + '</h1><p>Nunua games, hifadhi wishlist '
-        + 'na uone Library yako.</p><ul><li>Lipa '
-        + 'kwa M-Pesa, Tigo Pesa au Airtel Money'
-        + '</li><li>Pata games za bure</li><li>'
-        + 'Fuatilia oda zako</li></ul></div>'
-        + '<div class="panel" style="margin:0">'
-        + '<div class="row" '
-        + 'style="margin-bottom:14px">'
-        + '<a class="btn '
-        + (rg ? 'o' : '')
-        + '" style="flex:1;text-align:center" '
-        + 'href="login.html">Login</a>'
-        + '<a class="btn '
-        + (rg ? '' : 'o')
-        + '" style="flex:1;text-align:center" '
-        + 'href="register.html">Register</a></div>'
-        + (
-          rg
-            ? '<form onsubmit="reg(event)">'
-              + '<label class="full">Jina kamili'
-              + '<input name="nm" required></label>'
-              + '<label class="full">Email'
-              + '<input name="em" type="email" required>'
-              + '</label><label class="full">Simu'
-              + '<input name="ph" placeholder="+255...">'
-              + '</label><label class="full">Password'
-              + '<input name="pw" type="password" '
-              + 'required minlength="6"></label>'
-              + '<div class="full"><button class="btn" '
-              + 'style="width:100%" type="submit">'
-              + 'Create Account</button></div></form>'
-            : '<form onsubmit="login(event)">'
-              + '<label class="full">Email'
-              + '<input name="em" type="email" required>'
-              + '</label><label class="full">Password'
-              + '<input name="pw" type="password" '
-              + 'required></label><div class="full">'
-              + '<button class="btn" style="width:100%" '
-              + 'type="submit">Login</button></div>'
-              + '</form>'
-        )
-        + '</div></div>';
-    });
-  </script>
+    <h2 class="text-2xl font-bold text-white mb-2">Create New Account</h2>
+    <p class="text-gray-400 text-sm mb-6">Fill in your details to get started</p>
+
+    <form id="register-form" class="space-y-4">
+      
+      <div>
+        <label class="block text-sm text-gray-300 mb-2">Full Name</label>
+        <div class="relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+          <input type="text" id="fullname" required placeholder="Your full name" 
+            class="w-full bg-dark-3 border border-dark-4 rounded-xl py-3 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary transition">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-2">Email Address</label>
+        <div class="relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <input type="email" id="email" required placeholder="you@example.com" 
+            class="w-full bg-dark-3 border border-dark-4 rounded-xl py-3 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary transition">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-2">Username</label>
+        <div class="relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+          <input type="text" id="username" required placeholder="Choose a username" 
+            class="w-full bg-dark-3 border border-dark-4 rounded-xl py-3 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary transition">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-2">Password</label>
+        <div class="relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <input type="password" id="password" required placeholder="Create a password" minlength="6"
+            class="w-full bg-dark-3 border border-dark-4 rounded-xl py-3 pl-12 pr-12 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary transition">
+          <button type="button" onclick="togglePassword('password')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <label class="flex items-start gap-2 text-sm text-gray-400 cursor-pointer">
+        <input type="checkbox" id="terms" required class="mt-1 rounded bg-dark-3 border-dark-4 text-primary focus:ring-primary">
+        <span>I agree to the <a href="/terms" class="text-primary hover:text-primary-dark">Terms</a> & <a href="/privacy" class="text-primary hover:text-primary-dark">Conditions</a></span>
+      </label>
+
+      <button type="submit" id="submit-btn" class="w-full gradient-primary text-white font-semibold py-3 rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2">
+        <span>Register</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+      </button>
+
+      <div id="error-msg" class="hidden text-red-400 text-sm text-center bg-red-500/10 border border-red-500/30 rounded-lg py-2"></div>
+      <div id="success-msg" class="hidden text-green-400 text-sm text-center bg-green-500/10 border border-green-500/30 rounded-lg py-2"></div>
+
+    </form>
+
+    <p class="text-center text-sm text-gray-400 mt-6">
+      Already have an account? <a href="/login.html" class="text-primary hover:text-primary-dark font-semibold">Login</a>
+    </p>
+
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function togglePassword(id) {
+  const input = document.getElementById(id);
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const errorEl = document.getElementById('error-msg');
+  const successEl = document.getElementById('success-msg');
+  
+  const fullName = document.getElementById('fullname').value;
+  const email = document.getElementById('email').value;
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="animate-spin">⏳</span> Inasajili...';
+  errorEl.classList.add('hidden');
+  successEl.classList.add('hidden');
+
+  const { data, error } = await db.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+        username: username
+      }
+    }
+  });
+
+  if (error) {
+    errorEl.textContent = error.message;
+    errorEl.classList.remove('hidden');
+    btn.disabled = false;
+    btn.innerHTML = '<span>Register</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>';
+    return;
+  }
+
+  successEl.textContent = '✅ Account imetengenezwa! Angalia email yako kuthibitisha.';
+  successEl.classList.remove('hidden');
+  
+  setTimeout(() => {
+    window.location.href = '/login.html';
+  }, 2000);
+});
+</script>
 
 </body>
 </html>

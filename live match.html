@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Match - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+  }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+  @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .live-pulse { animation: pulse-red 1.5s infinite; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <button class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search for games, products, users, or anything..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
+          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Super Admin
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span>Store</span>
+      </a>
+      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games</span>
+      </a>
+      <a href="/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies</span>
+      </a>
+      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <span>Live TV / eSports</span>
+      </a>
+      <a href="/livecore.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Live Scores</span>
+      </a>
+      <a href="/tournaments.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        <span>Tournament</span>
+      </a>
+      <a href="/betting.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Betting</span>
+      </a>
+      <a href="/courses.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+        <span>Academy</span>
+      </a>
+      <a href="/cloud-gaming.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+        <span>Cloud Gaming</span>
+      </a>
+      <a href="/efootball.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <span>eFootball / Top Up</span>
+      </a>
+      <a href="/gift-cards.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+        <span>Gift Cards</span>
+      </a>
+      <a href="/community.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+        <span>Community / Chat</span>
+      </a>
+      <a href="/ai.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        <span>AI Assistants</span>
+      </a>
+      <a href="/marketplace.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span>Marketplace</span>
+      </a>
+
+      <div class="px-4 py-2 mt-2 text-[10px] uppercase tracking-wider text-gray-500 font-bold">My Account</div>
+      <a href="/wishlist.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span>Wishlist</span>
+        <span class="ml-auto text-[9px] bg-dark-2 px-1.5 py-0.5 rounded">5</span>
+      </a>
+      <a href="/my-games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span>My Games / Library</span>
+        <span class="ml-auto text-[9px] bg-dark-2 px-1.5 py-0.5 rounded">12</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <a href="/live-tv.html" class="hover:text-primary">Live TV</a>
+      <span>›</span>
+      <span class="text-white font-semibold" id="breadcrumb-title">Loading...</span>
+    </div>
+
+    <!-- GRID: Main + Right -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+      <!-- LEFT: Player + Info + Tabs + Other Matches -->
+      <div class="xl:col-span-2 space-y-6">
+
+        <!-- Player + Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Video Player -->
+          <div class="relative rounded-2xl overflow-hidden bg-dark-3 aspect-video">
+            <div class="w-full h-full bg-gradient-to-br from-purple-900/40 to-dark-2 flex items-center justify-center relative">
+              <!-- Match Preview Image (SVG simulation) -->
+              <div class="absolute inset-0 flex items-center justify-between p-6">
+                <div class="flex flex-col items-center">
+                  <div class="w-24 h-24 rounded-full bg-white flex items-center justify-center text-4xl font-bold text-purple-900 shadow-2xl">RM</div>
+                  <span class="text-white font-bold mt-2 text-sm">Real Madrid</span>
+                </div>
+                <div class="text-4xl font-extrabold text-white">VS</div>
+                <div class="flex flex-col items-center">
+                  <div class="w-24 h-24 rounded-full bg-red-600 flex items-center justify-center text-4xl font-bold text-yellow-300 shadow-2xl">FCB</div>
+                  <span class="text-white font-bold mt-2 text-sm">Barcelona</span>
+                </div>
+              </div>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-16 h-16 rounded-full gradient-primary flex items-center justify-center cursor-pointer hover:scale-110 transition shadow-2xl">
+                  <svg class="w-7 h-7 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+              </div>
+            </div>
+            <span class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-white live-pulse"></span> LIVE
+            </span>
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
+              <div class="flex items-center gap-3">
+                <button class="text-white"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+                <button class="text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg></button>
+                <div class="flex-1 h-1 bg-white/30 rounded-full relative">
+                  <div class="absolute left-0 top-0 h-full bg-red-500 rounded-full" style="width: 45%"></div>
+                </div>
+                <span class="text-white text-xs flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-red-500 live-pulse"></span> LIVE
+                </span>
+                <button class="text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Match Info -->
+          <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold">⚽ Live TV</span>
+            </div>
+            <h1 class="text-2xl font-bold text-white mb-1" id="match-title">Real Madrid vs Barcelona</h1>
+            <div class="text-xs text-gray-400 mb-3" id="match-competition">El Clásico - La Liga</div>
+            
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded font-bold flex items-center gap-1">
+                <span class="w-1 h-1 rounded-full bg-white live-pulse"></span> LIVE
+              </span>
+              <span class="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded font-bold">HD</span>
+              <span class="text-[10px] bg-dark-3 text-gray-300 px-2 py-0.5 rounded">Sports</span>
+              <span class="text-[10px] bg-dark-3 text-gray-300 px-2 py-0.5 rounded">Football</span>
+            </div>
+
+            <div class="space-y-1.5 text-xs mb-3">
+              <div class="flex items-center gap-2 text-gray-400">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span id="match-date">12 Apr 2025</span>
+                <span class="text-gray-500">•</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span id="match-time">22:00 (GMT+3)</span>
+              </div>
+              <div class="flex items-center gap-2 text-gray-400">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <span id="match-viewers">124,356 watching</span>
+              </div>
+            </div>
+
+            <p class="text-xs text-gray-400 mb-4" id="match-description">The biggest rivalry in world football! Real Madrid takes on Barcelona in the legendary El Clásico. Don't miss this thrilling match live from Santiago Bernabéu Stadium.</p>
+
+            <div class="flex gap-2">
+              <button onclick="watchLive()" class="flex-1 gradient-primary text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                Watch Live Now
+              </button>
+              <button class="bg-dark-3 border border-dark-4 text-white py-3 px-4 rounded-lg">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-6 border-b border-dark-4 overflow-x-auto">
+          <button class="tab-btn active px-0 py-3 text-sm font-semibold border-b-2 border-transparent" data-tab="details">Details</button>
+          <button class="tab-btn px-0 py-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent" data-tab="schedule">Schedule</button>
+          <button class="tab-btn px-0 py-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent" data-tab="comments">Comments (256)</button>
+        </div>
+
+        <!-- Details Tab -->
+        <div id="tab-details" class="tab-content grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+            <h3 class="text-white font-bold mb-4">Match Information</h3>
+            <div class="space-y-3 text-xs">
+              <div class="flex items-start gap-2">
+                <svg class="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                <div class="flex-1">
+                  <div class="text-gray-500">Competition</div>
+                  <div class="text-white font-semibold" id="info-competition">La Liga</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <svg class="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <div class="flex-1">
+                  <div class="text-gray-500">Teams</div>
+                  <div class="text-white font-semibold" id="info-teams">Real Madrid vs Barcelona</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <svg class="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <div class="flex-1">
+                  <div class="text-gray-500">Date</div>
+                  <div class="text-white font-semibold" id="info-date">12 Apr 2025</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <svg class="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div class="flex-1">
+                  <div class="text-gray-500">Time</div>
+                  <div class="text-white font-semibold" id="info-time">22:00 (GMT+3)</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <svg class="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                <div class="flex-1">
+                  <div class="text-gray-500">Stadium</div>
+                  <div class="text-white font-semibold" id="info-venue">Santiago Bernabéu Stadium</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <svg class="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <div class="flex-1">
+                  <div class="text-gray-500">Broadcast</div>
+                  <div class="text-white font-semibold" id="info-broadcast">beIN Sports, ESPN, DAZN</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+            <h3 class="text-white font-bold mb-3">Description</h3>
+            <p class="text-xs text-gray-400 leading-relaxed mb-4" id="info-description">
+              The El Clásico is more than just a match — it's a battle of pride, history and passion. Watch Real Madrid vs Barcelona live, with the best commentary, HD quality and zero lag. Experience every goal, every moment, every emotion.
+            </p>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="bg-dark-3 rounded-lg p-2 text-center">
+                <svg class="w-4 h-4 text-primary mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <div class="text-[9px] text-white font-semibold">HD Quality</div>
+              </div>
+              <div class="bg-dark-3 rounded-lg p-2 text-center">
+                <svg class="w-4 h-4 text-primary mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <div class="text-[9px] text-white font-semibold">No Ads</div>
+              </div>
+              <div class="bg-dark-3 rounded-lg p-2 text-center">
+                <svg class="w-4 h-4 text-primary mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>
+                <div class="text-[9px] text-white font-semibold">Multiple Languages</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schedule Tab -->
+        <div id="tab-schedule" class="tab-content hidden gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold mb-4">Schedule</h3>
+          <div class="text-center text-gray-500 text-sm py-8">Schedule inakuja</div>
+        </div>
+
+        <!-- Comments Tab -->
+        <div id="tab-comments" class="tab-content hidden gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold mb-4">Comments (256)</h3>
+          
+          <!-- Input -->
+          <div class="flex gap-2 mb-4">
+            <input type="text" id="comment-input" placeholder="Andika comment yako..." class="flex-1 bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary">
+            <button onclick="postComment()" class="gradient-primary text-white font-semibold px-5 rounded-lg flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              Post
+            </button>
+          </div>
+
+          <div id="comments-list" class="space-y-3">
+            <div class="text-center text-gray-500 text-xs py-4">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Other Live Matches -->
+        <section>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-bold">Other Live Matches</h3>
+            <a href="/live-tv.html" class="text-xs text-primary">View All →</a>
+          </div>
+          <div id="other-matches" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="col-span-full text-center py-4 text-gray-500 text-sm">Loading...</div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RIGHT: Categories + Featured Channels + Promo -->
+      <div class="space-y-4">
+
+        <!-- Live TV Categories -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span>📺</span>
+              <h3 class="text-white font-bold">Live TV Categories</h3>
+            </div>
+            <a href="/live-tv.html" class="text-xs text-primary">View All →</a>
+          </div>
+          <div id="tv-categories" class="space-y-2">
+            <div class="text-center text-gray-500 text-xs py-4">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Featured Channels -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-bold">Featured Channels</h3>
+            <a href="/live-tv.html" class="text-xs text-primary">View All →</a>
+          </div>
+          <div id="featured-channels" class="space-y-3">
+            <div class="text-center text-gray-500 text-xs py-4">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Promo -->
+        <div class="gradient-primary rounded-2xl p-5 relative overflow-hidden">
+          <div class="absolute -top-2 -right-2 text-5xl opacity-20">📺</div>
+          <div class="relative">
+            <h3 class="text-white font-bold mb-1">Enjoy Live TV</h3>
+            <h3 class="text-white font-bold mb-3">Anywhere, Anytime!</h3>
+            <p class="text-white/80 text-xs mb-3">Sports, Movies, News & More</p>
+            <button class="bg-white text-primary font-bold text-xs px-4 py-2 rounded-lg">Go Premium →</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentMatch = null;
+
+function getMatchId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id');
+}
+
+// TABS
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active', 'text-primary', 'border-primary');
+      b.classList.add('text-gray-400');
+    });
+    btn.classList.add('active', 'text-primary', 'border-primary');
+    btn.classList.remove('text-gray-400');
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    const target = document.getElementById('tab-' + btn.dataset.tab);
+    if (target) target.classList.remove('hidden');
+  });
+});
+
+async function loadMatch() {
+  const id = getMatchId();
+  
+  // Kama hakuna ID, chukua live match ya kwanza
+  let match;
+  if (id) {
+    const { data } = await db.from('sports_matches').select('*').eq('id', id).single();
+    match = data;
+  } else {
+    const { data } = await db.from('sports_matches').select('*').eq('status', 'live').limit(1).single();
+    match = data;
+  }
+
+  // Kama hakuna match kwenye DB, tumia sample (mock)
+  if (!match) {
+    match = {
+      id: 'demo',
+      home_team: 'Real Madrid',
+      away_team: 'Barcelona',
+      home_team_short: 'RM',
+      away_team_short: 'FCB',
+      competition: 'La Liga',
+      league: 'El Clásico - La Liga',
+      match_date: '2025-04-12',
+      match_time: '22:00 (GMT+3)',
+      venue: 'Santiago Bernabéu Stadium',
+      broadcasters: ['beIN Sports', 'ESPN', 'DAZN'],
+      viewers: 124356,
+      description: "The El Clásico is more than just a match — it's a battle of pride, history and passion. Watch Real Madrid vs Barcelona live, with the best commentary, HD quality and zero lag.",
+      status: 'live'
+    };
+  }
+
+  currentMatch = match;
+
+  // Update UI
+  document.title = `${match.home_team} vs ${match.away_team} - LifeisGameTz`;
+  document.getElementById('breadcrumb-title').textContent = `${match.home_team} vs ${match.away_team}`;
+  document.getElementById('match-title').textContent = `${match.home_team} vs ${match.away_team}`;
+  document.getElementById('match-competition').textContent = match.league || match.competition || 'Live Match';
+  document.getElementById('match-date').textContent = match.match_date || '-';
+  document.getElementById('match-time').textContent = match.match_time || '-';
+  document.getElementById('match-viewers').textContent = `${(match.viewers || 0).toLocaleString()} watching`;
+  document.getElementById('match-description').textContent = match.description || '';
+
+  document.getElementById('info-competition').textContent = match.competition || match.league || '-';
+  document.getElementById('info-teams').textContent = `${match.home_team} vs ${match.away_team}`;
+  document.getElementById('info-date').textContent = match.match_date || '-';
+  document.getElementById('info-time').textContent = match.match_time || '-';
+  document.getElementById('info-venue').textContent = match.venue || '-';
+  document.getElementById('info-broadcast').textContent = (match.broadcasters || []).join(', ') || '-';
+
+  loadComments();
+  loadOtherMatches();
+  loadTvCategories();
+  loadFeaturedChannels();
+}
+
+// COMMENTS
+async function loadComments() {
+  const container = document.getElementById('comments-list');
+  // Kama currentMatch ni demo, onyesha mock
+  if (!currentMatch || currentMatch.id === 'demo') {
+    container.innerHTML = `
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white text-xs font-bold shrink-0">J</div>
+        <div class="flex-1 bg-dark-3 rounded-lg p-3">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs text-white font-semibold">JumaGamer</span>
+            <span class="text-[9px] text-gray-500">2m ago</span>
+          </div>
+          <p class="text-xs text-gray-300">Hala Madrid! 🔥</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-full bg-blue-500/40 flex items-center justify-center text-white text-xs font-bold shrink-0">A</div>
+        <div class="flex-1 bg-dark-3 rounded-lg p-3">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs text-white font-semibold">Aisha_M</span>
+            <span class="text-[9px] text-gray-500">5m ago</span>
+          </div>
+          <p class="text-xs text-gray-300">Visca Barça! 💙❤️</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const { data: comments } = await db.from('match_comments').select('*').eq('match_id', currentMatch.id).order('created_at', { ascending: false }).limit(20);
+  if (!comments || comments.length === 0) {
+    container.innerHTML = `<div class="text-center text-gray-500 text-xs py-4">Hakuna comments bado. Kuwa wa kwanza!</div>`;
+    return;
+  }
+  container.innerHTML = comments.map(c => `
+    <div class="flex items-start gap-3">
+      <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white text-xs font-bold shrink-0">${(c.username || 'U').charAt(0).toUpperCase()}</div>
+      <div class="flex-1 bg-dark-3 rounded-lg p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs text-white font-semibold">${c.username}</span>
+          <span class="text-[9px] text-gray-500">${new Date(c.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+        <p class="text-xs text-gray-300">${c.message}</p>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function postComment() {
+  const input = document.getElementById('comment-input');
+  const message = input.value.trim();
+  if (!message) return;
+
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { window.location.href = '/login.html'; return; }
+
+  const { data: profile } = await db.from('profiles').select('username, full_name').eq('id', session.user.id).single();
+
+  await db.from('match_comments').insert({
+    match_id: currentMatch.id,
+    user_id: session.user.id,
+    username: profile?.username || profile?.full_name || 'User',
+    message: message
+  });
+
+  input.value = '';
+  loadComments();
+}
+
+// OTHER MATCHES
+async function loadOtherMatches() {
+  const { data: matches } = await db.from('sports_matches').select('*').eq('status', 'live').eq('is_active', true).limit(4);
+  const container = document.getElementById('other-matches');
+  
+  if (!matches || matches.length === 0) {
+    // Mock data
+    const mockMatches = [
+      { home: 'Man City', away: 'Arsenal', time: '18:30', league: 'Premier League', homeShort: 'MC', awayShort: 'ARS' },
+      { home: 'Liverpool', away: 'Man United', time: '20:45', league: 'Premier League', homeShort: 'LIV', awayShort: 'MUN' },
+      { home: 'PSG', away: 'Marseille', time: '21:00', league: 'Ligue 1', homeShort: 'PSG', awayShort: 'OM' },
+      { home: 'Juventus', away: 'Inter', time: '21:45', league: 'Serie A', homeShort: 'JUV', awayShort: 'INT' }
+    ];
+    container.innerHTML = mockMatches.map(m => `
+      <a href="/live-match.html" class="gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition">
+        <div class="relative bg-gradient-to-br from-purple-900/40 to-dark-2 p-3">
+          <div class="flex items-center justify-between mb-2">
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[10px] font-bold text-purple-900">${m.homeShort}</div>
+            <span class="text-[9px] text-white">VS</span>
+            <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-[10px] font-bold text-white">${m.awayShort}</div>
+          </div>
+          <span class="absolute top-2 right-2 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+            <span class="w-1 h-1 rounded-full bg-white live-pulse"></span>LIVE
+          </span>
+        </div>
+        <div class="p-3">
+          <div class="text-[10px] text-white font-semibold truncate">${m.home} vs ${m.away}</div>
+          <div class="text-[9px] text-gray-500 mt-0.5">${m.time} GMT+3</div>
+          <div class="text-[9px] text-gray-500">${m.league}</div>
+        </div>
+      </a>
+    `).join('');
+    return;
+  }
+
+  container.innerHTML = matches.map(m => `
+    <a href="/live-match.html?id=${m.id}" class="gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition">
+      <div class="relative bg-gradient-to-br from-purple-900/40 to-dark-2 p-3">
+        <div class="flex items-center justify-between mb-2">
+          <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[10px] font-bold text-purple-900">${(m.home_team_short || m.home_team).charAt(0)}</div>
+          <span class="text-[9px] text-white">VS</span>
+          <div class="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-[10px] font-bold text-white">${(m.away_team_short || m.away_team).charAt(0)}</div>
+        </div>
+        <span class="absolute top-2 right-2 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+          <span class="w-1 h-1 rounded-full bg-white live-pulse"></span>LIVE
+        </span>
+      </div>
+      <div class="p-3">
+        <div class="text-[10px] text-white font-semibold truncate">${m.home_team} vs ${m.away_team}</div>
+        <div class="text-[9px] text-gray-500 mt-0.5">${m.match_time || ''}</div>
+        <div class="text-[9px] text-gray-500">${m.league || ''}</div>
+      </div>
+    </a>
+  `).join('');
+}
+
+// TV CATEGORIES
+async function loadTvCategories() {
+  const { data: cats } = await db.from('live_tv_categories').select('*').eq('is_active', true).order('display_order');
+  const container = document.getElementById('tv-categories');
+  
+  if (!cats || cats.length === 0) {
+    // Mock
+    const mockCats = [
+      { name: 'Football (Live Matches)', icon: '⚽', count: 48 },
+      { name: 'Basketball (Live)', icon: '🏀', count: 12 },
+      { name: 'Tennis (Live)', icon: '🎾', count: 8 },
+      { name: 'UFC & Boxing', icon: '🥊', count: 6 },
+      { name: 'WWE', icon: '🤼', count: 4 },
+      { name: 'Cricket', icon: '🏏', count: 10 },
+      { name: 'Other Sports', icon: '🏆', count: 7 },
+      { name: 'TV Channels', icon: '📺', count: 20 }
+    ];
+    container.innerHTML = mockCats.map(c => `
+      <a href="/live-tv.html" class="flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-dark-3 transition group">
+        <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-sm shrink-0">${c.icon}</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-xs text-white font-semibold truncate">${c.name}</div>
+        </div>
+        <span class="text-[10px] bg-dark-3 text-gray-400 px-2 py-0.5 rounded shrink-0">${c.count}</span>
+        <svg class="w-3 h-3 text-gray-500 group-hover:text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    `).join('');
+    return;
+  }
+
+  container.innerHTML = cats.map(c => `
+    <a href="/live-tv.html?cat=${c.slug}" class="flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-dark-3 transition group">
+      <div class="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-sm shrink-0">${c.icon || '📺'}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-xs text-white font-semibold truncate">${c.name}</div>
+      </div>
+      <span class="text-[10px] bg-dark-3 text-gray-400 px-2 py-0.5 rounded shrink-0">${c.count || 0}</span>
+      <svg class="w-3 h-3 text-gray-500 group-hover:text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </a>
+  `).join('');
+}
+
+// FEATURED CHANNELS
+async function loadFeaturedChannels() {
+  const { data: channels } = await db.from('live_tv_channels').select('*').eq('is_active', true).order('display_order').limit(5);
+  const container = document.getElementById('featured-channels');
+  
+  if (!channels || channels.length === 0) {
+    // Mock
+    const mockChannels = [
+      { name: 'beIN Sports', cat: 'Sports | HD', color: 'bg-purple-600' },
+      { name: 'ESPN', cat: 'Sports | HD', color: 'bg-red-600' },
+      { name: 'Sky Sports', cat: 'Sports | HD', color: 'bg-blue-600' },
+      { name: 'DAZN', cat: 'Sports | HD', color: 'bg-gray-700' },
+      { name: 'TNT Sports', cat: 'Sports | HD', color: 'bg-purple-700' }
+    ];
+    container.innerHTML = mockChannels.map(c => `
+      <a href="/live-tv-channel.html" class="flex items-center gap-3 hover:bg-dark-3 p-2 rounded-lg transition">
+        <div class="w-12 h-12 rounded-lg ${c.color} flex items-center justify-center text-white text-[9px] font-bold text-center shrink-0 leading-tight px-1">${c.name}</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-xs text-white font-semibold">${c.name}</div>
+          <div class="text-[10px] text-gray-500">${c.cat}</div>
+        </div>
+        <span class="text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded font-bold">LIVE</span>
+      </a>
+    `).join('');
+    return;
+  }
+
+  container.innerHTML = channels.map(c => `
+    <a href="/live-tv-channel.html?id=${c.id}" class="flex items-center gap-3 hover:bg-dark-3 p-2 rounded-lg transition">
+      <div class="w-12 h-12 rounded-lg bg-dark-3 flex items-center justify-center text-white text-[9px] font-bold text-center shrink-0">
+        ${c.logo_url ? `<img src="${c.logo_url}" class="w-full h-full object-cover rounded-lg">` : c.name.substring(0, 6)}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-xs text-white font-semibold">${c.name}</div>
+        <div class="text-[10px] text-gray-500">${c.category || ''} | ${c.quality || 'HD'}</div>
+      </div>
+      ${c.is_live ? `<span class="text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded font-bold">LIVE</span>` : ''}
+    </a>
+  `).join('');
+}
+
+function watchLive() {
+  alert('🎥 Live match inaanza kwenye player...');
+}
+
+document.addEventListener('DOMContentLoaded', loadMatch);
+</script>
+
+</body>
+</html>

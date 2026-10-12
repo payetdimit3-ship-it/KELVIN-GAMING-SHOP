@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Trailers - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .cat-tab.active { background: #7c3aed; color: white; }
+  .trailer-card:hover { transform: translateY(-4px); transition: all 0.3s; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <button class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search game trailers..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
+          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Super Admin
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span>Store</span>
+      </a>
+      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games</span>
+      </a>
+      <a href="/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies</span>
+      </a>
+      <a href="/game-trailer.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Game Trailers</span>
+      </a>
+      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <span>Live TV / eSports</span>
+      </a>
+      <a href="/community.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+        <span>Community / Chat</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <span class="text-white font-semibold">Game Trailers</span>
+    </div>
+
+    <!-- Header -->
+    <div class="flex items-start justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-white">Game Trailers</h1>
+          <p class="text-sm text-gray-400">Watch the latest game trailers, gameplay videos and official reveals.</p>
+        </div>
+      </div>
+      <button class="gradient-primary text-white text-sm font-bold px-5 py-2.5 rounded-lg flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+        Upload Trailer
+      </button>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+      <button class="cat-tab active px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="all">All Trailers</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="action">Action</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="sports">Sports</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="racing">Racing</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="rpg">RPG</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="shooter">Shooter</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="adventure">Adventure</button>
+    </div>
+
+    <!-- Featured Trailer -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="relative aspect-video md:aspect-[21/9] bg-gradient-to-br from-purple-900/60 to-dark-2 flex items-center justify-center">
+        <!-- Featured Content -->
+        <div class="absolute inset-0 flex items-center justify-between p-6 md:p-10">
+          <div class="z-10">
+            <span class="text-[10px] bg-red-500 text-white px-2 py-1 rounded font-bold mb-3 inline-block">Featured</span>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-2">Grand Theft Auto VI</h2>
+            <p class="text-sm text-gray-300 mb-4">Official Trailer</p>
+            <div class="flex flex-wrap gap-3 text-xs mb-4">
+              <span class="flex items-center gap-1 text-gray-200">
+                <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                Rockstar Games
+              </span>
+              <span class="flex items-center gap-1 text-gray-200">
+                <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                2:46
+              </span>
+              <span class="flex items-center gap-1 text-gray-200">
+                <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                4K views
+              </span>
+            </div>
+            <button class="gradient-primary text-white font-bold px-5 py-2.5 rounded-lg flex items-center gap-2">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              Watch Trailer
+            </button>
+          </div>
+
+          <!-- Play Icon -->
+          <div class="hidden md:flex w-20 h-20 rounded-full gradient-primary items-center justify-center shadow-2xl cursor-pointer hover:scale-110 transition">
+            <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latest Game Trailers -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <span>🎬</span> Latest Game Trailers
+        </h2>
+        <a href="#" class="text-sm text-primary font-semibold">View All →</a>
+      </div>
+      <div id="trailers-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
+      </div>
+    </section>
+
+    <!-- Bottom Banner -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-purple-900/60 via-primary/40 to-transparent"></div>
+      <div class="relative p-6 md:p-8 flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 class="text-xl md:text-3xl font-extrabold text-white mb-2">THE BEST GAMES. THE BEST TRAILERS.</h3>
+          <p class="text-sm text-gray-300">Stay updated with the latest game trailers and never miss a release.</p>
+        </div>
+        <button class="gradient-primary text-white font-bold px-6 py-3 rounded-lg">Explore Games →</button>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-6 mt-4 border-t border-dark-4 text-xs text-gray-500">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded gradient-primary flex items-center justify-center text-white text-[9px] font-bold">L</div>
+          <span class="text-white font-bold">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></span>
+          <span class="text-gray-500">Play • Learn • Earn</span>
+        </div>
+        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+        <div class="flex gap-4">
+          <a href="/terms" class="hover:text-primary">Terms</a>
+          <a href="/privacy" class="hover:text-primary">Privacy</a>
+          <a href="/contact" class="hover:text-primary">Contact</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let activeCat = 'all';
+
+const trailers = [
+  { id: 1, title: 'GTA 6 - Official Trailer 2', duration: '2:46', views: '4K', category: 'action', icon: '🚗', game: 'Rockstar Games' },
+  { id: 2, title: 'Call of Duty: Black Ops 6', duration: '2:10', views: '4K', category: 'shooter', icon: '🎯', game: 'Activision' },
+  { id: 3, title: 'Marvel\'s Spider-Man 2', duration: '2:16', views: '4K', category: 'action', icon: '🕷️', game: 'Insomniac Games' },
+  { id: 4, title: 'EA SPORTS FC 25', duration: '2:13', views: '4K', category: 'sports', icon: '⚽', game: 'EA Sports' },
+  { id: 5, title: 'Red Dead Redemption 2', duration: '2:56', views: '4K', category: 'adventure', icon: '🤠', game: 'Rockstar Games' },
+  { id: 6, title: 'God of War Ragnarök', duration: '2:28', views: '4K', category: 'action', icon: '⚔️', game: 'Santa Monica Studio' },
+  { id: 7, title: 'Horizon Forbidden West', duration: '2:46', views: '4K', category: 'adventure', icon: '🏹', game: 'Guerrilla Games' },
+  { id: 8, title: 'Resident Evil 9', duration: '2:44', views: '4K', category: 'action', icon: '🧟', game: 'Capcom' },
+  { id: 9, title: 'The Last of Us Part III', duration: '2:56', views: '4K', category: 'adventure', icon: '🌿', game: 'Naughty Dog' },
+  { id: 10, title: 'Fortnite Chapter 5', duration: '1:48', views: '4K', category: 'action', icon: '🎮', game: 'Epic Games' },
+  { id: 11, title: 'Forza Horizon 6', duration: '2:12', views: '4K', category: 'racing', icon: '🏎️', game: 'Playground Games' },
+  { id: 12, title: 'Elden Ring: Shadow of the Erdtree', duration: '3:08', views: '4K', category: 'rpg', icon: '⚔️', game: 'FromSoftware' }
+];
+
+document.querySelectorAll('.cat-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    renderTrailers();
+  });
+});
+
+function renderTrailers() {
+  const container = document.getElementById('trailers-grid');
+  let filtered = trailers;
+  if (activeCat !== 'all') {
+    filtered = filtered.filter(t => t.category === activeCat);
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm">Hakuna trailers kwenye category hii</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(t => `
+    <div class="trailer-card gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition group">
+      <div class="relative aspect-video bg-gradient-to-br from-purple-900/40 to-dark-2 flex items-center justify-center">
+        <div class="text-5xl">${t.icon}</div>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+          <div class="w-12 h-12 rounded-full gradient-primary flex items-center justify-center">
+            <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <span class="absolute bottom-2 right-2 text-[9px] bg-black/70 text-white px-1.5 py-0.5 rounded font-bold">${t.duration}</span>
+        <span class="absolute top-2 left-2 text-[9px] bg-primary text-white px-1.5 py-0.5 rounded font-bold">${t.views}</span>
+      </div>
+      <div class="p-3">
+        <h3 class="text-xs text-white font-semibold line-clamp-2 mb-2">${t.title}</h3>
+        <div class="flex items-center gap-1 text-[10px] text-gray-500">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          <span class="truncate">${t.game}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', renderTrailers);
+</script>
+
+</body>
+</html>

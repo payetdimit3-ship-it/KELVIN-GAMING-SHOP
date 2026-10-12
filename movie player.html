@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Movies Player - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .cat-tab.active { background: #7c3aed; color: white; }
+  .movie-card:hover { transform: translateY(-4px); transition: all 0.3s; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <button class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search movies..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
+          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Super Admin
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span>Store</span>
+      </a>
+      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games</span>
+      </a>
+      <a href="/movies-player.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies</span>
+      </a>
+      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <span>Live TV / eSports</span>
+      </a>
+      <a href="/game-trailer.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Game Trailers</span>
+      </a>
+      <a href="/community.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+        <span>Community / Chat</span>
+      </a>
+      <a href="/courses.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+        <span>Academy</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <span class="text-white font-semibold">Live Movies Player</span>
+    </div>
+
+    <!-- Header -->
+    <div class="flex items-start justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-white">Live Movies Player</h1>
+          <p class="text-sm text-gray-400">Watch your favorite movies online. HD quality, no limits.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+      <button class="cat-tab active px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="all">All</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="action">Action</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="drama">Drama</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="comedy">Comedy</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="scifi">Sci-Fi</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="horror">Horror</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="animation">Animation</button>
+      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="thriller">Thriller</button>
+    </div>
+
+    <!-- Now Playing Player -->
+    <div class="gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="relative aspect-video bg-black">
+        <!-- Movie Poster -->
+        <div class="absolute inset-0 bg-gradient-to-br from-red-900/60 to-dark-2 flex items-center justify-center">
+          <div class="text-center">
+            <div class="text-6xl font-extrabold text-white mb-1">JOHN WICK</div>
+            <div class="text-4xl font-extrabold text-primary mb-3">CHAPTER 4</div>
+            <div class="text-sm text-gray-300">Action • Thriller • 2023 • 2h 49m</div>
+          </div>
+        </div>
+
+        <!-- Top Tags -->
+        <span class="absolute top-4 left-4 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">Now Playing</span>
+
+        <!-- Player Controls -->
+        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-white text-xs">00:32:17</span>
+            <div class="flex-1 h-1 bg-white/30 rounded-full relative">
+              <div class="absolute left-0 top-0 h-full bg-primary rounded-full" style="width: 18%"></div>
+              <div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary shadow-lg" style="left: 18%"></div>
+            </div>
+            <span class="text-white text-xs">2:49:00</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <button class="text-white hover:text-primary">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+              </button>
+              <button class="text-white hover:text-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] bg-dark-3/80 text-white px-2 py-1 rounded">HD</span>
+              <button class="text-white hover:text-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trending Movies -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <span>🔥</span> Trending Movies
+        </h2>
+        <a href="#" class="text-sm text-primary font-semibold">View All →</a>
+      </div>
+      <div id="trending-movies" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
+      </div>
+    </section>
+
+    <!-- Popular Movies -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <span>⭐</span> Popular Movies
+        </h2>
+        <a href="#" class="text-sm text-primary font-semibold">View All →</a>
+      </div>
+      <div id="popular-movies" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
+      </div>
+    </section>
+
+    <!-- Bottom Banner -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-red-900/60 via-primary/40 to-transparent"></div>
+      <div class="relative p-6 md:p-8 flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 class="text-2xl md:text-3xl font-extrabold text-white mb-2">Unlimited Movie Streaming</h3>
+          <p class="text-sm text-gray-300">Enjoy thousands of movies in HD, anytime, anywhere.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-5xl">🍿</span>
+          <button class="gradient-primary text-white font-bold px-6 py-3 rounded-lg">Start Watching</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-6 mt-4 border-t border-dark-4 text-xs text-gray-500">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded gradient-primary flex items-center justify-center text-white text-[9px] font-bold">L</div>
+          <span class="text-white font-bold">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></span>
+          <span class="text-gray-500">Play • Learn • Earn</span>
+        </div>
+        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+        <div class="flex gap-4">
+          <a href="/terms" class="hover:text-primary">Terms</a>
+          <a href="/privacy" class="hover:text-primary">Privacy</a>
+          <a href="/contact" class="hover:text-primary">Contact</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let activeCat = 'all';
+
+const movies = [
+  { id: 1, title: 'Deadpool & Wolverine', genre: 'Action • Comedy', year: '2024', rating: 8.2, icon: '🦸', cat: 'action' },
+  { id: 2, title: 'Oppenheimer', genre: 'Biography • Drama', year: '2023', rating: 8.8, icon: '💣', cat: 'drama' },
+  { id: 3, title: 'Dune: Part Two', genre: 'Sci-Fi • Adventure', year: '2024', rating: 8.6, icon: '🏜️', cat: 'scifi' },
+  { id: 4, title: 'The Batman', genre: 'Action • Crime', year: '2022', rating: 7.8, icon: '🦇', cat: 'action' },
+  { id: 5, title: 'Inside Out 2', genre: 'Animation • Family', year: '2024', rating: 8.1, icon: '😊', cat: 'animation' },
+  { id: 6, title: 'Interstellar', genre: 'Sci-Fi • Drama', year: '2014', rating: 8.6, icon: '🚀', cat: 'scifi' },
+  { id: 7, title: 'The Avengers', genre: 'Action • Sci-Fi', year: '2012', rating: 8.0, icon: '🦸‍♂️', cat: 'action' },
+  { id: 8, title: 'Joker', genre: 'Crime • Drama', year: '2019', rating: 8.4, icon: '🃏', cat: 'drama' },
+  { id: 9, title: 'Gladiator', genre: 'Action • Drama', year: '2000', rating: 8.5, icon: '⚔️', cat: 'action' },
+  { id: 10, title: 'The Matrix', genre: 'Sci-Fi • Action', year: '1999', rating: 8.7, icon: '🟢', cat: 'scifi' }
+];
+
+document.querySelectorAll('.cat-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    renderMovies();
+  });
+});
+
+function renderMovies() {
+  // Trending
+  const tContainer = document.getElementById('trending-movies');
+  let tFiltered = movies.slice(0, 5);
+  if (activeCat !== 'all') {
+    tFiltered = movies.filter(m => m.cat === activeCat).slice(0, 5);
+  }
+  tContainer.innerHTML = tFiltered.length === 0
+    ? `<div class="col-span-full text-center py-8 text-gray-500 text-sm">Hakuna movies kwenye category hii</div>`
+    : tFiltered.map(m => renderCard(m)).join('');
+
+  // Popular
+  const pContainer = document.getElementById('popular-movies');
+  let pFiltered = movies.slice(5, 10);
+  if (activeCat !== 'all') {
+    pFiltered = movies.filter(m => m.cat === activeCat).slice(5, 10);
+  }
+  pContainer.innerHTML = pFiltered.length === 0
+    ? `<div class="col-span-full text-center py-8 text-gray-500 text-sm">Hakuna movies kwenye category hii</div>`
+    : pFiltered.map(m => renderCard(m)).join('');
+}
+
+function renderCard(m) {
+  return `
+    <div class="movie-card gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition">
+      <div class="relative aspect-[2/3] bg-gradient-to-br from-purple-900/40 to-dark-2 flex items-center justify-center">
+        <div class="text-6xl">${m.icon}</div>
+        <span class="absolute top-2 right-2 text-[9px] bg-black/70 text-white px-1.5 py-0.5 rounded font-bold">${m.year}</span>
+        <div class="absolute bottom-2 left-2 flex items-center gap-1 bg-black/70 text-white text-[9px] px-1.5 py-0.5 rounded">
+          ⭐ ${m.rating}
+        </div>
+      </div>
+      <div class="p-3">
+        <h3 class="text-xs text-white font-bold line-clamp-1 mb-1">${m.title}</h3>
+        <div class="text-[9px] text-gray-500 mb-2 line-clamp-1">${m.genre}</div>
+        <button class="w-full gradient-primary text-white text-[10px] font-bold py-2 rounded-lg">Watch Now</button>
+      </div>
+    </div>
+  `;
+}
+
+document.addEventListener('DOMContentLoaded', renderMovies);
+</script>
+
+</body>
+</html>
