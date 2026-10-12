@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Tickets - Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .sidebar-link.active { background: #7c3aed; color: #fff; }
+  .sidebar-link.active svg { color: #fff; }
+  @keyframes pulse-green { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .online-pulse { animation: pulse-green 2s infinite; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <a href="/admin/dashboard-v2.html" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search tickets, users..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">12</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200">Kevin Fred</div>
+          <div class="text-[9px] text-green-400">Super Admin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/admin/dashboard-v2.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/games.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games Management</span>
+      </a>
+      <a href="/admin/products.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>Products Management</span>
+      </a>
+      <a href="/admin/users-management.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>Users Management</span>
+      </a>
+      <a href="/admin/orders.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Orders & Sales</span>
+      </a>
+      <a href="/admin/support.html" class="sidebar-link active flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>Support Tickets</span>
+      </a>
+      <a href="/admin/analytics.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Analytics</span>
+      </a>
+      <a href="/admin/settings.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Settings</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/admin/dashboard-v2.html" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <span class="text-white font-semibold">Support</span>
+    </div>
+
+    <!-- Header + Stats -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div class="lg:col-span-2 gradient-card rounded-2xl border border-dark-4 p-5 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-purple-900/40 via-primary/20 to-transparent"></div>
+        <div class="relative flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center shrink-0">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </div>
+          <div class="flex-1">
+            <h1 class="text-2xl font-bold text-white mb-1">Support</h1>
+            <p class="text-xs text-gray-300 mb-3">Get help, find answers, or contact our team. We're here for you 24/7.</p>
+            <button onclick="openNewTicket()" class="gradient-primary text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-2">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              New Support Ticket
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Stats -->
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+          </div>
+          <div class="text-[10px] text-gray-400">Total Tickets</div>
+        </div>
+        <div class="text-xl font-bold text-white">48</div>
+        <div class="text-[10px] text-green-400">↗ +12% this week</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-orange-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="text-[10px] text-gray-400">Open Tickets</div>
+        </div>
+        <div class="text-xl font-bold text-white">8</div>
+        <div class="text-[10px] text-red-400">↘ -6% this week</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-blue-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <div class="text-[10px] text-gray-400">In Progress</div>
+        </div>
+        <div class="text-xl font-bold text-white">12</div>
+        <div class="text-[10px] text-green-400">↗ +9% this week</div>
+      </div>
+    </div>
+
+    <!-- Second Row Stats -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-green-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="text-[10px] text-gray-400">Resolved</div>
+        </div>
+        <div class="text-xl font-bold text-white">28</div>
+        <div class="text-[10px] text-green-400">↗ +15% this week</div>
+      </div>
+      <div class="lg:col-span-2 gradient-card rounded-xl border border-dark-4 p-4 flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-xl">🎧</div>
+          <div>
+            <div class="text-xs text-white font-bold">Need Immediate Help?</div>
+            <div class="text-[10px] text-gray-500">Our support team is online 24/7 to assist you.</div>
+          </div>
+        </div>
+        <button onclick="openLiveChat()" class="gradient-primary text-white text-xs font-bold px-4 py-2 rounded-lg">Contact Support →</button>
+      </div>
+    </div>
+
+    <!-- Quick Help -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-white">Quick Help</h2>
+        <a href="#" class="text-xs text-primary">View All FAQs →</a>
+      </div>
+      <p class="text-xs text-gray-500 mb-4">Find answers to common questions.</p>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <a href="#" class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition">
+          <div class="w-10 h-10 mx-auto rounded-lg bg-primary/20 flex items-center justify-center text-lg mb-2">🔐</div>
+          <div class="text-xs text-white font-bold">Account & Login</div>
+          <div class="text-[9px] text-gray-500 mt-1">Help with account issues</div>
+        </a>
+        <a href="#" class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition">
+          <div class="w-10 h-10 mx-auto rounded-lg bg-green-500/20 flex items-center justify-center text-lg mb-2">💳</div>
+          <div class="text-xs text-white font-bold">Payments & Top Up</div>
+          <div class="text-[9px] text-gray-500 mt-1">Payment methods & issues</div>
+        </a>
+        <a href="#" class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition">
+          <div class="w-10 h-10 mx-auto rounded-lg bg-blue-500/20 flex items-center justify-center text-lg mb-2">🎮</div>
+          <div class="text-xs text-white font-bold">Games & Products</div>
+          <div class="text-[9px] text-gray-500 mt-1">Games, products & keys</div>
+        </a>
+        <a href="#" class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition">
+          <div class="w-10 h-10 mx-auto rounded-lg bg-orange-500/20 flex items-center justify-center text-lg mb-2">↩️</div>
+          <div class="text-xs text-white font-bold">Refunds & Cancellations</div>
+          <div class="text-[9px] text-gray-500 mt-1">Refund & cancel policies</div>
+        </a>
+        <a href="#" class="gradient-card rounded-xl border border-dark-4 p-4 text-center hover:border-primary transition">
+          <div class="w-10 h-10 mx-auto rounded-lg bg-red-500/20 flex items-center justify-center text-lg mb-2">⚠️</div>
+          <div class="text-xs text-white font-bold">Technical Issues</div>
+          <div class="text-[9px] text-gray-500 mt-1">Fix errors & performance</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Contact Support -->
+    <section>
+      <h2 class="text-xl font-bold text-white mb-1">Contact Support</h2>
+      <p class="text-xs text-gray-500 mb-4">Choose your preferred way to reach us.</p>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <a href="#" class="gradient-card rounded-xl border border-dark-4 p-5 hover:border-primary transition text-center">
+          <div class="w-12 h-12 mx-auto rounded-full bg-primary/20 flex items-center justify-center mb-3">
+            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          </div>
+          <div class="text-xs text-white font-bold mb-1">Live Chat</div>
+          <div class="text-[10px] text-gray-500 mb-3">Get instant help from our support team.</div>
+          <button class="w-full gradient-primary text-white text-[10px] font-bold py-2 rounded-lg">Start Chat →</button>
+        </a>
+        <a href="mailto:support@lifeisgametz.com" class="gradient-card rounded-xl border border-dark-4 p-5 hover:border-primary transition text-center">
+          <div class="w-12 h-12 mx-auto rounded-full bg-blue-500/20 flex items-center justify-center mb-3">
+            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </div>
+          <div class="text-xs text-white font-bold mb-1">Email Support</div>
+          <div class="text-[10px] text-gray-500 mb-3">We usually reply within 24 hours.</div>
+          <button class="w-full bg-blue-500 hover:bg-blue-400 text-white text-[10px] font-bold py-2 rounded-lg">Send Email →</button>
+        </a>
+        <a href="https://wa.me/255712345678" class="gradient-card rounded-xl border border-dark-4 p-5 hover:border-primary transition text-center">
+          <div class="w-12 h-12 mx-auto rounded-full bg-green-500/20 flex items-center justify-center mb-3">
+            <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+          </div>
+          <div class="text-xs text-white font-bold mb-1">WhatsApp</div>
+          <div class="text-[10px] text-gray-500 mb-3">+255 712 345 678<br>Chat with us on WhatsApp (24/7).</div>
+          <button class="w-full bg-green-500 hover:bg-green-400 text-white text-[10px] font-bold py-2 rounded-lg">Chat Now →</button>
+        </a>
+        <a href="#" onclick="openNewTicket()" class="gradient-card rounded-xl border border-dark-4 p-5 hover:border-primary transition text-center">
+          <div class="w-12 h-12 mx-auto rounded-full bg-orange-500/20 flex items-center justify-center mb-3">
+            <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+          </div>
+          <div class="text-xs text-white font-bold mb-1">Create Ticket</div>
+          <div class="text-[10px] text-gray-500 mb-3">For complex issues, create a support ticket.</div>
+          <button class="w-full bg-orange-500 hover:bg-orange-400 text-white text-[10px] font-bold py-2 rounded-lg">Open Ticket →</button>
+        </a>
+      </div>
+    </section>
+
+    <!-- Recent Support Tickets -->
+    <section class="gradient-card rounded-2xl border border-dark-4 p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-white">Recent Support Tickets</h2>
+        <a href="#" class="text-xs text-primary">View All Tickets →</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="text-gray-500 border-b border-dark-4">
+              <th class="text-left py-2 font-semibold">#</th>
+              <th class="text-left py-2 font-semibold">Subject</th>
+              <th class="text-left py-2 font-semibold">Category</th>
+              <th class="text-center py-2 font-semibold">Status</th>
+              <th class="text-right py-2 font-semibold">Last Update</th>
+              <th class="text-right py-2 font-semibold">Action</th>
+            </tr>
+          </thead>
+          <tbody id="tickets-body">
+            <tr class="border-b border-dark-4">
+              <td class="py-3 text-gray-400">1</td>
+              <td class="py-3 text-white">Payment not received</td>
+              <td class="py-3 text-gray-400">Payments</td>
+              <td class="py-3 text-center"><span class="text-[9px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-semibold">Open</span></td>
+              <td class="py-3 text-right text-gray-500 text-[10px]">Jan 30, 2025 10:24 AM</td>
+              <td class="py-3 text-right"><button class="text-[9px] text-primary font-semibold">View</button></td>
+            </tr>
+            <tr class="border-b border-dark-4">
+              <td class="py-3 text-gray-400">2</td>
+              <td class="py-3 text-white">Cannot login to account</td>
+              <td class="py-3 text-gray-400">Account</td>
+              <td class="py-3 text-center"><span class="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-semibold">In Progress</span></td>
+              <td class="py-3 text-right text-gray-500 text-[10px]">Jan 29, 2025 08:15 PM</td>
+              <td class="py-3 text-right"><button class="text-[9px] text-primary font-semibold">View</button></td>
+            </tr>
+            <tr class="border-b border-dark-4">
+              <td class="py-3 text-gray-400">3</td>
+              <td class="py-3 text-white">Game not downloading</td>
+              <td class="py-3 text-gray-400">Games</td>
+              <td class="py-3 text-center"><span class="text-[9px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-semibold">Resolved</span></td>
+              <td class="py-3 text-right text-gray-500 text-[10px]">Jan 28, 2025 03:42 PM</td>
+              <td class="py-3 text-right"><button class="text-[9px] text-primary font-semibold">View</button></td>
+            </tr>
+            <tr class="border-b border-dark-4">
+              <td class="py-3 text-gray-400">4</td>
+              <td class="py-3 text-white">Refund request</td>
+              <td class="py-3 text-gray-400">Refunds</td>
+              <td class="py-3 text-center"><span class="text-[9px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-semibold">Open</span></td>
+              <td class="py-3 text-right text-gray-500 text-[10px]">Jan 27, 2025 11:20 AM</td>
+              <td class="py-3 text-right"><button class="text-[9px] text-primary font-semibold">View</button></td>
+            </tr>
+            <tr>
+              <td class="py-3 text-gray-400">5</td>
+              <td class="py-3 text-white">Account verification issue</td>
+              <td class="py-3 text-gray-400">Account</td>
+              <td class="py-3 text-center"><span class="text-[9px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-semibold">Resolved</span></td>
+              <td class="py-3 text-right text-gray-500 text-[10px]">Jan 25, 2025 07:36 PM</td>
+              <td class="py-3 text-right"><button class="text-[9px] text-primary font-semibold">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Need Immediate Help Banner -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-purple-900/60 via-primary/40 to-transparent"></div>
+      <div class="relative p-6 flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <div class="text-5xl">🎧</div>
+          <div>
+            <h3 class="text-white font-bold text-lg">Need Immediate Help?</h3>
+            <p class="text-xs text-gray-300">Our support team is online 24/7 to assist you with any issue.</p>
+          </div>
+        </div>
+        <button onclick="openLiveChat()" class="gradient-primary text-white font-bold px-5 py-2.5 rounded-lg">Contact Support →</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="flex items-center justify-between flex-wrap gap-4 pt-6 border-t border-dark-4 text-xs text-gray-500">
+      <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+      <div class="flex items-center gap-4">
+        <a href="/terms" class="hover:text-primary">Terms</a>
+        <a href="/privacy" class="hover:text-primary">Privacy</a>
+        <a href="/contact" class="hover:text-primary">Contact</a>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<!-- NEW TICKET MODAL -->
+<div id="new-ticket-modal" class="hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-dark-2 border border-dark-4 rounded-2xl w-full max-w-lg p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold text-white">New Support Ticket</h3>
+      <button onclick="closeNewTicket()" class="text-gray-400 hover:text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="new-ticket-form" class="space-y-3">
+      <input type="text" placeholder="Subject" required class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+      <select class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+        <option>Account & Login</option>
+        <option>Payments & Top Up</option>
+        <option>Games & Products</option>
+        <option>Refunds & Cancellations</option>
+        <option>Technical Issues</option>
+        <option>Other</option>
+      </select>
+      <select class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+        <option>Low Priority</option>
+        <option selected>Medium Priority</option>
+        <option>High Priority</option>
+      </select>
+      <textarea placeholder="Describe your issue in detail..." rows="4" required class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary"></textarea>
+      <button type="submit" class="w-full gradient-primary text-white font-bold py-3 rounded-lg">Create Ticket</button>
+    </form>
+  </div>
+</div>
+
+<script src="../../config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function openNewTicket() { document.getElementById('new-ticket-modal').classList.remove('hidden'); }
+function closeNewTicket() { document.getElementById('new-ticket-modal').classList.add('hidden'); }
+function openLiveChat() { alert('💬 Live chat inafunguliwa...\n\nSubiri support agent aje.'); }
+
+document.getElementById('new-ticket-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  alert('✅ Support ticket imeundwa!\n\nUtapokea email yenye maelezo zaidi.');
+  closeNewTicket();
+  document.getElementById('new-ticket-form').reset();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Optional: load tickets from Supabase
+});
+</script>
+
+</body>
+</html>

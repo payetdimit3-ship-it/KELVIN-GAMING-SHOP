@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Betting Match - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .odd-btn { transition: all 0.15s; }
+  .odd-btn:hover { background: rgba(124,58,237,0.2); border-color: #7c3aed; }
+  .odd-btn.selected { background: #7c3aed; color: white; border-color: #7c3aed; }
+  .bet-type-tab.active { background: #7c3aed; color: white; }
+  @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .live-pulse { animation: pulse-red 1.5s infinite; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <button class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="/" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search matches, teams, leagues..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
+      </button>
+      <div class="hidden md:flex items-center gap-2 bg-dark-3 rounded-full px-4 py-2">
+        <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span id="top-wallet" class="text-sm font-semibold text-gray-200">TSh 0</span>
+      </div>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
+          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Super Admin
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span>Store</span>
+      </a>
+      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games</span>
+      </a>
+      <a href="/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies</span>
+      </a>
+      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <span>Live TV / eSports</span>
+      </a>
+      <a href="/livecore.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Live Scores</span>
+      </a>
+      <a href="/sports-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        <span>Sports TV</span>
+      </a>
+      <a href="/sports-news.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+        <span>Sports News</span>
+      </a>
+      <a href="/betting.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Betting</span>
+      </a>
+      <a href="/courses.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+        <span>Academy</span>
+      </a>
+      <a href="/cloud-gaming.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+        <span>Cloud Gaming</span>
+      </a>
+      <a href="/efootball.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <span>eFootball / Top Up</span>
+      </a>
+      <a href="/gift-cards.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+        <span>Gift Cards</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <a href="/betting.html" class="hover:text-primary">Betting</a>
+      <span>›</span>
+      <span class="text-white font-semibold">Match Detail</span>
+    </div>
+
+    <!-- GRID: Main + Bet Slip -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+      <!-- LEFT: Match + Odds -->
+      <div class="xl:col-span-2 space-y-4">
+
+        <!-- Match Header -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded font-bold flex items-center gap-1">
+              <span class="w-1 h-1 rounded-full bg-white live-pulse"></span> LIVE
+            </span>
+            <span class="text-[10px] bg-dark-3 text-gray-300 px-2 py-0.5 rounded">Premier League</span>
+            <span class="text-[10px] text-gray-500">67'</span>
+          </div>
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center font-bold text-purple-900">RM</div>
+              <div>
+                <div class="text-white font-bold">Real Madrid</div>
+                <div class="text-[10px] text-gray-500">Home</div>
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-extrabold text-white">2 - 1</div>
+              <div class="text-[10px] text-red-400 font-bold flex items-center gap-1 justify-center">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse"></span> 67:24
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-right">
+                <div class="text-white font-bold">Barcelona</div>
+                <div class="text-[10px] text-gray-500">Away</div>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center font-bold text-white">FCB</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bet Type Tabs -->
+        <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+          <button class="bet-type-tab active px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-market="1x2">1X2</button>
+          <button class="bet-type-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-market="over-under">Over/Under</button>
+          <button class="bet-type-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-market="btts">BTTS</button>
+          <button class="bet-type-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-market="correct-score">Correct Score</button>
+          <button class="bet-type-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-market="half-time">Half Time</button>
+          <button class="bet-type-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-market="first-goal">First Goal</button>
+        </div>
+
+        <!-- 1X2 Market -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold mb-4">1X2 (Match Result)</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <button onclick="selectBet('1', 'Real Madrid Win', 1.62)" class="odd-btn bg-dark-3 border-2 border-dark-4 rounded-xl p-4 text-center hover:border-primary">
+              <div class="text-[10px] text-gray-400 mb-1">1</div>
+              <div class="text-xs text-white font-semibold mb-1">Real Madrid</div>
+              <div class="text-xl font-bold text-primary">1.62</div>
+            </button>
+            <button onclick="selectBet('X', 'Draw', 3.90)" class="odd-btn bg-dark-3 border-2 border-dark-4 rounded-xl p-4 text-center hover:border-primary">
+              <div class="text-[10px] text-gray-400 mb-1">X</div>
+              <div class="text-xs text-white font-semibold mb-1">Draw</div>
+              <div class="text-xl font-bold text-primary">3.90</div>
+            </button>
+            <button onclick="selectBet('2', 'Barcelona Win', 5.20)" class="odd-btn bg-dark-3 border-2 border-dark-4 rounded-xl p-4 text-center hover:border-primary">
+              <div class="text-[10px] text-gray-400 mb-1">2</div>
+              <div class="text-xs text-white font-semibold mb-1">Barcelona</div>
+              <div class="text-xl font-bold text-primary">5.20</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Over/Under Market -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold mb-4">Over / Under</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <button onclick="selectBet('O1.5', 'Over 1.5', 1.25)" class="odd-btn bg-dark-3 border-2 border-dark-4 rounded-xl p-3 text-center">
+              <div class="text-[10px] text-gray-400 mb-1">Over 1.5</div>
+              <div class="text-sm font-bold text-primary">1.25</div>
+            </button>
+            <button onclick="selectBet('O2.5', 'Over 2.5', 1.75)" class="odd-btn bg-dark-3 border-2 border-dark-4 rounded-xl p-3 text-center">
+              <div class="text-[10px] text-gray-400 mb-1">Over 2.5</div>
+              <div class="text-sm font-bold text-primary">1.75</div>
+            </button>
+            <button onclick="selectBet('U1.5', 'Under 1.5', 4.10)" class="odd-btn bg-dark-3 border-2 border-dark-4 rounded-xl p-3 text-center">
+              <div class="text-[10px] text-gray-400 mb-1">Under 1.5</div>
+              <div class="text-sm font-bold text-primary">4.10</div>
+            </button>
+            <button onclick="selectBet('U2.5', 'Under 2.5', 2.10)" class="odd-btn bg-dark-3 border-2 border-dark-4 rounded-xl p-3 text-center">
+              <div class="text-[10px] text-gray-400 mb-1">Under 2.5</div>
+              <div class="text-sm font-bold text-primary">2.10</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- BTTS Market -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold mb-4">Both Teams to Score (BTTS)</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <button onclick="selectBet('BTTS-Y', 'BTTS Yes', 1.80)" class="odd-btn bg-dark-3 border-2 border-dark-4 rounded-xl p-4 text-center">
+              <div class="text-xs text-white font-semibold mb-1">Yes</div>
+              <div class="text-xl font-bold text-primary">1.80</div>
+            </button>
+            <button onclick="selectBet('BTTS-N', 'BTTS No', 1.95)" class="odd-btn bg-dark-3 border-2 border-dark-4 rounded-xl p-4 text-center">
+              <div class="text-xs text-white font-semibold mb-1">No</div>
+              <div class="text-xl font-bold text-primary">1.95</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Match Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+            <h3 class="text-white font-bold mb-3">Match Statistics</h3>
+            <div class="space-y-3">
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1">
+                  <span class="text-white font-bold">58%</span>
+                  <span class="text-gray-400">Possession</span>
+                  <span class="text-white font-bold">42%</span>
+                </div>
+                <div class="w-full h-1.5 rounded-full overflow-hidden flex">
+                  <div class="bg-red-500 h-full" style="width: 58%"></div>
+                  <div class="bg-blue-500 h-full" style="width: 42%"></div>
+                </div>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-white font-bold">7</span>
+                <span class="text-gray-400">Shots on Target</span>
+                <span class="text-white font-bold">4</span>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-white font-bold">14</span>
+                <span class="text-gray-400">Total Shots</span>
+                <span class="text-white font-bold">9</span>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-white font-bold">6</span>
+                <span class="text-gray-400">Corners</span>
+                <span class="text-white font-bold">3</span>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-white font-bold">1</span>
+                <span class="text-gray-400">Yellow Cards</span>
+                <span class="text-white font-bold">2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+            <h3 class="text-white font-bold mb-3">Recent Form</h3>
+            <div class="space-y-3">
+              <div>
+                <div class="text-xs text-white font-semibold mb-2">Real Madrid (Home)</div>
+                <div class="flex gap-1">
+                  <span class="w-7 h-7 rounded-md bg-green-500 flex items-center justify-center text-white text-[10px] font-bold">W</span>
+                  <span class="w-7 h-7 rounded-md bg-green-500 flex items-center justify-center text-white text-[10px] font-bold">W</span>
+                  <span class="w-7 h-7 rounded-md bg-gray-500 flex items-center justify-center text-white text-[10px] font-bold">D</span>
+                  <span class="w-7 h-7 rounded-md bg-green-500 flex items-center justify-center text-white text-[10px] font-bold">W</span>
+                  <span class="w-7 h-7 rounded-md bg-red-500 flex items-center justify-center text-white text-[10px] font-bold">L</span>
+                </div>
+              </div>
+              <div>
+                <div class="text-xs text-white font-semibold mb-2">Barcelona (Away)</div>
+                <div class="flex gap-1">
+                  <span class="w-7 h-7 rounded-md bg-green-500 flex items-center justify-center text-white text-[10px] font-bold">W</span>
+                  <span class="w-7 h-7 rounded-md bg-red-500 flex items-center justify-center text-white text-[10px] font-bold">L</span>
+                  <span class="w-7 h-7 rounded-md bg-green-500 flex items-center justify-center text-white text-[10px] font-bold">W</span>
+                  <span class="w-7 h-7 rounded-md bg-green-500 flex items-center justify-center text-white text-[10px] font-bold">W</span>
+                  <span class="w-7 h-7 rounded-md bg-green-500 flex items-center justify-center text-white text-[10px] font-bold">W</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Bet Slip -->
+      <div class="space-y-4">
+
+        <!-- Bet Slip -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5 sticky top-20">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-bold">Bet Slip</h3>
+            <button onclick="clearBetSlip()" class="text-gray-400 hover:text-red-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+
+          <div class="flex gap-1 mb-4 p-1 bg-dark-3 rounded-lg">
+            <button class="bet-type-tab active flex-1 py-1.5 rounded text-xs font-semibold text-gray-400" data-type="single">Single</button>
+            <button class="bet-type-tab flex-1 py-1.5 rounded text-xs font-semibold text-gray-400" data-type="multiple">Multiple</button>
+            <button class="bet-type-tab flex-1 py-1.5 rounded text-xs font-semibold text-gray-400" data-type="system">System</button>
+          </div>
+
+          <div id="bet-selections" class="space-y-2 mb-4">
+            <div class="text-center text-gray-500 text-sm py-6">Hakuna selections bado</div>
+          </div>
+
+          <div class="mb-4">
+            <label class="text-xs text-gray-400 mb-1 block">Stake</label>
+            <div class="flex items-center gap-2">
+              <button onclick="changeStake(-100)" class="w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-white">−</button>
+              <div class="flex-1 relative">
+                <input type="number" id="stake-input" value="1000" min="100" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white text-center focus:outline-none focus:border-primary">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">TSh</span>
+              </div>
+              <button onclick="changeStake(100)" class="w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-white">+</button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between mb-4 p-3 bg-dark-3 rounded-lg">
+            <span class="text-sm text-gray-400">Potential Win</span>
+            <span id="potential-win" class="text-lg font-bold text-white">TSh 0</span>
+          </div>
+
+          <button id="place-bet-btn" disabled class="w-full gradient-primary text-white font-bold py-3 rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Place Bet
+          </button>
+        </div>
+
+        <!-- Betslip Quick -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold mb-3 text-sm">Betslip Quick</h3>
+          <div class="grid grid-cols-4 gap-2">
+            <button onclick="setStake(1000)" class="bg-dark-3 hover:bg-primary text-gray-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition">1K</button>
+            <button onclick="setStake(2000)" class="bg-dark-3 hover:bg-primary text-gray-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition">2K</button>
+            <button onclick="setStake(5000)" class="bg-dark-3 hover:bg-primary text-gray-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition">5K</button>
+            <button onclick="setStake(10000)" class="bg-dark-3 hover:bg-primary text-gray-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition">10K</button>
+          </div>
+        </div>
+
+        <!-- Betting Stats -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <h3 class="text-white font-bold mb-4">Betting Stats</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-dark-3 rounded-lg p-3">
+              <div class="text-lg">🏆</div>
+              <div class="text-[10px] text-gray-500">Total Bets</div>
+              <div class="text-sm font-bold text-white">1,248,532</div>
+            </div>
+            <div class="bg-dark-3 rounded-lg p-3">
+              <div class="text-lg text-green-400">📈</div>
+              <div class="text-[10px] text-gray-500">Total Wins</div>
+              <div class="text-sm font-bold text-white">823,412</div>
+            </div>
+            <div class="bg-dark-3 rounded-lg p-3">
+              <div class="text-lg text-red-400">📉</div>
+              <div class="text-[10px] text-gray-500">Total Losses</div>
+              <div class="text-sm font-bold text-white">425,120</div>
+            </div>
+            <div class="bg-dark-3 rounded-lg p-3">
+              <div class="text-lg text-primary">🎯</div>
+              <div class="text-[10px] text-gray-500">Win Rate</div>
+              <div class="text-sm font-bold text-white">65.8%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other Matches -->
+        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-bold">Other Matches</h3>
+            <a href="/betting.html" class="text-xs text-primary">View All →</a>
+          </div>
+          <div id="other-matches" class="space-y-2">
+            <div class="text-center py-4 text-gray-500 text-xs">Loading...</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-6 mt-4 border-t border-dark-4 text-xs text-gray-500">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded gradient-primary flex items-center justify-center text-white text-[9px] font-bold">L</div>
+          <span class="text-white font-bold">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></span>
+          <span class="text-gray-500">Play • Learn • Earn</span>
+        </div>
+        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+        <div class="flex gap-4">
+          <a href="/terms" class="hover:text-primary">Terms & Conditions</a>
+          <a href="/privacy" class="hover:text-primary">Privacy Policy</a>
+          <a href="/responsible-gaming" class="hover:text-primary">Responsible Gaming</a>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let betSelections = [];
+let selectedMatch = { id: 'demo', home: 'Real Madrid', away: 'Barcelona' };
+
+// BET TYPE TABS
+document.querySelectorAll('.bet-type-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const group = btn.parentElement;
+    group.querySelectorAll('.bet-type-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+function selectBet(code, label, odds) {
+  const existing = betSelections.findIndex(s => s.code === code);
+  if (existing >= 0) {
+    betSelections.splice(existing, 1);
+  } else {
+    betSelections.push({
+      matchId: selectedMatch.id,
+      matchName: `${selectedMatch.home} vs ${selectedMatch.away}`,
+      code: code,
+      label: label,
+      odds: parseFloat(odds)
+    });
+  }
+  renderBetSlip();
+  updateOddsSelected();
+}
+
+function updateOddsSelected() {
+  document.querySelectorAll('.odd-btn').forEach(btn => btn.classList.remove('selected'));
+  // Re-select based on stored bets
+  document.querySelectorAll('.odd-btn').forEach(btn => {
+    const onclick = btn.getAttribute('onclick') || '';
+    betSelections.forEach(s => {
+      if (onclick.includes(`'${s.code}'`)) btn.classList.add('selected');
+    });
+  });
+}
+
+function renderBetSlip() {
+  const container = document.getElementById('bet-selections');
+  
+  if (betSelections.length === 0) {
+    container.innerHTML = `<div class="text-center text-gray-500 text-sm py-6">Hakuna selections bado</div>`;
+    document.getElementById('potential-win').textContent = 'TSh 0';
+    document.getElementById('place-bet-btn').disabled = true;
+    return;
+  }
+
+  container.innerHTML = betSelections.map((s, i) => `
+    <div class="bg-dark-3 rounded-lg p-3">
+      <div class="flex items-start justify-between mb-1">
+        <div class="text-[10px] text-gray-500 truncate pr-2">${s.matchName}</div>
+        <button onclick="removeBet(${i})" class="text-gray-500 hover:text-red-400 shrink-0">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-xs text-white font-semibold">${s.label}</span>
+        <span class="text-sm text-primary font-bold">${s.odds.toFixed(2)}</span>
+      </div>
+    </div>
+  `).join('');
+
+  updatePotentialWin();
+  document.getElementById('place-bet-btn').disabled = false;
+}
+
+function removeBet(index) {
+  betSelections.splice(index, 1);
+  renderBetSlip();
+  updateOddsSelected();
+}
+
+function clearBetSlip() {
+  betSelections = [];
+  renderBetSlip();
+  updateOddsSelected();
+}
+
+function changeStake(delta) {
+  const input = document.getElementById('stake-input');
+  input.value = Math.max(100, (parseFloat(input.value) || 0) + delta);
+  updatePotentialWin();
+}
+
+function setStake(amount) {
+  document.getElementById('stake-input').value = amount;
+  updatePotentialWin();
+}
+
+function updatePotentialWin() {
+  const stake = parseFloat(document.getElementById('stake-input').value) || 0;
+  const totalOdds = betSelections.reduce((prod, s) => prod * s.odds, 1);
+  const potentialWin = stake * totalOdds;
+  document.getElementById('potential-win').textContent = `TSh ${potentialWin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+document.getElementById('stake-input').addEventListener('input', updatePotentialWin);
+
+// Place Bet
+document.getElementById('place-bet-btn').addEventListener('click', async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { window.location.href = '/login.html'; return; }
+
+  const stake = parseFloat(document.getElementById('stake-input').value);
+  if (stake < 100) { alert('Kiwango cha chini ni TSh 100'); return; }
+
+  // Check wallet
+  const { data: profile } = await db.from('profiles').select('wallet_balance').eq('id', session.user.id).single();
+  if (!profile || profile.wallet_balance < stake) {
+    alert('Salio lako halitoshi. Tafadhali chaji mpila wako.');
+    return;
+  }
+
+  const totalOdds = betSelections.reduce((prod, s) => prod * s.odds, 1);
+  const potentialWin = stake * totalOdds;
+
+  const { error } = await db.from('bet_slips').insert({
+    user_id: session.user.id,
+    bet_type: 'single',
+    stake: stake,
+    potential_win: potentialWin,
+    selections: betSelections,
+    status: 'pending'
+  });
+
+  if (error) { alert('Kosa: ' + error.message); return; }
+
+  await db.from('profiles').update({ wallet_balance: profile.wallet_balance - stake }).eq('id', session.user.id);
+  alert('✅ Bet imewekwa! Potential win: TSh ' + potentialWin.toLocaleString());
+  clearBetSlip();
+  window.location.reload();
+});
+
+// Other Matches
+function loadOtherMatches() {
+  const matches = [
+    { home: 'Man City', away: 'Arsenal', time: '18:30', league: 'PL', homeShort: 'MC', awayShort: 'ARS' },
+    { home: 'Liverpool', away: 'Man United', time: '20:45', league: 'PL', homeShort: 'LIV', awayShort: 'MUN' },
+    { home: 'PSG', away: 'Marseille', time: '21:00', league: 'Ligue 1', homeShort: 'PSG', awayShort: 'OM' },
+    { home: 'Juventus', away: 'Inter', time: '21:45', league: 'Serie A', homeShort: 'JUV', awayShort: 'INT' }
+  ];
+
+  document.getElementById('other-matches').innerHTML = matches.map(m => `
+    <a href="/betting-match.html" class="flex items-center gap-2 bg-dark-3 rounded-lg p-2 hover:bg-dark-4 transition">
+      <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center text-[9px] font-bold text-purple-900 shrink-0">${m.homeShort}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-[10px] text-white font-semibold truncate">${m.home} vs ${m.away}</div>
+        <div class="text-[9px] text-gray-500">${m.time} • ${m.league}</div>
+      </div>
+      <div class="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center text-[9px] font-bold text-white shrink-0">${m.awayShort}</div>
+      <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </a>
+  `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadOtherMatches();
+  // Load wallet
+  db.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      db.from('profiles').select('wallet_balance').eq('id', session.user.id).single().then(({ data }) => {
+        if (data) document.getElementById('top-wallet').textContent = `TSh ${(data.wallet_balance || 0).toLocaleString()}`;
+      });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Withdraw Requests - Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .sidebar-link.active { background: #7c3aed; color: #fff; }
+  .sidebar-link.active svg { color: #fff; }
+  @keyframes pulse-green { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .online-pulse { animation: pulse-green 2s infinite; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <a href="/admin/dashboard-v2.html" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search withdraw requests..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">12</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200">Kevin Fred</div>
+          <div class="text-[9px] text-green-400">Super Admin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/admin/dashboard-v2.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/games.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games Management</span>
+      </a>
+      <a href="/admin/products.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>Products Management</span>
+      </a>
+      <a href="/admin/users-management.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>Users Management</span>
+      </a>
+      <a href="/admin/orders.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Orders & Sales</span>
+      </a>
+      <a href="/admin/withdrawals.html" class="sidebar-link active flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Withdraw Requests</span>
+      </a>
+      <a href="/admin/coupons.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+        <span>Coupons & Discounts</span>
+      </a>
+      <a href="/admin/support.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>Support Tickets</span>
+      </a>
+      <a href="/admin/analytics.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Analytics</span>
+      </a>
+      <a href="/admin/settings.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Settings</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/admin/dashboard-v2.html" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <a href="#" class="hover:text-primary">Admin Panel</a>
+      <span>›</span>
+      <span class="text-white font-semibold">Withdraw Requests</span>
+    </div>
+
+    <!-- Header -->
+    <div class="flex items-start justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-white">Withdraw Requests</h1>
+          <p class="text-sm text-gray-400">Manage user withdrawal requests. Approve or reject payments securely and quickly.</p>
+        </div>
+      </div>
+      <button onclick="exportWithdrawals()" class="bg-dark-3 border border-dark-4 text-white text-sm font-semibold px-5 py-2.5 rounded-lg flex items-center gap-2 hover:bg-dark-4">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Export
+      </button>
+    </div>
+
+    <!-- 4 STAT CARDS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="text-[10px] text-gray-400">Total Requests</div>
+        <div class="text-xl font-bold text-white">48</div>
+        <div class="text-[10px] text-green-400">↗ +5 this week</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="w-9 h-9 rounded-lg bg-orange-500/20 flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="text-[10px] text-gray-400">Pending</div>
+        <div class="text-xl font-bold text-white">12</div>
+        <div class="text-[10px] text-orange-400">Needs Review</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="w-9 h-9 rounded-lg bg-green-500/20 flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="text-[10px] text-gray-400">Approved</div>
+        <div class="text-xl font-bold text-white">32</div>
+        <div class="text-[10px] text-green-400">↗ +8 this week</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="w-9 h-9 rounded-lg bg-red-500/20 flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </div>
+        <div class="text-[10px] text-gray-400">Rejected</div>
+        <div class="text-xl font-bold text-white">4</div>
+        <div class="text-[10px] text-gray-500">Last 7 days</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div class="md:col-span-2 relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" id="search-withdraw" placeholder="Search by user, transaction ID or method..." class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 pl-10 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary">
+        </div>
+        <select id="filter-method" class="bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+          <option value="">All Methods</option>
+          <option value="Mpesa">Mpesa</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="PayPal">PayPal</option>
+        </select>
+        <select id="filter-status" class="bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+          <option value="">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      <button onclick="applyFilters()" class="mt-3 gradient-primary text-white text-xs font-bold px-5 py-2 rounded-lg flex items-center gap-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        Search
+      </button>
+    </div>
+
+    <!-- Withdraw Table -->
+    <div class="gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="text-gray-500 border-b border-dark-4 bg-dark-2/50">
+              <th class="text-left py-3 px-4 font-semibold">#</th>
+              <th class="text-left py-3 px-4 font-semibold">User</th>
+              <th class="text-right py-3 px-4 font-semibold">Amount</th>
+              <th class="text-left py-3 px-4 font-semibold">Method</th>
+              <th class="text-left py-3 px-4 font-semibold">Transaction ID</th>
+              <th class="text-left py-3 px-4 font-semibold">Date</th>
+              <th class="text-center py-3 px-4 font-semibold">Status</th>
+              <th class="text-right py-3 px-4 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawals-tbody">
+            <tr><td colspan="8" class="text-center text-gray-500 py-8">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between p-4 border-t border-dark-4 flex-wrap gap-3">
+        <div class="text-xs text-gray-500">Showing 1 to 10 of 48 requests</div>
+        <div class="flex gap-1">
+          <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">‹</button>
+          <button class="w-7 h-7 rounded-lg bg-primary text-white text-xs font-bold">1</button>
+          <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">2</button>
+          <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">3</button>
+          <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">4</button>
+          <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">5</button>
+          <button class="w-7 h-7 rounded-lg bg-dark-3 text-gray-300 text-xs">›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Banner -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-green-900/40 via-primary/30 to-transparent"></div>
+      <div class="relative p-6 flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <div class="text-5xl">🔒</div>
+          <div>
+            <h3 class="text-white font-bold text-lg">Secure & Fast Withdrawals</h3>
+            <p class="text-xs text-gray-300">We process your requests quickly and safely. Multiple payment methods available.</p>
+          </div>
+        </div>
+        <button onclick="manageSettings()" class="gradient-primary text-white font-bold px-5 py-2.5 rounded-lg">Manage Settings →</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="flex items-center justify-between flex-wrap gap-4 pt-6 border-t border-dark-4 text-xs text-gray-500">
+      <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+      <div class="flex items-center gap-4">
+        <a href="/terms" class="hover:text-primary">Terms</a>
+        <a href="/privacy" class="hover:text-primary">Privacy</a>
+        <a href="/contact" class="hover:text-primary">Contact</a>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allWithdrawals = [];
+let filteredWithdrawals = [];
+
+const mockWithdrawals = [
+  { id: 1, user: 'John Mjema', email: 'john@gmail.com', amount: 50.00, method: 'Mpesa', txId: 'MP43456578', date: 'Jan 30, 2025 10:24 AM', status: 'Pending' },
+  { id: 2, user: 'Aisha Hassan', email: 'aisha@gmail.com', amount: 25.00, method: 'PayPal', txId: 'PP98765432', date: 'Jan 30, 2025 09:15 AM', status: 'Approved' },
+  { id: 3, user: 'David Kimani', email: 'david@gmail.com', amount: 100.00, method: 'Bank Transfer', txId: 'BT12345678', date: 'Jan 29, 2025 06:42 PM', status: 'Approved' },
+  { id: 4, user: 'Grace M. Njeri', email: 'grace@gmail.com', amount: 75.00, method: 'Mpesa', txId: 'MP55667788', date: 'Jan 29, 2025 05:20 PM', status: 'Pending' },
+  { id: 5, user: 'Peter Kalulu', email: 'peter@gmail.com', amount: 30.00, method: 'PayPal', txId: 'PP11223344', date: 'Jan 28, 2025 02:10 PM', status: 'Approved' },
+  { id: 6, user: 'Sarah Wanjiku', email: 'sarah@gmail.com', amount: 60.00, method: 'Bank Transfer', txId: 'BT99887766', date: 'Jan 28, 2025 11:45 AM', status: 'Rejected' },
+  { id: 7, user: 'Kevin Matala', email: 'kevin@gmail.com', amount: 45.00, method: 'Mpesa', txId: 'MP66778899', date: 'Jan 27, 2025 08:32 PM', status: 'Approved' },
+  { id: 8, user: 'Lilian Achieing', email: 'lilian@gmail.com', amount: 120.00, method: 'PayPal', txId: 'PP44332211', date: 'Jan 27, 2025 03:15 PM', status: 'Pending' },
+  { id: 9, user: 'Brian Otieno', email: 'brian@gmail.com', amount: 35.00, method: 'Bank Transfer', txId: 'BT33445566', date: 'Jan 26, 2025 09:50 AM', status: 'Approved' },
+  { id: 10, user: 'Mary Njeri', email: 'mary@gmail.com', amount: 90.00, method: 'Mpesa', txId: 'MP77889900', date: 'Jan 25, 2025 07:12 PM', status: 'Pending' }
+];
+
+function loadWithdrawals() {
+  allWithdrawals = mockWithdrawals;
+  filteredWithdrawals = allWithdrawals;
+  renderWithdrawals();
+}
+
+function renderWithdrawals() {
+  const tbody = document.getElementById('withdrawals-tbody');
+  const statusColors = {
+    'Pending': 'bg-orange-500/20 text-orange-400',
+    'Approved': 'bg-green-500/20 text-green-400',
+    'Rejected': 'bg-red-500/20 text-red-400'
+  };
+  const methodIcons = {
+    'Mpesa': '📱',
+    'PayPal': '💳',
+    'Bank Transfer': '🏦'
+  };
+
+  if (filteredWithdrawals.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500 py-8">Hakuna withdrawals zilizopatikana</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filteredWithdrawals.slice(0, 10).map(w => `
+    <tr class="border-b border-dark-4 hover:bg-dark-3 transition">
+      <td class="py-3 px-4 text-gray-400">${w.id}</td>
+      <td class="py-3 px-4">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full gradient-primary flex items-center justify-center text-white text-[10px] font-bold">${w.user.charAt(0)}</div>
+          <div>
+            <div class="text-[11px] text-white font-semibold">${w.user}</div>
+            <div class="text-[9px] text-gray-500">${w.email}</div>
+          </div>
+        </div>
+      </td>
+      <td class="py-3 px-4 text-right text-white font-bold">$${w.amount.toFixed(2)}</td>
+      <td class="py-3 px-4">
+        <span class="flex items-center gap-1 text-[11px] text-gray-300">${methodIcons[w.method] || '💳'} ${w.method}</span>
+      </td>
+      <td class="py-3 px-4 text-gray-400 font-mono text-[10px]">${w.txId}</td>
+      <td class="py-3 px-4 text-gray-400 text-[10px]">${w.date}</td>
+      <td class="py-3 px-4 text-center">
+        <span class="text-[9px] ${statusColors[w.status]} px-2 py-0.5 rounded font-semibold flex items-center justify-center gap-1 w-fit mx-auto">
+          <span class="w-1 h-1 rounded-full ${w.status === 'Pending' ? 'bg-orange-400' : w.status === 'Approved' ? 'bg-green-400' : 'bg-red-400'}"></span>
+          ${w.status}
+        </span>
+      </td>
+      <td class="py-3 px-4">
+        <div class="flex gap-1 justify-end">
+          ${w.status === 'Pending' ? `
+            <button onclick="approveWithdrawal(${w.id})" class="px-2 py-1 rounded-lg bg-green-500/20 hover:bg-green-500 text-green-400 hover:text-white text-[9px] font-bold">
+              Approve
+            </button>
+            <button onclick="rejectWithdrawal(${w.id})" class="px-2 py-1 rounded-lg bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white text-[9px] font-bold">
+              Reject
+            </button>
+          ` : `
+            <button onclick="viewWithdrawal(${w.id})" class="px-2 py-1 rounded-lg bg-dark-3 hover:bg-primary text-gray-400 hover:text-white text-[9px] font-bold">
+              View
+            </button>
+          `}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function applyFilters() {
+  const search = document.getElementById('search-withdraw').value.toLowerCase();
+  const method = document.getElementById('filter-method').value;
+  const status = document.getElementById('filter-status').value;
+
+  filteredWithdrawals = allWithdrawals.filter(w => {
+    let match = true;
+    if (search) {
+      match = match && (
+        w.user.toLowerCase().includes(search) ||
+        w.email.toLowerCase().includes(search) ||
+        w.txId.toLowerCase().includes(search)
+      );
+    }
+    if (method) match = match && (w.method === method);
+    if (status) match = match && (w.status === status);
+    return match;
+  });
+
+  renderWithdrawals();
+}
+
+async function approveWithdrawal(id) {
+  const w = allWithdrawals.find(x => x.id === id);
+  if (!w) return;
+  if (!confirm(`Approve withdrawal ya $${w.amount.toFixed(2)} kwa ${w.user}?`)) return;
+  
+  w.status = 'Approved';
+  renderWithdrawals();
+  alert(`✅ Withdrawal ime-approve!\n\nUser: ${w.user}\nAmount: $${w.amount.toFixed(2)}\nMethod: ${w.method}\n\nPesa itatumwa kwa ${w.method} ndani ya 24 hours.`);
+  
+  // Optional: Save to Supabase
+  try {
+    await db.from('wallet_transactions').update({ status: 'completed' }).eq('reference', w.txId);
+  } catch(e) {}
+}
+
+async function rejectWithdrawal(id) {
+  const w = allWithdrawals.find(x => x.id === id);
+  if (!w) return;
+  const reason = prompt(`Reject withdrawal ya ${w.user}?\n\nSababu (optional):`, 'Insufficient details');
+  if (reason === null) return;
+  
+  w.status = 'Rejected';
+  renderWithdrawals();
+  alert(`❌ Withdrawal ime-reject!\n\nUser: ${w.user}\nAmount: $${w.amount.toFixed(2)}\nReason: ${reason}\n\nPesa itarudishwa kwenye wallet ya user.`);
+}
+
+function viewWithdrawal(id) {
+  const w = allWithdrawals.find(x => x.id === id);
+  if (!w) return;
+  alert(`Withdrawal Details:\n\nUser: ${w.user}\nEmail: ${w.email}\nAmount: $${w.amount.toFixed(2)}\nMethod: ${w.method}\nTransaction ID: ${w.txId}\nDate: ${w.date}\nStatus: ${w.status}`);
+}
+
+function exportWithdrawals() {
+  alert('📥 Export inaandaliwa...\n\nFormat: CSV/Excel\nKiasi: 48 requests');
+}
+
+function manageSettings() {
+  alert('⚙️ Withdraw Settings:\n\n• Minimum withdrawal: $10\n• Processing time: 24 hours\n• Payment methods: Mpesa, PayPal, Bank\n• Auto-approve: OFF');
+}
+
+document.getElementById('search-withdraw').addEventListener('input', applyFilters);
+document.getElementById('filter-method').addEventListener('change', applyFilters);
+document.getElementById('filter-status').addEventListener('change', applyFilters);
+
+document.addEventListener('DOMContentLoaded', loadWithdrawals);
+</script>
+
+</body>
+</html>

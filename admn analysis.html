@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .sidebar-link.active { background: #7c3aed; color: #fff; }
+  .sidebar-link.active svg { color: #fff; }
+  .tab-btn.active { background: #7c3aed; color: white; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <a href="/admin/dashboard-v2.html" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search anything..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">12</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200">Kevin Fred</div>
+          <div class="text-[9px] text-green-400">Super Admin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <a href="/admin/dashboard-v2.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/games.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games Management</span>
+      </a>
+      <a href="/admin/products.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>Products Management</span>
+      </a>
+      <a href="/admin/movies.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies Management</span>
+      </a>
+      <a href="/admin/users-management.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>Users Management</span>
+      </a>
+      <a href="/admin/orders.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Orders & Sales</span>
+      </a>
+      <a href="/admin/analytics.html" class="sidebar-link active flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Analytics</span>
+      </a>
+      <a href="/admin/settings.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Settings</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/admin/dashboard-v2.html" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <span class="text-white font-semibold">Analytics</span>
+    </div>
+
+    <!-- Header -->
+    <div class="flex items-start justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-white">Analytics</h1>
+          <p class="text-sm text-gray-400">Track your platform performance, user activity, revenue and more.</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <div class="bg-dark-3 border border-dark-4 rounded-lg px-3 py-2 flex items-center gap-2">
+          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span class="text-xs text-white">Jan 1, 2025 - Jan 31, 2025</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 STAT CARDS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="w-9 h-9 rounded-lg bg-blue-500/20 flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </div>
+        <div class="text-[10px] text-gray-400">Total Users</div>
+        <div class="text-xl font-bold text-white" id="stat-users">12,548</div>
+        <div class="text-[10px] text-green-400">↗ +12%</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="w-9 h-9 rounded-lg bg-green-500/20 flex items-center justify-center mb-2">
+          <span class="text-green-400 font-bold text-[10px]">$</span>
+        </div>
+        <div class="text-[10px] text-gray-400">Total Revenue</div>
+        <div class="text-lg font-bold text-white">$24,780</div>
+        <div class="text-[10px] text-green-400">↗ +18%</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="w-9 h-9 rounded-lg bg-orange-500/20 flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        </div>
+        <div class="text-[10px] text-gray-400">Total Orders</div>
+        <div class="text-xl font-bold text-white">3,562</div>
+        <div class="text-[10px] text-green-400">↗ +15%</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center mb-2">
+          <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        </div>
+        <div class="text-[10px] text-gray-400">Page Views</div>
+        <div class="text-xl font-bold text-white">286,942</div>
+        <div class="text-[10px] text-green-400">↗ +22%</div>
+      </div>
+    </div>
+
+    <!-- User Growth + Traffic Sources -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- User Growth -->
+      <div class="lg:col-span-2 gradient-card rounded-2xl border border-dark-4 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-white font-bold">User Growth</h3>
+          <span class="text-[10px] text-green-400 flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            +12%
+          </span>
+        </div>
+        <div class="h-56 relative">
+          <svg viewBox="0 0 600 200" class="w-full h-full" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="gradUser" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.5"/>
+                <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <text x="0" y="15" fill="#6b7280" font-size="10">15K</text>
+            <text x="0" y="55" fill="#6b7280" font-size="10">12K</text>
+            <text x="0" y="95" fill="#6b7280" font-size="10">9K</text>
+            <text x="0" y="135" fill="#6b7280" font-size="10">6K</text>
+            <text x="0" y="175" fill="#6b7280" font-size="10">3K</text>
+            <line x1="30" y1="12" x2="600" y2="12" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="52" x2="600" y2="52" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="92" x2="600" y2="92" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="132" x2="600" y2="132" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="172" x2="600" y2="172" stroke="#252540" stroke-width="0.5"/>
+            <path d="M30,160 L80,150 L130,145 L180,130 L230,120 L280,105 L330,100 L380,85 L430,75 L480,60 L530,55 L580,45 L580,190 L30,190 Z" fill="url(#gradUser)"/>
+            <path d="M30,160 L80,150 L130,145 L180,130 L230,120 L280,105 L330,100 L380,85 L430,75 L480,60 L530,55 L580,45" stroke="#7c3aed" stroke-width="2" fill="none"/>
+            <circle cx="580" cy="45" r="4" fill="#7c3aed"/>
+          </svg>
+          <div class="flex justify-between text-[9px] text-gray-500 mt-1 pl-8">
+            <span>Jan 1</span><span>Jan 7</span><span>Jan 14</span><span>Jan 21</span><span>Jan 28</span><span>Jan 31</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Traffic Sources -->
+      <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+        <h3 class="text-white font-bold mb-4">Traffic Sources</h3>
+        <div class="flex items-center gap-4">
+          <div class="relative w-28 h-28 shrink-0">
+            <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#252540" stroke-width="14"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#7c3aed" stroke-width="14" stroke-dasharray="106 251"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#a855f7" stroke-width="14" stroke-dasharray="62 251" stroke-dashoffset="-106"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#f97316" stroke-width="14" stroke-dasharray="47 251" stroke-dashoffset="-168"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#22d3ee" stroke-width="14" stroke-dasharray="23 251" stroke-dashoffset="-215"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="14" stroke-dasharray="13 251" stroke-dashoffset="-238"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <div class="text-sm font-bold text-white">286.9K</div>
+              <div class="text-[9px] text-gray-400">Total Views</div>
+            </div>
+          </div>
+          <div class="flex-1 space-y-1.5 text-[10px]">
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary"></span><span class="text-gray-400 flex-1">Direct</span><span class="text-white">42.3%</span></div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-400"></span><span class="text-gray-400 flex-1">Social Media</span><span class="text-white">24.7%</span></div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-orange-500"></span><span class="text-gray-400 flex-1">Search Engines</span><span class="text-white">18.6%</span></div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-400"></span><span class="text-gray-400 flex-1">Referrals</span><span class="text-white">9.8%</span></div>
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span><span class="text-gray-400 flex-1">Others</span><span class="text-white">4.6%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Games + Revenue Overview -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Top Games -->
+      <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-white font-bold">Top Games</h3>
+          <a href="#" class="text-xs text-primary">View All →</a>
+        </div>
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="text-gray-500 border-b border-dark-4">
+              <th class="text-left py-2 font-semibold">#</th>
+              <th class="text-left py-2 font-semibold">Game</th>
+              <th class="text-center py-2 font-semibold">Views</th>
+              <th class="text-right py-2 font-semibold">Sales</th>
+            </tr>
+          </thead>
+          <tbody id="top-games-body">
+            <tr class="border-b border-dark-4"><td class="py-2 text-gray-400">1</td><td class="py-2 text-white">eFootball 2025</td><td class="py-2 text-center text-gray-300">42,563</td><td class="py-2 text-right text-green-400 font-semibold">1,245</td></tr>
+            <tr class="border-b border-dark-4"><td class="py-2 text-gray-400">2</td><td class="py-2 text-white">GTA V</td><td class="py-2 text-center text-gray-300">38,742</td><td class="py-2 text-right text-green-400 font-semibold">980</td></tr>
+            <tr class="border-b border-dark-4"><td class="py-2 text-gray-400">3</td><td class="py-2 text-white">FC 25</td><td class="py-2 text-center text-gray-300">32,451</td><td class="py-2 text-right text-green-400 font-semibold">864</td></tr>
+            <tr class="border-b border-dark-4"><td class="py-2 text-gray-400">4</td><td class="py-2 text-white">Minecraft</td><td class="py-2 text-center text-gray-300">28,763</td><td class="py-2 text-right text-green-400 font-semibold">720</td></tr>
+            <tr><td class="py-2 text-gray-400">5</td><td class="py-2 text-white">Call of Duty</td><td class="py-2 text-center text-gray-300">24,892</td><td class="py-2 text-right text-green-400 font-semibold">612</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Revenue Overview -->
+      <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-white font-bold">Revenue Overview</h3>
+          <span class="text-[10px] text-green-400 flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            +18%
+          </span>
+        </div>
+        <div class="h-48 relative">
+          <svg viewBox="0 0 600 200" class="w-full h-full">
+            <text x="0" y="15" fill="#6b7280" font-size="10">$25K</text>
+            <text x="0" y="55" fill="#6b7280" font-size="10">$20K</text>
+            <text x="0" y="95" fill="#6b7280" font-size="10">$15K</text>
+            <text x="0" y="135" fill="#6b7280" font-size="10">$10K</text>
+            <text x="0" y="175" fill="#6b7280" font-size="10">$5K</text>
+            <line x1="30" y1="12" x2="600" y2="12" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="52" x2="600" y2="52" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="92" x2="600" y2="92" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="132" x2="600" y2="132" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="172" x2="600" y2="172" stroke="#252540" stroke-width="0.5"/>
+            <rect x="50" y="140" width="25" height="32" fill="#7c3aed" rx="3" opacity="0.7"/>
+            <rect x="100" y="130" width="25" height="42" fill="#a855f7" rx="3" opacity="0.8"/>
+            <rect x="150" y="110" width="25" height="62" fill="#7c3aed" rx="3" opacity="0.9"/>
+            <rect x="200" y="120" width="25" height="52" fill="#a855f7" rx="3" opacity="0.85"/>
+            <rect x="250" y="95" width="25" height="77" fill="#7c3aed" rx="3"/>
+            <rect x="300" y="105" width="25" height="67" fill="#a855f7" rx="3"/>
+            <rect x="350" y="80" width="25" height="92" fill="#7c3aed" rx="3"/>
+            <rect x="400" y="70" width="25" height="102" fill="#a855f7" rx="3"/>
+            <rect x="450" y="55" width="25" height="117" fill="#7c3aed" rx="3"/>
+            <rect x="500" y="45" width="25" height="127" fill="#a855f7" rx="3"/>
+            <rect x="550" y="30" width="25" height="142" fill="#7c3aed" rx="3"/>
+          </svg>
+          <div class="flex justify-between text-[9px] text-gray-500 mt-1 pl-8">
+            <span>Jan 1</span><span>Jan 7</span><span>Jan 14</span><span>Jan 21</span><span>Jan 28</span><span>Jan 31</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Activity + Top Countries -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- User Activity -->
+      <div class="lg:col-span-2 gradient-card rounded-2xl border border-dark-4 p-5">
+        <h3 class="text-white font-bold mb-4">User Activity</h3>
+        <div class="flex gap-2 mb-3 flex-wrap">
+          <button class="tab-btn active px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300">Logins</button>
+          <button class="tab-btn px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300">Registrations</button>
+          <button class="tab-btn px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300">Purchases</button>
+          <button class="tab-btn px-3 py-1.5 rounded-lg bg-dark-3 text-xs font-semibold text-gray-300">Live Views</button>
+        </div>
+        <div class="h-48">
+          <svg viewBox="0 0 600 200" class="w-full h-full">
+            <text x="0" y="15" fill="#6b7280" font-size="10">2K</text>
+            <text x="0" y="55" fill="#6b7280" font-size="10">1.5K</text>
+            <text x="0" y="95" fill="#6b7280" font-size="10">1K</text>
+            <text x="0" y="135" fill="#6b7280" font-size="10">500</text>
+            <line x1="30" y1="12" x2="600" y2="12" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="52" x2="600" y2="52" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="92" x2="600" y2="92" stroke="#252540" stroke-width="0.5"/>
+            <line x1="30" y1="132" x2="600" y2="132" stroke="#252540" stroke-width="0.5"/>
+            <rect x="50" y="140" width="20" height="32" fill="#7c3aed" rx="2"/>
+            <rect x="100" y="125" width="20" height="47" fill="#7c3aed" rx="2"/>
+            <rect x="150" y="115" width="20" height="57" fill="#7c3aed" rx="2"/>
+            <rect x="200" y="135" width="20" height="37" fill="#7c3aed" rx="2"/>
+            <rect x="250" y="100" width="20" height="72" fill="#7c3aed" rx="2"/>
+            <rect x="300" y="90" width="20" height="82" fill="#7c3aed" rx="2"/>
+            <rect x="350" y="105" width="20" height="67" fill="#7c3aed" rx="2"/>
+            <rect x="400" y="80" width="20" height="92" fill="#7c3aed" rx="2"/>
+            <rect x="450" y="95" width="20" height="77" fill="#7c3aed" rx="2"/>
+            <rect x="500" y="70" width="20" height="102" fill="#7c3aed" rx="2"/>
+            <rect x="550" y="65" width="20" height="107" fill="#7c3aed" rx="2"/>
+          </svg>
+          <div class="flex justify-between text-[9px] text-gray-500 mt-1 pl-8">
+            <span>Jan 1</span><span>Jan 7</span><span>Jan 14</span><span>Jan 21</span><span>Jan 28</span><span>Jan 31</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Countries -->
+      <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-white font-bold">Top Countries</h3>
+          <a href="#" class="text-xs text-primary">View All →</a>
+        </div>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="text-lg">🇹🇿</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-white">Tanzania</span>
+                <span class="text-xs text-white font-semibold">32.4%</span>
+              </div>
+              <div class="w-full bg-dark-3 rounded-full h-1.5"><div class="bg-primary h-1.5 rounded-full" style="width:32.4%"></div></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="text-lg">🇰🇪</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-white">Kenya</span>
+                <span class="text-xs text-white font-semibold">18.7%</span>
+              </div>
+              <div class="w-full bg-dark-3 rounded-full h-1.5"><div class="bg-purple-400 h-1.5 rounded-full" style="width:18.7%"></div></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="text-lg">🇺🇸</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-white">USA</span>
+                <span class="text-xs text-white font-semibold">12.3%</span>
+              </div>
+              <div class="w-full bg-dark-3 rounded-full h-1.5"><div class="bg-green-400 h-1.5 rounded-full" style="width:12.3%"></div></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="text-lg">🇬🇧</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-white">UK</span>
+                <span class="text-xs text-white font-semibold">9.6%</span>
+              </div>
+              <div class="w-full bg-dark-3 rounded-full h-1.5"><div class="bg-cyan-400 h-1.5 rounded-full" style="width:9.6%"></div></div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="text-lg">🌍</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-white">Other</span>
+                <span class="text-xs text-white font-semibold">27.0%</span>
+              </div>
+              <div class="w-full bg-dark-3 rounded-full h-1.5"><div class="bg-gray-500 h-1.5 rounded-full" style="width:27%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Banner -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-purple-900/60 via-primary/40 to-transparent"></div>
+      <div class="relative p-6 flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-2xl">📈</div>
+          <div>
+            <h3 class="text-white font-bold text-lg">GROW YOUR PLATFORM</h3>
+            <p class="text-xs text-gray-400">Use insights from analytics to make better decisions and increase revenue.</p>
+          </div>
+        </div>
+        <button onclick="exportReport()" class="gradient-primary text-white font-bold px-5 py-2.5 rounded-lg flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Export Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="flex items-center justify-between flex-wrap gap-4 pt-6 border-t border-dark-4 text-xs text-gray-500">
+      <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+      <div class="flex items-center gap-4">
+        <a href="/terms" class="hover:text-primary">Terms</a>
+        <a href="/privacy" class="hover:text-primary">Privacy</a>
+        <a href="/contact" class="hover:text-primary">Contact</a>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="../../config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+function exportReport() {
+  alert('📊 Report inaandaliwa kwa ajili ya kupakua...\n\nFormat: PDF/CSV\nContent: Users, Revenue, Orders, Analytics');
+}
+
+async function loadAnalytics() {
+  // Load real stats from Supabase
+  try {
+    const { count: usersCount } = await db.from('profiles').select('*', { count: 'exact', head: true });
+    const { count: ordersCount } = await db.from('orders').select('*', { count: 'exact', head: true });
+    
+    if (usersCount) document.getElementById('stat-users').textContent = usersCount.toLocaleString();
+    if (ordersCount) document.querySelectorAll('div')[0]; // Keep as is
+  } catch(e) {
+    console.log('Using mock data');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadAnalytics);
+</script>
+
+</body>
+</html>

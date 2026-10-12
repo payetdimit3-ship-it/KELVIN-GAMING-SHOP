@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Users Management - LifeisGameTz</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+</script>
+<style>
+  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0f0f1e; }
+  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
+  .sidebar-link.active { background: #7c3aed; color: #fff; }
+  .sidebar-link.active svg { color: #fff; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- TOP BAR -->
+<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
+  <div class="flex items-center justify-between px-4 py-3 gap-4">
+    <button class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="/admin/dashboard-v2.html" class="flex items-center gap-3 shrink-0">
+      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+      </div>
+      <div class="hidden md:block">
+        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
+        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+      </div>
+    </a>
+
+    <div class="flex-1 max-w-2xl hidden md:block">
+      <div class="relative">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search users by name, email, ID..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
+        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">12</span>
+      </button>
+      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
+        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
+        <div class="hidden md:block">
+          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
+          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Super Admin
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="flex">
+
+  <!-- ADMIN SIDEBAR -->
+  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
+    <div class="flex-1 overflow-y-auto py-4">
+      <div class="px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 font-bold">Content Management</div>
+      <a href="/admin/dashboard-v2.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/games.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Games Management</span>
+      </a>
+      <a href="/admin/products.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span>Products Management</span>
+      </a>
+      <a href="/admin/movies.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <span>Movies Management</span>
+      </a>
+      <a href="/admin/trailers.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Trailers Management</span>
+      </a>
+
+      <div class="px-4 py-2 mt-4 text-[10px] uppercase tracking-wider text-gray-500 font-bold">Community & Users</div>
+      <a href="/admin/users-management.html" class="sidebar-link active flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>Users Management</span>
+      </a>
+      <a href="/admin/orders.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Orders & Sales</span>
+      </a>
+      <a href="/admin/withdrawals.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Withdraw Requests</span>
+      </a>
+      <a href="/admin/coupons.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+        <span>Coupons & Discounts</span>
+      </a>
+      <a href="/admin/support.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>Support Tickets</span>
+      </a>
+
+      <div class="px-4 py-2 mt-4 text-[10px] uppercase tracking-wider text-gray-500 font-bold">Analytics & Settings</div>
+      <a href="/admin/analytics.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Analytics</span>
+      </a>
+      <a href="/admin/settings.html" class="sidebar-link flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Settings</span>
+      </a>
+
+      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
+        <div class="text-2xl mb-1">👑</div>
+        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
+        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
+        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-gray-400">
+      <a href="/admin/dashboard-v2.html" class="hover:text-primary">Home</a>
+      <span>›</span>
+      <a href="#" class="hover:text-primary">Admin Panel</a>
+      <span>›</span>
+      <span class="text-white font-semibold">Users Management</span>
+    </div>
+
+    <!-- Header -->
+    <div class="flex items-start justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-white">Users Management</h1>
+          <p class="text-sm text-gray-400">Manage all users, view details, search, ban/unban, and control accounts.</p>
+        </div>
+      </div>
+      <button onclick="openAddUserModal()" class="gradient-primary text-white text-sm font-bold px-5 py-2.5 rounded-lg flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add User
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-blue-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          </div>
+          <div class="text-[10px] text-gray-400">Total Users</div>
+        </div>
+        <div class="text-xl font-bold text-white" id="stat-total">0</div>
+        <div class="text-[10px] text-green-400">↗ +12%</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-green-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="text-[10px] text-gray-400">Active Users</div>
+        </div>
+        <div class="text-xl font-bold text-white" id="stat-active">0</div>
+        <div class="text-[10px] text-green-400">↗ +10%</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-red-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+          </div>
+          <div class="text-[10px] text-gray-400">Blocked Users</div>
+        </div>
+        <div class="text-xl font-bold text-white" id="stat-blocked">0</div>
+        <div class="text-[10px] text-red-400">↗ +3%</div>
+      </div>
+      <div class="gradient-card rounded-xl border border-dark-4 p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-9 h-9 rounded-lg bg-purple-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <div class="text-[10px] text-gray-400">New Today</div>
+        </div>
+        <div class="text-xl font-bold text-white" id="stat-new">0</div>
+        <div class="text-[10px] text-green-400">↗ +18%</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="gradient-card rounded-2xl border border-dark-4 p-5">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div class="md:col-span-2 relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" id="search-input" placeholder="Search by name, email, or username..." class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 pl-10 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary">
+        </div>
+        <select id="filter-role" class="bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+          <option value="">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="moderator">Moderator</option>
+          <option value="user">User</option>
+        </select>
+        <select id="filter-status" class="bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="blocked">Blocked</option>
+        </select>
+      </div>
+      <button onclick="applyFilters()" class="mt-3 gradient-primary text-white text-xs font-bold px-5 py-2 rounded-lg">Apply Filters</button>
+    </div>
+
+    <!-- Users Table -->
+    <div class="gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="text-gray-500 border-b border-dark-4 bg-dark-2/50">
+              <th class="text-left py-3 px-4 font-semibold">
+                <input type="checkbox" class="rounded bg-dark-3 border-dark-4">
+              </th>
+              <th class="text-left py-3 px-4 font-semibold">User</th>
+              <th class="text-left py-3 px-4 font-semibold">Role</th>
+              <th class="text-center py-3 px-4 font-semibold">Status</th>
+              <th class="text-left py-3 px-4 font-semibold">Joined</th>
+              <th class="text-right py-3 px-4 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body">
+            <tr><td colspan="6" class="text-center text-gray-500 py-8">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between p-4 border-t border-dark-4 flex-wrap gap-3">
+        <div class="text-xs text-gray-500">Showing <span id="showing-start">0</span> to <span id="showing-end">0</span> of <span id="total-users">0</span> users</div>
+        <div class="flex gap-1">
+          <button class="w-7 h-7 rounded-lg bg-dark-3 hover:bg-dark-4 text-gray-300 text-xs">‹</button>
+          <button class="w-7 h-7 rounded-lg bg-primary text-white text-xs font-bold">1</button>
+          <button class="w-7 h-7 rounded-lg bg-dark-3 hover:bg-dark-4 text-gray-300 text-xs">2</button>
+          <button class="w-7 h-7 rounded-lg bg-dark-3 hover:bg-dark-4 text-gray-300 text-xs">3</button>
+          <button class="w-7 h-7 rounded-lg bg-dark-3 hover:bg-dark-4 text-gray-300 text-xs">4</button>
+          <button class="w-7 h-7 rounded-lg bg-dark-3 hover:bg-dark-4 text-gray-300 text-xs">5</button>
+          <button class="w-7 h-7 rounded-lg bg-dark-3 hover:bg-dark-4 text-gray-300 text-xs">›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keep Your Community Safe Banner -->
+    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-green-900/40 via-primary/30 to-transparent"></div>
+      <div class="relative p-6 flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <div class="text-5xl">🛡️</div>
+          <div>
+            <h3 class="text-white font-bold text-lg">KEEP YOUR COMMUNITY SAFE</h3>
+            <p class="text-xs text-gray-400">Monitor user activity, prevent abuse, and ensure a better experience for everyone.</p>
+          </div>
+        </div>
+        <button class="gradient-primary text-white font-bold px-5 py-2.5 rounded-lg">View Logs</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="flex items-center justify-between flex-wrap gap-4 pt-6 border-t border-dark-4 text-xs text-gray-500">
+      <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
+      <div class="flex items-center gap-4">
+        <a href="/terms" class="hover:text-primary">Terms</a>
+        <a href="/privacy" class="hover:text-primary">Privacy</a>
+        <a href="/contact" class="hover:text-primary">Contact</a>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<!-- ADD USER MODAL -->
+<div id="add-user-modal" class="hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-dark-2 border border-dark-4 rounded-2xl w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold text-white">Add New User</h3>
+      <button onclick="closeAddUserModal()" class="text-gray-400 hover:text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="add-user-form" class="space-y-3">
+      <input type="text" id="new-fullname" placeholder="Full Name" required class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+      <input type="email" id="new-email" placeholder="Email" required class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+      <input type="text" id="new-username" placeholder="Username" required class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+      <select id="new-role" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+        <option value="user">User</option>
+        <option value="moderator">Moderator</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button type="submit" class="w-full gradient-primary text-white font-bold py-3 rounded-lg">Add User</button>
+    </form>
+  </div>
+</div>
+
+<script src="../../config.js"></script>
+<script>
+const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allUsers = [];
+let filteredUsers = [];
+
+// Mock fallback users
+const mockUsers = [
+  { id: '1', full_name: 'Kelvin Fred', username: 'kelvin', email: 'kelvin@gmail.com', role: 'admin', is_active: true, created_at: '2025-01-10' },
+  { id: '2', full_name: 'James Mwangi', username: 'james123', email: 'james123@gmail.com', role: 'user', is_active: true, created_at: '2025-01-12' },
+  { id: '3', full_name: 'Aisha Ndomi', username: 'aisha', email: 'aisha@gmail.com', role: 'user', is_active: true, created_at: '2025-01-14' },
+  { id: '4', full_name: 'David Kimani', username: 'david', email: 'david@gmail.com', role: 'moderator', is_active: true, created_at: '2025-01-16' },
+  { id: '5', full_name: 'Sarah Wanjiku', username: 'sarah', email: 'sarah@gmail.com', role: 'user', is_active: true, created_at: '2025-01-18' },
+  { id: '6', full_name: 'Brian Otieno', username: 'brian', email: 'brian@gmail.com', role: 'user', is_active: true, created_at: '2025-01-20' },
+  { id: '7', full_name: 'Mary Njeri', username: 'mary', email: 'mary@gmail.com', role: 'user', is_active: true, created_at: '2025-01-22' },
+  { id: '8', full_name: 'Peter Kibet', username: 'peter', email: 'peter@gmail.com', role: 'user', is_active: true, created_at: '2025-01-24' },
+  { id: '9', full_name: 'Kevin Matala', username: 'kevinm', email: 'kevinm@gmail.com', role: 'user', is_active: false, created_at: '2025-01-26' },
+  { id: '10', full_name: 'Grace Achieing', username: 'grace', email: 'grace@gmail.com', role: 'user', is_active: true, created_at: '2025-01-28' }
+];
+
+function openAddUserModal() { document.getElementById('add-user-modal').classList.remove('hidden'); }
+function closeAddUserModal() { document.getElementById('add-user-modal').classList.add('hidden'); }
+
+async function loadUsers() {
+  // Try to load from Supabase
+  const { data: users } = await db.from('profiles').select('*').order('created_at', { ascending: false });
+  
+  allUsers = (users && users.length > 0) ? users : mockUsers;
+  filteredUsers = allUsers;
+
+  // Stats
+  document.getElementById('stat-total').textContent = allUsers.length;
+  document.getElementById('stat-active').textContent = allUsers.filter(u => u.is_active !== false).length;
+  document.getElementById('stat-blocked').textContent = allUsers.filter(u => u.is_active === false).length;
+  document.getElementById('stat-new').textContent = Math.floor(allUsers.length * 0.15);
+
+  renderUsers();
+}
+
+function renderUsers() {
+  const tbody = document.getElementById('users-table-body');
+  document.getElementById('total-users').textContent = filteredUsers.length;
+  document.getElementById('showing-start').textContent = filteredUsers.length > 0 ? 1 : 0;
+  document.getElementById('showing-end').textContent = Math.min(10, filteredUsers.length);
+
+  if (filteredUsers.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 py-8">Hakuna users waliopatikana</td></tr>`;
+    return;
+  }
+
+  const roleColors = {
+    'admin': 'bg-purple-500/20 text-purple-400',
+    'moderator': 'bg-blue-500/20 text-blue-400',
+    'user': 'bg-gray-500/20 text-gray-400'
+  };
+
+  tbody.innerHTML = filteredUsers.slice(0, 10).map(u => `
+    <tr class="border-b border-dark-4 hover:bg-dark-3 transition">
+      <td class="py-3 px-4"><input type="checkbox" class="rounded bg-dark-3 border-dark-4"></td>
+      <td class="py-3 px-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white text-[10px] font-bold">${(u.full_name || u.username || 'U').charAt(0).toUpperCase()}</div>
+          <div class="min-w-0">
+            <div class="text-white font-semibold text-[11px] truncate">${u.full_name || u.username}</div>
+            <div class="text-[9px] text-gray-500 truncate">${u.email}</div>
+          </div>
+        </div>
+      </td>
+      <td class="py-3 px-4">
+        <span class="text-[9px] ${roleColors[u.role] || roleColors.user} px-2 py-0.5 rounded font-semibold capitalize">${u.role || 'user'}</span>
+      </td>
+      <td class="py-3 px-4 text-center">
+        <span class="text-[9px] ${u.is_active !== false ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'} px-2 py-0.5 rounded font-semibold flex items-center justify-center gap-1 w-fit mx-auto">
+          <span class="w-1 h-1 rounded-full ${u.is_active !== false ? 'bg-green-400' : 'bg-red-400'}"></span>
+          ${u.is_active !== false ? 'Active' : 'Blocked'}
+        </span>
+      </td>
+      <td class="py-3 px-4 text-gray-400 text-[10px]">${new Date(u.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+      <td class="py-3 px-4">
+        <div class="flex gap-1 justify-end">
+          <button onclick="viewUser('${u.id}')" class="w-7 h-7 rounded-lg bg-dark-3 hover:bg-primary flex items-center justify-center text-gray-400 hover:text-white">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+          <button onclick="editUser('${u.id}')" class="w-7 h-7 rounded-lg bg-dark-3 hover:bg-primary flex items-center justify-center text-gray-400 hover:text-white">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </button>
+          <button onclick="toggleBlock('${u.id}', ${u.is_active !== false})" class="w-7 h-7 rounded-lg ${u.is_active !== false ? 'bg-red-500/20 hover:bg-red-500 text-red-400' : 'bg-green-500/20 hover:bg-green-500 text-green-400'} flex items-center justify-center hover:text-white">
+            ${u.is_active !== false 
+              ? `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>`
+              : `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`
+            }
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function applyFilters() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const role = document.getElementById('filter-role').value;
+  const status = document.getElementById('filter-status').value;
+
+  filteredUsers = allUsers.filter(u => {
+    let match = true;
+    if (search) {
+      match = match && (
+        (u.full_name || '').toLowerCase().includes(search) ||
+        (u.username || '').toLowerCase().includes(search) ||
+        (u.email || '').toLowerCase().includes(search)
+      );
+    }
+    if (role) match = match && (u.role === role);
+    if (status === 'active') match = match && (u.is_active !== false);
+    if (status === 'blocked') match = match && (u.is_active === false);
+    return match;
+  });
+
+  renderUsers();
+}
+
+function viewUser(id) {
+  const u = allUsers.find(x => x.id === id);
+  if (!u) return;
+  alert(`User Details:\n\nName: ${u.full_name || u.username}\nEmail: ${u.email}\nRole: ${u.role}\nStatus: ${u.is_active !== false ? 'Active' : 'Blocked'}`);
+}
+
+function editUser(id) {
+  const u = allUsers.find(x => x.id === id);
+  if (!u) return;
+  const newRole = prompt(`Badilisha role ya ${u.full_name || u.username}:\n\nChagua: admin, moderator, user`, u.role);
+  if (newRole && ['admin', 'moderator', 'user'].includes(newRole)) {
+    u.role = newRole;
+    renderUsers();
+    alert('✅ Role imebadilishwa!');
+  }
+}
+
+function toggleBlock(id, isActive) {
+  const u = allUsers.find(x => x.id === id);
+  if (!u) return;
+  if (!confirm(isActive ? `Block user ${u.full_name}?` : `Unblock user ${u.full_name}?`)) return;
+  u.is_active = !isActive;
+  renderUsers();
+  alert(`✅ User ${u.is_active ? 'unblocked' : 'blocked'}!`);
+}
+
+document.getElementById('search-input').addEventListener('input', applyFilters);
+document.getElementById('filter-role').addEventListener('change', applyFilters);
+document.getElementById('filter-status').addEventListener('change', applyFilters);
+
+document.getElementById('add-user-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const newUser = {
+    id: 'new-' + Date.now(),
+    full_name: document.getElementById('new-fullname').value,
+    email: document.getElementById('new-email').value,
+    username: document.getElementById('new-username').value,
+    role: document.getElementById('new-role').value,
+    is_active: true,
+    created_at: new Date().toISOString()
+  };
+  allUsers.unshift(newUser);
+  closeAddUserModal();
+  renderUsers();
+  alert('✅ User ameongezwa!');
+  document.getElementById('add-user-form').reset();
+});
+
+document.addEventListener('DOMContentLoaded', loadUsers);
+</script>
+
+</body>
+</html>
