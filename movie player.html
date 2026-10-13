@@ -26,10 +26,10 @@
 <!-- TOP BAR -->
 <header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
   <div class="flex items-center justify-between px-4 py-3 gap-4">
-    <button class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
+    <button aria-label="Open navigation menu" data-mobile-menu-toggle="true" class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
       <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
-    <a href="/" class="flex items-center gap-3 shrink-0">
+    <a href="index.html" class="flex items-center gap-3 shrink-0">
       <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
         <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
       </div>
@@ -71,7 +71,7 @@
   <!-- SIDEBAR -->
   <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
     <div class="flex-1 overflow-y-auto py-4">
-      <a href="/" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
+      <a href="index.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         <span>Home</span>
       </a>
@@ -118,7 +118,7 @@
 
     <!-- Breadcrumb -->
     <div class="flex items-center gap-2 text-sm text-gray-400">
-      <a href="/" class="hover:text-primary">Home</a>
+      <a href="index.html" class="hover:text-primary">Home</a>
       <span>›</span>
       <span class="text-white font-semibold">Live Movies Player</span>
     </div>
@@ -327,6 +327,47 @@ function renderCard(m) {
 }
 
 document.addEventListener('DOMContentLoaded', renderMovies);
+</script>
+
+
+<script id="lifeisgametz-navigation-repair">
+(function () {
+  function initNavigationRepair() {
+    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
+    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
+              document.querySelector('nav');
+    toggles.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!nav) {
+          window.location.href = 'index.html';
+          return;
+        }
+        nav.classList.toggle('lifeisgametz-mobile-nav-open');
+        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
+        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
+        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
+        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
+        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
+        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
+        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
+        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
+      });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && nav) {
+        nav.classList.remove('lifeisgametz-mobile-nav-open');
+        nav.style.display = '';
+        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
+        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
+      }
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
+  else initNavigationRepair();
+})();
 </script>
 
 </body>

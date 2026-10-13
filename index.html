@@ -46,7 +46,7 @@
 <header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
   <div class="flex items-center justify-between px-4 py-3 gap-4">
     
-    <a href="/" class="flex items-center gap-3 shrink-0">
+    <a href="index.html" class="flex items-center gap-3 shrink-0">
       <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
         <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
           <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/>
@@ -303,7 +303,7 @@
         <div>
           <h4 class="text-white font-semibold mb-3 text-sm">Quick Links</h4>
           <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="/" class="hover:text-primary transition">Home</a></li>
+            <li><a href="index.html" class="hover:text-primary transition">Home</a></li>
             <li><a href="/games.html" class="hover:text-primary transition">Games</a></li>
             <li><a href="/courses.html" class="hover:text-primary transition">Courses</a></li>
             <li><a href="/community.html" class="hover:text-primary transition">Community</a></li>
@@ -351,6 +351,47 @@
 <script src="js/sidebar.js"></script>
 <script src="js/homepage.js"></script>
 <script src="js/main.js"></script>
+
+
+<script id="lifeisgametz-navigation-repair">
+(function () {
+  function initNavigationRepair() {
+    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
+    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
+              document.querySelector('nav');
+    toggles.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!nav) {
+          window.location.href = 'index.html';
+          return;
+        }
+        nav.classList.toggle('lifeisgametz-mobile-nav-open');
+        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
+        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
+        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
+        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
+        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
+        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
+        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
+        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
+      });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && nav) {
+        nav.classList.remove('lifeisgametz-mobile-nav-open');
+        nav.style.display = '';
+        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
+        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
+      }
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
+  else initNavigationRepair();
+})();
+</script>
 
 </body>
 </html>25.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
@@ -623,6 +664,47 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
   });
 });
+</script>
+
+
+<script id="lifeisgametz-navigation-repair">
+(function () {
+  function initNavigationRepair() {
+    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
+    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
+              document.querySelector('nav');
+    toggles.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!nav) {
+          window.location.href = 'index.html';
+          return;
+        }
+        nav.classList.toggle('lifeisgametz-mobile-nav-open');
+        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
+        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
+        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
+        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
+        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
+        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
+        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
+        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
+      });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && nav) {
+        nav.classList.remove('lifeisgametz-mobile-nav-open');
+        nav.style.display = '';
+        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
+        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
+      }
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
+  else initNavigationRepair();
+})();
 </script>
 
 </body>
