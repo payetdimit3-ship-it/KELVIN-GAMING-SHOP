@@ -470,5 +470,46 @@ async function loadAnalytics() {
 document.addEventListener('DOMContentLoaded', loadAnalytics);
 </script>
 
+
+<script id="lifeisgametz-navigation-repair">
+(function () {
+  function initNavigationRepair() {
+    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
+    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
+              document.querySelector('nav');
+    toggles.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!nav) {
+          window.location.href = 'index.html';
+          return;
+        }
+        nav.classList.toggle('lifeisgametz-mobile-nav-open');
+        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
+        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
+        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
+        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
+        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
+        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
+        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
+        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
+      });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && nav) {
+        nav.classList.remove('lifeisgametz-mobile-nav-open');
+        nav.style.display = '';
+        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
+        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
+      }
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
+  else initNavigationRepair();
+})();
+</script>
+
 </body>
 </html>
