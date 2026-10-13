@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Live Match - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Live Match
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'live-football-watch.html',
+      pg: 'livewatch',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var s = db.live.find(function (x) {
+        return x.id === a[2];
+      })
+        || db.live[0];
+      if (!s)
+        return '<div class="empty">Hakuna mechi bado.'
+          + '<br><br>'
+          + '<a class="btn" href="live-scores.html">'
+          + 'Live Scores</a></div>';
+      var sc = (s.homeScore == null ? '-' : s.homeScore)
+        + ' : '
+        + (s.awayScore == null ? '-' : s.awayScore),
+        u = s.streamUrl || s.videoUrl;
+      return '<div style="margin-bottom:10px"><a '
+        + 'class="btn o" href="live-scores.html">'
+        + '← Mechi zote</a></div>'
+        + '<div class="panel" style="margin-top:0">'
+        + '<div class="row sp" '
+        + 'style="flex-wrap:wrap"><div>'
+        + '<b style="font-size:20px">'
+        + esc(s.title)
+        + '</b><div class="sub" style="margin:0">'
+        + esc(s.league)
+        + (s.startTime ? ' · ' + esc(s.startTime) : '')
+        + '</div></div><span class="pill '
+        + (s.status === 'LIVE' ? 'on1' : 'off1')
+        + '">'
+        + esc(s.status)
+        + (s.minute ? ' ' + esc(s.minute) + "'" : '')
+        + '</span></div><div '
+        + 'style="text-align:center;font-size:28px;font-weight:700;margin:14px 0">'
+        + esc(s.homeTeam)
+        + ' '
+        + sc
+        + ' '
+        + esc(s.awayTeam)
+        + '</div>'
+        + (
+          u
+            ? player({ videoUrl: u })
+            : '<div class="empty">'
+              + 'Stream bado haijawekwa.</div>'
+        )
+        + (
+          s.description
+            ? '<p class="sub">' + esc(s.description) + '</p>'
+            : ''
+        )
+        + '</div>'
+        + (
+          db.live.length > 1
+            ? '<h2>Mechi zingine</h2>'
+              + '<div class="panel">'
+              + db.live
+                .filter(function (x) {
+                  return x.id !== s.id;
+                })
+                .map(function (x) {
+                  return '<div class="row sp" '
+                    + 'style="padding:8px 0;border-bottom:1px solid var(--line)">'
+                    + '<span>'
+                    + esc(x.title)
+                    + '</span><a class="btn o" '
+                    + 'href="live-football-watch.html?p='
+                    + x.id
+                    + '">Tazama</a></div>';
+                })
+                .join('')
+              + '</div>'
+            : ''
+        );
+    });
+  </script>
+
+</body>
+</html>

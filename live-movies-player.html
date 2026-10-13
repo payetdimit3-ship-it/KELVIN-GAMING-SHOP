@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Movie Player - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Movie Player
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'live-movies-player.html',
+      pg: 'moviewatch',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var cur = db.movies.find(function (m) {
+        return m.id === a[2];
+      });
+      if (!cur)
+        return '<div class="empty">Movie haipatikani.'
+          + '<br><br>'
+          + '<a class="btn" href="movies.html">'
+          + 'Movies zote</a></div>';
+      var others = db.movies.filter(function (m) {
+        return m.id !== cur.id;
+      }).slice(0, 12);
+      return '<div style="margin-bottom:10px">'
+        + '<a class="btn o" href="movies.html">'
+        + '← Movies</a></div>'
+        + '<div class="panel" style="margin-top:0">'
+        + player(cur)
+        + '<h1 style="margin:14px 0 4px">'
+        + esc(cur.title)
+        + '</h1><p class="sub">'
+        + esc(cur.genre)
+        + ' · '
+        + esc(cur.year)
+        + '</p><p>'
+        + esc(cur.description)
+        + '</p></div>'
+        + (
+          others.length
+            ? '<h2>Movies zingine</h2>'
+              + '<div class="grid">'
+              + others.map(movCard).join('')
+              + '</div>'
+            : ''
+        );
+    });
+  </script>
+
+</body>
+</html>

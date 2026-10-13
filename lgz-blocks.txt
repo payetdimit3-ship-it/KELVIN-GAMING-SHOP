@@ -1,0 +1,269 @@
+//#BLOCK helpers
+/* LGZ-PATCH v1 — msimbo wa LIFEISGAMETZ (Free games, links, codes, upload, coupons, AI) */
+const GAMES_BUCKET = process.env.SUPABASE_GAMES_BUCKET || 'gamehub-games';
+const GAME_EXT = /\.(apk|xapk|apks|obb|zip|rar|7z|iso|exe|msi|pkg|nsp|xci|cia|cso|pbp|bin|dmg)$/i;
+const cleanFile = f => (f && typeof f.path === 'string' && /^games\/[A-Za-z0-9._-]+$/.test(f.path))
+  ? { path: f.path, name: String(f.name || 'game').slice(0, 200), size: Number(f.size) || 0 } : null;
+async function ensureGamesBucket() {
+  if (!supabase) return;
+  try {
+    const { data } = await supabase.storage.getBucket(GAMES_BUCKET);
+    if (data) return;
+    const c = await supabase.storage.createBucket(GAMES_BUCKET, { public: false });
+    if (c.error && !/already exists|duplicate/i.test(c.error.message || '')) console.warn('Games bucket:', c.error.message);
+  } catch (e) { console.warn('Games bucket:', e.message); }
+}
+const cleanLinks = a => (Array.isArray(a) ? a : [])
+  .filter(l => l && /^https?:\/\//i.test(String(l.u)))
+  .slice(0, 20)
+  .map(l => ({ l: String(l.l || 'Link').slice(0, 60), u: String(l.u).slice(0, 2000) }));
+const cleanCodes = a => (Array.isArray(a) ? a : []).map(x => String(x).trim().slice(0, 300)).filter(Boolean).slice(0, 500);
+// Bei inahesabiwa na SERVER, si na browser
+function priceItems(items) {
+  const products = readJson('products.json', {});
+  const list = Object.values(products);
+  let total = 0; const clean = [], soldOut = [];
+  for (const i of (Array.isArray(items) ? items : [])) {
+    const p = products[i.id] || list.find(x => x.name === i.name);
+    if (!p || p.status === 'Draft' || p.free) continue;
+    const q = Math.max(1, Math.min(10, parseInt(i.quantity || i.qty || 1, 10) || 1));
+    if (p.usesCodes && (p.codes || []).length < q) { soldOut.push(p.name); continue; }
+    clean.push({ id: p.id, name: p.name, price: p.price, quantity: q });
+    total += p.price * q;
+  }
+  return { items: clean, total, soldOut };
+}
+function applyCoupon(total, code) {
+  if (!code) return { total, code: '' };
+  const coupons = readJson('coupons.json', {});
+  const c = coupons[String(code).trim().toUpperCase()];
+  if (!c || !c.active || (c.maxUses && c.uses >= c.maxUses)) throw new Error('Kodi si sahihi au imeisha');
+  const pct = Math.min(90, Math.max(1, Number(c.percentOff) || 0));
+  c.uses += 1; writeJson('coupons.json', coupons);
+  return { total: Math.max(1, Math.round(total * (100 - pct) / 100)), code: c.code };
+}
+const aiRate = new Map();
+function aiHit(ip) {
+  const now = Date.now();
+  const hits = (aiRate.get(ip) || []).filter(t => now - t < 60000);
+  if (hits.length >= 8) return false;
+  hits.push(now); aiRate.set(ip, hits); return true;
+}
+function aiLimit(req, res, next) {
+  if (!aiHit(getIP(req))) return res.status(429).json({ error: 'Subiri kidogo kabla ya swali lingine.' });
+  next();
+}
+function fulfillOrder(order) {
+  if (order.delivered) return;
+  const products = readJson('products.json', {});
+  const delivered = [];
+  for (const i of order.items || []) {
+    const p = products[i.id];
+    if (!p || !p.usesCodes) continue;
+    for (let n = 0; n < (i.quantity || 1); n++) delivered.push({ id: i.id, name: p.name, code: (p.codes || []).shift() || null });
+  }
+  order.delivered = delivered;
+  writeJson('products.json', products);
+}
+const pubProduct = p => ({ ...p, codes: undefined, file: undefined, hasFile: !!p.file, fileName: p.file ? p.file.name : '', fileSize: p.file ? p.file.size : 0, stock: (p.codes || []).length });
+
+//#BLOCK get_products
+app.get('/api/products', (req, res) => {
+  const u = getUserByToken(req);
+  const staff = !!(u && (u.isAdmin || u.isStaff));
+  const list = Object.values(readJson('products.json', {})).filter(p => staff || p.status !== 'Draft');
+  res.json({ success: true, products: list.map(p => staff || p.free ? pubProduct(p) : { ...pubProduct(p), downloadLink: '', accountUser: '', accountPassword: '', links: [] }) });
+});
+
+//#BLOCK post_products
+app.post('/api/products', async (req, res) => {
+  const user = getUserByToken(req);
+  if (!user || (!user.isAdmin && !user.isStaff)) return res.status(403).json({ error: 'Huna ruhusa' });
+  const b = req.body || {};
+  const free = !!b.free;
+  if (!b.name || (!free && !Number(b.price))) return res.status(400).json({ error: 'Jaza jina na bei (au chagua Free)' });
+  const codes = cleanCodes(b.codes);
+  const products = readJson('products.json', {});
+  const id = 'p' + Date.now();
+  products[id] = { id, name: String(b.name).slice(0, 160), type: b.type || 'Bidhaa', platform: String(b.platform || '').slice(0, 40),
+    price: free ? 0 : Number(b.price), oldPrice: free ? 0 : Number(b.oldPrice || 0), free,
+    status: b.status === 'Draft' ? 'Draft' : 'Active', emoji: b.emoji || '🎮', desc: String(b.desc || '').slice(0, 2000),
+    downloadLink: b.downloadLink || '', imageUrl: b.imageUrl || '', trailerUrl: b.trailerUrl || '',
+    category: b.category || 'Zote', section: b.section || 'shop',
+    accountUser: b.accountUser || '', accountPassword: b.accountPassword || '',
+    links: cleanLinks(b.links), codes, usesCodes: codes.length > 0, file: cleanFile(b.file) };
+  const saved = await writeJson('products.json', products);
+  res.json({ success: true, id, persistent: saved.cloud !== false });
+});
+
+//#BLOCK put_products
+app.put('/api/products/:id', async (req, res) => {
+  const user = getUserByToken(req);
+  if (!user || (!user.isAdmin && !user.isStaff)) return res.status(403).json({ error: 'Huna ruhusa' });
+  const products = readJson('products.json', {});
+  const e = products[req.params.id];
+  if (!e) return res.status(404).json({ error: 'Bidhaa haipatikani' });
+  const b = req.body || {};
+  const free = b.free !== undefined ? !!b.free : !!e.free;
+  const pick = k => (b[k] !== undefined ? b[k] : e[k]);
+  const newCodes = cleanCodes(b.codes);
+  const newFile = b.removeFile ? null : (cleanFile(b.file) || e.file || null);
+  if (e.file && (!newFile || newFile.path !== e.file.path) && supabase) supabase.storage.from(GAMES_BUCKET).remove([e.file.path]).catch(() => {});
+  products[req.params.id] = { ...e, name: b.name || e.name, type: b.type || e.type, platform: pick('platform'),
+    price: free ? 0 : (b.price !== undefined && b.price !== '' ? Number(b.price) : e.price),
+    oldPrice: b.oldPrice !== undefined ? Number(b.oldPrice) || 0 : e.oldPrice, free,
+    status: b.status ? (b.status === 'Draft' ? 'Draft' : 'Active') : (e.status || 'Active'),
+    emoji: b.emoji || e.emoji, desc: pick('desc'), downloadLink: pick('downloadLink'), imageUrl: pick('imageUrl'),
+    trailerUrl: pick('trailerUrl'), category: b.category || e.category || 'Zote', section: b.section || e.section || 'shop',
+    accountUser: pick('accountUser'), accountPassword: pick('accountPassword'),
+    links: b.links !== undefined ? cleanLinks(b.links) : (e.links || []),
+    codes: newCodes.length ? [...(e.codes || []), ...newCodes] : (e.codes || []),
+    usesCodes: !!e.usesCodes || newCodes.length > 0, file: newFile };
+  const saved = await writeJson('products.json', products);
+  res.json({ success: true, product: pubProduct(products[req.params.id]), persistent: saved.cloud !== false });
+});
+
+//#BLOCK delete_products
+app.delete('/api/products/:id', async (req, res) => {
+  const user = getUserByToken(req);
+  if (!user || !user.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const products = readJson('products.json', {});
+  const old = products[req.params.id];
+  if (old && old.file && supabase) await supabase.storage.from(GAMES_BUCKET).remove([old.file.path]).catch(() => {});
+  delete products[req.params.id];
+  await writeJson('products.json', products);
+  res.json({ success: true });
+});
+
+//#BLOCK public_chat
+app.post('/api/public-chat/messages', async (req, res) => {
+  const ip = getIP(req);
+  if (!publicChatAllowed(ip)) return res.status(429).json({ error: 'Tafadhali subiri sekunde chache kabla ya kutuma ujumbe mwingine.' });
+  const name = cleanPublicText(req.body?.name, 32) || 'Mgeni';
+  const message = cleanPublicText(req.body?.message, 500);
+  if (!message) return res.status(400).json({ error: 'Andika ujumbe kwanza.' });
+  const wantsAI = /^@ai\b/i.test(message);
+  if (wantsAI && !aiHit(ip)) return res.status(429).json({ error: 'AI imechoka kidogo — jaribu tena baada ya dakika moja.' });
+  const messages = readJson('public_chat.json', []);
+  const row = { id: 'chat_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex'), name, message, time: new Date().toISOString() };
+  messages.push(row);
+  if (wantsAI) {
+    const q = message.replace(/^@ai\b[\s,:]*/i, '').slice(0, 500) || 'Habari';
+    const recent = messages.slice(-7, -1).map(m => m.name + ': ' + String(m.message).slice(0, 150)).join('\n');
+    const prompt = `Wewe ni "AI", msaidizi ndani ya chat ya jamii ya LIFEISGAMETZ (Tanzania).
+Jibu swali lolote kwa usahihi, liwe la gaming au la (elimu, teknolojia, maisha, n.k.).
+Jibu kwa lugha aliyotumia muulizaji, kwa ufupi (sentensi 2-6).
+Kama hujui au huna uhakika, sema hivyo wazi — usibuni majibu.
+Kwa mambo ya afya, sheria au fedha toa taarifa za jumla pamoja na tahadhari.
+Kataa kwa heshima maombi hatari au haramu.
+Mazungumzo ya karibuni (kwa muktadha tu):
+${recent}
+Swali la ${name}: ${q}`;
+    const reply = await askAI(prompt, process.env.NEXUS_COMMUNITY_PROVIDER);
+    messages.push({ id: 'chat_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex'), name: 'AI 🤖', message: String(reply).replace(/<[^>]*>/g, '').trim().slice(0, 1500), isAi: true, time: new Date().toISOString() });
+  }
+  await writeJson('public_chat.json', messages.slice(-300));
+  res.json({ success: true, message: row });
+});
+
+//#BLOCK tournaments
+app.get('/api/tournaments', (req, res) => {
+  const u = getUserByToken(req);
+  const data = readJson('tournaments.json', []);
+  res.json({ success: true, tournaments: data.map(t => (u && u.isAdmin) ? t : { ...t, registrations: (t.registrations || []).map(() => ({})) }) });
+});
+
+//#BLOCK clickpesa_vars
+const { phone, name } = req.body;
+    const priced = priceItems(req.body.items);
+    if (priced.soldOut.length) return res.status(400).json({ error: 'Zimeisha stock: ' + priced.soldOut.join(', ') });
+    if (!priced.items.length) return res.status(400).json({ error: 'Kikapu ni tupu' });
+    let cp; try { cp = applyCoupon(priced.total, req.body.coupon); } catch (e) { return res.status(400).json({ error: e.message }); }
+    const items = priced.items, total = cp.total;
+
+//#BLOCK manual_vars
+const { txRef, phone } = req.body;
+  const priced = priceItems(req.body.items);
+  if (priced.soldOut.length) return res.status(400).json({ error: 'Zimeisha stock: ' + priced.soldOut.join(', ') });
+  if (!priced.items.length) return res.status(400).json({ error: 'Kikapu ni tupu' });
+  let cp; try { cp = applyCoupon(priced.total, req.body.coupon); } catch (e) { return res.status(400).json({ error: e.message }); }
+  const items = priced.items, total = cp.total;
+
+//#BLOCK routes
+// ═══════════ LIFEISGAMETZ — njia mpya ═══════════
+app.get('/api/my-library', (req, res) => {
+  const user = getUserByToken(req);
+  if (!user) return res.status(401).json({ error: 'Ingia kwanza' });
+  const products = readJson('products.json', {});
+  const mine = readJson('orders.json', []).filter(o => o.customer === user.email && o.status === 'successful');
+  const ids = new Set(), delivered = [];
+  mine.forEach(o => { (o.items || []).forEach(i => { if (i.id) ids.add(i.id); }); (o.delivered || []).forEach(d => delivered.push(d)); });
+  res.json({ success: true, delivered, products: [...ids].map(id => products[id]).filter(Boolean).map(pubProduct) });
+});
+
+app.post('/api/coupons/preview', (req, res) => {
+  const coupons = readJson('coupons.json', {});
+  const c = coupons[String(req.body.code || '').trim().toUpperCase()];
+  if (!c || !c.active || (c.maxUses && c.uses >= c.maxUses)) return res.status(404).json({ error: 'Kodi si sahihi au imeisha' });
+  res.json({ success: true, code: c.code, percentOff: Math.min(90, Math.max(1, Number(c.percentOff) || 0)) });
+});
+
+app.post('/api/ai/game-advisor', aiLimit, async (req, res) => {
+  const b = req.body || {};
+  const msg = String(b.message || '').trim().slice(0, 1000);
+  if (!msg) return res.status(400).json({ error: 'Andika swali.' });
+  const platform = String(b.platform || 'Gaming').slice(0, 40);
+  const game = String(b.game || '').slice(0, 120);
+  const d = b.device || {};
+  const device = ['type', 'specs', 'ram', 'storage'].map(k => k + ': ' + (String(d[k] || '').trim().slice(0, 120) || 'haijatajwa')).join('; ');
+  const list = Object.values(readJson('products.json', {}))
+    .filter(p => p.status !== 'Draft' && (!b.platform || platform === 'Store' || String(p.platform || p.type || '').toLowerCase() === platform.toLowerCase()))
+    .slice(0, 25).map(p => '• ' + p.name + (p.desc ? ' — ' + String(p.desc).slice(0, 100) : '')).join('\n') || 'Hakuna bidhaa bado.';
+  const transcript = (Array.isArray(b.history) ? b.history : []).slice(-6).map(h => (h.role === 'user' ? 'Mteja: ' : 'Advisor: ') + String(h.text).slice(0, 300)).join('\n');
+  const prompt = `Wewe ni "Game Advisor", mtaalamu wa gaming kwa kategoria ya ${platform} katika duka la LIFEISGAMETZ (Tanzania).
+Kazi yako: kumsaidia mteja kujua KABLA YA KUNUNUA kama game litacheza kwenye kifaa chake (simu au PC), na kumpa settings bora.
+KANUNI:
+1. Tumia specs alizotoa mteja. Kama hazitoshi (chipset/CPU/GPU/RAM havijatajwa), uliza kwa ufupi — usibuni.
+2. Toa uamuzi wazi: "Litacheza vizuri", "Litacheza kwa settings za chini" au "Sidhani litacheza" — na sababu fupi (RAM, GPU/chipset, nafasi ya storage, joto na betri kwa simu).
+3. Toa settings zinazopendekezwa (resolution, graphics, FPS, vitu vya kuzima). Kwa simu ongeza vidokezo vya joto na betri.
+4. Kama huna uhakika na mahitaji rasmi ya game fulani, sema wazi na umshauri aangalie mahitaji rasmi (Steam, Play Store au mchapishaji). USIBUNI namba za mahitaji.
+5. Kumbuka game nyingi za PC/console hazichezwi moja kwa moja kwenye simu (zinahitaji emulator, Winlator au cloud) — sema ukweli huo.
+6. Jibu kwa Kiswahili (au lugha ya mteja), kwa ufupi, kwa orodha fupi inapofaa.
+Kifaa cha mteja: ${device}
+${game ? 'Game analotaka kujua: ' + game : 'Hajataja game maalum.'}
+Bidhaa za kategoria hii dukani:
+${list}
+Mazungumzo ya awali:
+${transcript}
+Swali la mteja: ${msg}`;
+  const reply = await askAI(prompt, process.env.NEXUS_GAME_PROVIDER);
+  res.json({ reply });
+});
+
+app.post('/api/admin/game-files/sign', async (req, res) => {
+  const user = getUserByToken(req);
+  if (!user || (!user.isAdmin && !user.isStaff)) return res.status(403).json({ error: 'Huna ruhusa' });
+  if (!supabase) return res.status(503).json({ error: 'Supabase haijawekwa' });
+  const name = String(req.body?.filename || '').slice(0, 200);
+  if (!GAME_EXT.test(name)) return res.status(400).json({ error: 'Aina ya faili hairuhusiwi (tumia APK, ZIP, RAR, 7Z, ISO, EXE...)' });
+  const safe = name.replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100);
+  const path = 'games/' + Date.now() + '-' + crypto.randomBytes(4).toString('hex') + '-' + safe;
+  const { data, error } = await supabase.storage.from(GAMES_BUCKET).createSignedUploadUrl(path);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true, bucket: GAMES_BUCKET, path, token: data.token });
+});
+
+app.get('/api/download/:id', async (req, res) => {
+  const user = getUserByToken(req);
+  if (!user) return res.status(401).json({ error: 'Ingia kwanza' });
+  if (!supabase) return res.status(503).json({ error: 'Supabase haijawekwa' });
+  const p = readJson('products.json', {})[req.params.id];
+  if (!p || !p.file || p.status === 'Draft') return res.status(404).json({ error: 'Faili halipo' });
+  let allowed = p.free || user.isAdmin || user.isStaff;
+  if (!allowed) allowed = readJson('orders.json', []).some(o => o.customer === user.email && o.status === 'successful' && (o.items || []).some(i => i.id === p.id));
+  if (!allowed) return res.status(403).json({ error: 'Hujanunua game hii' });
+  const { data, error } = await supabase.storage.from(GAMES_BUCKET).createSignedUrl(p.file.path, 600, { download: p.file.name });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ success: true, url: data.signedUrl });
+});
+

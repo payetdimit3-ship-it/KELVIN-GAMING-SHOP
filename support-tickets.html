@@ -1,47 +1,100 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Support Tickets.Html</title><meta http-equiv="refresh" content="0;url=admn support.html">
-<script>location.replace('admn support.html' + location.search + location.hash);</script>
-<style>body{font-family:system-ui;background:#0b1020;color:#e8ecff;display:grid;place-items:center;min-height:100vh}a{color:#7dd3fc}</style></head>
-<body><p>Opening <a href="admn support.html">Support Tickets.Html</a>…</p>
-<script id="lifeisgametz-navigation-repair">
-(function () {
-  function initNavigationRepair() {
-    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
-    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
-              document.querySelector('nav');
-    toggles.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!nav) {
-          window.location.href = 'index.html';
-          return;
-        }
-        nav.classList.toggle('lifeisgametz-mobile-nav-open');
-        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
-        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
-        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
-        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
-        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
-        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
-        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
-        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav) {
-        nav.classList.remove('lifeisgametz-mobile-nav-open');
-        nav.style.display = '';
-        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
-        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
-      }
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
-  else initNavigationRepair();
-})();
-</script>
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Admin · Support Tickets - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
 
-</body></html>
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Admin · Support Tickets
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'support-tickets.html',
+      pg: 'admin',
+      p: 'tickets',
+      admin: 1
+    }, function (a, q, A, pg) {
+      return '<h1>Support Tickets</h1><p class="sub">'
+        + 'Maombi ya msaada kutoka kwa wateja ('
+        + db.tix.length
+        + ')</p><div class="panel">'
+        + (
+          db.tix.length
+            ? '<div class="tw"><table><tr><th>Mteja'
+              + '</th><th>Aina</th><th>Ujumbe</th><th>'
+              + 'Tarehe</th><th>Hali</th><th></th></tr>'
+              + db.tix.map(function (t, i) {
+                return '<tr><td>'
+                  + esc(t.name)
+                  + '<br><small class="sub">'
+                  + esc(t.contact || t.user)
+                  + '</small></td><td>'
+                  + esc(t.category)
+                  + (
+                    t.orderRef
+                      ? '<br><small class="sub">'
+                        + esc(t.orderRef)
+                        + '</small>'
+                      : ''
+                  )
+                  + '</td><td>'
+                  + esc(t.message)
+                  + '</td><td>'
+                  + new Date(t.createdAt).toLocaleDateString()
+                  + '</td><td><span class="pill '
+                  + (t.status === 'open' ? 'off1' : 'on1')
+                  + '">'
+                  + esc(t.status)
+                  + '</span></td><td class="row"><button '
+                  + 'class="btn o" onclick="resTicket('
+                  + i
+                  + ')">'
+                  + (
+                    t.status === 'open' ? 'Resolve' : 'Reopen'
+                  )
+                  + '</button><button class="btn d" '
+                  + 'onclick="delTicket('
+                  + i
+                  + ')">Futa</button></td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">Hakuna tiketi bado.</div>'
+        )
+        + '</div>';
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Admin · Withdraw Requests - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Admin · Withdraw Requests
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'withdraw-requests.html',
+      pg: 'admin',
+      p: 'withdrawals',
+      admin: 1
+    }, function (a, q, A, pg) {
+      var pend = db.wd.filter(function (w) {
+        return w.status === 'pending';
+      }),
+        hist = db.wd.filter(function (w) {
+          return w.status !== 'pending';
+        });
+      return '<h1>Withdraw Requests</h1>'
+        + '<p class="sub">Maombi ya wauzaji wa '
+        + 'Squad kutolewa pesa. Lipa mwenyewe kwa '
+        + 'mobile money, kisha bonyeza "Nimelipa" '
+        + 'na uweke namba ya muamala.</p><h2>'
+        + 'Yanayosubiri ('
+        + pend.length
+        + ')</h2>'
+        + (
+          pend.length
+            ? pend.map(function (w) {
+              var i = db.wd.indexOf(w);
+              return '<div class="panel"><div class="row sp" '
+                + 'style="flex-wrap:wrap"><div><b>'
+                + tsh(w.amount)
+                + '</b> <span class="tag">'
+                + esc(w.method)
+                + '</span>'
+                + '<div class="sub" style="margin:0">'
+                + esc(w.sellerName)
+                + ' · '
+                + esc(w.seller)
+                + '</div><div style="margin-top:6px">'
+                + 'Namba: <b>'
+                + esc(w.phone)
+                + '</b> · Jina: <b>'
+                + esc(w.name)
+                + '</b></div><small class="sub">'
+                + new Date(w.createdAt).toLocaleString()
+                + '</small></div>'
+                + '<div class="row" style="flex-wrap:wrap">'
+                + '<button class="btn" onclick="decideWd('
+                + i
+                + ',\'paid\')">Nimelipa</button>'
+                + '<button class="btn d" onclick="decideWd('
+                + i
+                + ',\'rejected\')">Kataa</button></div>'
+                + '</div></div>';
+            }).join('')
+            : '<div class="empty">'
+              + 'Hakuna maombi yanayosubiri.</div>'
+        )
+        + '<h2>Salio la wauzaji</h2>'
+        + '<div class="panel">'
+        + (
+          db.wbal.length
+            ? '<div class="tw"><table><tr><th>Muuzaji'
+              + '</th><th>Yanapatikana</th><th>Yanasubiri'
+              + '</th><th>Yanayosubiri kutolewa</th><th>'
+              + 'Yaliyolipwa</th></tr>'
+              + db.wbal.map(function (x) {
+                return '<tr><td>'
+                  + esc(x.name)
+                  + '<br><small class="sub">'
+                  + esc(x.seller)
+                  + '</small></td><td>'
+                  + tsh(x.available)
+                  + '</td><td>'
+                  + tsh(x.held)
+                  + '</td><td>'
+                  + tsh(x.pending)
+                  + '</td><td>'
+                  + tsh(x.paid)
+                  + '</td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">'
+              + 'Bado hakuna mauzo ya vikosi vya wauzaji.'
+              + '</div>'
+        )
+        + '</div><h2>Historia</h2>'
+        + '<div class="panel">'
+        + (
+          hist.length
+            ? '<div class="tw"><table><tr><th>Tarehe'
+              + '</th><th>Muuzaji</th><th>Kiasi</th><th>'
+              + 'Hali</th></tr>'
+              + hist.map(function (w) {
+                return '<tr><td>'
+                  + new Date(
+                    w.decidedAt || w.createdAt
+                  ).toLocaleDateString()
+                  + '</td><td>'
+                  + esc(w.sellerName)
+                  + '</td><td>'
+                  + tsh(w.amount)
+                  + '</td><td><span class="pill '
+                  + (w.status === 'paid' ? 'on1' : 'off1')
+                  + '">'
+                  + esc(w.status)
+                  + '</span>'
+                  + (
+                    w.ref
+                      ? '<br><small class="sub">'
+                        + esc(w.ref)
+                        + '</small>'
+                      : ''
+                  )
+                  + (
+                    w.note
+                      ? '<br><small class="sub">'
+                        + esc(w.note)
+                        + '</small>'
+                      : ''
+                  )
+                  + '</td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">Bado.</div>'
+        )
+        + '</div>';
+    });
+  </script>
+
+</body>
+</html>

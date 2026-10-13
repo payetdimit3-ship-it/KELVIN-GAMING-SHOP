@@ -48,6 +48,9 @@
     }, function (a, q, A, pg) {
       return '<h1>Orders</h1><p class="sub">'
         + 'Oda zote za wateja</p>'
+        + '<div style="margin-bottom:10px"><button '
+        + 'class="btn o" onclick="exportOrders()">'
+        + '⬇ Export CSV</button></div>'
         + '<div class="panel">'
         + (
           db.orders.length

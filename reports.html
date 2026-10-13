@@ -1,47 +1,145 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Reports.Html</title><meta http-equiv="refresh" content="0;url=sports tv.html">
-<script>location.replace('sports tv.html' + location.search + location.hash);</script>
-<style>body{font-family:system-ui;background:#0b1020;color:#e8ecff;display:grid;place-items:center;min-height:100vh}a{color:#7dd3fc}</style></head>
-<body><p>Opening <a href="sports tv.html">Reports.Html</a>…</p>
-<script id="lifeisgametz-navigation-repair">
-(function () {
-  function initNavigationRepair() {
-    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
-    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
-              document.querySelector('nav');
-    toggles.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!nav) {
-          window.location.href = 'index.html';
-          return;
-        }
-        nav.classList.toggle('lifeisgametz-mobile-nav-open');
-        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
-        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
-        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
-        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
-        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
-        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
-        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
-        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav) {
-        nav.classList.remove('lifeisgametz-mobile-nav-open');
-        nav.style.display = '';
-        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
-        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
-      }
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
-  else initNavigationRepair();
-})();
-</script>
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Admin · Reports - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
 
-</body></html>
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Admin · Reports
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'reports.html',
+      pg: 'admin',
+      p: 'reports',
+      admin: 1
+    }, function (a, q, A, pg) {
+      var all = rptList(),
+        done = all.filter(function (o) {
+          return o.status === 'Completed';
+        }),
+        rev = done.reduce(function (s, o) {
+          return s + o.total;
+        }, 0),
+        days = {},
+        prods = {};
+      done.forEach(function (o) {
+        var d = String(o.iso || '').slice(0, 10);
+        days[d] = (days[d] || 0) + o.total;
+        o.items.forEach(function (n) {
+          prods[n] = (prods[n] || 0) + 1;
+        });
+      });
+      var dk = Object.keys(days).sort().reverse(),
+        pk = Object.keys(prods).sort(function (a, b) {
+          return prods[b] - prods[a];
+        }).slice(0, 10),
+        pend = all.filter(function (o) {
+          return o.status === 'Pending';
+        }).length,
+        fail = all.filter(function (o) {
+          return o.status === 'Failed';
+        }).length;
+      return '<h1>Reports</h1><p class="sub">'
+        + 'Ripoti ya mauzo kwa kipindi unachochagua'
+        + '</p><div class="panel">'
+        + '<div class="row" style="flex-wrap:wrap">'
+        + '<label>Kuanzia'
+        + '<input type="date" id="rfrom" value="'
+        + esc(rpt.from)
+        + '" onchange="setRange()"></label><label>'
+        + 'Hadi<input type="date" id="rto" value="'
+        + esc(rpt.to)
+        + '" onchange="setRange()"></label><button '
+        + 'class="btn o" '
+        + 'onclick="exportOrders(rptList())">'
+        + '⬇ Export CSV</button></div></div><div '
+        + 'class="stats" style="margin-top:14px">'
+        + '<div class="stat"><b>'
+        + tsh(rev)
+        + '</b><span>Mapato (Completed)</span>'
+        + '</div><div class="stat"><b>'
+        + done.length
+        + '</b><span>Oda zilizokamilika</span>'
+        + '</div><div class="stat"><b>'
+        + tsh(done.length ? Math.round(rev / done.length) : 0)
+        + '</b><span>Wastani kwa oda</span></div>'
+        + '<div class="stat"><b>'
+        + pend
+        + '</b><span>Pending</span></div>'
+        + '<div class="stat"><b>'
+        + fail
+        + '</b><span>Failed</span></div></div>'
+        + '<div class="panel">'
+        + '<h2 style="margin-top:0">Mapato kwa siku'
+        + '</h2>'
+        + (
+          dk.length
+            ? '<div class="tw"><table><tr><th>Tarehe'
+              + '</th><th>Mapato</th></tr>'
+              + dk.map(function (d) {
+                return '<tr><td>'
+                  + esc(d)
+                  + '</td><td>'
+                  + tsh(days[d])
+                  + '</td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">'
+              + 'Hakuna mauzo kwenye kipindi hiki.</div>'
+        )
+        + '</div><div class="panel">'
+        + '<h2 style="margin-top:0">'
+        + 'Bidhaa zinazouzwa zaidi</h2>'
+        + (
+          pk.length
+            ? '<div class="tw"><table><tr><th>Bidhaa'
+              + '</th><th>Idadi ya oda</th></tr>'
+              + pk.map(function (n) {
+                return '<tr><td>'
+                  + esc(n)
+                  + '</td><td>'
+                  + prods[n]
+                  + '</td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">Bado.</div>'
+        )
+        + '</div>';
+    });
+  </script>
+
+</body>
+</html>

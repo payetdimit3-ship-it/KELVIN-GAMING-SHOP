@@ -1,0 +1,228 @@
+//#BLOCK helpers
+/* LGZ-PATCH v2 — squads salama, biashara/washirika, AI mwalimu */
+// Usimbaji wa credentials (AES-256-GCM). Weka SQUAD_KEY (herufi ndefu za siri) kwenye Render na uihifadhi mahali salama.
+const SQUAD_KEY = process.env.SQUAD_KEY ? crypto.createHash('sha256').update(process.env.SQUAD_KEY).digest() : null;
+function enc(text) {
+  if (!SQUAD_KEY) throw new Error('SQUAD_KEY haijawekwa kwenye Render — squads haziwezi kuhifadhiwa kwa usalama.');
+  const iv = crypto.randomBytes(12), c = crypto.createCipheriv('aes-256-gcm', SQUAD_KEY, iv);
+  const e = Buffer.concat([c.update(String(text), 'utf8'), c.final()]);
+  return 'ENC:' + Buffer.concat([iv, c.getAuthTag(), e]).toString('base64');
+}
+function dec(s) {
+  if (typeof s !== 'string' || !s.startsWith('ENC:')) return s;
+  if (!SQUAD_KEY) return null;
+  try {
+    const b = Buffer.from(s.slice(4), 'base64'), d = crypto.createDecipheriv('aes-256-gcm', SQUAD_KEY, b.subarray(0, 12));
+    d.setAuthTag(b.subarray(12, 28));
+    return Buffer.concat([d.update(b.subarray(28)), d.final()]).toString('utf8');
+  } catch (e) { return null; }
+}
+function reserveUnique(items, ref, minutes) {
+  const products = readJson('products.json', {}); let ch = false;
+  for (const i of items || []) { const p = products[i.id]; if (p && p.unique) { p.reservation = { ref, until: Date.now() + minutes * 60000 }; ch = true; } }
+  if (ch) writeJson('products.json', products);
+}
+function releaseReserved(ref) {
+  const products = readJson('products.json', {}); let ch = false;
+  Object.values(products).forEach(p => { if (p.reservation && p.reservation.ref === ref) { p.reservation = null; ch = true; } });
+  if (ch) writeJson('products.json', products);
+}
+const imgUrls = a => (Array.isArray(a) ? a : []).map(x => String(x).trim()).filter(x => /^https?:\/\//i.test(x)).slice(0, 6).map(x => x.slice(0, 1000));
+const clip = (v, n) => String(v == null ? '' : v).replace(/<[^>]*>/g, '').trim().slice(0, n);
+function publishSquad(s, email, password) {
+  const products = readJson('products.json', {});
+  const id = 'sq' + Date.now() + crypto.randomBytes(2).toString('hex');
+  products[id] = { id, name: s.title, type: 'eFootball Squad', platform: 'Android', category: 'eFootball Squad', section: 'shop',
+    price: s.price, oldPrice: 0, free: false, status: 'Active', emoji: '⚽', desc: s.desc, imageUrl: (s.proofs || [])[0] || '',
+    proofs: s.proofs || [], stats: s.stats || '', unique: true, usesCodes: true, reservation: null, squadId: s.id,
+    codes: [enc('Gmail: ' + email + '\nPassword: ' + password)], links: [], downloadLink: '', trailerUrl: '', accountUser: '', accountPassword: '', file: null };
+  writeJson('products.json', products);
+  return id;
+}
+const inqRate = new Map();
+function inqAllowed(ip) {
+  const now = Date.now(), a = (inqRate.get(ip) || []).filter(t => now - t < 3600000);
+  if (a.length >= 3) return false;
+  a.push(now); inqRate.set(ip, a); return true;
+}
+
+//#BLOCK routes
+// ═══════════ LIFEISGAMETZ v2 — squads, biashara, AI mwalimu ═══════════
+// --- eFootball Squads: muuzaji anawasilisha, admin anakagua na kuchukua umiliki, kisha live ---
+app.post('/api/squads/submit', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u) return res.status(401).json({ error: 'Ingia kwanza' });
+  const b = req.body || {};
+  const title = clip(b.title, 120), price = Math.round(Number(b.price) || 0), email = clip(b.email, 120), password = String(b.password || '').slice(0, 200);
+  if (title.length < 3 || price < 1000) return res.status(400).json({ error: 'Weka jina na bei (kuanzia 1,000)' });
+  if (!/^\S+@\S+\.\S+$/.test(email) || !password) return res.status(400).json({ error: 'Weka Gmail na password ya akaunti' });
+  const squads = readJson('squads.json', []);
+  if (squads.filter(s => s.seller === u.email && s.status === 'pending_review').length >= 5) return res.status(429).json({ error: 'Una maombi 5 yanayosubiri ukaguzi tayari' });
+  let cred; try { cred = enc(JSON.stringify({ email, password })); } catch (e) { return res.status(503).json({ error: e.message }); }
+  const s = { id: 'sq_' + Date.now() + crypto.randomBytes(2).toString('hex'), seller: u.email, sellerName: u.name, sellerPhone: u.phone || '', title, price,
+    desc: clip(b.desc, 2000), stats: clip(b.stats, 200), proofs: imgUrls(b.proofs), cred, status: 'pending_review', createdAt: new Date().toISOString() };
+  squads.push(s);
+  await writeJson('squads.json', squads);
+  logSecurity('SQUAD_SUBMITTED', 'Kikosi kipya kimewasilishwa na ' + u.email, 'LOW', getIP(req));
+  res.json({ success: true, id: s.id });
+});
+app.get('/api/squads/mine', (req, res) => {
+  const u = getUserByToken(req);
+  if (!u) return res.status(401).json({ error: 'Ingia kwanza' });
+  res.json({ success: true, squads: readJson('squads.json', []).filter(s => s.seller === u.email).map(s => ({ id: s.id, title: s.title, price: s.price, status: s.status, note: s.note || '', productId: s.productId || '', createdAt: s.createdAt })).reverse() });
+});
+app.get('/api/admin/squads', (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  res.json({ success: true, squads: readJson('squads.json', []).map(s => ({ id: s.id, title: s.title, price: s.price, desc: s.desc, stats: s.stats, proofs: s.proofs || [], status: s.status, note: s.note || '', sellerName: s.sellerName, sellerEmail: s.seller, sellerPhone: s.sellerPhone, createdAt: s.createdAt, productId: s.productId || '' })).reverse() });
+});
+app.get('/api/admin/squads/:id/reveal', (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const s = readJson('squads.json', []).find(x => x.id === req.params.id);
+  if (!s || !s.cred) return res.status(404).json({ error: 'Hakuna credentials (tayari zimefutwa au kikosi hakipo)' });
+  const c = dec(s.cred); if (!c) return res.status(500).json({ error: 'Imeshindwa kufungua (SQUAD_KEY si sahihi?)' });
+  logSecurity('SQUAD_CRED_REVEALED', 'Admin ' + u.email + ' alifungua credentials za ' + s.id, 'MEDIUM', getIP(req));
+  res.json({ success: true, ...JSON.parse(c) });
+});
+app.post('/api/admin/squads/:id/secure', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const b = req.body || {}, ck = b.checklist || {};
+  if (!(ck.a && ck.b && ck.c && ck.d)) return res.status(400).json({ error: 'Kamilisha hatua zote nne za ukaguzi kwanza' });
+  const email = clip(b.email, 120), password = String(b.password || '').slice(0, 200);
+  if (!/^\S+@\S+\.\S+$/.test(email) || password.length < 8) return res.status(400).json({ error: 'Weka Gmail na password mpya (herufi 8+)' });
+  const squads = readJson('squads.json', []), s = squads.find(x => x.id === req.params.id);
+  if (!s || s.status !== 'pending_review') return res.status(404).json({ error: 'Kikosi hakipo au kimeshashughulikiwa' });
+  let pid; try { pid = publishSquad(s, email, password); } catch (e) { return res.status(503).json({ error: e.message }); }
+  s.status = 'live'; s.productId = pid; s.cred = null; s.securedAt = new Date().toISOString(); s.securedBy = u.email;
+  await writeJson('squads.json', squads);
+  logSecurity('SQUAD_SECURED', 'Kikosi ' + s.id + ' kimewekwa live na ' + u.email, 'LOW', getIP(req));
+  res.json({ success: true, productId: pid });
+});
+app.post('/api/admin/squads/:id/reject', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const squads = readJson('squads.json', []), s = squads.find(x => x.id === req.params.id);
+  if (!s || s.status !== 'pending_review') return res.status(404).json({ error: 'Kikosi hakipo au kimeshashughulikiwa' });
+  s.status = 'rejected'; s.note = clip(req.body?.note, 300); s.cred = null;
+  await writeJson('squads.json', squads);
+  res.json({ success: true });
+});
+app.post('/api/admin/squads/create', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const b = req.body || {}, title = clip(b.title, 120), price = Math.round(Number(b.price) || 0), email = clip(b.email, 120), password = String(b.password || '').slice(0, 200);
+  if (title.length < 3 || price < 1000 || !/^\S+@\S+\.\S+$/.test(email) || !password) return res.status(400).json({ error: 'Jaza jina, bei, Gmail na password' });
+  const s = { id: 'sq_' + Date.now() + crypto.randomBytes(2).toString('hex'), seller: u.email, sellerName: u.name, sellerPhone: u.phone || '', title, price, desc: clip(b.desc, 2000), stats: clip(b.stats, 200), proofs: imgUrls(b.proofs), status: 'live', createdAt: new Date().toISOString() };
+  try { s.productId = publishSquad(s, email, password); } catch (e) { return res.status(503).json({ error: e.message }); }
+  const squads = readJson('squads.json', []); squads.push(s);
+  await writeJson('squads.json', squads);
+  res.json({ success: true, productId: s.productId });
+});
+app.post('/api/admin/squads/:id/ai-review', aiLimit, async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const s = readJson('squads.json', []).find(x => x.id === req.params.id);
+  if (!s) return res.status(404).json({ error: 'Kikosi hakipo' });
+  const prompt = `Wewe ni mkaguzi wa hatari (anti-scam) wa soko la akaunti za eFootball la LIFEISGAMETZ. Hupewi password yoyote.
+Kagua maombi haya ya muuzaji na toa: (1) alama za hatari/utapeli, (2) maswali 4-6 ya kumuuliza muuzaji, (3) vitu vya kuthibitisha unapoingia kwenye akaunti (mfano jina la kikosi, wachezaji, coins, kama imeunganishwa na Konami ID/Google/Facebook/Apple, historia ya kubadilishwa), (4) pendekezo: Kubali / Omba ushahidi zaidi / Kataa. Kuwa mfupi, kwa Kiswahili. USIBUNI ukweli kuhusu akaunti — ni maelezo ya muuzaji tu.
+Jina: ${s.title}
+Bei: ${s.price} TZS
+Muhtasari: ${s.stats}
+Maelezo: ${s.desc}
+Idadi ya picha za ushahidi: ${(s.proofs || []).length}
+Akaunti ya muuzaji kwenye duka letu: ${s.sellerName} (iliundwa na ana simu: ${s.sellerPhone ? 'ndiyo' : 'hapana'})`;
+  res.json({ reply: await askAI(prompt, process.env.NEXUS_GAME_PROVIDER) });
+});
+app.post('/api/ai/squad', aiLimit, async (req, res) => {
+  const b = req.body || {}, msg = clip(b.message, 1000);
+  if (!msg) return res.status(400).json({ error: 'Andika swali.' });
+  const transcript = (Array.isArray(b.history) ? b.history : []).slice(-6).map(h => (h.role === 'user' ? 'Mteja: ' : 'Msaidizi: ') + String(h.text).slice(0, 300)).join('\n');
+  const prompt = `Wewe ni msaidizi wa Soko la Vikosi vya eFootball la LIFEISGAMETZ (Tanzania).
+Jinsi mfumo wetu unavyofanya kazi:
+- Muuzaji anawasilisha kikosi (picha za ushahidi, maelezo na akaunti). Credentials zinahifadhiwa kwa usimbaji (encrypted).
+- Admin anakagua, anaingia kwenye akaunti, anathibitisha kikosi, anabadilisha password, anaondoa recovery ya muuzaji na kuweka akaunti chini ya umiliki wa duka KABLA kikosi hakijawekwa live. Muuzaji hawezi kuingia tena.
+- Mnunuzi analipa kupitia duka tu (ClickPesa au Manual). Malipo yakithibitishwa, mfumo unamwonyesha Gmail na password kwenye Library yake. Anaweza kuendelea kutumia Gmail hiyo au kuweka yake mwenyewe (kubadilisha password, recovery na kuunganisha Konami ID/Google yake).
+- Kikosi kimoja kinaweza kuuzwa mara moja tu.
+Kanuni zako:
+1. Kuwa mkweli: hakuna dhamana ya 100%. Masharti ya Konami na Google yanaweza kukataza kuhamisha akaunti, na akaunti inaweza kufungwa. Taja hatari hii kwa ufupi pale inapofaa.
+2. USIWAHI kumwomba mtu aandike password kwenye chat. Mshauri asilipe nje ya duka wala kutuma pesa kwa muuzaji moja kwa moja.
+3. Kwa mnunuzi: eleza hatua za kwanza baada ya kupokea akaunti (ingia, badilisha password, weka recovery yako, toa devices zingine, unganisha ID yako, angalia kikosi).
+4. Kwa muuzaji: eleza jinsi ya kuwasilisha, ushahidi unaohitajika (screenshots za kikosi, coins, na wachezaji), na kwamba atapoteza ufikiaji baada ya ukaguzi.
+5. Jibu kwa Kiswahili (au lugha ya mteja), kwa ufupi.
+Mazungumzo ya awali:
+${transcript}
+Swali: ${msg}`;
+  res.json({ reply: await askAI(prompt, process.env.NEXUS_GAME_PROVIDER) });
+});
+
+// --- Biashara na Washirika ---
+app.post('/api/business-inquiry', async (req, res) => {
+  const ip = getIP(req);
+  if (!inqAllowed(ip)) return res.status(429).json({ error: 'Umetuma maombi mengi. Jaribu tena baadaye.' });
+  const b = req.body || {};
+  const row = { id: 'inq_' + Date.now() + crypto.randomBytes(2).toString('hex'), company: clip(b.company, 120), contact: clip(b.contact, 80), phone: clip(b.phone, 30), email: clip(b.email, 120), website: clip(b.website, 200), budget: clip(b.budget, 60), message: clip(b.message, 1500), status: 'new', createdAt: new Date().toISOString() };
+  if (!row.company || (!row.phone && !row.email)) return res.status(400).json({ error: 'Weka jina la biashara na simu au email' });
+  const list = readJson('inquiries.json', []); list.push(row);
+  await writeJson('inquiries.json', list.slice(-500));
+  res.json({ success: true, message: 'Ombi limepokelewa. Tutawasiliana nawe.' });
+});
+app.get('/api/admin/inquiries', (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  res.json({ success: true, inquiries: readJson('inquiries.json', []).slice().reverse() });
+});
+app.delete('/api/admin/inquiries/:id', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  await writeJson('inquiries.json', readJson('inquiries.json', []).filter(x => x.id !== req.params.id));
+  res.json({ success: true });
+});
+app.post('/api/ai/partner', aiLimit, async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const b = req.body || {}, msg = clip(b.message, 1500), mode = ['find', 'proposal', 'outreach', 'packages', 'vet'].includes(b.mode) ? b.mode : 'find';
+  if (!msg) return res.status(400).json({ error: 'Andika swali au maelezo.' });
+  const orders = readJson('orders.json', []), users = Object.keys(readJson('users.json', {})).length, prods = Object.keys(readJson('products.json', {})).length;
+  const inq = readJson('inquiries.json', []).slice(-5).map(x => x.company).join(', ') || 'hakuna';
+  const task = {
+    find: 'Pendekeza AINA 8-10 za washirika/kampuni zinazofaa kwa duka la gaming na burudani la kidigitali Tanzania (mfano: watoa huduma za pesa za simu, mitandao ya simu na vifurushi vya data, internet cafes na gaming centers, waandaaji wa esports na tournaments, wauzaji wa simu na vifaa vya gaming, chapa za vinywaji na bidhaa za vijana, vyuo na tech hubs, wasanii na streamers). Kwa kila aina: kwa nini inafaa, unaweza kuwapa nini, wanaweza kukupa nini, na jinsi ya kuwafikia rasmi. USIBUNI majina ya kampuni, namba au barua pepe; ukitaja chapa maarufu, sema athibitishe mawasiliano rasmi mwenyewe.',
+    proposal: 'Andika proposal kamili ya ushirikiano (muhtasari, tatizo/fursa, wateja wetu, tunachotoa, vifurushi, vipimo vya mafanikio, masharti ya malipo, hatua zinazofuata). Tumia [mabano] kwa taarifa ambazo hujapewa. USIBUNI takwimu za wateja, mapato wala mafanikio.',
+    outreach: 'Andika ujumbe mfupi wa kwanza wa kuwasiliana (WhatsApp na email) kwa mshirika mtarajiwa, kwa sauti ya kitaalamu na rafiki; toa matoleo 2.',
+    packages: 'Tengeneza muundo wa vifurushi vya matangazo (mfano Basic/Featured/Premium) vikionyesha kinachotolewa kwa kila kimoja kulingana na kinachowezekana kwenye tovuti yetu (orodha ya biashara, banner, post kwenye Community, kampeni). Pendekeza njia ya kupanga bei lakini USIBUNI bei kamili.',
+    vet: 'Toa orodha ya kukagua mshirika au mtangazaji kabla ya kufanya kazi naye ili kuepuka utapeli (usajili wa biashara BRELA, TIN, marejeo, mkataba ulioandikwa, masharti ya malipo, epuka kulipa ada kabla ya makubaliano, kuthibitisha mawasiliano rasmi, kuanza na jaribio dogo, n.k.), na alama za hatari.'
+  }[mode];
+  const prompt = `Wewe ni mshauri wa biashara na ushirikiano wa LIFEISGAMETZ (duka la gaming Tanzania). Huna ufikiaji wa internet, hivyo hutoi taarifa za moja kwa moja za kampuni.
+Takwimu halisi za mfumo (usiongeze zingine): watumiaji ${users}, oda ${orders.length}, bidhaa ${prods}. Maombi ya biashara ya karibuni: ${inq}.
+Kazi: ${task}
+Jibu kwa Kiswahili (au lugha ya admin), kwa mpangilio mzuri.
+Mazungumzo ya awali:
+${(Array.isArray(b.history) ? b.history : []).slice(-6).map(h => (h.role === 'user' ? 'Admin: ' : 'Wewe: ') + String(h.text).slice(0, 400)).join('\n')}
+Ombi la admin: ${msg}`;
+  res.json({ reply: await askAI(prompt, process.env.NEXUS_PARTNER_PROVIDER) });
+});
+
+// --- AI Mwalimu wa kozi ---
+app.post('/api/ai/course-tutor', aiLimit, async (req, res) => {
+  const b = req.body || {}, msg = clip(b.message, 1000);
+  if (!msg) return res.status(400).json({ error: 'Andika swali.' });
+  const courses = readJson('courses.json', []), c = courses.find(x => x.id === b.courseId);
+  const syl = c ? `Kozi: ${c.name} (level: ${c.level || 'Beginner'})\nMaelezo: ${c.description || '—'}\nVideo za kozi: ${(c.videos || []).map((v, i) => (i + 1) + '. ' + v.title + (v.description ? ' — ' + String(v.description).slice(0, 120) : '')).join('; ') || 'bado hakuna'}`
+    : 'Mwanafunzi hajachagua kozi maalum. Kozi zilizopo: ' + (courses.map(x => x.name).slice(0, 30).join(', ') || 'bado hakuna') + '. Msaidie kuchagua kozi inayomfaa au jibu mada ya jumla.';
+  const transcript = (Array.isArray(b.history) ? b.history : []).slice(-6).map(h => (h.role === 'user' ? 'Mwanafunzi: ' : 'Mwalimu: ') + String(h.text).slice(0, 400)).join('\n');
+  const prompt = `Wewe ni "AI Mwalimu" wa Academy ya LIFEISGAMETZ. Unamfundisha mwanafunzi kozi hii.
+${syl}
+Kanuni:
+1. Fundisha hatua kwa hatua, kwa lugha rahisi, kwa mifano, na kwa ufupi (sentensi 4-8).
+2. Mwishoni uliza swali dogo la kuangalia ameelewa, au mpe zoezi dogo la kufanya.
+3. Rejea video za kozi pale zinapohusika (kwa jina la video).
+4. Usidai kozi inafundisha kitu kisichokuwepo kwenye orodha ya video; kama mada iko nje ya kozi, jibu kwa ufupi kisha mrudishe kwenye kozi.
+5. Usibuni ukweli; kama huna uhakika sema hivyo.
+6. Jibu kwa lugha ya mwanafunzi (Kiswahili au Kiingereza).
+Mazungumzo ya awali:
+${transcript}
+Swali la mwanafunzi: ${msg}`;
+  res.json({ reply: await askAI(prompt, process.env.NEXUS_TUTOR_PROVIDER) });
+});
+

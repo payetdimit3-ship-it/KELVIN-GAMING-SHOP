@@ -9,6 +9,9 @@
  * (LGZ.page(...)). Hapa kuna vitu vinavyoshirikiwa tu.
  */
 
+var side = document.getElementById('side'),
+  main = document.getElementById('main'),
+  usr = document.getElementById('usr');
 var K = 'lgz_cart_v2',
   db = {
     products: [],
@@ -33,6 +36,11 @@ var K = 'lgz_cart_v2',
     asq: [],
     inq: [],
     tix: [],
+    news: [],
+    settings: {},
+    pay: null,
+    wd: [],
+    wbal: [],
     chat: [],
     bots: { ai: [], health: [] },
     delivered: [],
@@ -104,6 +112,7 @@ function out() {
   db.profile = null;
   db.libp = [];
   db.delivered = [];
+  db.pay = null;
   db.orders = [];
 }
 
@@ -155,6 +164,9 @@ function mapO(o) {
     date: new Date(
       o.confirmedAt || o.date || Date.now()
     ).toLocaleDateString(),
+    iso: new Date(
+      o.confirmedAt || o.date || Date.now()
+    ).toISOString(),
     u: o.customer || ''
   };
 }
@@ -183,6 +195,7 @@ function fromApi(p) {
     uses: !!p.usesCodes,
     proofs: p.proofs || [],
     stats: p.stats || '',
+    trailer: p.trailerUrl || '',
     hasFile: !!p.hasFile,
     fileName: p.fileName || '',
     fileSize: Number(p.fileSize) || 0
@@ -238,12 +251,25 @@ function boot() {
           .then(function (r) {
             db.courses = r.courses || [];
           })
+          .catch(function () {}),
+        api('GET', '/news')
+          .then(function (r) { db.news = r.news || []; })
+          .catch(function () {}),
+        api('GET', '/settings')
+          .then(function (r) {
+            db.settings = r.settings || {};
+          })
           .catch(function () {})
       ];
     if (me()) {
       ps.push(
         api('GET', '/squads/mine')
           .then(function (r) { db.sq = r.squads || []; })
+          .catch(function () {})
+      );
+      ps.push(
+        api('GET', '/payouts/me')
+          .then(function (r) { db.pay = r; })
           .catch(function () {})
       );
       ps.push(
@@ -284,6 +310,12 @@ function boot() {
           .catch(function () {}),
         api('GET', '/admin/tickets')
           .then(function (r) { db.tix = r.tickets || []; })
+          .catch(function () {}),
+        api('GET', '/admin/withdrawals')
+          .then(function (r) {
+            db.wd = r.withdrawals || [];
+            db.wbal = r.balances || [];
+          })
           .catch(function () {})
       );
     }
@@ -772,6 +804,11 @@ function saveGame(e) {
       status: fd.get('status'),
       desc: fd.get('desc'),
       imageUrl: im,
+      trailerUrl: /^https?:\/\//i.test(
+        (fd.get('trailer') || '').trim()
+      )
+        ? (fd.get('trailer') || '').trim()
+        : '',
       downloadLink: L[0] ? L[0].u : '',
       links: L,
       codes: (fd.get('codes') || '').split(
@@ -818,6 +855,7 @@ function fillForm() {
   E.old.value = p.old || '';
   E.status.value = p.status;
   E.img.value = p.img;
+  E.trailer.value = p.trailer || '';
   E.desc.value = p.desc;
   var box = document.getElementById('lks');
   box.innerHTML = '';
@@ -1838,8 +1876,27 @@ function delReq(id) {
   ok(api('DELETE', '/requests/' + id), 'Imefutwa');
 }
 
+function ytId(u) {
+  var m = String(u || '').match(
+    /^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+  );
+  return m ? m[1] : '';
+}
+
 function player(m) {
-  var u = m.videoUrl || '';
+  var u = m.videoUrl || '',
+    y = ytId(u);
+  if (y)
+    return '<div '
+      + 'style="position:relative;padding-top:56.25%">'
+      + '<iframe '
+      + 'src="https://www.youtube.com/embed/'
+      + y
+      + '" '
+      + 'style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;border-radius:12px" '
+      + 'allow="encrypted-media;picture-in-picture;fullscreen" '
+      + 'allowfullscreen loading="lazy" '
+      + 'title="Video"></iframe></div>';
   return /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u)
     ? '<video controls playsinline '
       + 'style="width:100%;border-radius:12px;background:#000" '
@@ -1850,6 +1907,12 @@ function player(m) {
       + 'rel="noopener noreferrer" href="'
       + esc(u)
       + '">Fungua video ↗</a>';
+}
+
+function trailerHtml(p) {
+  return p.trailer
+    ? '<h2>Trailer</h2>' + player({ videoUrl: p.trailer })
+    : '';
 }
 
 function movCard(m) {
@@ -1869,10 +1932,10 @@ function movCard(m) {
     + esc(m.genre)
     + ' · '
     + esc(m.year)
-    + '</span>'
-    + '<button class="btn" onclick="mv=\''
+    + '</span><a class="btn" '
+    + 'href="live-movies-player.html?p='
     + m.id
-    + '\';route();scrollTo(0,0)">Watch</button>'
+    + '">Watch</a>'
     + (
       isAdm()
         ? '<button class="btn d" onclick="delMov(\''
@@ -1977,15 +2040,242 @@ function delTicket(i) {
     ok(api('DELETE', '/admin/tickets/' + t.id), 'Imefutwa');
 }
 
+// ============================================================
+// PANGO LA DUKA: tangazo, settings, habari, CSV
+// ============================================================
+function annHtml() {
+  var t = (db.settings || {}).announcement;
+  return t
+    ? '<div class="panel" '
+      + 'style="margin:0 0 14px;border-color:var(--p)">'
+      + '📢 '
+      + esc(t)
+      + '</div>'
+    : '';
+}
+
+function manualHelp() {
+  var t = (db.settings || {}).manualPayInstructions;
+  return '<p class="sub" style="margin:8px 0 0">'
+    + (
+      t
+        ? esc(t).replace(/\n/g, '<br>')
+        : 'Maelezo ya malipo ya Manual bado '
+          + 'hayajawekwa. Tumia ClickPesa au '
+          + 'wasiliana na Support.'
+    )
+    + '</p>';
+}
+
+function contactPanel() {
+  var S = db.settings || {},
+    wa = String(S.whatsapp || '').replace(/\D/g, ''),
+    ph = String(S.supportPhone || '').replace(
+      /[^\d+]/g,
+      ''
+    );
+  if (!wa && !ph && !S.supportEmail) return '';
+  return '<div class="panel"><b>'
+    + 'Wasiliana nasi moja kwa moja</b><div '
+    + 'class="row" '
+    + 'style="margin-top:10px;flex-wrap:wrap">'
+    + (
+      wa
+        ? '<a class="btn" target="_blank" '
+          + 'rel="noopener noreferrer" '
+          + 'href="https://wa.me/'
+          + wa
+          + '">WhatsApp</a>'
+        : ''
+    )
+    + (
+      ph
+        ? '<a class="btn o" href="tel:'
+          + ph
+          + '">'
+          + esc(S.supportPhone)
+          + '</a>'
+        : ''
+    )
+    + (
+      S.supportEmail
+        ? '<a class="btn o" href="mailto:'
+          + esc(S.supportEmail)
+          + '">'
+          + esc(S.supportEmail)
+          + '</a>'
+        : ''
+    )
+    + '</div></div>';
+}
+
+function saveSettings(e) {
+  e.preventDefault();
+  var f = e.target.elements;
+  ok(
+    api(
+      'PUT',
+      '/admin/settings',
+      {
+        siteName: f.sn.value.trim(),
+        whatsapp: f.wa.value.trim(),
+        supportPhone: f.sp.value.trim(),
+        supportEmail: f.se.value.trim(),
+        announcement: f.an.value.trim(),
+        manualPayInstructions: f.mp.value.trim(),
+        squadCommission: f.sc.value.trim(),
+        payoutHoldDays: f.hd.value.trim(),
+        minWithdraw: f.mw.value.trim()
+      }
+    ),
+    'Settings zimehifadhiwa'
+  );
+}
+
+function addNews(e) {
+  e.preventDefault();
+  var f = e.target.elements;
+  ok(
+    api(
+      'POST',
+      '/admin/news',
+      {
+        title: f.t.value.trim(),
+        summary: f.s.value.trim(),
+        body: f.b.value.trim(),
+        imageUrl: f.i.value.trim(),
+        sourceUrl: f.u.value.trim()
+      }
+    ),
+    'Habari imechapishwa'
+  );
+}
+
+function delNews(i) {
+  var n = db.news[i];
+  if (n && confirm('Futa habari hii?'))
+    ok(api('DELETE', '/admin/news/' + n.id), 'Imefutwa');
+}
+
+// ============================================================
+// MAPATO YA WAUZAJI WA SQUAD (withdraw)
+// ============================================================
+function reqWithdraw(e) {
+  e.preventDefault();
+  var f = e.target.elements;
+  ok(
+    api(
+      'POST',
+      '/payouts/withdraw',
+      {
+        amount: f.a.value,
+        method: f.m.value,
+        phone: f.p.value.trim(),
+        name: f.n.value.trim()
+      }
+    ),
+    'Ombi la kutoa pesa limetumwa'
+  );
+}
+
+function decideWd(i, dec) {
+  var w = db.wd[i];
+  if (!w) return;
+  var body = { decision: dec };
+  if (dec === 'paid') {
+    var ref = prompt(
+      'Weka namba ya muamala wa malipo '
+        + 'uliyotuma kwa muuzaji:'
+    );
+    if (!ref) return;
+    body.ref = ref;
+  } else {
+    var n = prompt(
+      'Sababu ya kukataa (itamwonekana muuzaji):'
+    );
+    if (n === null) return;
+    body.note = n;
+  }
+  ok(
+    api(
+      'POST',
+      '/admin/withdrawals/' + w.id + '/decide',
+      body
+    ),
+    dec === 'paid'
+      ? 'Imewekwa kama imelipwa'
+      : 'Ombi limekataliwa'
+  );
+}
+
+var rpt = { from: '', to: '' };
+
+function rptList() {
+  return db.orders.filter(function (o) {
+    var d = String(o.iso || '').slice(0, 10);
+    return (!rpt.from || d >= rpt.from)
+      && (!rpt.to || d <= rpt.to);
+  });
+}
+
+function setRange() {
+  rpt.from = document.getElementById('rfrom').value;
+  rpt.to = document.getElementById('rto').value;
+  render();
+}
+
+function csvCell(v) {
+  v = String(v == null ? '' : v);
+  if (/^[=+\-@]/.test(v)) v = "'" + v;
+  return '"' + v.replace(/"/g, '""') + '"';
+}
+
+function exportOrders(l) {
+  var rows = [
+    ['Order', 'Mteja', 'Bidhaa', 'Jumla', 'Hali', 'Tarehe']
+  ].concat(
+    (l || db.orders).map(function (o) {
+      return [
+        o.ref,
+        o.u,
+        o.items.join('; '),
+        o.total,
+        o.status,
+        o.date
+      ];
+    })
+  ),
+    blob = new Blob(
+      [
+        '\ufeff'
+          + rows.map(function (x) {
+            return x.map(csvCell).join(',');
+          }).join('\n')
+      ],
+      { type: 'text/csv' }
+    ),
+    a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'oda-'
+    + new Date().toISOString().slice(0, 10)
+    + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
 /* ===== Mfumo wa kurasa (multi-page) ===== */
 var NAVF = [
   ['index.html', 'Home'],
   ['store.html', 'Store'],
   ['free-games.html', 'Free Games'],
   ['squad-market.html', 'Squad Market'],
+  ['my-earnings.html', 'Mapato ya Squad'],
   ['gift-cards.html', 'Gift Cards'],
   ['efootball-topup.html', 'Top Up'],
   ['movies.html', 'Movies'],
+  ['game-trailer.html', 'Game Trailers'],
+  ['sports-news.html', 'Habari za Michezo'],
   ['marketplace.html', 'Biashara & Washirika'],
   ['tournament.html', 'Tournaments'],
   ['live-scores.html', 'Live Scores'],
@@ -2051,9 +2341,12 @@ function abar(f) {
       ['users-management.html', 'Users'],
       ['coupons-discounts.html', 'Coupons'],
       ['squads-management.html', 'Squads'],
+      ['withdraw-requests.html', 'Withdraw'],
       ['partners-management.html', 'Partners'],
       ['support-tickets.html', 'Tickets'],
+      ['settings.html', 'Settings'],
       ['analytics.html', 'Analytics'],
+      ['reports.html', 'Reports'],
       ['profile.html', '← Profile']
     ].map(function (x) {
       return '<a class="btn '
@@ -2109,7 +2402,9 @@ function render() {
         + '<br><a class="btn" href="login.html">'
         + 'Login</a></div>'
       : LGZ.fn(a, q, A, c.pg);
-  main.innerHTML = (ad ? abar(c.file) : '') + body;
+  main.innerHTML = (ad ? abar(c.file) : '')
+    + annHtml()
+    + body;
   if (ed && ad && a[2] === 'games') fillForm();
   clearInterval(cmT);
   if (c.pg === 'community') {
@@ -2140,7 +2435,7 @@ LGZ.page = function (cfg, fn) {
 };
 (
   function () {
-    var SRCH = /^(store|games|free|movies|market|platform|giftcards|topup|squads)$/,
+    var SRCH = /^(store|games|free|movies|market|platform|giftcards|topup|squads|trailers|news)$/,
       qe = document.getElementById('q');
     qe.addEventListener('input', function () {
       if (LGZ.cfg && SRCH.test(LGZ.cfg.pg)) render();

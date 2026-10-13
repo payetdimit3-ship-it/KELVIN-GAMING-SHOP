@@ -1,47 +1,98 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Settings.Html</title><meta http-equiv="refresh" content="0;url=admin settings.html">
-<script>location.replace('admin settings.html' + location.search + location.hash);</script>
-<style>body{font-family:system-ui;background:#0b1020;color:#e8ecff;display:grid;place-items:center;min-height:100vh}a{color:#7dd3fc}</style></head>
-<body><p>Opening <a href="admin settings.html">Settings.Html</a>…</p>
-<script id="lifeisgametz-navigation-repair">
-(function () {
-  function initNavigationRepair() {
-    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
-    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
-              document.querySelector('nav');
-    toggles.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!nav) {
-          window.location.href = 'index.html';
-          return;
-        }
-        nav.classList.toggle('lifeisgametz-mobile-nav-open');
-        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
-        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
-        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
-        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
-        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
-        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
-        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
-        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav) {
-        nav.classList.remove('lifeisgametz-mobile-nav-open');
-        nav.style.display = '';
-        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
-        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
-      }
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
-  else initNavigationRepair();
-})();
-</script>
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Admin · Settings - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
 
-</body></html>
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Admin · Settings
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'settings.html',
+      pg: 'admin',
+      p: 'settings',
+      admin: 1
+    }, function (a, q, A, pg) {
+      var S = db.settings || {};
+      return '<h1>Settings</h1><p class="sub">'
+        + 'Maelezo ya duka yanayoonekana kwa wateja'
+        + '</p><div class="panel">'
+        + '<form onsubmit="saveSettings(event)">'
+        + '<label>Jina la duka'
+        + '<input name="sn" value="'
+        + esc(S.siteName)
+        + '"></label><label>'
+        + 'WhatsApp (mf. 255712345678)'
+        + '<input name="wa" value="'
+        + esc(S.whatsapp)
+        + '"></label><label>Simu ya support'
+        + '<input name="sp" value="'
+        + esc(S.supportPhone)
+        + '"></label><label>Email ya support'
+        + '<input name="se" type="email" value="'
+        + esc(S.supportEmail)
+        + '"></label><label class="full">Tangazo '
+        + '(linaonekana juu ya kurasa zote; acha '
+        + 'tupu kuondoa)'
+        + '<textarea name="an" rows="2">'
+        + esc(S.announcement)
+        + '</textarea></label><label class="full">'
+        + 'Maelezo ya malipo ya Manual (namba ya '
+        + 'kutuma pesa, jina la akaunti, n.k.)'
+        + '<textarea name="mp" rows="3">'
+        + esc(S.manualPayInstructions)
+        + '</textarea></label><label>'
+        + 'Kamisheni ya Squad (%)<input name="sc" '
+        + 'type="number" min="0" max="50" value="'
+        + esc(S.squadCommission)
+        + '"></label><label>'
+        + 'Siku za ulinzi wa malipo ya muuzaji'
+        + '<input name="hd" type="number" min="0" '
+        + 'max="30" value="'
+        + esc(S.payoutHoldDays)
+        + '"></label><label>'
+        + 'Kiwango cha chini cha kutoa (TSh)<input '
+        + 'name="mw" type="number" min="1000" '
+        + 'value="'
+        + esc(S.minWithdraw)
+        + '"></label><div class="full">'
+        + '<button class="btn" type="submit">'
+        + 'Hifadhi</button></div></form></div>';
+    });
+  </script>
+
+</body>
+</html>

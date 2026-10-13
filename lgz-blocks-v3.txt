@@ -1,0 +1,47 @@
+//#BLOCK routes
+// ═══════════ LIFEISGAMETZ v3 — Support (tiketi za wateja) ═══════════
+/* LGZ-PATCH v3 */
+const TICKET_CATS = ['Malipo', 'Oda / Library', 'Akaunti', 'Download / Game', 'Squad Market', 'Biashara / Matangazo', 'Nyingine'];
+const tkRate = new Map();
+function ticketAllowed(ip) {
+  const now = Date.now(), a = (tkRate.get(ip) || []).filter(t => now - t < 3600000);
+  if (a.length >= 5) return false;
+  a.push(now); tkRate.set(ip, a); return true;
+}
+app.post('/api/support-ticket', async (req, res) => {
+  const ip = getIP(req);
+  if (!ticketAllowed(ip)) return res.status(429).json({ error: 'Umetuma maombi mengi. Jaribu tena baadaye.' });
+  const u = getUserByToken(req), b = req.body || {};
+  const row = {
+    id: 'tk_' + Date.now() + crypto.randomBytes(2).toString('hex'),
+    name: clip(b.name, 80), contact: clip(b.contact, 120),
+    category: TICKET_CATS.includes(b.category) ? b.category : 'Nyingine',
+    orderRef: clip(b.orderRef, 40), message: clip(b.message, 2000),
+    user: u ? u.email : '', status: 'open', createdAt: new Date().toISOString()
+  };
+  if (row.message.length < 5 || (!row.contact && !row.user)) return res.status(400).json({ error: 'Andika ujumbe na namba ya simu au email ya kukujibu' });
+  const list = readJson('tickets.json', []); list.push(row);
+  await writeJson('tickets.json', list.slice(-1000));
+  res.json({ success: true, message: 'Ombi lako limepokelewa. Tutakujibu hivi karibuni.' });
+});
+app.get('/api/admin/tickets', (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  res.json({ success: true, tickets: readJson('tickets.json', []).slice().reverse() });
+});
+app.patch('/api/admin/tickets/:id', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const list = readJson('tickets.json', []), t = list.find(x => x.id === req.params.id);
+  if (!t) return res.status(404).json({ error: 'Tiketi haipo' });
+  t.status = req.body?.status === 'resolved' ? 'resolved' : 'open';
+  await writeJson('tickets.json', list);
+  res.json({ success: true });
+});
+app.delete('/api/admin/tickets/:id', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  await writeJson('tickets.json', readJson('tickets.json', []).filter(x => x.id !== req.params.id));
+  res.json({ success: true });
+});
+

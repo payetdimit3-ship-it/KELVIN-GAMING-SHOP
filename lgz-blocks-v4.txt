@@ -1,0 +1,39 @@
+//#BLOCK routes
+// ═══════════ LIFEISGAMETZ v4 — Settings za duka na Habari za Michezo ═══════════
+/* LGZ-PATCH v4 */
+const PUBLIC_SETTINGS = ['siteName', 'announcement', 'whatsapp', 'supportPhone', 'supportEmail', 'manualPayInstructions'];
+app.get('/api/settings', (req, res) => {
+  const s = readJson('settings.json', {}), o = {};
+  PUBLIC_SETTINGS.forEach(k => { o[k] = typeof s[k] === 'string' ? s[k] : ''; });
+  res.json({ success: true, settings: o });
+});
+app.put('/api/admin/settings', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const s = readJson('settings.json', {}), b = req.body || {};
+  PUBLIC_SETTINGS.forEach(k => {
+    if (b[k] !== undefined) s[k] = clip(b[k], (k === 'announcement' || k === 'manualPayInstructions') ? 500 : 120);
+  });
+  await writeJson('settings.json', s);
+  res.json({ success: true });
+});
+app.get('/api/news', (req, res) => {
+  res.json({ success: true, news: readJson('news.json', []).slice().reverse().slice(0, 100) });
+});
+app.post('/api/admin/news', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const b = req.body || {}, url = v => (/^https?:\/\//i.test(String(v || '').trim()) ? String(v).trim().slice(0, 1000) : '');
+  const row = { id: 'news_' + Date.now() + crypto.randomBytes(2).toString('hex'), title: clip(b.title, 160), summary: clip(b.summary, 300), body: String(b.body || '').replace(/<[^>]*>/g, '').trim().slice(0, 5000), imageUrl: url(b.imageUrl), sourceUrl: url(b.sourceUrl), createdAt: new Date().toISOString() };
+  if (!row.title || !row.summary) return res.status(400).json({ error: 'Weka kichwa na muhtasari' });
+  const list = readJson('news.json', []); list.push(row);
+  await writeJson('news.json', list.slice(-300));
+  res.json({ success: true });
+});
+app.delete('/api/admin/news/:id', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  await writeJson('news.json', readJson('news.json', []).filter(x => x.id !== req.params.id));
+  res.json({ success: true });
+});
+

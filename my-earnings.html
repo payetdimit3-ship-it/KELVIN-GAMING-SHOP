@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Mapato ya Squad - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
+
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Mapato ya Squad
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'my-earnings.html',
+      pg: 'earnings',
+      p: '',
+      admin: 0
+    }, function (a, q, A, pg) {
+      var m = me();
+      if (!m)
+        return '<div class="empty">'
+          + 'Ingia kwanza ili uone mapato yako.<br>'
+          + '<br><a class="btn" href="login.html">'
+          + 'Login / Register</a></div>';
+      var P = db.pay;
+      if (!P)
+        return '<div class="empty">Mapato hayapatikani '
+          + 'kwa sasa. Jaribu tena baadaye.</div>';
+      var b = P.balance,
+        c = P.cfg,
+        now = Date.now();
+      return '<h1>Mapato ya Squad</h1><p class="sub">'
+        + 'Mapato kutokana na vikosi vyako '
+        + 'vilivyouzwa</p><div class="stats">'
+        + '<div class="stat"><b>'
+        + tsh(b.available)
+        + '</b><span>Yanapatikana kutolewa</span>'
+        + '</div><div class="stat"><b>'
+        + tsh(b.held)
+        + '</b><span>Yanasubiri (ulinzi)</span>'
+        + '</div><div class="stat"><b>'
+        + tsh(b.pending)
+        + '</b><span>Maombi yanayosubiri</span>'
+        + '</div><div class="stat"><b>'
+        + tsh(b.paid)
+        + '</b><span>Yaliyolipwa</span></div></div>'
+        + '<div class="panel">'
+        + '<p class="sub" style="margin:0">'
+        + 'Kamisheni ya duka: <b>'
+        + c.pct
+        + '%</b>'
+        + ' · Mapato yanapatikana baada ya siku <b>'
+        + c.hold
+        + '</b> · Kiwango cha chini cha kutoa: <b>'
+        + tsh(c.min)
+        + '</b></p></div>'
+        + (
+          b.available >= c.min
+            ? '<div class="panel">'
+              + '<h2 style="margin-top:0">'
+              + 'Omba kutolewa pesa</h2>'
+              + '<form onsubmit="reqWithdraw(event)">'
+              + '<label>Kiasi (TSh)'
+              + '<input name="a" type="number" min="'
+              + c.min
+              + '" max="'
+              + b.available
+              + '" value="'
+              + b.available
+              + '" required></label><label>Njia ya malipo'
+              + '<select name="m"><option>M-Pesa</option>'
+              + '<option>Tigo Pesa</option><option>'
+              + 'Airtel Money</option><option>HaloPesa'
+              + '</option></select></label><label>'
+              + 'Namba ya simu<input name="p" '
+              + 'placeholder="0712345678" required>'
+              + '</label><label>'
+              + 'Jina lililosajiliwa kwenye namba'
+              + '<input name="n" required></label>'
+              + '<div class="full">'
+              + '<button class="btn" type="submit">'
+              + 'Tuma ombi</button></div></form>'
+              + '<p class="sub" style="margin:10px 0 0">'
+              + 'Admin atakulipa mwenyewe na kuweka '
+              + 'namba ya muamala. Ombi moja tu linaweza '
+              + 'kusubiri kwa wakati.</p></div>'
+            : '<div class="panel">'
+              + '<p class="sub" style="margin:0">Utaweza '
+              + 'kuomba kutolewa ukiwa na salio la '
+              + 'angalau '
+              + tsh(c.min)
+              + '. <a href="sell-squad.html">Uza kikosi'
+              + '</a></p></div>'
+        )
+        + '<div class="panel">'
+        + '<h2 style="margin-top:0">Mauzo yako</h2>'
+        + (
+          P.sales.length
+            ? '<div class="tw"><table><tr><th>Kikosi'
+              + '</th><th>Bei</th><th>Kamisheni</th><th>'
+              + 'Mapato</th><th>Hali</th></tr>'
+              + P.sales.map(function (x) {
+                var ok1 = new Date(x.availableAt).getTime() <=
+                  now;
+                return '<tr><td>'
+                  + esc(x.title)
+                  + '</td><td>'
+                  + tsh(x.gross)
+                  + '</td><td>'
+                  + tsh(x.fee)
+                  + ' ('
+                  + x.pct
+                  + '%)</td><td>'
+                  + tsh(x.net)
+                  + '</td><td><span class="pill '
+                  + (ok1 ? 'on1' : 'off1')
+                  + '">'
+                  + (
+                    ok1
+                      ? 'Inapatikana'
+                      : 'Hadi '
+                        + new Date(
+                          x.availableAt
+                        ).toLocaleDateString()
+                  )
+                  + '</span></td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">Bado hujauza kikosi.</div>'
+        )
+        + '</div><div class="panel">'
+        + '<h2 style="margin-top:0">'
+        + 'Maombi yangu ya kutoa</h2>'
+        + (
+          P.withdrawals.length
+            ? '<div class="tw"><table><tr><th>Tarehe'
+              + '</th><th>Kiasi</th><th>Njia</th><th>Hali'
+              + '</th></tr>'
+              + P.withdrawals.map(function (w) {
+                return '<tr><td>'
+                  + new Date(w.createdAt).toLocaleDateString()
+                  + '</td><td>'
+                  + tsh(w.amount)
+                  + '</td><td>'
+                  + esc(w.method)
+                  + ' '
+                  + esc(w.phone)
+                  + '</td><td><span class="pill '
+                  + (w.status === 'paid' ? 'on1' : 'off1')
+                  + '">'
+                  + esc(w.status)
+                  + '</span>'
+                  + (
+                    w.ref
+                      ? '<br><small class="sub">Muamala: '
+                        + esc(w.ref)
+                        + '</small>'
+                      : ''
+                  )
+                  + (
+                    w.note
+                      ? '<br><small class="sub">'
+                        + esc(w.note)
+                        + '</small>'
+                      : ''
+                  )
+                  + '</td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">Hakuna maombi bado.</div>'
+        )
+        + '</div>';
+    });
+  </script>
+
+</body>
+</html>

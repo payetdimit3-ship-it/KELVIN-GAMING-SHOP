@@ -1,47 +1,195 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Games Management.Html</title><meta http-equiv="refresh" content="0;url=admin games.html">
-<script>location.replace('admin games.html' + location.search + location.hash);</script>
-<style>body{font-family:system-ui;background:#0b1020;color:#e8ecff;display:grid;place-items:center;min-height:100vh}a{color:#7dd3fc}</style></head>
-<body><p>Opening <a href="admin games.html">Games Management.Html</a>…</p>
-<script id="lifeisgametz-navigation-repair">
-(function () {
-  function initNavigationRepair() {
-    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
-    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
-              document.querySelector('nav');
-    toggles.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!nav) {
-          window.location.href = 'index.html';
-          return;
-        }
-        nav.classList.toggle('lifeisgametz-mobile-nav-open');
-        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
-        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
-        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
-        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
-        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
-        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
-        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
-        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav) {
-        nav.classList.remove('lifeisgametz-mobile-nav-open');
-        nav.style.display = '';
-        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
-        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
-      }
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
-  else initNavigationRepair();
-})();
-</script>
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1,
+                 viewport-fit=cover">
+  <title>Admin · Manage Games - LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="assets/lgz.css">
+</head>
+<body>
 
-</body></html>
+  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
+  <div class="app">
+
+    <aside id="side"></aside>
+
+    <div style="min-width:0">
+      <header>
+        <button class="menu" aria-label="Menu"
+                onclick="side.classList.toggle('open')">
+          &#9776;
+        </button>
+        <input id="q" placeholder="Tafuta games..."
+               aria-label="Tafuta">
+        <div class="user" id="usr"></div>
+      </header>
+
+      <main id="main"></main>
+    </div>
+
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
+  <script src="assets/lgz-core.js"></script>
+
+  <!-- ========================================================
+       MSIMBO WA UKURASA HUU: Admin · Manage Games
+       ======================================================== -->
+  <script>
+    LGZ.page({
+      file: 'games-management.html',
+      pg: 'admin',
+      p: 'games',
+      admin: 1
+    }, function (a, q, A, pg) {
+      return '<h1>Manage Games & Products</h1>'
+        + '<p class="sub">Ongeza bidhaa hapa — '
+        + 'zitaonekana kwenye Home, Store na kila '
+        + 'page kwa muundo uleule.</p>'
+        + '<div class="panel">'
+        + '<h2 style="margin-top:0">'
+        + (ed ? 'Edit Game' : 'Upload New Game')
+        + '</h2><form onsubmit="saveGame(event)">'
+        + '<label>Game Title<input name="title" '
+        + 'required '
+        + 'placeholder="mf. EA SPORTS FC 26">'
+        + '</label><label>Category'
+        + '<select name="cat">'
+        + CATS.map(function (c) {
+          return '<option>' + c + '</option>';
+        }).join('')
+        + '</select></label><label>Platform'
+        + '<select name="platform">'
+        + PLATS.map(function (c) {
+          return '<option>' + c + '</option>';
+        }).join('')
+        + '</select></label><label>Type'
+        + '<select name="type"><option>Paid'
+        + '</option><option>Free</option></select>'
+        + '</label><label>Price (TSh) — kwa Paid'
+        + '<input name="price" type="number" '
+        + 'min="0"></label><label>Old Price (hiari)'
+        + '<input name="old" type="number" min="0">'
+        + '</label><label>Status'
+        + '<select name="status"><option>Active'
+        + '</option><option>Draft</option></select>'
+        + '</label><label class="full">'
+        + 'Image URL (link ya picha ya game)<input '
+        + 'name="img" type="url" '
+        + 'placeholder="https://..."></label>'
+        + '<label class="full">'
+        + 'Trailer URL (YouTube au mp4, hiari)'
+        + '<input name="trailer" type="url" '
+        + 'placeholder="https://youtube.com/watch?v=...">'
+        + '</label><div class="full">'
+        + '<div class="row sp"><span '
+        + 'style="color:var(--m);font-size:12px">'
+        + 'Option 1: Game Links — weka link ya '
+        + 'download (Drive, Mega, n.k.), unaweza '
+        + 'kuweka nyingi</span><button '
+        + 'class="btn o" type="button" '
+        + 'onclick="addLink()">+ Add another link'
+        + '</button></div><div id="lks" '
+        + 'style="display:grid;gap:8px;margin-top:8px">'
+        + lkRow()
+        + '</div></div><div class="full"><span '
+        + 'style="color:var(--m);font-size:12px">'
+        + 'Option 2: Upload faili la game mwenyewe '
+        + '(APK, XAPK, ZIP, RAR, 7Z, ISO, EXE…) — '
+        + 'hiari, unaweza kutumia pamoja na links. '
+        + 'Mteja aliyelipia pekee ndiye anaweza '
+        + 'kudownload.</span>'
+        + (
+          ed && P(ed) && P(ed).hasFile
+            ? '<label '
+              + 'style="flex-direction:row;align-items:center;gap:8px;margin-top:6px;color:var(--t)">'
+              + 'Faili la sasa: '
+              + esc(P(ed).fileName)
+              + ' ('
+              + fmtSz(P(ed).fileSize)
+              + ') <input type="checkbox" name="rmfile">'
+              + ' Ondoa</label>'
+            : ''
+        )
+        + '<input name="gfile" type="file" '
+        + 'accept=".apk,.xapk,.apks,.obb,.zip,.rar,.7z,.iso,.exe,.msi,.pkg,.nsp,.xci,.cia,.cso,.pbp,.bin,.dmg" '
+        + 'style="margin-top:6px"></div>'
+        + '<label class="full">Codes / Keys / '
+        + 'Akaunti (kila mstari = 1 kopi, '
+        + 'zinaongezwa kwenye stock)<textarea '
+        + 'name="codes" rows="3" '
+        + 'placeholder="XXXX-XXXX-XXXX&#10;email@mail.com:password">'
+        + '</textarea></label><label class="full">'
+        + 'Description'
+        + '<textarea name="desc" rows="3">'
+        + '</textarea></label><div class="full">'
+        + '<button class="btn" type="submit">'
+        + 'Save Game</button>'
+        + (
+          ed
+            ? '<button class="btn o" type="button" '
+              + 'style="margin-left:8px" '
+              + 'onclick="ed=\'\';route()">Cancel'
+              + '</button>'
+            : ''
+        )
+        + '</div></form></div><div class="panel">'
+        + '<h2 style="margin-top:0">All Games ('
+        + db.products.length
+        + ')</h2>'
+        + (
+          db.products.length
+            ? '<div class="tw"><table><tr><th>Game</th>'
+              + '<th>Category</th><th>Platform</th><th>'
+              + 'Price</th><th>Links</th><th>Stock</th>'
+              + '<th>Status</th><th></th></tr>'
+              + db.products.map(function (p) {
+                return '<tr><td>'
+                  + (
+                    p.img
+                      ? '<img src="'
+                        + esc(p.img)
+                        + '" alt="">'
+                      : ''
+                  )
+                  + esc(p.title)
+                  + '</td><td>'
+                  + esc(p.cat)
+                  + '</td><td>'
+                  + esc(p.platform)
+                  + '</td><td>'
+                  + ptx(p)
+                  + '</td><td>'
+                  + (p.links || []).length
+                  + '</td><td>'
+                  + (p.uses ? p.stock : '—')
+                  + '</td><td><span class="pill '
+                  + (p.status === 'Active' ? 'on1' : 'off1')
+                  + '">'
+                  + p.status
+                  + '</span></td><td class="row">'
+                  + '<button class="btn o" onclick="edit(\''
+                  + p.id
+                  + '\')">Edit</button>'
+                  + '<button class="btn o" onclick="tog(\''
+                  + p.id
+                  + '\')">Toggle</button>'
+                  + '<button class="btn d" onclick="delP(\''
+                  + p.id
+                  + '\')">Futa</button></td></tr>';
+              }).join('')
+              + '</table></div>'
+            : '<div class="empty">'
+              + 'Hakuna game bado. Jaza fomu hapo juu.'
+              + '</div>'
+        )
+        + '</div>';
+    });
+  </script>
+
+</body>
+</html>

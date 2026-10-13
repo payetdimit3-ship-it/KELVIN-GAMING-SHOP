@@ -1,0 +1,88 @@
+//#BLOCK routes
+// ═══════════ LIFEISGAMETZ v5 — Mapato na malipo kwa wauzaji wa Squad ═══════════
+/* LGZ-PATCH v5 */
+const PAYOUT_METHODS = ['M-Pesa', 'Tigo Pesa', 'Airtel Money', 'HaloPesa'];
+function numSetting(v, def, min, max) {
+  const n = Number(v);
+  return (String(v == null ? '' : v).trim() !== '' && Number.isFinite(n)) ? Math.min(max, Math.max(min, n)) : def;
+}
+function payoutCfg() {
+  const s = readJson('settings.json', {});
+  return { pct: numSetting(s.squadCommission, 10, 0, 50), hold: numSetting(s.payoutHoldDays, 3, 0, 30), min: numSetting(s.minWithdraw, 5000, 1000, 1000000) };
+}
+// Inaitwa na fulfillOrder pale kikosi kinapotolewa kwa mnunuzi (malipo yamethibitishwa)
+function creditSquadSale(order, p, item) {
+  const sq = readJson('squads.json', []).find(x => x.id === p.squadId);
+  if (!sq || !sq.seller) return;
+  const seller = readJson('users.json', {})[sq.seller];
+  if (!seller || seller.isAdmin) return; // vikosi vya admin havilipwi kwa muuzaji
+  const cfg = payoutCfg(), gross = Number(item.price) || 0, fee = Math.round(gross * cfg.pct / 100), now = Date.now();
+  const list = readJson('payouts.json', []);
+  list.push({
+    id: 'po_' + now + crypto.randomBytes(2).toString('hex'), seller: sq.seller, squadId: sq.id, title: p.name,
+    orderRef: order.tx_ref, gross, fee, net: gross - fee, pct: cfg.pct,
+    availableAt: new Date(now + cfg.hold * 86400000).toISOString(), createdAt: new Date(now).toISOString()
+  });
+  writeJson('payouts.json', list);
+}
+function sellerBalance(email) {
+  const now = Date.now();
+  let held = 0, avail = 0, paid = 0, pending = 0;
+  readJson('payouts.json', []).filter(x => x.seller === email).forEach(x => {
+    if (new Date(x.availableAt).getTime() <= now) avail += x.net; else held += x.net;
+  });
+  readJson('withdrawals.json', []).filter(w => w.seller === email).forEach(w => {
+    if (w.status === 'paid') { paid += w.amount; avail -= w.amount; }
+    else if (w.status === 'pending') { pending += w.amount; avail -= w.amount; }
+  });
+  return { held, available: Math.max(0, avail), paid, pending };
+}
+app.get('/api/payouts/me', (req, res) => {
+  const u = getUserByToken(req);
+  if (!u) return res.status(401).json({ error: 'Ingia kwanza' });
+  res.json({
+    success: true, cfg: payoutCfg(), balance: sellerBalance(u.email),
+    sales: readJson('payouts.json', []).filter(x => x.seller === u.email).slice().reverse(),
+    withdrawals: readJson('withdrawals.json', []).filter(w => w.seller === u.email).slice().reverse()
+      .map(w => ({ id: w.id, amount: w.amount, method: w.method, phone: w.phone, status: w.status, ref: w.ref || '', note: w.note || '', createdAt: w.createdAt }))
+  });
+});
+app.post('/api/payouts/withdraw', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u) return res.status(401).json({ error: 'Ingia kwanza' });
+  const b = req.body || {}, cfg = payoutCfg(), bal = sellerBalance(u.email);
+  const amount = Math.round(Number(b.amount) || 0), name = clip(b.name, 80);
+  const pm = String(b.phone || '').replace(/[\s-]/g, '').match(/^(?:\+?255|0)(\d{9})$/);
+  if (!PAYOUT_METHODS.includes(b.method)) return res.status(400).json({ error: 'Chagua njia ya malipo' });
+  if (!pm) return res.status(400).json({ error: 'Namba ya simu si sahihi (mfano 0712345678)' });
+  if (!name) return res.status(400).json({ error: 'Weka jina lililosajiliwa kwenye namba hiyo' });
+  const list = readJson('withdrawals.json', []);
+  if (list.some(w => w.seller === u.email && w.status === 'pending')) return res.status(400).json({ error: 'Una ombi lingine linalosubiri. Subiri lishughulikiwe.' });
+  if (amount < cfg.min) return res.status(400).json({ error: 'Kiwango cha chini cha kutoa ni ' + cfg.min + ' TZS' });
+  if (amount > bal.available) return res.status(400).json({ error: 'Salio linalopatikana ni ' + bal.available + ' TZS' });
+  list.push({ id: 'wd_' + Date.now() + crypto.randomBytes(2).toString('hex'), seller: u.email, sellerName: u.name, amount, method: b.method, phone: '255' + pm[1], name, status: 'pending', createdAt: new Date().toISOString() });
+  await writeJson('withdrawals.json', list);
+  res.json({ success: true });
+});
+app.get('/api/admin/withdrawals', (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const users = readJson('users.json', {}), withdrawals = readJson('withdrawals.json', []);
+  const sellers = new Set(readJson('payouts.json', []).map(x => x.seller).concat(withdrawals.map(w => w.seller)));
+  const balances = [...sellers].map(e => ({ seller: e, name: (users[e] || {}).name || e, ...sellerBalance(e) }));
+  res.json({ success: true, withdrawals: withdrawals.slice().reverse(), balances });
+});
+app.post('/api/admin/withdrawals/:id/decide', async (req, res) => {
+  const u = getUserByToken(req);
+  if (!u || !u.isAdmin) return res.status(403).json({ error: 'Wewe si admin' });
+  const list = readJson('withdrawals.json', []), w = list.find(x => x.id === req.params.id), b = req.body || {};
+  if (!w || w.status !== 'pending') return res.status(404).json({ error: 'Ombi halipo au limeshashughulikiwa' });
+  const paid = b.decision === 'paid', ref = clip(b.ref, 60);
+  if (paid && !ref) return res.status(400).json({ error: 'Weka namba ya muamala wa malipo uliyotuma' });
+  w.status = paid ? 'paid' : 'rejected'; w.ref = ref; w.note = clip(b.note, 300);
+  w.decidedAt = new Date().toISOString(); w.decidedBy = u.email;
+  await writeJson('withdrawals.json', list);
+  logSecurity(paid ? 'WITHDRAWAL_PAID' : 'WITHDRAWAL_REJECTED', 'Ombi ' + w.id + ' (' + w.amount + ' TZS) na ' + u.email, 'LOW', getIP(req));
+  res.json({ success: true });
+});
+
