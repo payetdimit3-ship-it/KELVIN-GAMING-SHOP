@@ -1,176 +1,105 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1,
-                 viewport-fit=cover">
-  <title>Biashara &amp; Washirika - LIFEISGAMETZ</title>
-  <link rel="stylesheet" href="assets/lgz.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Marketplace — LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="zoneplay-full.css">
 </head>
 <body>
+<div class="main">
 
-  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
-  <div class="app">
+  <header class="zp-page-head">
+    <div class="zp-ph-ic" data-ic="shop"></div>
+    <div><h1>Marketplace</h1><p>Biashara nyingine zinazoshirikiana na GameHub — tafuta, wasiliana moja kwa moja.</p></div>
+    <div class="zp-ph-side opt"><a class="zp-btn ghost" id="joinTop" target="_blank" rel="noopener"></a></div>
+  </header>
 
-    <aside id="side"></aside>
-
-    <div style="min-width:0">
-      <header>
-        <button class="menu" aria-label="Menu"
-                onclick="side.classList.toggle('open')">
-          &#9776;
-        </button>
-        <input id="q" placeholder="Tafuta games..."
-               aria-label="Tafuta">
-        <div class="user" id="usr"></div>
-      </header>
-
-      <main id="main"></main>
-    </div>
-
+  <div class="zp-toolbar">
+    <label class="zp-search"><span data-ic="search"></span><input type="search" id="q" placeholder="Tafuta biashara..." autocomplete="off" aria-label="Tafuta biashara"></label>
+    <div class="zp-chips nowrap-m" id="cats" role="group" aria-label="Kategoria"></div>
+    <select id="sortSel" aria-label="Panga" style="height:36px;padding:0 12px;margin-left:auto">
+      <option value="new">Mpya kwanza</option>
+      <option value="az">A – Z</option>
+    </select>
   </div>
+  <p class="zp-count" id="count" aria-live="polite"></p>
+  <section class="ac-grid" id="grid" aria-live="polite"><div class="zp-empty"><p>Inapakia...</p></div></section>
 
-  <div id="toast" role="status"></div>
+  <section class="zp-ai" style="margin-top:34px">
+    <div>
+      <h2 style="font-size:26px">Una Biashara? Jiunge Nasi</h2>
+      <p style="margin:0">Unataka biashara yako ionekane hapa? Tuandikie na tutakuelekeza hatua zinazofuata.</p>
+    </div>
+    <a class="zp-btn" id="joinBtn" target="_blank" rel="noopener"></a>
+  </section>
+</div>
 
-  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
-  <script src="assets/lgz-core.js"></script>
+<script src="zoneplay-shell.js"></script>
+<script src="zp-catalog.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
+<script>
+(function(){
+  var esc=ZP.esc;
+  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
 
-  <!-- ========================================================
-       MSIMBO WA UKURASA HUU: Biashara &amp; Washirika
-       ======================================================== -->
-  <script>
-    LGZ.page({
-      file: 'marketplace.html',
-      pg: 'market',
-      p: '',
-      admin: 0
-    }, function (a, q, A, pg) {
-      var K2 = db.market.filter(function (m) {
-        return !q
-          || String(m.businessName).toLowerCase().indexOf(q) >
-            -1;
-      }),
-        pk = [
-          [
-            '📋 Orodha ya Biashara',
-            'Biashara yako inaonekana kwenye '
-              + 'directory yetu ya wachezaji na wapenzi '
-              + 'wa gaming.'
-          ],
-          [
-            '⭐ Featured / Banner',
-            'Nafasi ya kipekee na matangazo ya '
-              + 'banner kwa kampeni yako.'
-          ],
-          [
-            '🤝 Ushirikiano Maalum',
-            'Kampeni, matukio na tournaments pamoja '
-              + '— tunapanga kulingana na malengo yako.'
-          ]
-        ];
-      return '<div class="hero" '
-        + 'style="padding:44px 28px"><h1>'
-        + 'TANGAZA BIASHARA YAKO NASI</h1>'
-        + '<p class="sub" style="max-width:640px">'
-        + 'Fikia wachezaji na wapenzi wa gaming '
-        + 'nchini Tanzania. Directory ya biashara, '
-        + 'matangazo na kampeni za ushirikiano.</p>'
-        + '<a class="btn" href="marketplace.html" '
-        + 'onclick="document.getElementById(\'bizform\').scrollIntoView();return false">'
-        + 'Omba kutangaza</a></div><h2>'
-        + 'Njia za kushirikiana</h2><div '
-        + 'class="grid" '
-        + 'style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">'
-        + pk.map(function (x) {
-          return '<div class="card"><div class="b"><b>'
-            + x[0]
-            + '</b><span class="sub" style="margin:0">'
-            + x[1]
-            + '</span></div></div>';
-        }).join('')
-        + '</div>'
-        + (
-          isAdm()
-            ? '<div class="panel">'
-              + '<h2 style="margin-top:0">Add Listing'
-              + '</h2><form onsubmit="addM(event)">'
-              + '<label>Jina la biashara'
-              + '<input name="b" required></label><label>'
-              + 'Category<input name="c" '
-              + 'placeholder="mf. Accounts"></label>'
-              + '<label>Mawasiliano<input name="k" '
-              + 'required placeholder="+255..."></label>'
-              + '<label>Image URL'
-              + '<input name="i" type="url"></label>'
-              + '<label class="full">Maelezo'
-              + '<textarea name="d" rows="2"></textarea>'
-              + '</label><div class="full">'
-              + '<button class="btn" type="submit">'
-              + 'Save Listing</button></div></form></div>'
-            : ''
-        )
-        + '<h2>Biashara zilizopo ('
-        + K2.length
-        + ')</h2>'
-        + (
-          K2.length
-            ? '<div class="grid">'
-              + K2.map(function (m) {
-                return '<div class="card">'
-                  + (
-                    m.imageUrl
-                      ? '<img src="'
-                        + esc(m.imageUrl)
-                        + '" alt="">'
-                      : '<div class="ph"></div>'
-                  )
-                  + '<div class="b"><b>'
-                  + esc(m.businessName)
-                  + '</b><span class="tag">'
-                  + esc(m.category)
-                  + '</span>'
-                  + '<span class="sub" style="margin:0">'
-                  + esc(m.description)
-                  + '</span><div class="price">'
-                  + esc(m.contact)
-                  + '</div>'
-                  + (
-                    isAdm()
-                      ? '<button class="btn d" onclick="delM(\''
-                        + m.id
-                        + '\')">Futa</button>'
-                      : ''
-                  )
-                  + '</div></div>';
-              }).join('')
-              + '</div>'
-            : '<div class="empty">Hakuna biashara bado.</div>'
-        )
-        + '<div class="panel" id="bizform">'
-        + '<h2 style="margin-top:0">'
-        + 'Omba kutangaza / kushirikiana</h2>'
-        + '<p class="sub">'
-        + 'Jaza fomu na tutawasiliana nawe.</p>'
-        + '<form onsubmit="sendInq(event)"><label>'
-        + 'Jina la biashara/kampuni'
-        + '<input name="n" required></label><label>'
-        + 'Mtu wa mawasiliano<input name="c">'
-        + '</label><label>Simu'
-        + '<input name="p" placeholder="+255...">'
-        + '</label><label>Email'
-        + '<input name="e" type="email"></label>'
-        + '<label>Website/Instagram<input name="w">'
-        + '</label><label>Bajeti (hiari)'
-        + '<input name="b"></label>'
-        + '<label class="full">Unataka kutangaza '
-        + 'nini / aina ya ushirikiano'
-        + '<textarea name="m" rows="3"></textarea>'
-        + '</label><div class="full">'
-        + '<button class="btn" type="submit">'
-        + 'Tuma Ombi</button></div></form></div>';
-    });
-  </script>
+  var joinMsg='Habari, nataka kuorodhesha biashara yangu kwenye Marketplace ya LIFEISGAMETZ.';
+  ['joinTop','joinBtn'].forEach(function(id){ var a=document.getElementById(id); a.href=ZP.waLink(joinMsg); a.innerHTML=ZP.icon('chat')+(id==='joinTop'?'Orodhesha Biashara':'WhatsApp'); });
 
+  function safeImg(u){ u=String(u||'').trim(); return /^(https?:\/\/|\/)/i.test(u) ? u : ''; }
+  /* contact -> {href, label, icon}. Phones without country code are treated as Tanzanian numbers. */
+  function contactOf(c){
+    c=String(c||'').trim();
+    if (/^https?:\/\//i.test(c)) return {href:c,label:'Tembelea',icon:'arrow'};
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)) return {href:'mailto:'+c,label:'Barua pepe',icon:'mail'};
+    var d=c.replace(/[^\d]/g,'');
+    if (/^\+?[\d\s\-()]+$/.test(c) && d.length>=9){
+      if (d.charAt(0)==='0') d='255'+d.slice(1);
+      return {href:'https://wa.me/'+d,label:'WhatsApp',icon:'chat'};
+    }
+    return null;
+  }
+  function tsOf(l){ var t=Date.parse(l.date); if(!isNaN(t)) return t; var n=parseInt(String(l.id||'').replace(/\D/g,''),10); return isNaN(n)?0:n; }
+
+  var all=[], cat='', q='', sort='new';
+  function renderCats(){
+    var cs=[]; all.forEach(function(l){ var c=(l.category||'Nyingine').trim(); if(cs.indexOf(c)<0) cs.push(c); });
+    var el=document.getElementById('cats'); el.hidden=cs.length<2;
+    if (cat && cs.indexOf(cat)<0) cat='';
+    el.innerHTML='<button type="button" class="zp-chip'+(cat?'':' active')+'" data-c="">Zote <i>'+all.length+'</i></button>'+cs.map(function(c){
+      var n=all.filter(function(l){ return (l.category||'Nyingine').trim()===c; }).length;
+      return '<button type="button" class="zp-chip'+(c===cat?' active':'')+'" data-c="'+esc(c)+'">'+esc(c)+' <i>'+n+'</i></button>';
+    }).join('');
+  }
+  function card(l){
+    var img=safeImg(l.imageUrl), ct=contactOf(l.contact);
+    return '<article class="ac-card"><div class="ac-thumb" style="--art:'+ZP.art(l.businessName)+'">'+
+      '<span class="ac-emoji" aria-hidden="true">🏪</span>'+(img?'<img src="'+esc(img)+'" alt="" loading="lazy" onerror="this.remove()">':'')+
+      '<span class="ac-tag">'+esc((l.category||'Nyingine').toUpperCase())+'</span></div>'+
+      '<div class="ac-body"><h3>'+esc(l.businessName)+'</h3>'+(l.description?'<p style="-webkit-line-clamp:3">'+esc(l.description)+'</p>':'')+
+      '<div class="ac-foot">'+(ct?'<a class="zp-btn sm" href="'+esc(ct.href)+'" target="_blank" rel="noopener noreferrer">'+ZP.icon(ct.icon)+esc(ct.label)+'</a>':'<span style="font-size:12.5px;color:var(--muted)">'+esc(l.contact)+'</span>')+'</div></div></article>';
+  }
+  function render(){
+    renderCats();
+    var term=q.trim().toLowerCase();
+    var list=all.filter(function(l){ return (!cat||(l.category||'Nyingine').trim()===cat) && (!term||(l.businessName+' '+(l.description||'')+' '+(l.category||'')).toLowerCase().indexOf(term)>-1); });
+    if (sort==='az') list.sort(function(a,b){ return String(a.businessName).localeCompare(String(b.businessName)); });
+    else list.sort(function(a,b){ return tsOf(b)-tsOf(a); });
+    document.getElementById('count').textContent=all.length?list.length+' biashara':'';
+    document.getElementById('grid').innerHTML=list.length?list.map(card).join(''):
+      '<div class="zp-empty"><h3>'+(all.length?'Hakuna kilichopatikana':'Hakuna biashara zilizoorodheshwa bado')+'</h3><p>'+(all.length?'Jaribu neno lingine au kategoria nyingine.':'Biashara zikiongezwa na admin zitaonekana hapa.')+'</p></div>';
+  }
+  document.getElementById('cats').addEventListener('click',function(e){ var b=e.target.closest('[data-c]'); if(b){ cat=b.dataset.c; render(); } });
+  document.getElementById('q').addEventListener('input',function(e){ q=e.target.value; render(); });
+  document.getElementById('sortSel').addEventListener('change',function(e){ sort=e.target.value; render(); });
+
+  fetch('/api/marketplace').then(function(r){ return r.json(); }).then(function(d){
+    all=(d&&d.success&&Array.isArray(d.listings))?d.listings:[]; render();
+  }).catch(function(){
+    document.getElementById('grid').innerHTML='<div class="zp-empty"><h3>Imeshindikana kupakia biashara</h3><p>Angalia mtandao kisha jaribu tena.</p><button class="zp-btn" type="button" onclick="location.reload()">Jaribu tena</button></div>';
+  });
+})();
+</script>
 </body>
 </html>

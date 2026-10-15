@@ -1,605 +1,107 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Livecore - LifeisGameTz</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = {
-    theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', cyan: '#22d3ee', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } }
-  }
-</script>
-<style>
-  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: #0f0f1e; }
-  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
-  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
-  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
-  .sport-tab.active { background: #7c3aed; color: white; }
-  .time-tab.active { background: #7c3aed; color: white; }
-  .league-tab.active { background: #7c3aed; color: white; }
-  @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .live-pulse { animation: livePulse 1.5s infinite; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Live Scores — LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="zoneplay-full.css">
 </head>
-<body class="min-h-screen">
+<body>
+<div class="main">
 
-<!-- TOP BAR -->
-<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
-  <div class="flex items-center justify-between px-4 py-3 gap-4">
-    <a href="index.html" class="flex items-center gap-3 shrink-0">
-      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
-      </div>
-      <div>
-        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
-        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
-      </div>
-    </a>
-
-    <div class="flex-1 max-w-2xl hidden md:block">
-      <div class="relative">
-        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" placeholder="Search for teams, leagues, or matches..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
-      </div>
+  <header class="zp-page-head">
+    <div class="zp-ph-ic" data-ic="trophy"></div>
+    <div><h1>Live Scores</h1><p>Matokeo ya mechi yanayosasishwa na admin. Ukurasa unajisasisha wenyewe kila sekunde 30.</p></div>
+    <div class="zp-ph-side">
+      <span class="ls-pill live" id="liveCount" hidden><i class="ls-dot"></i><span></span></span>
+      <a class="zp-btn ghost" href="live.html"><span data-ic="tv"></span>Watch Live</a>
     </div>
+  </header>
 
-    <div class="flex items-center gap-2 shrink-0">
-      <button class="relative w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
-        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-        <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">3</span>
-      </button>
-      <button class="relative w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
-        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-        <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">2</span>
-      </button>
-      <div class="hidden md:inline-flex items-center gap-1 bg-red-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full">
-        <span class="w-1.5 h-1.5 rounded-full bg-white live-pulse"></span> LIVE
-      </div>
-      <div class="hidden md:flex items-center gap-2 bg-dark-3 rounded-full px-4 py-2">
-        <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span id="top-wallet" class="text-sm font-semibold text-gray-200">TSh 0</span>
-        <button class="text-primary text-lg leading-none">+</button>
-      </div>
-      <div class="flex items-center gap-2 bg-dark-3 rounded-full pl-1 pr-3 py-1">
-        <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        </div>
-        <div class="hidden md:block">
-          <div id="top-name" class="text-sm font-semibold text-gray-200 leading-tight">User</div>
-          <div class="text-[10px] text-gray-500 leading-tight">User</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
+  <nav class="zp-tabs" id="statusTabs" aria-label="Hali ya mechi"></nav>
+  <div class="zp-chips nowrap-m" id="leagueChips" style="margin-bottom:16px" hidden></div>
 
-<div class="flex">
-
-  <!-- SIDEBAR -->
-  <aside class="hidden lg:block w-64 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16 overflow-y-auto max-h-[calc(100vh-64px)]">
-    <nav id="sidebar-nav" class="py-4">
-      <div class="px-4 py-2"><div class="skeleton h-10 rounded-lg"></div></div>
-    </nav>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
-
-    <!-- HERO BANNER -->
-    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden h-52 md:h-60">
-      <div class="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-purple-800/50 to-blue-900/40"></div>
-
-      <div class="relative h-full flex items-center justify-between p-6 md:p-10">
-        <div class="z-10">
-          <div class="inline-flex items-center gap-2 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full mb-3">
-            <span class="w-1.5 h-1.5 rounded-full bg-white live-pulse"></span> LIVE
-          </div>
-          <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-2">LIVE<span class="text-cyan">CORE</span></h1>
-          <p class="text-xs md:text-sm text-gray-200 tracking-widest mb-4">REAL-TIME SCORES • MATCH UPDATES • DETAILED STATS</p>
-          <div class="flex items-center gap-3 text-white">
-            <div class="w-9 h-9 rounded-lg bg-white/10 backdrop-blur flex items-center justify-center">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            </div>
-            <span class="text-sm font-semibold">Live Matches</span>
-          </div>
-        </div>
-
-        <!-- Right side -->
-        <div class="hidden md:block text-right z-10">
-          <div class="text-white italic text-2xl font-bold leading-tight">Every Goal</div>
-          <div class="text-white italic text-2xl font-bold leading-tight mb-3">Every Match</div>
-          <div class="text-cyan text-3xl font-extrabold italic">Live!</div>
-        </div>
-
-        <!-- Soccer ball -->
-        <div class="absolute right-64 top-1/2 -translate-y-1/2 w-24 h-24 opacity-60 pointer-events-none">
-          <svg viewBox="0 0 100 100" fill="white">
-            <circle cx="50" cy="50" r="40" fill="white" opacity="0.9"/>
-            <polygon points="50,20 65,35 60,55 40,55 35,35" fill="#0a0a1a"/>
-            <polygon points="20,40 35,35 40,55 25,65" fill="#0a0a1a"/>
-            <polygon points="80,40 65,35 60,55 75,65" fill="#0a0a1a"/>
-          </svg>
-        </div>
-      </div>
-
-      <!-- Carousel dots -->
-      <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-        <span class="w-2 h-1.5 rounded-full bg-white/30"></span>
-        <span class="w-2 h-1.5 rounded-full bg-white/30"></span>
-        <span class="w-6 h-1.5 rounded-full bg-cyan"></span>
-      </div>
-    </div>
-
-    <!-- SPORTS TABS -->
-    <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2" id="sports-tabs"></div>
-
-    <!-- TIME TABS -->
-    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
-      <button class="time-tab active px-4 py-2 rounded-lg text-sm font-semibold bg-dark-3 text-gray-300 whitespace-nowrap flex items-center gap-2" data-time="live">
-        <span class="w-2 h-2 rounded-full bg-red-500 live-pulse"></span>
-        Live (<span id="live-count">0</span>)
-      </button>
-      <button class="time-tab px-4 py-2 rounded-lg text-sm font-semibold bg-dark-3 text-gray-300 whitespace-nowrap" data-time="today">Today</button>
-      <button class="time-tab px-4 py-2 rounded-lg text-sm font-semibold bg-dark-3 text-gray-300 whitespace-nowrap" data-time="tomorrow">Tomorrow</button>
-      <button class="time-tab px-4 py-2 rounded-lg text-sm font-semibold bg-dark-3 text-gray-300 whitespace-nowrap" data-time="completed">Completed</button>
-    </div>
-
-    <!-- GRID -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- LEFT: Leagues & Matches -->
-      <div class="lg:col-span-2 space-y-4" id="leagues-container">
-        <div class="text-center py-12 text-gray-500">Loading...</div>
-      </div>
-
-      <!-- RIGHT: Panels -->
-      <div class="space-y-4">
-
-        <!-- Live Match Center -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2">
-              <span class="text-green-400">📡</span>
-              <h3 class="text-white font-bold">Live Match Center</h3>
-            </div>
-            <span class="text-[10px] text-green-400 flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-green-400 live-pulse"></span>
-              <span id="live-matches-count">0</span> Live Matches
-            </span>
-          </div>
-          <div id="live-match-center" class="space-y-2">
-            <div class="text-center text-gray-500 py-6 text-sm">Loading...</div>
-          </div>
-        </div>
-
-        <!-- Live Standings -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-white font-bold">Live Standings</h3>
-            <a href="#" class="text-xs text-primary">See all →</a>
-          </div>
-
-          <div class="flex gap-1 mb-3 p-1 bg-dark-3 rounded-lg overflow-x-auto scrollbar-hide">
-            <button class="league-tab active flex-1 py-1.5 rounded text-[10px] font-semibold text-gray-300 whitespace-nowrap px-2" data-league="premier">Premier League</button>
-            <button class="league-tab flex-1 py-1.5 rounded text-[10px] font-semibold text-gray-300 whitespace-nowrap px-2" data-league="laliga">La Liga</button>
-            <button class="league-tab flex-1 py-1.5 rounded text-[10px] font-semibold text-gray-300 whitespace-nowrap px-2" data-league="seriea">Serie A</button>
-            <button class="league-tab flex-1 py-1.5 rounded text-[10px] font-semibold text-gray-300 whitespace-nowrap px-2" data-league="bundesliga">Bundesliga</button>
-          </div>
-
-          <table class="w-full text-xs">
-            <thead>
-              <tr class="text-gray-500 border-b border-dark-4">
-                <th class="text-left py-1.5 font-semibold">#</th>
-                <th class="text-left py-1.5 font-semibold">Team</th>
-                <th class="text-center py-1.5 font-semibold">P</th>
-                <th class="text-center py-1.5 font-semibold">W</th>
-                <th class="text-center py-1.5 font-semibold">D</th>
-                <th class="text-center py-1.5 font-semibold">L</th>
-                <th class="text-center py-1.5 font-semibold">Pts</th>
-              </tr>
-            </thead>
-            <tbody id="standings-body">
-              <tr><td colspan="7" class="text-center text-gray-500 py-4">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Football Live Score Promo -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-5 relative overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent"></div>
-          <div class="relative">
-            <div class="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-3">
-              <span class="text-2xl">⚽</span>
-            </div>
-            <h3 class="text-white font-bold mb-1">FOOTBALL</h3>
-            <div class="text-cyan font-extrabold text-xl mb-3">LIVE SCORE</div>
-            <ul class="space-y-1 text-xs text-gray-300 mb-4">
-              <li class="flex items-center gap-2">✓ All leagues - Real-time updates</li>
-              <li class="flex items-center gap-2">✓ Detailed statistics</li>
-            </ul>
-            <button class="w-full gradient-primary text-white text-sm font-semibold py-2.5 rounded-lg">
-              View All Matches →
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="pt-8 mt-8 border-t border-dark-4 text-xs text-gray-500">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-2">
-          <div class="w-6 h-6 rounded gradient-primary flex items-center justify-center text-white text-[10px] font-bold">L</div>
-          <span class="text-white font-bold">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></span>
-          <span class="text-gray-500">Play • Learn • Earn</span>
-        </div>
-        <div class="flex items-center gap-4">
-          <a href="/about" class="hover:text-primary">About</a>
-          <a href="/terms" class="hover:text-primary">Terms</a>
-          <a href="/privacy" class="hover:text-primary">Privacy</a>
-          <a href="/help" class="hover:text-primary">Help</a>
-          <a href="/contact" class="hover:text-primary">Contact</a>
-        </div>
-        <div class="flex items-center gap-3">
-          <span>Follow us:</span>
-          <a href="#" class="w-6 h-6 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center">
-            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          </a>
-          <a href="#" class="w-6 h-6 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center">
-            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/></svg>
-          </a>
-        </div>
-      </div>
-      <div class="text-center mt-4">© 2025 LIFEISGAMETZ. All rights reserved.</div>
-    </footer>
-
-  </main>
+  <div id="scores" aria-live="polite"><div class="ls-skel"></div><div class="ls-skel"></div><div class="ls-skel"></div></div>
+  <p class="zp-count" id="updated"></p>
 </div>
 
-<script src="config.js"></script>
+<script src="zoneplay-shell.js"></script>
+<script src="zp-catalog.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
 <script>
-const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+(function(){
+  var esc = ZP.esc;
+  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
 
-let selectedSport = 'football';
-let selectedTime = 'live';
-let selectedLeague = 'premier';
+  var TABS = [['all','Zote'],['live','Live'],['upcoming','Ratiba'],['ended','Zimekwisha']];
+  var tab='all', league='', matches=[], loaded=false, failed=false;
 
-// SPORTS TABS
-const sports = [
-  { id: 'all', name: 'All Sports', icon: '🏆' },
-  { id: 'football', name: 'Football', icon: '⚽' },
-  { id: 'basketball', name: 'Basketball', icon: '🏀' },
-  { id: 'tennis', name: 'Tennis', icon: '🎾' },
-  { id: 'cricket', name: 'Cricket', icon: '🏏' },
-  { id: 'hockey', name: 'Hockey', icon: '🏒' },
-  { id: 'volleyball', name: 'Volleyball', icon: '🏐' },
-  { id: 'more', name: 'More', icon: '⋯' }
-];
+  var statusOf=ZP.match.status, teams=ZP.match.teams, badge=ZP.match.badge, hasScore=ZP.match.hasScore;
 
-function renderSportsTabs() {
-  document.getElementById('sports-tabs').innerHTML = sports.map(s => `
-    <button onclick="selectSport('${s.id}')" class="sport-tab ${s.id === selectedSport ? 'active' : ''} flex items-center gap-2 px-4 py-2 rounded-lg bg-dark-3 text-gray-300 hover:bg-dark-4 transition whitespace-nowrap">
-      <span>${s.icon}</span>
-      <span class="text-sm font-semibold">${s.name}</span>
-    </button>
-  `).join('');
-}
-
-function selectSport(id) {
-  selectedSport = id;
-  renderSportsTabs();
-  loadMatches();
-}
-
-// TIME TABS
-document.querySelectorAll('.time-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.time-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedTime = btn.dataset.time;
-    loadMatches();
-  });
-});
-
-// LEAGUE TABS (standings)
-document.querySelectorAll('.league-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.league-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedLeague = btn.dataset.league;
-    loadStandings();
-  });
-});
-
-// LOAD MATCHES
-async function loadMatches() {
-  const container = document.getElementById('leagues-container');
-  container.innerHTML = `<div class="text-center py-12 text-gray-500">Loading...</div>`;
-
-  let query = db.from('sports_matches').select('*').eq('is_active', true);
-  
-  if (selectedSport !== 'all') query = query.eq('sport', selectedSport);
-  
-  if (selectedTime === 'live') query = query.eq('status', 'live');
-  else if (selectedTime === 'today') query = query.eq('status', 'live').or('status.eq.upcoming');
-  else if (selectedTime === 'tomorrow') query = query.eq('status', 'upcoming').gte('match_time', new Date(Date.now() + 86400000).toISOString());
-  else if (selectedTime === 'completed') query = query.eq('status', 'completed');
-
-  const { data: matches } = await query.order('minute', { ascending: false });
-
-  if (!matches || matches.length === 0) {
-    container.innerHTML = `
-      <div class="gradient-card rounded-2xl border border-dark-4 p-12 text-center">
-        <div class="text-5xl mb-3">📺</div>
-        <div class="text-white font-bold mb-2">Hakuna mechi bado</div>
-        <div class="text-sm text-gray-400">Admin ataongeza matches kupitia Admin Dashboard</div>
-      </div>
-    `;
-    document.getElementById('live-matches-count').textContent = '0';
-    document.getElementById('live-count').textContent = '0';
-    return;
+  function row(m){
+    var st=statusOf(m), t=teams(m), live=st==='live';
+    var status = live ? '<b class="live"><i class="ls-dot"></i>LIVE</b>'+(m.minute?'<span>'+esc(m.minute)+'\'</span>':'')
+               : st==='ended' ? '<b>FT</b>'
+               : '<b>RATIBA</b>'+(m.startTime?'<span>'+esc(m.startTime)+'</span>':'');
+    var score = (live||st==='ended') && hasScore(m)
+      ? '<div class="ls-score"><span>'+esc(m.homeScore)+'</span><em>–</em><span>'+esc(m.awayScore)+'</span></div>'
+      : '<div class="ls-score pending">'+'vs'+'</div>';
+    var watch = (m.streamUrl||m.videoUrl) && st!=='ended' ? '<a class="zp-btn sm" href="live.html?id='+encodeURIComponent(m.id)+'">'+ZP.icon('play')+'<span class="lbl">Tazama</span></a>' : '';
+    return '<div class="ls-row'+(live?' is-live':'')+'">'+
+      '<div class="ls-status">'+status+'</div>'+
+      '<div class="ls-team home">'+(t[1]?'<span>'+esc(t[0])+'</span>'+badge(t[0]):'<span>'+esc(t[0])+'</span>')+'</div>'+
+      score+
+      (t[1]?'<div class="ls-team away">'+badge(t[1])+'<span>'+esc(t[1])+'</span></div>':'<div></div>')+
+      '<div class="ls-act">'+watch+'</div></div>';
   }
 
-  // Group by league
-  const leagues = {};
-  matches.forEach(m => {
-    const lg = m.league || 'Other';
-    if (!leagues[lg]) leagues[lg] = [];
-    leagues[lg].push(m);
-  });
+  function render(){
+    var box=document.getElementById('scores');
+    var counts={all:matches.length,live:0,upcoming:0,ended:0};
+    matches.forEach(function(m){ counts[statusOf(m)]++; });
+    var lc=document.getElementById('liveCount');
+    lc.hidden=!counts.live; lc.querySelector('span').textContent=counts.live+' LIVE';
 
-  container.innerHTML = Object.keys(leagues).map(leagueName => `
-    <div class="gradient-card rounded-2xl border border-dark-4 overflow-hidden">
-      <div class="flex items-center justify-between p-4 border-b border-dark-4">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">⚽</span>
-          <h3 class="text-white font-bold text-sm">Football — ${leagueName}</h3>
-        </div>
-        <div class="flex items-center gap-3">
-          <span class="text-[10px] bg-red-500 text-white font-bold px-2 py-0.5 rounded flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-white live-pulse"></span>LIVE
-          </span>
-          <a href="#" class="text-xs text-primary">See all →</a>
-        </div>
-      </div>
-      <div class="divide-y divide-dark-4">
-        ${leagues[leagueName].map(m => renderMatchRow(m)).join('')}
-      </div>
-    </div>
-  `).join('');
+    document.getElementById('statusTabs').innerHTML=TABS.map(function(t){
+      return '<button type="button" class="zp-chip'+(t[0]===tab?' active':'')+'" data-t="'+t[0]+'">'+t[1]+' <i>'+counts[t[0]]+'</i></button>';
+    }).join('');
 
-  const liveMatches = matches.filter(m => m.status === 'live');
-  document.getElementById('live-matches-count').textContent = liveMatches.length;
-  document.getElementById('live-count').textContent = liveMatches.length;
+    var leagues=[]; matches.forEach(function(m){ var l=m.league||'Football'; if(leagues.indexOf(l)<0) leagues.push(l); });
+    var lcEl=document.getElementById('leagueChips');
+    lcEl.hidden = leagues.length<2;
+    if (league && leagues.indexOf(league)<0) league='';
+    lcEl.innerHTML='<button type="button" class="zp-chip'+(league?'':' active')+'" data-l="">Ligi zote</button>'+leagues.map(function(l){ return '<button type="button" class="zp-chip'+(l===league?' active':'')+'" data-l="'+esc(l)+'">'+esc(l)+'</button>'; }).join('');
 
-  loadLiveMatchCenter();
-}
-
-function renderMatchRow(m) {
-  return `
-    <div class="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-dark-3/50 transition">
-      <div class="col-span-2 md:col-span-1 flex items-center gap-1">
-        <span class="w-2 h-2 rounded-full bg-red-500 live-pulse"></span>
-        <span class="text-xs text-red-400 font-bold">${m.minute || 0}'</span>
-      </div>
-      <div class="col-span-10 md:col-span-4 flex items-center justify-end gap-2 min-w-0">
-        <div class="text-xs text-white font-semibold truncate text-right">${m.home_team}</div>
-        ${m.home_logo ? `<img src="${m.home_logo}" class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4 shrink-0">` : `<div class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4 shrink-0"></div>`}
-      </div>
-      <div class="col-span-12 md:col-span-2 text-center">
-        <span class="inline-block bg-primary text-white text-xs font-bold px-3 py-1 rounded">${m.home_score} - ${m.away_score}</span>
-      </div>
-      <div class="col-span-10 md:col-span-4 flex items-center justify-start gap-2 min-w-0">
-        ${m.away_logo ? `<img src="${m.away_logo}" class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4 shrink-0">` : `<div class="w-6 h-6 rounded-full bg-dark-3 border border-dark-4 shrink-0"></div>`}
-        <div class="text-xs text-white font-semibold truncate">${m.away_team}</div>
-      </div>
-      <div class="col-span-12 md:col-span-1 hidden md:block text-center text-[10px] text-gray-500">
-        HT<br><span class="text-white">${m.ht_score || '-'}</span>
-      </div>
-    </div>
-  `;
-}
-
-// LIVE MATCH CENTER (Right Panel)
-async function loadLiveMatchCenter() {
-  const { data: matches } = await db.from('sports_matches').select('*').eq('status', 'live').eq('is_active', true).order('minute', { ascending: false }).limit(5);
-
-  const container = document.getElementById('live-match-center');
-  if (!matches || matches.length === 0) {
-    container.innerHTML = `<div class="text-center text-gray-500 py-6 text-sm">Hakuna live matches</div>`;
-    return;
-  }
-
-  container.innerHTML = matches.map(m => `
-    <div class="flex items-center gap-2 p-2 bg-dark-3 rounded-lg hover:bg-dark-4 transition cursor-pointer">
-      <div class="w-10 text-center shrink-0">
-        <div class="flex items-center justify-center gap-0.5 mb-0.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse"></span>
-          <span class="text-[9px] text-red-400 font-bold">${m.minute || 0}'</span>
-        </div>
-      </div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center justify-between gap-2 mb-0.5">
-          <div class="flex items-center gap-1.5 min-w-0">
-            ${m.home_logo ? `<img src="${m.home_logo}" class="w-4 h-4 rounded-full shrink-0">` : `<div class="w-4 h-4 rounded-full bg-dark-4 shrink-0"></div>`}
-            <span class="text-[11px] text-white font-semibold truncate">${m.home_team}</span>
-          </div>
-          <span class="text-xs font-bold text-white shrink-0">${m.home_score}</span>
-        </div>
-        <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-1.5 min-w-0">
-            ${m.away_logo ? `<img src="${m.away_logo}" class="w-4 h-4 rounded-full shrink-0">` : `<div class="w-4 h-4 rounded-full bg-dark-4 shrink-0"></div>`}
-            <span class="text-[11px] text-gray-300 truncate">${m.away_team}</span>
-          </div>
-          <span class="text-xs font-bold text-white shrink-0">${m.away_score}</span>
-        </div>
-        <div class="text-[9px] text-gray-500 mt-0.5 truncate">${m.league || ''}</div>
-      </div>
-      <svg class="w-3 h-3 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-    </div>
-  `).join('');
-}
-
-// LIVE STANDINGS
-async function loadStandings() {
-  // Kwa mfano: tunatumia data ya mock kwa mwanzo
-  // Baadaye utaweka table ya `standings`
-  const mockStandings = {
-    premier: [
-      { pos: 1, team: 'Liverpool', logo: '', p: 34, w: 25, d: 7, l: 2, pts: 82 },
-      { pos: 2, team: 'Arsenal', logo: '', p: 34, w: 23, d: 8, l: 3, pts: 77 },
-      { pos: 3, team: 'Man City', logo: '', p: 34, w: 22, d: 6, l: 6, pts: 72 },
-      { pos: 4, team: 'Aston Villa', logo: '', p: 34, w: 20, d: 6, l: 8, pts: 66 },
-      { pos: 5, team: 'Tottenham', logo: '', p: 34, w: 18, d: 6, l: 10, pts: 60 }
-    ],
-    laliga: [
-      { pos: 1, team: 'Real Madrid', logo: '', p: 34, w: 26, d: 5, l: 3, pts: 83 },
-      { pos: 2, team: 'Barcelona', logo: '', p: 34, w: 24, d: 6, l: 4, pts: 78 },
-      { pos: 3, team: 'Atlético', logo: '', p: 34, w: 21, d: 8, l: 5, pts: 71 },
-      { pos: 4, team: 'Athletic', logo: '', p: 34, w: 18, d: 8, l: 8, pts: 62 },
-      { pos: 5, team: 'Real Sociedad', logo: '', p: 34, w: 17, d: 8, l: 9, pts: 59 }
-    ],
-    seriea: [
-      { pos: 1, team: 'Inter Milan', logo: '', p: 34, w: 27, d: 5, l: 2, pts: 86 },
-      { pos: 2, team: 'AC Milan', logo: '', p: 34, w: 22, d: 7, l: 5, pts: 73 },
-      { pos: 3, team: 'Juventus', logo: '', p: 34, w: 19, d: 9, l: 6, pts: 66 },
-      { pos: 4, team: 'Napoli', logo: '', p: 34, w: 17, d: 8, l: 9, pts: 59 },
-      { pos: 5, team: 'AS Roma', logo: '', p: 34, w: 16, d: 8, l: 10, pts: 56 }
-    ],
-    bundesliga: [
-      { pos: 1, team: 'Bayern Munich', logo: '', p: 34, w: 25, d: 5, l: 4, pts: 80 },
-      { pos: 2, team: 'Dortmund', logo: '', p: 34, w: 22, d: 7, l: 5, pts: 73 },
-      { pos: 3, team: 'RB Leipzig', logo: '', p: 34, w: 20, d: 7, l: 7, pts: 67 },
-      { pos: 4, team: 'Leverkusen', logo: '', p: 34, w: 18, d: 8, l: 8, pts: 62 },
-      { pos: 5, team: 'Stuttgart', logo: '', p: 34, w: 16, d: 9, l: 9, pts: 57 }
-    ]
-  };
-
-  const data = mockStandings[selectedLeague] || [];
-  document.getElementById('standings-body').innerHTML = data.map(r => `
-    <tr class="border-b border-dark-4 hover:bg-dark-3">
-      <td class="py-2 text-gray-400">${r.pos}</td>
-      <td class="py-2 text-white font-semibold text-[11px]">${r.team}</td>
-      <td class="py-2 text-center text-white">${r.p}</td>
-      <td class="py-2 text-center text-white">${r.w}</td>
-      <td class="py-2 text-center text-white">${r.d}</td>
-      <td class="py-2 text-center text-white">${r.l}</td>
-      <td class="py-2 text-center text-primary font-bold">${r.pts}</td>
-    </tr>
-  `).join('');
-}
-
-// SIDEBAR
-async function loadSidebar() {
-  const { data } = await db.from('sidebar_menu').select('*').eq('is_active', true).order('display_order');
-  if (!data) return;
-  const groups = {};
-  data.forEach(item => {
-    if (!groups[item.group_name]) groups[item.group_name] = [];
-    groups[item.group_name].push(item);
-  });
-  const nav = document.getElementById('sidebar-nav');
-  nav.innerHTML = '';
-  const iconMap = {
-    home: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>',
-    store: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>',
-    games: '<circle cx="12" cy="12" r="10"/>',
-    trophy: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>',
-    tv: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
-    live: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/>',
-    betting: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
-    cart: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>',
-    profile: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>',
-    wallet: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>',
-    health: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>'
-  };
-  Object.keys(groups).forEach(groupName => {
-    const groupEl = document.createElement('div');
-    groupEl.className = 'mb-4';
-    const title = document.createElement('div');
-    title.className = 'px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 font-bold';
-    title.textContent = groupName;
-    groupEl.appendChild(title);
-    groups[groupName].forEach(item => {
-      const link = document.createElement('a');
-      link.href = item.link || '#';
-      const isActive = window.location.pathname.includes(item.link?.replace('/', '').replace('.html', '')) && item.link !== '/';
-      link.className = `flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm ${isActive ? 'bg-primary text-white' : 'text-gray-300 hover:bg-dark-3 hover:text-white'} transition`;
-      link.innerHTML = `<svg class="w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">${iconMap[item.icon] || iconMap.games}</svg><span>${item.label}</span>`;
-      groupEl.appendChild(link);
-    });
-    nav.appendChild(groupEl);
-  });
-}
-
-// INIT
-async function init() {
-  const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    const { data: profile } = await db.from('profiles').select('*').eq('id', session.user.id).single();
-    if (profile) {
-      document.getElementById('top-name').textContent = profile.full_name || profile.username;
-      document.getElementById('top-wallet').textContent = `TSh ${(profile.wallet_balance || 0).toLocaleString()}`;
+    if (failed && !matches.length){
+      box.innerHTML='<div class="zp-empty"><h3>Live Scores haipatikani kwa sasa</h3><p>Angalia mtandao wako kisha jaribu tena.</p><button class="zp-btn" type="button" id="retry">Jaribu tena</button></div>';
+      document.getElementById('retry').addEventListener('click',load); return;
     }
+    var list=matches.filter(function(m){ return (tab==='all'||statusOf(m)===tab) && (!league || (m.league||'Football')===league); });
+    if (!list.length){
+      box.innerHTML='<div class="zp-empty"><h3>'+(matches.length?'Hakuna mechi kwenye kundi hili':'Hakuna mechi kwa sasa')+'</h3><p>'+(matches.length?'Chagua kundi lingine hapo juu.':'Mechi zinaonekana hapa admin akiziweka. Angalia pia mashindano ya GameHub.')+'</p><a class="zp-btn ghost" href="tournaments.html">Tournaments</a></div>';
+      return;
+    }
+    var order={live:0,upcoming:1,ended:2};
+    list.sort(function(a,b){ return order[statusOf(a)]-order[statusOf(b)]; });
+    var groups={}, names=[];
+    list.forEach(function(m){ var l=m.league||'Football'; if(!groups[l]){ groups[l]=[]; names.push(l); } groups[l].push(m); });
+    box.innerHTML=names.map(function(l){
+      return '<section class="ls-league"><header>'+ZP.icon('ball')+'<h3>'+esc(l)+'</h3><small>'+groups[l].length+(groups[l].length===1?' mechi':' mechi')+'</small></header>'+groups[l].map(row).join('')+'</section>';
+    }).join('');
+    document.getElementById('updated').textContent='Imesasishwa '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   }
-  loadSidebar();
-  renderSportsTabs();
-  loadMatches();
-  loadStandings();
-}
 
-document.addEventListener('DOMContentLoaded', init);
-</script>
-
-
-<script id="lifeisgametz-navigation-repair">
-(function () {
-  function initNavigationRepair() {
-    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
-    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
-              document.querySelector('nav');
-    toggles.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!nav) {
-          window.location.href = 'index.html';
-          return;
-        }
-        nav.classList.toggle('lifeisgametz-mobile-nav-open');
-        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
-        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
-        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
-        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
-        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
-        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
-        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
-        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav) {
-        nav.classList.remove('lifeisgametz-mobile-nav-open');
-        nav.style.display = '';
-        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
-        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
-      }
-    });
+  function load(){
+    fetch('/api/live-streams').then(function(r){ return r.json(); }).then(function(d){
+      matches=(d&&d.streams)||[]; failed=false; loaded=true; render();
+    }).catch(function(){ failed=true; render(); });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
-  else initNavigationRepair();
+  document.getElementById('statusTabs').addEventListener('click',function(e){ var b=e.target.closest('[data-t]'); if(b){ tab=b.dataset.t; render(); } });
+  document.getElementById('leagueChips').addEventListener('click',function(e){ var b=e.target.closest('[data-l]'); if(b){ league=b.dataset.l; render(); } });
+  load();
+  setInterval(function(){ if(!document.hidden) load(); },30000);
 })();
 </script>
-
 </body>
 </html>

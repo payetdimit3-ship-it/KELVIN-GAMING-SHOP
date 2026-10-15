@@ -1,103 +1,104 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1,
-                 viewport-fit=cover">
-  <title>Login - LIFEISGAMETZ</title>
-  <link rel="stylesheet" href="assets/lgz.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Ingia — LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="zoneplay-full.css">
 </head>
 <body>
+<div class="main">
+  <div class="au-wrap">
+    <section class="au-hero" aria-hidden="false">
+      <div class="zp-brand"><svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="aug" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19d8ff"/><stop offset="1" stop-color="#7c3aff"/></linearGradient></defs><path d="M24 3 42 13.5v21L24 45 6 34.5v-21z" fill="#0a1236" stroke="url(#aug)" stroke-width="2.4"/><path d="M24 12 34 18v12l-10 6-10-6V18z" fill="none" stroke="url(#aug)" stroke-width="2"/><path d="M24 12v24 M14 18l20 12 M34 18 14 30" stroke="url(#aug)" stroke-width="1.3" opacity=".7"/></svg><span><b>LIFEIS<span>GAME</span>TZ</b><small>PLAY • LEARN • EARN</small></span></div>
+      <h1>Karibu Tena</h1>
+      <p>Ingia kuendelea kununua, kufuatilia oda zako na kucheza games zako.</p>
+      <ul class="au-perks">
+        <li><span data-ic="box"></span>Fuatilia oda na maktaba yako</li>
+        <li><span data-ic="heart"></span>Wishlist na kikapu vinakusubiri</li>
+        <li><span data-ic="wallet"></span>Lipa kwa M-Pesa, Tigo Pesa, Airtel Money au Halotel</li>
+      </ul>
+    </section>
 
-  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
-  <div class="app">
+    <section class="au-card">
+      <div id="again" class="au-again" hidden>
+        <span id="againText"></span>
+        <div class="ac-cta"><a class="zp-btn sm" id="againGo" href="index.html">Endelea</a><button class="zp-btn ghost sm" id="againOut" type="button">Toka na uingie upya</button></div>
+      </div>
 
-    <aside id="side"></aside>
-
-    <div style="min-width:0">
-      <header>
-        <button class="menu" aria-label="Menu"
-                onclick="side.classList.toggle('open')">
-          &#9776;
-        </button>
-        <input id="q" placeholder="Tafuta games..."
-               aria-label="Tafuta">
-        <div class="user" id="usr"></div>
-      </header>
-
-      <main id="main"></main>
-    </div>
-
+      <div id="formBox">
+        <h2>Ingia</h2>
+        <p>Weka email na password ya akaunti yako.</p>
+        <form class="au-form" id="loginForm" novalidate style="margin-top:12px">
+          <div class="ck-field"><label for="email">Email</label><input type="email" id="email" required placeholder="juma@email.com" autocomplete="username" inputmode="email"></div>
+          <div class="ck-field"><label for="password">Password</label>
+            <div class="au-pw"><input type="password" id="password" required placeholder="••••••" autocomplete="current-password"><button class="au-eye" id="eye" type="button" aria-label="Onyesha password" aria-pressed="false"></button></div>
+          </div>
+          <div class="au-row"><span></span><a id="forgot" target="_blank" rel="noopener">Umesahau password?</a></div>
+          <button type="submit" class="zp-btn ck-pay" id="loginBtn"></button>
+          <p class="ck-status" id="authMsg" role="alert" aria-live="assertive"></p>
+        </form>
+        <p class="au-switch">Huna account? <a id="regLink" href="register.html">Jiunge hapa</a></p>
+      </div>
+    </section>
   </div>
+</div>
 
-  <div id="toast" role="status"></div>
+<script src="zoneplay-shell.js"></script>
+<script src="zp-catalog.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
+<script>
+(function(){
+  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
+  var form=document.getElementById('loginForm'), btn=document.getElementById('loginBtn'), msg=document.getElementById('authMsg'),
+      email=document.getElementById('email'), pw=document.getElementById('password'), eye=document.getElementById('eye');
+  btn.innerHTML=ZP.icon('user')+'Ingia'; eye.innerHTML=ZP.icon('eye');
 
-  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
-  <script src="assets/lgz-core.js"></script>
+  /* where to go afterwards: only a plain page of this site (e.g. checkout.html?quick=1), never an outside address */
+  var ret=new URLSearchParams(location.search).get('return')||'';
+  var target=/^[A-Za-z0-9_-]+\.html(\?[A-Za-z0-9_=&%.-]*)?$/.test(ret) ? ret : 'index.html';
+  document.getElementById('regLink').href='register.html'+(target!=='index.html'?'?return='+encodeURIComponent(target):'');
 
-  <!-- ========================================================
-       MSIMBO WA UKURASA HUU: Login
-       ======================================================== -->
-  <script>
-    LGZ.page({
-      file: 'login.html',
-      pg: 'login',
-      p: '',
-      admin: 0
-    }, function (a, q, A, pg) {
-      if (me())
-        return '<div class="empty">Umeingia tayari.<br>'
-          + '<br><a class="btn" href="profile.html">'
-          + 'Fungua Profile</a></div>';
-      var rg = pg === 'register';
-      return '<div class="auth"><div class="promo">'
-        + '<h1>'
-        + (rg ? 'Fungua Akaunti' : 'Welcome Back!')
-        + '</h1><p>Nunua games, hifadhi wishlist '
-        + 'na uone Library yako.</p><ul><li>Lipa '
-        + 'kwa M-Pesa, Tigo Pesa au Airtel Money'
-        + '</li><li>Pata games za bure</li><li>'
-        + 'Fuatilia oda zako</li></ul></div>'
-        + '<div class="panel" style="margin:0">'
-        + '<div class="row" '
-        + 'style="margin-bottom:14px">'
-        + '<a class="btn '
-        + (rg ? 'o' : '')
-        + '" style="flex:1;text-align:center" '
-        + 'href="login.html">Login</a>'
-        + '<a class="btn '
-        + (rg ? '' : 'o')
-        + '" style="flex:1;text-align:center" '
-        + 'href="register.html">Register</a></div>'
-        + (
-          rg
-            ? '<form onsubmit="reg(event)">'
-              + '<label class="full">Jina kamili'
-              + '<input name="nm" required></label>'
-              + '<label class="full">Email'
-              + '<input name="em" type="email" required>'
-              + '</label><label class="full">Simu'
-              + '<input name="ph" placeholder="+255...">'
-              + '</label><label class="full">Password'
-              + '<input name="pw" type="password" '
-              + 'required minlength="6"></label>'
-              + '<div class="full"><button class="btn" '
-              + 'style="width:100%" type="submit">'
-              + 'Create Account</button></div></form>'
-            : '<form onsubmit="login(event)">'
-              + '<label class="full">Email'
-              + '<input name="em" type="email" required>'
-              + '</label><label class="full">Password'
-              + '<input name="pw" type="password" '
-              + 'required></label><div class="full">'
-              + '<button class="btn" style="width:100%" '
-              + 'type="submit">Login</button></div>'
-              + '</form>'
-        )
-        + '</div></div>';
+  /* already signed in? */
+  var token=localStorage.getItem('gamehubToken'), user=null; try{ user=JSON.parse(localStorage.getItem('gamehubUser')||'null'); }catch(e){}
+  if (token && user){
+    document.getElementById('formBox').hidden=true; document.getElementById('again').hidden=false;
+    document.getElementById('againText').textContent='Umeshaingia kama '+(user.name||user.email||'mteja')+'.';
+    document.getElementById('againGo').href=target;
+    document.getElementById('againOut').addEventListener('click',function(){
+      try{ fetch('/api/auth/logout',{method:'POST',headers:{'Authorization':token}}); }catch(e){}
+      localStorage.removeItem('gamehubToken'); localStorage.removeItem('gamehubUser'); location.reload();
     });
-  </script>
+  }
 
+  /* forgot password: there is no reset service, so we hand over to support with the e-mail typed so far */
+  var forgot=document.getElementById('forgot');
+  function setForgot(){ forgot.href=ZP.waLink('Habari, nimesahau password ya akaunti yangu'+(email.value.trim()?' ('+email.value.trim()+')':'')+'. Naomba msaada.'); }
+  setForgot(); email.addEventListener('input',setForgot);
+
+  eye.addEventListener('click',function(){
+    var show=pw.type==='password'; pw.type=show?'text':'password';
+    eye.innerHTML=ZP.icon(show?'eyeoff':'eye'); eye.setAttribute('aria-pressed',show); eye.setAttribute('aria-label',show?'Ficha password':'Onyesha password');
+  });
+
+  function say(t,cls){ msg.textContent=t||''; msg.className='ck-status'+(cls?' '+cls:''); }
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var em=email.value.trim(), pass=pw.value;
+    if (!em||!pass){ say('Jaza email na password.'); (em?pw:email).focus(); return; }
+    say(''); btn.disabled=true; btn.textContent='⏳ Inaingia...';
+    fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,password:pass})})
+      .then(function(r){ return r.json().catch(function(){ return {}; }); })
+      .then(function(d){
+        if (!d.success){ say(d.error||'Hitilafu. Jaribu tena.'); btn.disabled=false; btn.innerHTML=ZP.icon('user')+'Ingia'; pw.select(); return; }
+        localStorage.setItem('gamehubToken',d.token); localStorage.setItem('gamehubUser',JSON.stringify(d.user));
+        say('Umefanikiwa! Inakupeleka...','ok'); location.replace(target);
+      })
+      .catch(function(){ say('Hitilafu ya mtandao. Jaribu tena.'); btn.disabled=false; btn.innerHTML=ZP.icon('user')+'Ingia'; });
+  });
+  if (!(token&&user) && window.matchMedia('(min-width:901px)').matches) email.focus();
+})();
+</script>
 </body>
 </html>

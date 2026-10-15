@@ -1,156 +1,78 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1,
-                 viewport-fit=cover">
-  <title>My Profile - LIFEISGAMETZ</title>
-  <link rel="stylesheet" href="assets/lgz.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>My Profile — LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="zoneplay-full.css">
 </head>
 <body>
+<div class="main">
+  <div id="root"><div class="zp-empty"><p>Inapakia...</p></div></div>
+</div>
 
-  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
-  <div class="app">
+<script src="zoneplay-shell.js"></script>
+<script src="zp-catalog.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
+<script>
+(function(){
+  var esc=ZP.esc, root=document.getElementById('root'), token=localStorage.getItem('gamehubToken');
 
-    <aside id="side"></aside>
+  function lsGet(k,d){ try{ var v=JSON.parse(localStorage.getItem(k)); return v==null?d:v; }catch(e){ return d; } }
+  function loginPrompt(title,text){
+    root.innerHTML='<header class="zp-page-head"><div class="zp-ph-ic">'+ZP.icon('user')+'</div><div><h1>My Profile</h1><p>Simamia akaunti yako na huduma zako za GameHub.</p></div></header>'+
+      '<div class="zp-empty"><h3>'+esc(title)+'</h3><p>'+esc(text)+'</p><div class="ac-cta" style="justify-content:center"><a class="zp-btn" href="login.html">'+ZP.icon('user')+'Ingia</a><a class="zp-btn ghost" href="register.html">Jisajili</a></div></div>';
+  }
+  if (!token){ loginPrompt('Ingia kwanza','Ingia ili kuona profile yako, oda zako na games zako.'); return; }
 
-    <div style="min-width:0">
-      <header>
-        <button class="menu" aria-label="Menu"
-                onclick="side.classList.toggle('open')">
-          &#9776;
-        </button>
-        <input id="q" placeholder="Tafuta games..."
-               aria-label="Tafuta">
-        <div class="user" id="usr"></div>
-      </header>
+  var auth={headers:{'Authorization':token}};
+  Promise.all([
+    fetch('/api/auth/me',auth).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return undefined; }),
+    fetch('/api/my-orders',auth).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; })
+  ]).then(function(res){
+    var me=res[0], ord=res[1];
+    if (me===undefined){ root.innerHTML='<div class="zp-empty"><h3>Imeshindikana kupakia profile</h3><p>Angalia mtandao kisha jaribu tena.</p><button class="zp-btn" type="button" onclick="location.reload()">Jaribu tena</button></div>'; return; }
+    if (!me || !me.user){ loginPrompt('Session imeisha','Ingia tena kuona profile yako.'); return; }
+    show(me.user, ord&&ord.orders ? ord.orders : null);
+  });
 
-      <main id="main"></main>
-    </div>
+  function show(u,orders){
+    var name=u.name||'Mchezaji', email=u.email||'', role=u.isAdmin?'ADMIN':(u.isStaff?'STAFF':'MTEJA');
+    var rentals=lsGet('gamehubRentals',[]).filter(function(r){ return r && r.endTime>Date.now(); }).length;
+    var wish=Object.keys(lsGet('gamehubWishlist',{})).length;
+    var cartRaw=lsGet('gamehubCart',{}), cart=(Array.isArray(cartRaw)?cartRaw:Object.values(cartRaw)).reduce(function(n,i){ return n+(Number(i.qty||i.quantity)||1); },0);
+    var ok=orders?orders.filter(function(o){ return o.status==='successful'; }).length:null;
+    var bal=Number(u.balance)||0;
 
-  </div>
+    root.innerHTML=
+      '<section class="pf-card"><div class="pf-avatar" aria-hidden="true">'+esc(name.charAt(0).toUpperCase())+'</div>'+
+        '<div class="pf-id"><h1>'+esc(name)+'</h1><p>'+esc(email)+'</p><span class="pf-role">'+role+'</span></div>'+
+        '<div class="pf-actions">'+(u.isAdmin?'<a class="zp-btn" href="admin.html">'+ZP.icon('settings')+'Admin Dashboard</a>':'')+'<button class="zp-btn ghost" id="logoutBtn" type="button">'+ZP.icon('logout')+'Toka</button></div></section>'+
+      '<div class="pf-stats">'+
+        '<a class="pf-stat" href="myorders.html"><b>'+(orders?orders.length:'–')+'</b><span>Oda zote'+(ok!=null?' • '+ok+' zimethibitishwa':'')+'</span></a>'+
+        '<a class="pf-stat" href="mygames.html"><b>'+rentals+'</b><span>Muda wa kucheza unaoendelea</span></a>'+
+        '<a class="pf-stat" href="wishlist.html"><b>'+wish+'</b><span>Kwenye wishlist</span></a>'+
+        '<a class="pf-stat" href="cart.html"><b>'+cart+'</b><span>Kwenye kikapu</span></a></div>'+
+      (bal>0?'<div class="pf-bal">'+ZP.icon('wallet')+'<div><b>'+ZP.money(bal)+' TZS</b><span>Salio la mashindano</span></div></div>':'')+
+      '<div class="zp-sec"><h2>Njia za Mkato</h2></div>'+
+      '<section class="pf-links">'+
+        link('myorders.html','box','My Orders','Bidhaa ulizonunua na hali ya malipo')+
+        link('mygames.html','book','My Games','Muda wa kucheza na maktaba yako')+
+        link('wishlist.html','heart','Wishlist','Games ulizoweka kwa baadaye')+
+        link('tournaments.html','trophy','Tournaments','Mashindano ya community')+
+        link('academy.html','cap','Academy','Kozi na AI Tutor')+
+        link('contact.html','headset','Msaada','Wasiliana nasi')+
+      '</section>'+
+      '<section class="zp-ai" style="margin-top:26px"><div><h2 style="font-size:24px">Kubadilisha taarifa za akaunti?</h2><p style="margin:0 0 14px">Kwa mabadiliko ya jina, email au msaada wa akaunti yako, wasiliana nasi moja kwa moja.</p><a class="zp-btn" target="_blank" rel="noopener" href="'+esc(ZP.waLink('Habari, nahitaji msaada wa akaunti yangu ('+email+')'))+'">'+ZP.icon('chat')+'WhatsApp</a></div></section>';
 
-  <div id="toast" role="status"></div>
-
-  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
-  <script src="assets/lgz-core.js"></script>
-
-  <!-- ========================================================
-       MSIMBO WA UKURASA HUU: My Profile
-       ======================================================== -->
-  <script>
-    LGZ.page({
-      file: 'profile.html',
-      pg: 'profile',
-      p: '',
-      admin: 0
-    }, function (a, q, A, pg) {
-      var m = me();
-      if (!m)
-        return '<div class="empty">'
-          + 'Ingia kwanza kuona profile yako.<br><br>'
-          + '<a class="btn" href="login.html">'
-          + 'Login / Register</a></div>';
-      var mo = db.orders.filter(function (o) {
-        return o.u === m.email;
-      });
-      return '<div class="pf"><div class="av big">'
-        + esc(m.name.charAt(0).toUpperCase())
-        + '</div><div><h1 style="margin:0">'
-        + esc(m.name)
-        + '</h1><div class="sub" '
-        + 'style="margin:2px 0 6px">'
-        + esc(m.email)
-        + '</div><span class="pill on1">'
-        + esc(m.role)
-        + '</span> <span class="sub">Member since '
-        + esc(m.joined)
-        + '</span></div><button class="btn d" '
-        + 'style="margin-left:auto" '
-        + 'onclick="logout()">Logout</button></div>'
-        + (
-          isAdm()
-            ? '<div class="panel" '
-              + 'style="border-color:var(--p)"><div '
-              + 'class="row sp" style="flex-wrap:wrap">'
-              + '<div><h2 style="margin:0">'
-              + 'Admin Dashboard</h2><span class="sub">'
-              + 'Simamia games, bidhaa na oda zako.'
-              + '</span></div>'
-              + '<div class="row" style="flex-wrap:wrap">'
-              + '<a class="btn" href="dashboard.html">'
-              + 'Open Dashboard</a><a class="btn o" '
-              + 'href="games-management.html">'
-              + 'Manage Games</a><a class="btn o" '
-              + 'href="orders-sales.html">Orders</a>'
-              + '</div></div></div>'
-            : ''
-        )
-        + '<div class="stats" '
-        + 'style="margin-top:14px">'
-        + '<div class="stat"><b>'
-        + libItems().length
-        + '</b><span>Games Library</span></div>'
-        + '<div class="stat"><b>'
-        + db.wish.length
-        + '</b><span>Wishlist</span></div>'
-        + '<div class="stat"><b>'
-        + db.cart.length
-        + '</b><span>Cart</span></div>'
-        + '<div class="stat"><b>'
-        + mo.length
-        + '</b><span>Oda zangu</span></div></div>'
-        + '<div class="panel">'
-        + '<h2 style="margin-top:0">Account Details'
-        + '</h2><form onsubmit="upd(event)"><label>'
-        + 'Jina<input name="nm" required value="'
-        + esc(m.name)
-        + '"></label><label>Simu'
-        + '<input name="ph" value="'
-        + esc(m.phone)
-        + '"></label><label>Email<input value="'
-        + esc(m.email)
-        + '" disabled></label><div class="full">'
-        + '<button class="btn" type="submit">'
-        + 'Save Changes</button></div></form></div>'
-        + '<div class="panel">'
-        + '<h2 style="margin-top:0">Oda Zangu</h2>'
-        + (
-          mo.length
-            ? '<div class="tw"><table><tr><th>Order'
-              + '</th><th>Bidhaa</th><th>Amount</th><th>'
-              + 'Date</th><th>Status</th><th></th></tr>'
-              + mo.map(function (o) {
-                return '<tr><td>'
-                  + esc(o.ref)
-                  + '</td><td>'
-                  + esc(o.items.join(', '))
-                  + '</td><td>'
-                  + tsh(o.total)
-                  + '</td><td>'
-                  + o.date
-                  + '</td><td>'
-                  + esc(o.status || '')
-                  + '</td><td>'
-                  + (
-                    isAdm() && o.status === 'Pending'
-                      ? '<button class="btn" onclick="conf(\''
-                        + o.id
-                        + '\')">Confirm</button> '
-                        + '<button class="btn d" onclick="rej(\''
-                        + o.id
-                        + '\')">Reject</button>'
-                      : ''
-                  )
-                  + '</td></tr>';
-              }).join('')
-              + '</table></div>'
-            : '<div class="empty">Bado hujaagiza kitu.</div>'
-        )
-        + '</div>';
+    document.getElementById('logoutBtn').addEventListener('click',function(){
+      try{ fetch('/api/auth/logout',{method:'POST',headers:{'Authorization':token}}); }catch(e){}
+      localStorage.removeItem('gamehubToken'); localStorage.removeItem('gamehubUser'); location.href='login.html';
     });
-  </script>
-
+  }
+  function link(href,ic,t,d){ return '<a class="pf-link" href="'+href+'"><span class="ic-box">'+ZP.icon(ic)+'</span><span><b>'+esc(t)+'</b><span>'+esc(d)+'</span></span></a>'; }
+})();
+</script>
 </body>
 </html>

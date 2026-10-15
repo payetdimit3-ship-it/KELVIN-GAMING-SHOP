@@ -66,17 +66,47 @@
     ['AI Assistant','ai.html','bot'], ['Marketplace','marketplace.html','shop'], ['Wishlist','wishlist.html','heart'],
     ['Cart','cart.html','cart'], ['My Games / Library','mygames.html','book'], ['Profile','profile.html','user']
   ];
+  var ADMIN_NAV = [
+    ['Dashboard','overview','grid'], ['Command Center','command','bot'], ['Mauzo','orders','box'],
+    ['Payments','payments','wallet'], ['Public Chat','publicchat','chat'], ['Wateja','customers','users'],
+    ['Bidhaa','products','gamepad'], ['Hero Studio','hero','film'], ['Requests','requests','search'],
+    ['Marketplace','marketplace','shop'], ['Coupons','coupons','gift'], ['Usalama','security','shield'],
+    ['Media & Live','media','tv'], ['AI','ai','bot']
+  ];
+  /* All additional user pages are reachable from ZAIDI. Keep the original
+     legacy destinations working while exposing the full 41-page sitemap. */
   var MORE = [
-    ['Steam Accounts','steamaccounts.html','user'], ['eFootball Coins','topup.html','ball'], ['Tournaments','tournaments.html','trophy'],
-    ['Cloud Rental','rental.html','cloud'], ['Youth Opportunities','opportunities.html','briefcase'], ['Community Help','community.html','users'],
-    ['Community Fund','community-fund.html','heart'], ['Recovery Support','recovery.html','life'], ['Health Network','professionals.html','pulse'],
-    ['My Orders','myorders.html','box'], ['Game Requests','requests.html','file'], ['Recommendations','recommendations.html','star'],
-    ['Contact','contact.html','mail'], ['FAQ','faq.html','help'], ['Terms & Refund','terms.html','file'], ['Settings','settings.html','settings']
+    ['Winlator & GameHub','winlator-gamehub.html','phone'], ['Steam Accounts','steamaccounts.html','user'],
+    ['eFootball Coins','topup.html','ball'], ['Tournaments','tournament.html','trophy'],
+    ['Cloud Rental','rental.html','cloud'], ['Live Football / Watch Match','live-football-watch.html','tv'],
+    ['Live Movies Player','live-movies-player.html','film'], ['Game Trailer','game-trailer.html','film'],
+    ['Sports TV','sports-tv.html','tv'], ['Sports News','sports-news.html','file'],
+    ['Product Details','product-details.html','bag'], ['Checkout','checkout.html','wallet'],
+    ['Courses','courses.html','cap'], ['My Orders','my-orders.html','box'],
+    ['Requests / Transactions','requests-transactions.html','file'], ['Youth Opportunities','opportunities.html','briefcase'],
+    ['Community Help','community.html','users'], ['Community Fund','community-fund.html','heart'],
+    ['Recovery Support','recovery.html','life'], ['Health Network','professionals.html','pulse'],
+    ['Game Requests','requests.html','file'], ['Recommendations','recommendations.html','star'],
+    ['Contact / Support','contact-support.html','mail'], ['FAQ / Help','faq-help.html','help'],
+    ['Terms & Refund','terms.html','file'], ['Settings','settings.html','settings']
+  ];
+  var ADMIN_PAGES = [
+    ['Admin Dashboard','admin.html'], ['Dashboard','dashboard.html'], ['Games Management','games-management.html'],
+    ['Products Management','products-management.html'], ['Movies Management','movies-management.html'],
+    ['Trailers Management','trailers-management.html'], ['Hero / Homepage Management','hero-homepage-management.html'],
+    ['Live Matches Management','live-matches-management.html'], ['eFootball / Top Up Management','efootball-topup-management.html'],
+    ['Cloud Gaming Management','cloud-gaming-management.html'], ['Gift Cards Management','gift-cards-management.html'],
+    ['Marketplace Management','marketplace-management.html'], ['Users Management','users-management.html'],
+    ['Orders & Sales','orders-sales.html'], ['Coupons & Discounts','coupons-discounts.html'],
+    ['Withdraw Requests','withdraw-requests.html'], ['Support Tickets','support-tickets.html'],
+    ['Courses Management','courses-management.html'], ['Lessons / Videos Management','lessons-videos-management.html'],
+    ['Students Management','students-management.html'], ['Sports TV Management','sports-tv-management.html'],
+    ['Sports News Management','sports-news-management.html'], ['Analytics','analytics.html'],
+    ['Reports','reports.html'], ['Storage & Server','storage-server.html'], ['Settings','settings.html']
   ];
   /* Pages that belong to a sidebar item without being one */
-  var ALIAS = {'product.html':'shop.html','checkout.html':'cart.html','success.html':'mygames.html','myorders.html':'mygames.html',
-    'courses.html':'academy.html','topup.html':'efootball.html','rental.html':'cloudgaming.html','tournaments.html':'efootball.html',
-    'steamaccounts.html':'shop.html','recommendations.html':'shop.html'};
+  var ALIAS = {'product.html':'shop.html','checkout.html':'cart.html','success.html':'mygames.html',
+    'courses.html':'academy.html','refund.html':'terms.html'};
   var here = (location.pathname.split('/').pop()||'index.html').toLowerCase();
   var qs = new URLSearchParams(location.search);
   function isActive(href, strict){
@@ -134,12 +164,39 @@
     var name = user ? (user.name || (user.email||'').split('@')[0] || 'Mteja') : '';
 
     var shell = document.createElement('div'); shell.id='zp-shell'; shell.className='zp-shell';
+    var isAdminPage = here==='admin.html';
     var side = document.createElement('aside'); side.className='zp-sidebar'; side.setAttribute('aria-label','Menu kuu');
-    side.innerHTML =
-      '<a class="zp-brand" href="index.html">'+logoSvg()+'<span><b>LIFEIS<span>GAME</span>TZ</b><small>PLAY • LEARN • EARN</small></span></a>'+
-      '<nav class="zp-nav">'+NAV.map(function(x){ return item(x[0],x[1],x[2], x[0]==='Cart'); }).join('')+
-      '<details class="zp-more"'+(MORE.some(function(m){return isActive(m[1],true);})?' open':'')+'><summary>ZAIDI</summary>'+MORE.map(function(x){ return item(x[0],x[1],x[2]); }).join('')+'</details></nav>'+
-      '<div class="zp-side-foot">'+(isAdmin?'<a href="admin.html">'+ZP.icon('settings')+'Admin Dashboard</a>':'')+'<a href="contact.html">'+ZP.icon('headset')+'Msaada</a></div>';
+    if (isAdminPage){
+      function adminHash(){ return (location.hash||'#tab-overview').replace('#tab-',''); }
+      function adminItem(x){ return '<a class="zp-nav-item" data-tab-link="'+x[1]+'" href="#tab-'+x[1]+'">'+ZP.icon(x[2])+'<span>'+x[0]+'</span></a>'; }
+      side.innerHTML =
+        '<a class="zp-brand" href="admin.html">'+logoSvg()+'<span><b>LIFEIS<span>GAME</span>TZ</b><small>ADMIN OS</small></span></a>'+
+        '<nav class="zp-nav">'+ADMIN_NAV.map(adminItem).join('')+'</nav>'+'<details class="zp-more zp-admin-pages"><summary>Kurasa zote za Admin</summary>'+ADMIN_PAGES.map(function(x){return '<a class="zp-nav-item" href="'+x[1]+'"><span>'+x[0]+'</span></a>';}).join('')+'</details>'+
+        '<div class="zp-side-foot"><a href="index.html">'+ZP.icon('chevl')+'Rudi Dukani</a><a href="contact.html">'+ZP.icon('headset')+'Msaada</a></div>';
+      function paintAdminActive(){
+        var cur=adminHash();
+        side.querySelectorAll('[data-tab-link]').forEach(function(a){ a.classList.toggle('active', a.dataset.tabLink===cur); });
+      }
+      paintAdminActive();
+      window.addEventListener('hashchange', paintAdminActive);
+      /* deep-link: open the matching admin tab (admin.html's own script owns .tab-btn switching) */
+      function openAdminTab(){
+        var name=adminHash(), btn=document.querySelector('.tab-btn[data-tab="'+name+'"]');
+        if (btn && !btn.classList.contains('active')) btn.click();
+      }
+      if (location.hash) setTimeout(openAdminTab, 300);   // after admin.html's own script has bound the tab buttons
+      window.addEventListener('hashchange', openAdminTab);
+      side.addEventListener('click', function(e){
+        var a=e.target.closest('[data-tab-link]'); if(!a) return;
+        setTimeout(openAdminTab, 0);   // hash already changed by the browser; switch the tab now
+      });
+    } else {
+      side.innerHTML =
+        '<a class="zp-brand" href="index.html">'+logoSvg()+'<span><b>LIFEIS<span>GAME</span>TZ</b><small>PLAY • LEARN • EARN</small></span></a>'+
+        '<nav class="zp-nav">'+NAV.map(function(x){ return item(x[0],x[1],x[2], x[0]==='Cart'); }).join('')+
+        '<details class="zp-more"'+(MORE.some(function(m){return isActive(m[1],true);})?' open':'')+'><summary>ZAIDI</summary>'+MORE.map(function(x){ return item(x[0],x[1],x[2]); }).join('')+'</details></nav>'+
+        '<div class="zp-side-foot">'+(isAdmin?'<a href="admin.html">'+ZP.icon('settings')+'Admin Dashboard</a>':'')+'<a href="contact.html">'+ZP.icon('headset')+'Msaada</a></div>';
+    }
 
     var main = document.createElement('div'); main.className='zp-main';
     var header = document.createElement('header'); header.className='zp-header';
@@ -219,6 +276,7 @@
     }
     var active = side.querySelector('.zp-nav-item.active');
     if (active && active.scrollIntoView) active.scrollIntoView({block:'nearest'});
+    if (isAdminPage) bottom.style.display='none';   // the 5-item shopper bottom nav doesn't apply inside Admin OS
     document.dispatchEvent(new CustomEvent('zp:ready'));
   }
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', build); else build();
