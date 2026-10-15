@@ -1,189 +1,71 @@
-<!DOCTYPE html>
-<html lang="sw">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1,
-                 viewport-fit=cover">
-  <title>FAQ &amp; Help - LIFEISGAMETZ</title>
-  <link rel="stylesheet" href="assets/lgz.css">
-</head>
-<body>
-
-  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
-  <div class="app">
-
-    <aside id="side"></aside>
-
-    <div style="min-width:0">
-      <header>
-        <button class="menu" aria-label="Menu"
-                onclick="side.classList.toggle('open')">
-          &#9776;
-        </button>
-        <input id="q" placeholder="Tafuta games..."
-               aria-label="Tafuta">
-        <div class="user" id="usr"></div>
-      </header>
-
-      <main id="main"></main>
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FAQ / Help — LIFEISGAMETZ</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head><body>
+<div class="app">
+<aside class="sidebar">
+  <a class="brand" href="home.html"><div class="brand-mark">🎮</div><div><b>LIFEISGAMETZ</b><small>PLAY • PREDICT • WIN</small></div></a>
+  <nav><div class="nav-label">DISCOVER</div>
+<a class="nav-item " href="home.html"><span class="nav-icon">🏠</span><span>Home</span></a>
+<a class="nav-item " href="store.html"><span class="nav-icon">🛍️</span><span>Store</span></a>
+<a class="nav-item " href="games.html"><span class="nav-icon">🎮</span><span>Games</span></a>
+<a class="nav-item " href="marketplace.html"><span class="nav-icon">🛒</span><span>Marketplace</span></a>
+<a class="nav-item " href="wishlist.html"><span class="nav-icon">❤️</span><span>Wishlist</span></a>
+<a class="nav-item " href="cart.html"><span class="nav-icon">🛒</span><span>Cart</span></a>
+<div class="nav-label">GAMING</div>
+<a class="nav-item " href="psp-gaming.html"><span class="nav-icon">🎮</span><span>PSP Gaming</span></a>
+<a class="nav-item " href="ps2-gaming.html"><span class="nav-icon">🎮</span><span>PS2 Gaming</span></a>
+<a class="nav-item " href="ps3-gaming.html"><span class="nav-icon">🎮</span><span>PS3 Gaming</span></a>
+<a class="nav-item " href="winlator-gamehub.html"><span class="nav-icon">📱</span><span>Winlator &amp; GameHub</span></a>
+<a class="nav-item " href="nintendo-switch.html"><span class="nav-icon">🎮</span><span>Nintendo Switch</span></a>
+<a class="nav-item " href="android-gaming.html"><span class="nav-icon">📱</span><span>Android Gaming</span></a>
+<a class="nav-item " href="pc-gaming.html"><span class="nav-icon">🖥️</span><span>PC Gaming</span></a>
+<a class="nav-item " href="cloud-gaming.html"><span class="nav-icon">☁️</span><span>Cloud Gaming</span></a>
+<a class="nav-item " href="my-games-library.html"><span class="nav-icon">🎮</span><span>My Games / Library</span></a>
+<div class="nav-label">SPORTS &amp; LIVE</div>
+<a class="nav-item " href="live-tv-esports.html"><span class="nav-icon">📺</span><span>Live TV / eSports</span></a>
+<a class="nav-item " href="live-scores.html"><span class="nav-icon">⚽</span><span>Live Scores</span></a>
+<a class="nav-item " href="tournament.html"><span class="nav-icon">🏆</span><span>Tournament</span></a>
+<a class="nav-item " href="betting.html"><span class="nav-icon">🎰</span><span>Betting</span></a>
+<a class="nav-item " href="efootball-topup.html"><span class="nav-icon">⚽</span><span>eFootball / Top Up</span></a>
+<a class="nav-item " href="live-football-watch.html"><span class="nav-icon">⚽</span><span>Live Football / Watch Match</span></a>
+<a class="nav-item " href="sports-tv.html"><span class="nav-icon">📺</span><span>Sports TV</span></a>
+<a class="nav-item " href="sports-news.html"><span class="nav-icon">📰</span><span>Sports News</span></a>
+<div class="nav-label">MEDIA &amp; LEARN</div>
+<a class="nav-item " href="movies.html"><span class="nav-icon">🎬</span><span>Movies</span></a>
+<a class="nav-item " href="academy.html"><span class="nav-icon">🎓</span><span>Academy</span></a>
+<a class="nav-item " href="live-movies-player.html"><span class="nav-icon">🎬</span><span>Live Movies Player</span></a>
+<a class="nav-item " href="game-trailer.html"><span class="nav-icon">🎞️</span><span>Game Trailer</span></a>
+<a class="nav-item " href="courses.html"><span class="nav-icon">🎓</span><span>Courses</span></a>
+<div class="nav-label">AI &amp; COMMUNITY</div>
+<a class="nav-item " href="community-chat.html"><span class="nav-icon">💬</span><span>Community / Chat</span></a>
+<a class="nav-item " href="health-assistant.html"><span class="nav-icon">🩺</span><span>Health Assistant</span></a>
+<a class="nav-item " href="ai-assistant.html"><span class="nav-icon">🤖</span><span>AI Assistant</span></a>
+<a class="nav-item " href="contact-support.html"><span class="nav-icon">📞</span><span>Contact / Support</span></a>
+<a class="nav-item active" href="faq-help.html"><span class="nav-icon">❓</span><span>FAQ / Help</span></a>
+<div class="nav-label">ACCOUNT</div>
+<a class="nav-item " href="gift-cards.html"><span class="nav-icon">🎁</span><span>Gift Cards</span></a>
+<a class="nav-item " href="profile.html"><span class="nav-icon">👤</span><span>Profile</span></a>
+<a class="nav-item " href="login.html"><span class="nav-icon">🔐</span><span>Login</span></a>
+<a class="nav-item " href="register.html"><span class="nav-icon">📝</span><span>Register</span></a>
+<a class="nav-item " href="product-details.html"><span class="nav-icon">📦</span><span>Product Details</span></a>
+<a class="nav-item " href="checkout.html"><span class="nav-icon">💳</span><span>Checkout</span></a>
+<a class="nav-item " href="my-orders.html"><span class="nav-icon">📋</span><span>My Orders</span></a>
+<a class="nav-item " href="requests-transactions.html"><span class="nav-icon">💰</span><span>Requests / Transactions</span></a></nav>
+</aside>
+<main class="main">
+<header class="topbar">
+  <div class="search">⌕ <input data-search placeholder="Search users, games, matches..."></div>
+  <div class="top-actions"><button class="icon-btn">🔔</button><button class="icon-btn">☰</button><div class="user-chip"><div class="avatar">K</div><div><b>Kelvin</b><small style="display:block;color:#71809c">Member</small></div></div></div>
+</header>
+<div class="content">
+    <section class="page-hero"><div><div class="eyebrow">❓ LIFEISGAMETZ</div><h1>FAQ / Help</h1><p>Modern, responsive page built on the new LIFEISGAMETZ design system.</p></div></section>
+    <section class="content-grid"><div class="panel"><h3>Overview</h3><p>This page is part of the official 41-page User Side sitemap. The new UI keeps the same visual language across the platform.</p><div class="metric-grid"><div><b>24/7</b><small>Access</small></div><div><b>LIVE</b><small>Services</small></div><div><b>SECURE</b><small>Platform</small></div></div></div><div class="panel"><h3>Quick actions</h3><button class="quick">Continue</button><button class="quick">Explore</button><button class="quick">Get support</button></div></section>
     </div>
-
-  </div>
-
-  <div id="toast" role="status"></div>
-
-  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
-  <script src="assets/lgz-core.js"></script>
-
-  <!-- ========================================================
-       MSIMBO WA UKURASA HUU: FAQ &amp; Help
-       ======================================================== -->
-  <script>
-    LGZ.page({
-      file: 'faq-help.html',
-      pg: 'faq',
-      p: '',
-      admin: 0
-    }, function (a, q, A, pg) {
-      var F = [
-        [
-          'Ninalipaje?',
-          'Una njia mbili wakati wa Checkout. '
-            + 'ClickPesa: unapata ombi la malipo '
-            + 'kwenye simu yako (M-Pesa, Tigo Pesa, '
-            + 'Airtel Money au HaloPesa), '
-            + 'unathibitisha kwa PIN, na mfumo '
-            + 'unathibitisha mwenyewe. Manual: unatuma '
-            + 'pesa, kisha unaweka namba ya muamala '
-            + 'uliyopewa; admin anathibitisha malipo '
-            + 'yako.'
-        ],
-        [
-          'Nitapata lini bidhaa yangu?',
-          'Malipo yakithibitishwa, bidhaa '
-            + 'inaonekana kwenye Library yako: links, '
-            + 'kitufe cha Download, au code yako. '
-            + 'Malipo ya Manual yanasubiri admin '
-            + 'athibitishe, kwa hiyo yanaweza kuchukua '
-            + 'muda mrefu kuliko ClickPesa.'
-        ],
-        [
-          'Oda yangu inasema Pending, nifanye nini?',
-          'Pending ina maana malipo bado '
-            + 'hayajathibitishwa. Subiri kidogo; '
-            + 'ukilipa kwa Manual hakikisha namba ya '
-            + 'muamala uliyoweka ni sahihi. Ikichelewa '
-            + 'sana, tuma ombi kupitia ukurasa wa '
-            + 'Support na uweke namba ya oda.'
-        ],
-        [
-          'Code, gift card au akaunti yangu iko wapi?',
-          'Kwenye Library yako, chini ya bidhaa '
-            + 'husika, baada ya malipo kuthibitishwa. '
-            + 'Kila mteja anapewa code yake mwenyewe, '
-            + 'na kuna kitufe cha Copy.'
-        ],
-        [
-          'Games za bure zinafanyaje kazi?',
-          'Bonyeza Get Free kwenye game, nayo '
-            + 'inaingia kwenye Library. Ili kudownload '
-            + 'faili la game ya bure unahitaji kuwa '
-            + 'umeingia kwenye akaunti.'
-        ],
-        [
-          'Ninadownload vipi game niliyolipia?',
-          'Fungua Library au ukurasa wa game, '
-            + 'kisha bonyeza Download. Link ya '
-            + 'download inatolewa kwako tu na inafanya '
-            + 'kazi kwa dakika 10 tu; ikiisha, bonyeza '
-            + 'Download tena.'
-        ],
-        [
-          'Nitapataje punguzo la bei?',
-          'Weka kodi ya punguzo kwenye Checkout '
-            + 'kisha bonyeza Apply. Jumla mpya '
-            + 'inaonekana mara moja, na server '
-            + 'inahakiki kodi wakati wa malipo.'
-        ],
-        [
-          'Game Advisor ni nini, na ninaweza kuiamini?',
-          'Ni msaidizi wa AI anayekadiria kama '
-            + 'game litacheza kwenye simu au PC yako, '
-            + 'kulingana na specs unazotoa. Ni ushauri '
-            + 'tu, si uhakika wa 100%; angalia pia '
-            + 'mahitaji rasmi ya game kabla ya kununua.'
-        ],
-        [
-          'Squad Market inalindwa vipi?',
-          'Muuzaji anawasilisha kikosi, admin '
-            + 'anakagua na kuchukua umiliki wa akaunti '
-            + 'kabla kikosi hakijawekwa kwa mauzo, na '
-            + 'unalipa kupitia duka tu. Hatari bado '
-            + 'ipo: Konami au Google wanaweza kuzuia '
-            + 'akaunti zilizohamishwa, na hakuna '
-            + 'dhamana ya 100%. Usilipe kamwe nje ya '
-            + 'duka.'
-        ],
-        [
-          'Naweza kuuza kikosi changu?',
-          'Ndiyo. Ingia, fungua Uza Kikosi, na '
-            + 'uwasilishe kikosi chenye picha za '
-            + 'ushahidi. Admin akikubali, atachukua '
-            + 'umiliki wa akaunti, na wewe utapoteza '
-            + 'ufikiaji wake.'
-        ],
-        [
-          'Nitalipwaje nikiuza kikosi?',
-          'Kikosi kikiuzwa, mapato yako (baada ya '
-            + 'kamisheni ya duka) yanaonekana kwenye '
-            + 'Mapato ya Squad. Yanapatikana kutolewa '
-            + 'baada ya siku chache za ulinzi; kisha '
-            + 'unaomba kutolewa kwa mobile money na '
-            + 'admin anakulipa mwenyewe. Kamisheni, '
-            + 'siku za ulinzi na kiwango cha chini '
-            + 'vinaonekana kwenye ukurasa huo.'
-        ],
-        [
-          'Nataka kutangaza biashara yangu',
-          'Fungua ukurasa wa Biashara & Washirika '
-            + 'na ujaze fomu ya kuomba kutangaza. '
-            + 'Tutawasiliana nawe.'
-        ],
-        [
-          'Je, naweza kurudishiwa pesa?',
-          'Maombi ya kurudishiwa pesa '
-            + 'yanashughulikiwa kwa kila oda. Tuma '
-            + 'ombi kupitia ukurasa wa Support ukiweka '
-            + 'namba ya oda na sababu.'
-        ],
-        [
-          'Usalama wa akaunti yangu',
-          'Hatutakuomba password yako kwenye chat, '
-            + 'simu wala ujumbe. Usimpe mtu yeyote '
-            + 'password ya akaunti ya duka au ya Gmail.'
-        ]
-      ];
-      return '<h1>FAQ &amp; Help</h1><p class="sub">'
-        + 'Majibu ya maswali yanayoulizwa mara '
-        + 'nyingi</p>'
-        + F.map(function (x) {
-          return '<details><summary>'
-            + esc(x[0])
-            + '</summary><p>'
-            + esc(x[1])
-            + '</p></details>';
-        }).join('')
-        + '<div class="panel"><b>Bado una swali?'
-        + '</b><div class="row" '
-        + 'style="margin-top:10px;flex-wrap:wrap">'
-        + '<a class="btn" '
-        + 'href="contact-support.html">'
-        + 'Wasiliana na Support</a><a '
-        + 'class="btn o" href="ai-assistant.html">'
-        + 'Uliza AI Assistant</a></div></div>';
-    });
-  </script>
-
-</body>
-</html>
+</main>
+</div>
+<nav class="mobile-nav"><a href="home.html"><span>🏠</span>Home</a><a href="live-scores.html"><span>⚽</span>Live</a><a href="ai-assistant.html"><span>🤖</span>AI</a><a href="profile.html"><span>👤</span>Profile</a></nav>
+<script src="../assets/app.js"></script>
+</body></html>

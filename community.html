@@ -1,589 +1,96 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Community - LifeisGameTz</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
-</script>
-<style>
-  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: #0f0f1e; }
-  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
-  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
-  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
-  .cat-tab.active { background: #7c3aed; color: white; }
-  @keyframes pulse-green { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .online-pulse { animation: pulse-green 2s infinite; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Community Help Center — LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="zoneplay-full.css">
 </head>
-<body class="min-h-screen">
+<body>
+<div class="main">
 
-<!-- TOP BAR -->
-<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
-  <div class="flex items-center justify-between px-4 py-3 gap-4">
-    <button aria-label="Open navigation menu" data-mobile-menu-toggle="true" class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
-      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
-    <a href="index.html" class="flex items-center gap-3 shrink-0">
-      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
-      </div>
-      <div class="hidden md:block">
-        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
-        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
-      </div>
-    </a>
-
-    <div class="flex-1 max-w-2xl hidden md:block">
-      <div class="relative">
-        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" placeholder="Search posts, topics, groups..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
-        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
+  <section class="ac-hero" style="background:linear-gradient(110deg,#0a1f5c,#1a0a56 60%,#062a5c)">
+    <div>
+      <span class="zp-slide-tag">GAMEHUB PLATFORM</span>
+      <h1>Community Help Center</h1>
+      <p>Elimu ya afya, usalama mtandaoni, financial literacy na maelekezo kwa vijana — mahali salama pa kupata taarifa. Hii ni elimu tu, si diagnosis wala ushauri wa kitaalamu.</p>
+      <div class="ac-cta">
+        <a class="zp-btn" href="ai.html"><span data-ic="bot"></span>Uliza AI Assistant</a>
+        <a class="zp-btn ghost" id="waTop" target="_blank" rel="noopener"><span data-ic="chat"></span>WhatsApp Msaada</a>
       </div>
     </div>
+    <div class="zp-ai-orb" data-ic="users"></div>
+  </section>
 
-    <div class="flex items-center gap-2 shrink-0">
-      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
-        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
-      </button>
-      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
-        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
-        <div class="hidden md:block">
-          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
-          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
-            Super Admin
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="zp-sec" style="margin-top:6px"><h2>Nguzo za Msaada</h2></div>
+  <section class="ac-tracks">
+    <a class="ac-track" href="health.html" style="--art:linear-gradient(135deg,#0e7490,#1e1b4b)"><span class="ac-ic" data-ic="pulse"></span><small>AFYA</small><h3>Health Education</h3><p>Taarifa za jumla za afya na wakati wa kutafuta mtaalamu.</p><span class="go">Fungua Health AI <span data-ic="arrow"></span></span></a>
+    <a class="ac-track" href="#safety" style="--art:linear-gradient(135deg,#1d4ed8,#0a1240)"><span class="ac-ic" data-ic="shield"></span><small>USALAMA</small><h3>Online Safety</h3><p>Account security, scams, privacy na responsible gaming.</p><span class="go">Soma Vidokezo <span data-ic="arrow"></span></span></a>
+    <a class="ac-track" href="#money" style="--art:linear-gradient(135deg,#166534,#0a2a4a)"><span class="ac-ic" data-ic="wallet"></span><small>FEDHA</small><h3>Financial Literacy</h3><p>Budgeting, digital payments na usalama wa miamala.</p><span class="go">Soma Vidokezo <span data-ic="arrow"></span></span></a>
+    <a class="ac-track" href="#emergency" style="--art:linear-gradient(135deg,#be123c,#3b0a5c)"><span class="ac-ic" data-ic="alert"></span><small>DHARURA</small><h3>Emergency Information</h3><p>AI si mbadala wa huduma za dharura — jua pa kwenda haraka.</p><span class="go">Angalia <span data-ic="arrow"></span></span></a>
+  </section>
+
+  <div class="cu-cols" style="margin-top:26px">
+    <section class="cm-box" id="safety">
+      <h3><span data-ic="shield" style="margin-right:8px"></span>Online Safety — Vidokezo</h3>
+      <ul class="cu-tips">
+        <li>${ic:shield}Usishirikishe password, PIN au OTP na mtu yeyote — hata akijitambulisha kama "Support".</li>
+        <li>${ic:user}Tumia password tofauti kwa kila akaunti muhimu, na washa two-factor authentication (2FA) inapopatikana.</li>
+        <li>${ic:alert}Kama ofa inaonekana nzuri kupita kiasi (bei ndogo mno, zawadi ya bure), ichukulie kwa tahadhari — inaweza kuwa scam.</li>
+        <li>${ic:cart}Nunua game keys, top-up na accounts kwenye maduka unayoyaamini pekee; epuka kutuma pesa moja kwa moja kwa watu usiowajua.</li>
+        <li>${ic:pulse}Panga muda wa kucheza — pumziko la mara kwa mara ni sehemu ya afya njema ya gamer.</li>
+      </ul>
+    </section>
+
+    <section class="cm-box" id="money">
+      <h3><span data-ic="wallet" style="margin-right:8px"></span>Financial Literacy — Vidokezo</h3>
+      <ul class="cu-tips">
+        <li>${ic:wallet}Weka bajeti ya matumizi ya gaming kwa mwezi na jaribu kuifuata.</li>
+        <li>${ic:shield}Kabla ya kulipa, thibitisha jina la mpokeaji na kiasi kabla ya kutuma pesa.</li>
+        <li>${ic:file}Hifadhi risiti au tx ref ya kila muamala — inasaidia endapo kutatokea tatizo.</li>
+        <li>${ic:users}Epuka kuchukua mkopo au kukopa kutoka kwa watu ili tu kununua bidhaa za gaming.</li>
+        <li>${ic:star}Chukua muda kabla ya kununua bidhaa ya bei kubwa — uliza kama kweli unaihitaji sasa.</li>
+      </ul>
+    </section>
   </div>
-</header>
 
-<div class="flex">
+  <div class="zp-sec"><h2>Huduma Zinazohusiana</h2></div>
+  <section class="zp-strips">
+    <a class="zp-strip" href="professionals.html" style="--art:linear-gradient(120deg,#0e7490,#0a1a4a)"><span class="zp-pi">🩺</span><h3>Health Network</h3><span>Wataalamu na huduma za afya zinazopatikana.</span></a>
+    <a class="zp-strip" href="recovery.html" style="--art:linear-gradient(120deg,#be185d,#1b0d4a)"><span class="zp-pi">❤️</span><h3>Recovery Support</h3><span>Msaada wa kupona na kuendelea mbele.</span></a>
+    <a class="zp-strip" href="community-fund.html" style="--art:linear-gradient(120deg,#166534,#0a2a4a)"><span class="zp-pi">🏥</span><h3>Community Fund</h3><span>Mfuko wa jamii kwa dharura za kiafya.</span></a>
+    <a class="zp-strip" href="chat.html" style="--art:linear-gradient(120deg,#0f3d91,#0a1240)"><span class="zp-pi">💬</span><h3>Community Chat</h3><span>Ongea na wanajamii wengine.</span></a>
+  </section>
 
-  <!-- SIDEBAR -->
-  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
-    <div class="flex-1 overflow-y-auto py-4">
-      <a href="index.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        <span>Home</span>
-      </a>
-      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-        <span>Store</span>
-      </a>
-      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span>Games</span>
-      </a>
-      <a href="/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
-        <span>Movies</span>
-      </a>
-      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        <span>Live TV / eSports</span>
-      </a>
-      <a href="/livecore.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        <span>Live Scores</span>
-      </a>
-      <a href="/tournaments.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-        <span>Tournament</span>
-      </a>
-      <a href="/betting.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span>Betting</span>
-      </a>
-      <a href="/courses.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
-        <span>Academy</span>
-      </a>
-      <a href="/cloud-gaming.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
-        <span>Cloud Gaming</span>
-      </a>
-      <a href="/efootball.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-        <span>eFootball / Top Up</span>
-      </a>
-      <a href="/gift-cards.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
-        <span>Gift Cards</span>
-      </a>
-      <a href="/community.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
-        <span>Community / Chat</span>
-      </a>
-      <a href="/ai.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-        <span>AI Assistants</span>
-      </a>
-      <a href="/marketplace.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        <span>Marketplace</span>
-      </a>
-      <a href="/wishlist.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-        <span>Wishlist</span>
-      </a>
-      <a href="/cart.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        <span>Cart</span>
-      </a>
+  <div class="zp-sec" id="emergency"><h2>Emergency Information</h2></div>
+  <div class="cu-emg">
+    <span data-ic="alert"></span>
+    <div><b>Muhimu:</b> AI na jukwaa hili si mbadala wa huduma za dharura. Kwa dharura ya kiafya, usalama, au hatari ya karibu, wasiliana mara moja na huduma rasmi za dharura za eneo lako (hospitali, polisi) au mtu unayemuamini aliye karibu nawe.</div>
+  </div>
 
-      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
-        <div class="text-2xl mb-1">👑</div>
-        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
-        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
-        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
-      </div>
+  <section class="zp-ai" style="margin-top:26px">
+    <div>
+      <h2 style="font-size:26px">Hujui pa kuanzia?</h2>
+      <p style="margin:0">Tuandikie WhatsApp au uliza AI Assistant — tutakuelekeza sehemu sahihi.</p>
     </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
-
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-400">
-      <a href="index.html" class="hover:text-primary">Home</a>
-      <span>›</span>
-      <span class="text-white font-semibold">Community</span>
-    </div>
-
-    <!-- Header -->
-    <div class="flex items-start justify-between flex-wrap gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
-        </div>
-        <div>
-          <h1 class="text-2xl font-bold text-white">Community</h1>
-          <p class="text-sm text-gray-400">Connect with gamers, share ideas, get help and be part of our growing family.</p>
-        </div>
-      </div>
-      <button onclick="openCreatePost()" class="gradient-primary text-white text-sm font-bold px-5 py-2.5 rounded-lg flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        Create Post
-      </button>
-    </div>
-
-    <!-- Category Tabs -->
-    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
-      <button class="cat-tab active px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="all">All Posts</button>
-      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="gaming">Gaming</button>
-      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="tech">Tech & AI</button>
-      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="sports">Sports</button>
-      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="movies">Movies</button>
-      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="general">General</button>
-    </div>
-
-    <!-- GRID: Main Feed + Right Panel -->
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-      <!-- LEFT: Posts Feed -->
-      <div class="xl:col-span-2 space-y-4">
-
-        <!-- Create Post Box -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-          <div class="flex items-start gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white font-bold shrink-0">KF</div>
-            <div class="flex-1">
-              <textarea id="quick-post" placeholder="Share something with the community..." rows="2" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-3 px-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary resize-none"></textarea>
-            </div>
-          </div>
-          <div class="flex items-center justify-between pl-13">
-            <div class="flex items-center gap-2 ml-13">
-              <button class="w-8 h-8 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-gray-400 hover:text-primary">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-              </button>
-              <button class="w-8 h-8 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-gray-400 hover:text-primary">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-              </button>
-              <button class="w-8 h-8 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-gray-400 hover:text-primary">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              </button>
-              <button class="w-8 h-8 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center text-gray-400 hover:text-primary">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-              </button>
-            </div>
-            <button onclick="quickPost()" class="gradient-primary text-white text-sm font-bold px-5 py-2 rounded-lg">Post</button>
-          </div>
-        </div>
-
-        <!-- Posts -->
-        <div id="posts-feed" class="space-y-4">
-          <div class="text-center py-8 text-gray-500 text-sm">Loading...</div>
-        </div>
-
-      </div>
-
-      <!-- RIGHT PANEL -->
-      <div class="space-y-4">
-
-        <!-- Trending Topics -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-          <div class="flex items-center gap-2 mb-4">
-            <span>🔥</span>
-            <h3 class="text-white font-bold">Trending Topics</h3>
-          </div>
-          <div id="trending-topics" class="space-y-3">
-            <div class="text-center py-4 text-gray-500 text-xs">Loading...</div>
-          </div>
-        </div>
-
-        <!-- Online Members -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-white font-bold">Online Members</h3>
-            <span class="text-[10px] text-green-400 flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-green-400 online-pulse"></span>
-              1,248 online
-            </span>
-          </div>
-          <div class="grid grid-cols-6 gap-2 mb-3" id="online-members">
-            <div class="col-span-6 text-center py-4 text-gray-500 text-xs">Loading...</div>
-          </div>
-          <button class="w-full text-xs text-primary font-semibold py-2">View All</button>
-        </div>
-
-        <!-- Popular Groups -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-          <h3 class="text-white font-bold mb-4">Popular Groups</h3>
-          <div id="popular-groups" class="space-y-3">
-            <div class="text-center py-4 text-gray-500 text-xs">Loading...</div>
-          </div>
-        </div>
-
-        <!-- Join Discord -->
-        <div class="gradient-primary rounded-2xl p-5 relative overflow-hidden">
-          <div class="absolute -top-2 -right-2 text-5xl opacity-30">💬</div>
-          <div class="relative text-center">
-            <div class="text-3xl mb-2">💬</div>
-            <h3 class="text-white font-bold mb-1">Join Our Discord</h3>
-            <p class="text-white/80 text-xs mb-3">Get the latest updates, giveaways and community events!</p>
-            <button class="bg-white text-primary font-bold text-xs px-4 py-2 rounded-lg w-full">Join Now</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="pt-6 mt-4 border-t border-dark-4 text-xs text-gray-500">
-      <div class="flex items-center justify-between flex-wrap gap-4">
-        <div class="flex items-center gap-2">
-          <div class="w-5 h-5 rounded gradient-primary flex items-center justify-center text-white text-[9px] font-bold">L</div>
-          <span class="text-white font-bold">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></span>
-          <span class="text-gray-500">Play • Learn • Earn</span>
-        </div>
-        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
-        <div class="flex gap-4">
-          <a href="/terms" class="hover:text-primary">Terms</a>
-          <a href="/privacy" class="hover:text-primary">Privacy</a>
-          <a href="/contact" class="hover:text-primary">Contact</a>
-        </div>
-      </div>
-    </footer>
-
-  </main>
+    <a class="zp-btn" id="waBottom" target="_blank" rel="noopener"><span data-ic="chat"></span>WhatsApp Msaada</a>
+  </section>
 </div>
 
-<!-- CREATE POST MODAL -->
-<div id="create-post-modal" class="hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-dark-2 border border-dark-4 rounded-2xl w-full max-w-lg p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-bold text-white">Create Post</h3>
-      <button onclick="closeCreatePost()" class="text-gray-400 hover:text-white">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <form id="create-post-form" class="space-y-3">
-      <textarea id="post-content" placeholder="What's on your mind?" rows="4" required class="w-full bg-dark-3 border border-dark-4 rounded-lg py-3 px-3 text-sm text-white focus:outline-none focus:border-primary"></textarea>
-      <select id="post-category" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
-        <option value="gaming">Gaming</option>
-        <option value="tech">Tech & AI</option>
-        <option value="sports">Sports</option>
-        <option value="movies">Movies</option>
-        <option value="general">General</option>
-      </select>
-      <button type="submit" class="w-full gradient-primary text-white font-bold py-3 rounded-lg">Post Now</button>
-    </form>
-  </div>
-</div>
-
-<script src="config.js"></script>
+<script src="zoneplay-shell.js"></script>
+<script src="zp-catalog.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
 <script>
-const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let activeCat = 'all';
-
-const mockPosts = [
-  {
-    id: 1,
-    author: 'Rayan Gamer',
-    avatar: 'R',
-    level: 12,
-    time: '2 hours ago',
-    title: 'Best football game in 2025?',
-    content: "Guys, which football game do you think is the best in 2025? For me it's still eFootball because of the online gameplay. What do you think?",
-    images: ['⚽', '🎮', '🏆'],
-    likes: 124,
-    comments: 48,
-    category: 'gaming',
-    is_verified: false
-  },
-  {
-    id: 2,
-    author: 'TechPlayer',
-    avatar: 'T',
-    level: 8,
-    time: '5 hours ago',
-    title: 'How to get free games on LIFEISGAMETZ?',
-    content: "I just discovered the free games section and it's amazing! You can really play some great games for free. Thanks to the team!",
-    images: [],
-    likes: 76,
-    comments: 23,
-    category: 'tech',
-    is_verified: true
-  },
-  {
-    id: 3,
-    author: 'Zainab_Queen',
-    avatar: 'Z',
-    level: 15,
-    time: '7 hours ago',
-    title: 'Help! My game won\'t launch 😢',
-    content: "I bought GTA V but it's not starting. Anyone who can help me? I'm on Android.",
-    images: [],
-    likes: 32,
-    comments: 18,
-    category: 'gaming',
-    is_verified: false
-  },
-  {
-    id: 4,
-    author: 'MosesK',
-    avatar: 'M',
-    level: 10,
-    time: '10 hours ago',
-    title: 'Live football is the best!',
-    content: "Watching Real Madrid vs Barcelona live right now on this platform. Insane match! 🔥",
-    images: ['⚽', '🏟️'],
-    likes: 54,
-    comments: 12,
-    category: 'sports',
-    is_verified: false
-  }
-];
-
-const trendingTopics = [
-  { tag: '#eFootball 2025', posts: '12.4K posts', icon: '⚽' },
-  { tag: '#GTA V', posts: '9.8K posts', icon: '🎮' },
-  { tag: '#PS5', posts: '7.2K posts', icon: '🎮' },
-  { tag: '#Live Football', posts: '6.5K posts', icon: '⚽' },
-  { tag: '#Gaming Setup', posts: '5.1K posts', icon: '💻' }
-];
-
-const onlineMembers = ['R', 'T', 'Z', 'M', 'J', 'A', 'K', 'S', 'F', 'D', 'L', 'N'];
-
-const popularGroups = [
-  { name: 'eFootball Fans', members: '42.6K members', icon: '⚽', color: 'bg-blue-500' },
-  { name: 'GTA V Community', members: '38.2K members', icon: '🎮', color: 'bg-green-500' },
-  { name: 'PC Gamers', members: '31.7K members', icon: '💻', color: 'bg-purple-500' },
-  { name: 'Mobile Gamers', members: '28.5K members', icon: '📱', color: 'bg-yellow-500' },
-  { name: 'Tech & AI', members: '21.4K members', icon: '🤖', color: 'bg-cyan-500' }
-];
-
-// TABS
-document.querySelectorAll('.cat-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeCat = btn.dataset.cat;
-    renderPosts();
+(function(){
+  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
+  document.querySelectorAll('.cu-tips li').forEach(function(li){
+    li.innerHTML=li.innerHTML.replace(/\$\{ic:(\w+)\}/,function(m,name){ return ZP.icon(name); });
   });
-});
-
-function openCreatePost() { document.getElementById('create-post-modal').classList.remove('hidden'); }
-function closeCreatePost() { document.getElementById('create-post-modal').classList.add('hidden'); }
-
-function renderPosts() {
-  const container = document.getElementById('posts-feed');
-  let filtered = mockPosts;
-  if (activeCat !== 'all') {
-    filtered = filtered.filter(p => p.category === activeCat);
-  }
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<div class="text-center py-8 text-gray-500 text-sm">Hakuna posts kwenye category hii</div>`;
-    return;
-  }
-
-  container.innerHTML = filtered.map(p => `
-    <article class="gradient-card rounded-2xl border border-dark-4 p-5 hover:border-primary transition">
-      <div class="flex items-start gap-3 mb-3">
-        <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-white font-bold shrink-0">${p.avatar}</div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-sm text-white font-semibold">${p.author}</span>
-            <span class="text-[9px] bg-primary/20 text-primary px-1.5 py-0.5 rounded">Level ${p.level}</span>
-            ${p.is_verified ? `<span class="text-[9px] text-green-400 flex items-center gap-1">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              Verified
-            </span>` : ''}
-            <span class="text-[10px] text-gray-500">${p.time}</span>
-          </div>
-        </div>
-        <button class="text-gray-500 hover:text-white">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-        </button>
-      </div>
-
-      <h3 class="text-white font-bold mb-2">${p.title}</h3>
-      <p class="text-xs text-gray-400 mb-3">${p.content}</p>
-
-      ${p.images.length > 0 ? `
-        <div class="flex gap-2 mb-3">
-          ${p.images.map(img => `<div class="w-20 h-20 rounded-lg bg-dark-3 flex items-center justify-center text-3xl">${img}</div>`).join('')}
-        </div>
-      ` : ''}
-
-      <div class="flex items-center gap-6 pt-3 border-t border-dark-4 text-xs">
-        <button class="flex items-center gap-1 text-gray-400 hover:text-pink-400 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-          ${p.likes}
-        </button>
-        <button class="flex items-center gap-1 text-gray-400 hover:text-primary transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-          ${p.comments}
-        </button>
-        <button class="flex items-center gap-1 text-gray-400 hover:text-cyan-400 transition ml-auto">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-          Share
-        </button>
-      </div>
-    </article>
-  `).join('');
-}
-
-function renderSidebar() {
-  // Trending Topics
-  document.getElementById('trending-topics').innerHTML = trendingTopics.map(t => `
-    <a href="#" class="flex items-center gap-3 hover:bg-dark-3 p-2 rounded-lg transition">
-      <div class="w-8 h-8 rounded-lg bg-dark-3 flex items-center justify-center text-sm shrink-0">${t.icon}</div>
-      <div class="flex-1 min-w-0">
-        <div class="text-xs text-white font-semibold truncate">${t.tag}</div>
-        <div class="text-[9px] text-gray-500">${t.posts}</div>
-      </div>
-    </a>
-  `).join('');
-
-  // Online Members
-  document.getElementById('online-members').innerHTML = onlineMembers.map((m, i) => `
-    <div class="relative">
-      <div class="w-9 h-9 rounded-full gradient-primary flex items-center justify-center text-white text-xs font-bold">${m}</div>
-      <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-dark-2"></span>
-    </div>
-  `).join('') + `<div class="w-9 h-9 rounded-full bg-dark-3 flex items-center justify-center text-gray-400 text-xs font-bold">+1K</div>`;
-
-  // Popular Groups
-  document.getElementById('popular-groups').innerHTML = popularGroups.map(g => `
-    <div class="flex items-center gap-3 hover:bg-dark-3 p-2 rounded-lg transition">
-      <div class="w-9 h-9 rounded-lg ${g.color} flex items-center justify-center text-sm shrink-0">${g.icon}</div>
-      <div class="flex-1 min-w-0">
-        <div class="text-xs text-white font-semibold truncate">${g.name}</div>
-        <div class="text-[10px] text-gray-500">${g.members}</div>
-      </div>
-      <button class="text-[10px] bg-primary text-white font-semibold px-3 py-1 rounded-lg shrink-0">Join</button>
-    </div>
-  `).join('');
-}
-
-// Quick post
-async function quickPost() {
-  const content = document.getElementById('quick-post').value.trim();
-  if (!content) return;
-
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) { window.location.href = '/login.html'; return; }
-
-  alert('✅ Post imetumwa! (Mock - baadaye itahifadhiwa Supabase)');
-  document.getElementById('quick-post').value = '';
-}
-
-// Create post modal
-document.getElementById('create-post-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const content = document.getElementById('post-content').value;
-  const category = document.getElementById('post-category').value;
-
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) { window.location.href = '/login.html'; return; }
-
-  alert('✅ Post imeundwa! Category: ' + category);
-  closeCreatePost();
-  window.location.reload();
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-  renderPosts();
-  renderSidebar();
-});
-</script>
-
-
-<script id="lifeisgametz-navigation-repair">
-(function () {
-  function initNavigationRepair() {
-    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
-    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
-              document.querySelector('nav');
-    toggles.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!nav) {
-          window.location.href = 'index.html';
-          return;
-        }
-        nav.classList.toggle('lifeisgametz-mobile-nav-open');
-        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
-        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
-        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
-        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
-        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
-        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
-        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
-        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav) {
-        nav.classList.remove('lifeisgametz-mobile-nav-open');
-        nav.style.display = '';
-        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
-        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
-      }
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
-  else initNavigationRepair();
+  var msg=ZP.waLink('Habari, naomba msaada / maelekezo kutoka Community Help Center');
+  document.getElementById('waTop').href=msg;
+  document.getElementById('waBottom').href=msg;
 })();
 </script>
-
 </body>
 </html>

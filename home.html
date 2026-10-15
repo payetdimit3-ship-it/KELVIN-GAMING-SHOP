@@ -1,527 +1,90 @@
-<!DOCTYPE html>
-<html lang="sw">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LifeisGameTz - Play • Learn • Earn</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = {
-    theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } }
-  }
-</script>
-<style>
-  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: #0f0f1e; }
-  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
-  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
-  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
-  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-  @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .live-pulse { animation: pulse-red 1.5s infinite; }
-</style>
-</head>
-<body class="min-h-screen">
-
-<!-- TOP BAR -->
-<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
-  <div class="flex items-center justify-between px-4 py-3 gap-4">
-    <button aria-label="Open navigation menu" data-mobile-menu-toggle="true" class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
-      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
-    <a href="index.html" class="flex items-center gap-3 shrink-0">
-      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
-      </div>
-      <div class="hidden md:block">
-        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
-        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
-      </div>
-    </a>
-
-    <div class="flex-1 max-w-2xl hidden md:block">
-      <div class="relative">
-        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" placeholder="Search games, products, users, or anything..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
-        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
-      </div>
-    </div>
-
-    <div class="flex items-center gap-2 shrink-0">
-      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
-        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">3</span>
-      </button>
-      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
-        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
-        <div class="hidden md:block">
-          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
-          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
-            Super Admin
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home — LIFEISGAMETZ</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head><body>
+<div class="app">
+<aside class="sidebar">
+  <a class="brand" href="home.html"><div class="brand-mark">🎮</div><div><b>LIFEISGAMETZ</b><small>PLAY • PREDICT • WIN</small></div></a>
+  <nav><div class="nav-label">DISCOVER</div>
+<a class="nav-item active" href="home.html"><span class="nav-icon">🏠</span><span>Home</span></a>
+<a class="nav-item " href="store.html"><span class="nav-icon">🛍️</span><span>Store</span></a>
+<a class="nav-item " href="games.html"><span class="nav-icon">🎮</span><span>Games</span></a>
+<a class="nav-item " href="marketplace.html"><span class="nav-icon">🛒</span><span>Marketplace</span></a>
+<a class="nav-item " href="wishlist.html"><span class="nav-icon">❤️</span><span>Wishlist</span></a>
+<a class="nav-item " href="cart.html"><span class="nav-icon">🛒</span><span>Cart</span></a>
+<div class="nav-label">GAMING</div>
+<a class="nav-item " href="psp-gaming.html"><span class="nav-icon">🎮</span><span>PSP Gaming</span></a>
+<a class="nav-item " href="ps2-gaming.html"><span class="nav-icon">🎮</span><span>PS2 Gaming</span></a>
+<a class="nav-item " href="ps3-gaming.html"><span class="nav-icon">🎮</span><span>PS3 Gaming</span></a>
+<a class="nav-item " href="winlator-gamehub.html"><span class="nav-icon">📱</span><span>Winlator &amp; GameHub</span></a>
+<a class="nav-item " href="nintendo-switch.html"><span class="nav-icon">🎮</span><span>Nintendo Switch</span></a>
+<a class="nav-item " href="android-gaming.html"><span class="nav-icon">📱</span><span>Android Gaming</span></a>
+<a class="nav-item " href="pc-gaming.html"><span class="nav-icon">🖥️</span><span>PC Gaming</span></a>
+<a class="nav-item " href="cloud-gaming.html"><span class="nav-icon">☁️</span><span>Cloud Gaming</span></a>
+<a class="nav-item " href="my-games-library.html"><span class="nav-icon">🎮</span><span>My Games / Library</span></a>
+<div class="nav-label">SPORTS &amp; LIVE</div>
+<a class="nav-item " href="live-tv-esports.html"><span class="nav-icon">📺</span><span>Live TV / eSports</span></a>
+<a class="nav-item " href="live-scores.html"><span class="nav-icon">⚽</span><span>Live Scores</span></a>
+<a class="nav-item " href="tournament.html"><span class="nav-icon">🏆</span><span>Tournament</span></a>
+<a class="nav-item " href="betting.html"><span class="nav-icon">🎰</span><span>Betting</span></a>
+<a class="nav-item " href="efootball-topup.html"><span class="nav-icon">⚽</span><span>eFootball / Top Up</span></a>
+<a class="nav-item " href="live-football-watch.html"><span class="nav-icon">⚽</span><span>Live Football / Watch Match</span></a>
+<a class="nav-item " href="sports-tv.html"><span class="nav-icon">📺</span><span>Sports TV</span></a>
+<a class="nav-item " href="sports-news.html"><span class="nav-icon">📰</span><span>Sports News</span></a>
+<div class="nav-label">MEDIA &amp; LEARN</div>
+<a class="nav-item " href="movies.html"><span class="nav-icon">🎬</span><span>Movies</span></a>
+<a class="nav-item " href="academy.html"><span class="nav-icon">🎓</span><span>Academy</span></a>
+<a class="nav-item " href="live-movies-player.html"><span class="nav-icon">🎬</span><span>Live Movies Player</span></a>
+<a class="nav-item " href="game-trailer.html"><span class="nav-icon">🎞️</span><span>Game Trailer</span></a>
+<a class="nav-item " href="courses.html"><span class="nav-icon">🎓</span><span>Courses</span></a>
+<div class="nav-label">AI &amp; COMMUNITY</div>
+<a class="nav-item " href="community-chat.html"><span class="nav-icon">💬</span><span>Community / Chat</span></a>
+<a class="nav-item " href="health-assistant.html"><span class="nav-icon">🩺</span><span>Health Assistant</span></a>
+<a class="nav-item " href="ai-assistant.html"><span class="nav-icon">🤖</span><span>AI Assistant</span></a>
+<a class="nav-item " href="contact-support.html"><span class="nav-icon">📞</span><span>Contact / Support</span></a>
+<a class="nav-item " href="faq-help.html"><span class="nav-icon">❓</span><span>FAQ / Help</span></a>
+<div class="nav-label">ACCOUNT</div>
+<a class="nav-item " href="gift-cards.html"><span class="nav-icon">🎁</span><span>Gift Cards</span></a>
+<a class="nav-item " href="profile.html"><span class="nav-icon">👤</span><span>Profile</span></a>
+<a class="nav-item " href="login.html"><span class="nav-icon">🔐</span><span>Login</span></a>
+<a class="nav-item " href="register.html"><span class="nav-icon">📝</span><span>Register</span></a>
+<a class="nav-item " href="product-details.html"><span class="nav-icon">📦</span><span>Product Details</span></a>
+<a class="nav-item " href="checkout.html"><span class="nav-icon">💳</span><span>Checkout</span></a>
+<a class="nav-item " href="my-orders.html"><span class="nav-icon">📋</span><span>My Orders</span></a>
+<a class="nav-item " href="requests-transactions.html"><span class="nav-icon">💰</span><span>Requests / Transactions</span></a></nav>
+</aside>
+<main class="main">
+<header class="topbar">
+  <div class="search">⌕ <input data-search placeholder="Search users, games, matches..."></div>
+  <div class="top-actions"><button class="icon-btn">🔔</button><button class="icon-btn">☰</button><div class="user-chip"><div class="avatar">K</div><div><b>Kelvin</b><small style="display:block;color:#71809c">Member</small></div></div></div>
 </header>
-
-<div class="flex">
-
-  <!-- SIDEBAR -->
-  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
-    <div class="flex-1 overflow-y-auto py-4">
-      <a href="index.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        <span>Home</span>
-      </a>
-      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-        <span>Store</span>
-      </a>
-      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span>Games</span>
-      </a>
-      <a href="/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
-        <span>Movies</span>
-      </a>
-      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        <span>Live TV / eSports</span>
-      </a>
-      <a href="/livecore.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        <span>Live Scores</span>
-      </a>
-      <a href="/tournaments.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-        <span>Tournament</span>
-      </a>
-      <a href="/betting.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span>Betting</span>
-      </a>
-      <a href="/courses.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
-        <span>Academy</span>
-      </a>
-      <a href="/cloud-gaming.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
-        <span>Cloud Gaming</span>
-      </a>
-      <a href="/efootball.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-        <span>eFootball / Top Up</span>
-      </a>
-      <a href="/gift-cards.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
-        <span>Gift Cards</span>
-      </a>
-      <a href="/community.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
-        <span>Community / Chat</span>
-      </a>
-      <a href="/ai.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-        <span>AI Assistants</span>
-      </a>
-      <a href="/marketplace.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        <span>Marketplace</span>
-      </a>
-      <a href="#" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
-        <span>More</span>
-      </a>
-
-      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
-        <div class="text-2xl mb-1">👑</div>
-        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
-        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
-        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
-      </div>
-    </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
-
-    <!-- HERO -->
-    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden h-56 md:h-64">
-      <div class="absolute inset-0 bg-gradient-to-r from-primary/40 via-purple-900/40 to-transparent"></div>
-      <div class="relative h-full flex items-center justify-between p-6 md:p-10">
-        <div class="z-10">
-          <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">
-            <span class="text-white">PLAY</span> <span class="text-primary">LEARN</span> <span class="text-cyan-400">EARN</span>
-          </h1>
-          <p class="text-sm md:text-base text-gray-300 mt-2 mb-5 max-w-md">Your Ultimate Gaming & Entertainment Platform — Games, Movies, Live Sports, eFootball, Top Up, and More!</p>
-          <button class="gradient-primary text-white font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:opacity-90 transition">
-            Explore Now
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-          </button>
-        </div>
-        <div class="hidden md:block text-right z-10">
-          <div class="text-cyan-400 text-3xl font-extrabold italic">Game On!</div>
-        </div>
-      </div>
-      <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
-        <span class="w-6 h-1.5 rounded-full bg-primary"></span>
-        <span class="w-2 h-1.5 rounded-full bg-white/30"></span>
-        <span class="w-2 h-1.5 rounded-full bg-white/30"></span>
-      </div>
-    </div>
-
-    <!-- 7 CATEGORY CARDS -->
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-      <a href="/games.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
-        <div class="w-10 h-10 mx-auto rounded-lg bg-primary/30 flex items-center justify-center text-lg mb-2">🎮</div>
-        <div class="text-xs text-white font-bold">Games</div>
-        <div class="text-[9px] text-gray-500">1500+ Games</div>
-      </a>
-      <a href="/movies.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
-        <div class="w-10 h-10 mx-auto rounded-lg bg-pink-500/30 flex items-center justify-center text-lg mb-2">🎬</div>
-        <div class="text-xs text-white font-bold">Movies</div>
-        <div class="text-[9px] text-gray-500">10,000+ Movies</div>
-      </a>
-      <a href="/live-tv.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
-        <div class="w-10 h-10 mx-auto rounded-lg bg-blue-500/30 flex items-center justify-center text-lg mb-2">📺</div>
-        <div class="text-xs text-white font-bold">Live TV</div>
-        <div class="text-[9px] text-gray-500">500+ Channels</div>
-      </a>
-      <a href="/tournaments.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
-        <div class="w-10 h-10 mx-auto rounded-lg bg-yellow-500/30 flex items-center justify-center text-lg mb-2">🏆</div>
-        <div class="text-xs text-white font-bold">eSports</div>
-        <div class="text-[9px] text-gray-500">Tournaments</div>
-      </a>
-      <a href="/efootball.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
-        <div class="w-10 h-10 mx-auto rounded-lg bg-green-500/30 flex items-center justify-center text-lg mb-2">⚽</div>
-        <div class="text-xs text-white font-bold">eFootball</div>
-        <div class="text-[9px] text-gray-500">Top Up & Coins</div>
-      </a>
-      <a href="/gift-cards.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
-        <div class="w-10 h-10 mx-auto rounded-lg bg-orange-500/30 flex items-center justify-center text-lg mb-2">🎁</div>
-        <div class="text-xs text-white font-bold">Gift Cards</div>
-        <div class="text-[9px] text-gray-500">Instant Delivery</div>
-      </a>
-      <a href="/cloud-gaming.html" class="gradient-card rounded-xl border border-dark-4 p-3 text-center hover:border-primary transition group">
-        <div class="w-10 h-10 mx-auto rounded-lg bg-cyan-500/30 flex items-center justify-center text-lg mb-2">☁️</div>
-        <div class="text-xs text-white font-bold">Cloud Gaming</div>
-        <div class="text-[9px] text-gray-500">Play Anywhere</div>
-      </a>
-    </div>
-
-    <!-- GRID: Main + Right -->
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-      <!-- LEFT: Popular Games + Latest Movies -->
-      <div class="xl:col-span-2 space-y-6">
-
-        <!-- Popular Games -->
-        <section>
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <span>🔥</span> Popular Games
-            </h2>
-            <a href="/games.html" class="text-sm text-primary font-semibold">View All →</a>
+<div class="content">
+        <section class="hero-grid">
+          <div class="hero">
+            <div class="eyebrow">LIFEISGAMETZ • PLAY • PREDICT • WIN</div>
+            <h1>Gaming, football, AI & digital entertainment — <span>in one place.</span></h1>
+            <p>Discover games, live scores, tournaments, movies, cloud gaming, AI tools and a modern gaming marketplace.</p>
+            <div class="actions"><a class="btn primary" href="store.html">Explore Store</a><a class="btn ghost" href="live-scores.html">Live Scores</a></div>
+            <div class="stats-row"><div><b>24/7</b><small>Platform</small></div><div><b>LIVE</b><small>Football</small></div><div><b>AI</b><small>Assistants</small></div></div>
           </div>
-          <div id="popular-games" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
+          <div class="visual" style="--bg:url('../assets/refs/a_detailed_collage_flat_lay_image_a_large_grid_of.png"')">
+            <div class="visual-overlay"></div><div class="floating-card"><span>⚡ LIVE NOW</span><b>Real-time gaming ecosystem</b><small>Games • Sports • AI • Store</small></div>
           </div>
         </section>
-
-        <!-- Latest Movies -->
-        <section>
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <span>🎬</span> Latest Movies
-            </h2>
-            <a href="/movies.html" class="text-sm text-primary font-semibold">View All →</a>
-          </div>
-          <div id="latest-movies" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
+        <section class="section"><div class="section-head"><h2>Explore LIFEISGAMETZ</h2><a href="games.html">View all</a></div>
+          <div class="feature-grid">
+            <a class="feature" href="games.html"><i>🎮</i><b>Gaming Hub</b><span>PSP, PS2, PS3, Android, PC & Switch</span></a>
+            <a class="feature" href="live-scores.html"><i>⚽</i><b>Live Football</b><span>Scores, fixtures and match center</span></a>
+            <a class="feature" href="ai-assistant.html"><i>🤖</i><b>AI Assistant</b><span>Smart help across the platform</span></a>
+            <a class="feature" href="marketplace.html"><i>🛍️</i><b>Marketplace</b><span>Digital products and services</span></a>
           </div>
         </section>
-      </div>
-
-      <!-- RIGHT: Live Football + Community + Top Up + Live TV + Get More -->
-      <div class="space-y-4">
-
-        <!-- Live Football -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-4">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <span>📺</span>
-              <h3 class="text-white font-bold text-sm">Live Football</h3>
-            </div>
-            <a href="/livecore.html" class="text-xs text-primary">View All →</a>
-          </div>
-          <div class="space-y-2" id="live-football">
-            <div class="text-center text-gray-500 text-xs py-4">Loading...</div>
-          </div>
+        <section class="section"><div class="section-head"><h2>Trending Games</h2><a href="store.html">Shop now</a></div><div class="card-grid"><article class="product-card"><div class="thumb t0">🎮</div><div><b>eFootball 2026</b><small>Digital • Instant delivery</small><strong>TSh 15,000</strong></div></article><article class="product-card"><div class="thumb t1">🔥</div><div><b>GTA V</b><small>Digital • Instant delivery</small><strong>TSh 20,000</strong></div></article><article class="product-card"><div class="thumb t2">🏎️</div><div><b>Need for Speed</b><small>Digital • Instant delivery</small><strong>TSh 25,000</strong></div></article><article class="product-card"><div class="thumb t3">⚔️</div><div><b>EA FC 26</b><small>Digital • Instant delivery</small><strong>TSh 30,000</strong></div></article></div></section>
         </div>
-
-        <!-- Join Community -->
-        <div class="gradient-card rounded-2xl border border-primary/30 p-4 relative overflow-hidden">
-          <div class="absolute top-2 right-2 text-3xl opacity-20">👑</div>
-          <div class="relative">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-lg">👑</span>
-              <h3 class="text-white font-bold text-sm">Join Our Community</h3>
-            </div>
-            <p class="text-xs text-gray-400 mb-3">Chat, make friends, join tournaments</p>
-            <button class="w-full gradient-primary text-white text-xs font-semibold py-2 rounded-lg">Join Now →</button>
-          </div>
-        </div>
-
-        <!-- Top Up & Gift Cards -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-white font-bold text-sm">Top Up & Gift Cards</h3>
-            <a href="/gift-cards.html" class="text-xs text-primary">View All →</a>
-          </div>
-          <p class="text-[10px] text-gray-500 mb-3">Fast • Safe • Reliable</p>
-          <div class="grid grid-cols-4 gap-2">
-            <div class="aspect-square rounded-lg bg-blue-600 flex items-center justify-center text-[9px] text-white font-bold text-center">PlayStation</div>
-            <div class="aspect-square rounded-lg bg-green-600 flex items-center justify-center text-[9px] text-white font-bold text-center">Xbox</div>
-            <div class="aspect-square rounded-lg bg-red-600 flex items-center justify-center text-[9px] text-white font-bold text-center">Nintendo</div>
-            <div class="aspect-square rounded-lg bg-blue-900 flex items-center justify-center text-[9px] text-white font-bold text-center">Steam</div>
-            <div class="aspect-square rounded-lg bg-green-500 flex items-center justify-center text-[9px] text-white font-bold text-center">Google Play</div>
-            <div class="aspect-square rounded-lg bg-gray-600 flex items-center justify-center text-[9px] text-white font-bold text-center">iTunes</div>
-            <div class="aspect-square rounded-lg bg-orange-500 flex items-center justify-center text-[9px] text-white font-bold text-center">Amazon</div>
-            <div class="aspect-square rounded-lg bg-green-700 flex items-center justify-center text-[9px] text-white font-bold text-center">Razer</div>
-          </div>
-        </div>
-
-        <!-- Live TV & Sports -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-white font-bold text-sm">Live TV & Sports</h3>
-            <a href="/live-tv.html" class="text-xs text-primary">View All →</a>
-          </div>
-          <div class="grid grid-cols-5 gap-2">
-            <div class="text-center">
-              <div class="w-9 h-9 mx-auto rounded-lg bg-dark-3 flex items-center justify-center text-sm mb-1">⚽</div>
-              <div class="text-[8px] text-gray-400">Premier</div>
-              <div class="text-[8px] text-red-500 font-bold">● Live</div>
-            </div>
-            <div class="text-center">
-              <div class="w-9 h-9 mx-auto rounded-lg bg-dark-3 flex items-center justify-center text-sm mb-1">🏆</div>
-              <div class="text-[8px] text-gray-400">La Liga</div>
-              <div class="text-[8px] text-red-500 font-bold">● Live</div>
-            </div>
-            <div class="text-center">
-              <div class="w-9 h-9 mx-auto rounded-lg bg-dark-3 flex items-center justify-center text-sm mb-1">⭐</div>
-              <div class="text-[8px] text-gray-400">UCL</div>
-              <div class="text-[8px] text-red-500 font-bold">● Live</div>
-            </div>
-            <div class="text-center">
-              <div class="w-9 h-9 mx-auto rounded-lg bg-dark-3 flex items-center justify-center text-sm mb-1">🏀</div>
-              <div class="text-[8px] text-gray-400">NBA</div>
-              <div class="text-[8px] text-red-500 font-bold">● Live</div>
-            </div>
-            <div class="text-center">
-              <div class="w-9 h-9 mx-auto rounded-lg bg-dark-3 flex items-center justify-center text-sm mb-1">🏈</div>
-              <div class="text-[8px] text-gray-400">NFL</div>
-              <div class="text-[8px] text-red-500 font-bold">● Live</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Get More -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-4">
-          <h3 class="text-white font-bold text-sm mb-1">Get More with LIFEISGAMETZ</h3>
-          <p class="text-[10px] text-gray-500 mb-3">Games, Movies, Sports, AI Tools, and much more!</p>
-          <a href="/store.html" class="w-full gradient-primary text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center">Explore All Features →</a>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Footer Badges -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
-          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        </div>
-        <div>
-          <div class="text-xs text-white font-bold">Fast Delivery</div>
-          <div class="text-[10px] text-gray-500">Instant access after payment</div>
-        </div>
-      </div>
-      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
-          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        </div>
-        <div>
-          <div class="text-xs text-white font-bold">Secure Payments</div>
-          <div class="text-[10px] text-gray-500">Your data is safe with us</div>
-        </div>
-      </div>
-      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
-          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        </div>
-        <div>
-          <div class="text-xs text-white font-bold">24/7 Support</div>
-          <div class="text-[10px] text-gray-500">We're always here to help</div>
-        </div>
-      </div>
-      <div class="gradient-card rounded-xl border border-dark-4 p-4 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
-          <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        </div>
-        <div>
-          <div class="text-xs text-white font-bold">Trusted by Gamers</div>
-          <div class="text-[10px] text-gray-500">Join thousands of happy users</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="pt-6 mt-4 border-t border-dark-4 text-xs text-gray-500">
-      <div class="flex items-center justify-between flex-wrap gap-4">
-        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
-        <div class="flex gap-3">
-          <a href="#" class="w-7 h-7 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center text-white text-[10px]">f</a>
-          <a href="#" class="w-7 h-7 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center text-white text-[10px]">X</a>
-          <a href="#" class="w-7 h-7 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center text-white text-[10px]">▶</a>
-          <a href="#" class="w-7 h-7 rounded-full bg-dark-3 hover:bg-primary flex items-center justify-center text-white text-[10px]">✈</a>
-        </div>
-      </div>
-    </footer>
-
-  </main>
+</main>
 </div>
-
-<script src="config.js"></script>
-<script>
-const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-async function loadHome() {
-  // Popular Games
-  const { data: games } = await db.from('games').select('*').eq('is_active', true).eq('is_trending', true).limit(6);
-  const gContainer = document.getElementById('popular-games');
-  if (games && games.length > 0) {
-    gContainer.innerHTML = games.map(g => `
-      <a href="/game.html?id=${g.id}" class="gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition group">
-        <div class="aspect-[3/4] bg-dark-3 relative overflow-hidden">
-          ${g.image_url ? `<img src="${g.image_url}" class="w-full h-full object-cover group-hover:scale-105 transition">` : ''}
-          ${g.discount_price ? `<span class="absolute top-2 right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">-${g.discount_percent || 15}%</span>` : ''}
-        </div>
-        <div class="p-2">
-          <div class="text-xs text-white font-semibold truncate mb-1">${g.title}</div>
-          <div class="flex gap-1 mb-2">
-            ${(g.platforms || []).slice(0, 3).map(p => `<span class="text-[8px] bg-dark-3 px-1.5 py-0.5 rounded text-gray-400">${p}</span>`).join('')}
-          </div>
-          <div class="text-xs text-primary font-bold">TSh ${parseFloat(g.discount_price || g.price || 0).toLocaleString()}</div>
-        </div>
-      </a>
-    `).join('');
-  } else {
-    gContainer.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm">Hakuna games bado</div>`;
-  }
-
-  // Latest Movies
-  const { data: movies } = await db.from('movies').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(5);
-  const mContainer = document.getElementById('latest-movies');
-  if (movies && movies.length > 0) {
-    mContainer.innerHTML = movies.map(m => `
-      <a href="/movie.html?id=${m.id}" class="gradient-card rounded-xl border border-dark-4 overflow-hidden hover:border-primary transition group">
-        <div class="aspect-[2/3] bg-dark-3 relative overflow-hidden">
-          ${m.image_url ? `<img src="${m.image_url}" class="w-full h-full object-cover">` : ''}
-          <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition">
-            <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
-              <svg class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-        </div>
-        <div class="p-2">
-          <div class="text-xs text-white font-semibold truncate">${m.title}</div>
-          <div class="text-[10px] text-gray-500">${m.year || ''}</div>
-        </div>
-      </a>
-    `).join('');
-  } else {
-    mContainer.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm">Hakuna movies bado</div>`;
-  }
-
-  // Live Football
-  const { data: matches } = await db.from('sports_matches').select('*').eq('status', 'live').eq('is_active', true).limit(3);
-  const lfContainer = document.getElementById('live-football');
-  if (matches && matches.length > 0) {
-    lfContainer.innerHTML = matches.map(m => `
-      <div class="bg-dark-3 rounded-lg p-2 flex items-center gap-2">
-        <div class="w-7 h-7 rounded-full bg-dark-4 flex items-center justify-center text-[9px] font-bold text-gray-400 shrink-0">${(m.home_team || '?').charAt(0)}</div>
-        <div class="flex-1 min-w-0">
-          <div class="text-[10px] text-white font-semibold truncate">${m.home_team} vs ${m.away_team}</div>
-          <div class="text-[9px] text-gray-500">${m.league || ''}</div>
-        </div>
-        <div class="text-center px-2">
-          <div class="text-xs text-white font-bold">${m.home_score} - ${m.away_score}</div>
-        </div>
-        <span class="text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded flex items-center gap-1">
-          <span class="w-1 h-1 rounded-full bg-white live-pulse"></span>
-          Live ${m.minute || 0}'
-        </span>
-      </div>
-    `).join('');
-  } else {
-    lfContainer.innerHTML = `<div class="text-center text-gray-500 text-xs py-4">Hakuna mechi live bado</div>`;
-  }
-}
-
-document.addEventListener('DOMContentLoaded', loadHome);
-</script>
-
-
-<script id="lifeisgametz-navigation-repair">
-(function () {
-  function initNavigationRepair() {
-    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
-    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
-              document.querySelector('nav');
-    toggles.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!nav) {
-          window.location.href = 'index.html';
-          return;
-        }
-        nav.classList.toggle('lifeisgametz-mobile-nav-open');
-        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
-        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
-        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
-        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
-        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
-        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
-        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
-        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav) {
-        nav.classList.remove('lifeisgametz-mobile-nav-open');
-        nav.style.display = '';
-        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
-        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
-      }
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
-  else initNavigationRepair();
-})();
-</script>
-
-</body>
-</html>
+<nav class="mobile-nav"><a href="home.html"><span>🏠</span>Home</a><a href="live-scores.html"><span>⚽</span>Live</a><a href="ai-assistant.html"><span>🤖</span>AI</a><a href="profile.html"><span>👤</span>Profile</a></nav>
+<script src="../assets/app.js"></script>
+</body></html>

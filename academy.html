@@ -1,158 +1,82 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1,
-                 viewport-fit=cover">
-  <title>Academy - LIFEISGAMETZ</title>
-  <link rel="stylesheet" href="assets/lgz.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Academy — LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="zoneplay-full.css">
 </head>
 <body>
+<div class="main">
 
-  <!-- Muundo wa ukurasa: sidebar + header + maudhui -->
-  <div class="app">
-
-    <aside id="side"></aside>
-
-    <div style="min-width:0">
-      <header>
-        <button class="menu" aria-label="Menu"
-                onclick="side.classList.toggle('open')">
-          &#9776;
-        </button>
-        <input id="q" placeholder="Tafuta games..."
-               aria-label="Tafuta">
-        <div class="user" id="usr"></div>
-      </header>
-
-      <main id="main"></main>
+  <section class="ac-hero">
+    <div>
+      <span class="zp-slide-tag">GAMEHUB ACADEMY</span>
+      <h1>Gaming &amp; Technology Academy</h1>
+      <p>Jifunze skills zinazokupa uwezo wa kujenga bidhaa, kupata kazi na kuingia kwenye digital economy — kwa video za somo na AI Tutor anayekusaidia hatua kwa hatua.</p>
+      <div class="ac-cta">
+        <a class="zp-btn" href="#kozi"><span data-ic="cap"></span>Angalia Kozi</a>
+        <a class="zp-btn ghost" href="courses.html#tutor"><span data-ic="bot"></span>Uliza AI Tutor</a>
+      </div>
     </div>
+    <div class="ac-stats" id="stats" hidden></div>
+  </section>
 
-  </div>
+  <div class="zp-sec" id="kozi"><h2>Kozi Zilizopo</h2><a href="courses.html">Kozi zote <span data-ic="chevr"></span></a></div>
+  <section class="ac-grid" id="courses" aria-live="polite"><div class="zp-empty"><p>Inapakia kozi...</p></div></section>
 
-  <div id="toast" role="status"></div>
+  <div class="zp-sec"><h2>Njia za Kujifunza</h2></div>
+  <section class="ac-tracks">
+    <a class="ac-track" href="courses.html" style="--art:linear-gradient(135deg,#0e7490,#1e1b4b)"><span class="ac-ic" data-ic="monitor"></span><small>FREE</small><h3>HTML &amp; CSS</h3><p>Jenga websites kutoka zero hadi responsive layouts.</p><span class="go">Anza Course <span data-ic="arrow"></span></span></a>
+    <a class="ac-track" href="courses.html" style="--art:linear-gradient(135deg,#6d28d9,#1e1b4b)"><span class="ac-ic" data-ic="bolt"></span><small>PREMIUM</small><h3>JavaScript &amp; React</h3><p>Frontend ya kisasa, APIs na production components.</p><span class="go">Jifunze <span data-ic="arrow"></span></span></a>
+    <a class="ac-track" href="marketplace.html" style="--art:linear-gradient(135deg,#be185d,#3b0a5c)"><span class="ac-ic" data-ic="shop"></span><small>CAREER</small><h3>UI/UX &amp; Graphic Design</h3><p>Portfolio, design systems na client-ready work.</p><span class="go">Tazama Marketplace <span data-ic="arrow"></span></span></a>
+    <a class="ac-track" href="courses.html" style="--art:linear-gradient(135deg,#1d4ed8,#0a1240)"><span class="ac-ic" data-ic="gamepad"></span><small>TECH</small><h3>Game Development</h3><p>Game logic, Unity basics, optimization na publishing.</p><span class="go">Fungua <span data-ic="arrow"></span></span></a>
+    <a class="ac-track" href="courses.html" style="--art:linear-gradient(135deg,#0f766e,#1e1b4b)"><span class="ac-ic" data-ic="bot"></span><small>AI</small><h3>AI &amp; Automation</h3><p>Jifunze kutumia AI kwa coding, biashara na productivity kwa uwajibikaji.</p><span class="go">Fungua <span data-ic="arrow"></span></span></a>
+    <a class="ac-track" href="opportunities.html" style="--art:linear-gradient(135deg,#b45309,#4a0d3a)"><span class="ac-ic" data-ic="briefcase"></span><small>BUSINESS</small><h3>Digital Marketing</h3><p>Content, affiliate, SEO na digital products.</p><span class="go">Fursa <span data-ic="arrow"></span></span></a>
+  </section>
 
-  <!-- Msimbo wa pamoja (API, cart, login, sidebar) -->
-  <script src="assets/lgz-core.js"></script>
+  <div class="zp-sec"><h2>AI Mentor</h2></div>
+  <section class="zp-ai">
+    <div>
+      <span class="zp-slide-tag">AI TUTOR</span>
+      <h2>Umekwama? Uliza.</h2>
+      <p>Uliza swali, omba mfano wa code, au eleza lesson unayokwama. AI Tutor anajibu kwa Kiswahili, kwa maandishi au sauti.</p>
+      <a class="zp-btn" href="courses.html#tutor"><span data-ic="bot"></span>Zungumza na AI Tutor</a>
+    </div>
+    <div class="zp-ai-orb" data-ic="cap"></div>
+  </section>
+</div>
 
-  <!-- ========================================================
-       MSIMBO WA UKURASA HUU: Academy
-       ======================================================== -->
-  <script>
-    LGZ.page({
-      file: 'academy.html',
-      pg: 'academy',
-      p: '',
-      admin: 0
-    }, function (a, q, A, pg) {
-      var C = db.courses,
-        sel = C.find(function (c) { return c.id === cs; });
-      return '<h1>Academy</h1><p class="sub">'
-        + 'Jifunze kupitia video za kozi</p>'
-        + (
-          isAdm()
-            ? '<div class="panel">'
-              + '<h2 style="margin-top:0">Add Course</h2>'
-              + '<form onsubmit="addCourse(event)">'
-              + '<label>Jina la kozi'
-              + '<input name="n" required></label><label>'
-              + 'Level<select name="l"><option>Beginner'
-              + '</option><option>Intermediate</option>'
-              + '<option>Advanced</option></select>'
-              + '</label><label class="full">'
-              + 'Thumbnail URL<input name="t" type="url">'
-              + '</label><label class="full">Maelezo'
-              + '<textarea name="d" rows="2"></textarea>'
-              + '</label><div class="full">'
-              + '<button class="btn" type="submit">'
-              + 'Save Course</button></div></form></div>'
-            : ''
-        )
-        + (
-          sel
-            ? '<div class="panel"><div class="row sp">'
-              + '<h2 style="margin:0">'
-              + esc(sel.name)
-              + '</h2><button class="btn o" '
-              + 'onclick="cs=\'\';route()">← Kozi zote'
-              + '</button></div><p class="sub">'
-              + esc(sel.description)
-              + '</p>'
-              + (
-                (sel.videos || []).length
-                  ? sel.videos.map(function (v) {
-                    return '<div style="margin:14px 0"><b>'
-                      + esc(v.title)
-                      + '</b><div class="sub" '
-                      + 'style="margin:2px 0 8px">'
-                      + esc(v.description)
-                      + '</div>'
-                      + player({ videoUrl: v.url })
-                      + (
-                        isAdm()
-                          ? '<button class="btn d" '
-                            + 'style="margin-top:8px" '
-                            + 'onclick="delVid(\''
-                            + sel.id
-                            + '\',\''
-                            + v.id
-                            + '\')">Futa video</button>'
-                          : ''
-                      )
-                      + '</div>';
-                  }).join('')
-                  : '<div class="empty">Hakuna video bado.</div>'
-              )
-              + (
-                isAdm()
-                  ? '<form onsubmit="upVid(event,\''
-                    + sel.id
-                    + '\')" style="margin-top:14px"><label>'
-                    + 'Title ya video<input name="t" required>'
-                    + '</label><label>Video (mp4/webm/mov)'
-                    + '<input name="f" type="file" '
-                    + 'accept="video/*" required></label>'
-                    + '<div class="full">'
-                    + '<button class="btn" type="submit">'
-                    + 'Upload Video</button></div></form>'
-                  : ''
-              )
-              + '</div>'
-            : (
-              C.length
-                ? '<div class="grid" '
-                  + 'style="margin-top:14px">'
-                  + C.map(function (c) {
-                    return '<div class="card" '
-                      + 'style="cursor:pointer" onclick="cs=\''
-                      + c.id
-                      + '\';route();scrollTo(0,0)">'
-                      + (
-                        c.thumbnail
-                          ? '<img src="'
-                            + esc(c.thumbnail)
-                            + '" alt="">'
-                          : '<div class="ph"></div>'
-                      )
-                      + '<div class="b"><b>'
-                      + esc(c.name)
-                      + '</b><span class="tag">'
-                      + esc(c.level)
-                      + '</span>'
-                      + '<span class="sub" style="margin:0">'
-                      + (c.videos || []).length
-                      + ' video</span></div></div>';
-                  }).join('')
-                  + '</div>'
-                : '<div class="empty" '
-                  + 'style="margin-top:14px">'
-                  + 'Hakuna kozi bado.</div>'
-            )
-        )
-        + tutorPanel(sel);
-    });
-  </script>
+<script src="zoneplay-shell.js"></script>
+<script src="zp-catalog.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
+<script>
+(function(){
+  var esc=ZP.esc;
+  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
+  function safeImg(u){ u=String(u||''); return /^(https?:\/\/|\/)/i.test(u) ? u : ''; }
 
+  fetch('/api/courses').then(function(r){ return r.json(); }).then(function(d){
+    var list=(d&&d.courses)||[], box=document.getElementById('courses');
+    var vids=list.reduce(function(n,c){ return n+((c.videos||[]).length); },0);
+    var st=document.getElementById('stats');
+    if (list.length){ st.hidden=false; st.innerHTML='<div class="ac-stat"><b>'+list.length+'</b><span>Kozi</span></div>'+(vids?'<div class="ac-stat"><b>'+vids+'</b><span>Video</span></div>':''); }
+    if (!list.length){
+      box.innerHTML='<div class="zp-empty"><h3>Kozi zinakuja hivi karibuni</h3><p>Admin akiongeza kozi na video kwenye dashboard zitaonekana hapa.</p><a class="zp-btn" href="courses.html#tutor">Uliza AI Tutor</a></div>';
+      return;
+    }
+    box.innerHTML=list.map(function(c){
+      var n=(c.videos||[]).length, img=safeImg(c.thumbnail), href='courses.html?id='+encodeURIComponent(c.id);
+      return '<article class="ac-card"><a class="ac-thumb" href="'+href+'" style="--art:'+ZP.art(c.name)+'" aria-label="'+esc(c.name)+'">'+(img?'<img src="'+esc(img)+'" alt="" loading="lazy" onerror="this.remove()">':'<span class="ac-emoji">🎓</span>')+
+        '<span class="ac-tag">'+esc((c.level||'Beginner').toUpperCase())+'</span><span class="ac-tag r">'+n+(n===1?' VIDEO':' VIDEO')+'</span></a>'+
+        '<div class="ac-body"><h3>'+esc(c.name)+'</h3>'+(c.description?'<p>'+esc(c.description)+'</p>':'')+
+        '<div class="ac-foot"><span class="ac-price">'+(Number(c.price)>0?ZP.money(c.price)+' TZS':'Bure')+'</span><a class="zp-btn sm" href="'+href+'">'+ZP.icon('play')+'Anza</a></div></div></article>';
+    }).join('');
+  }).catch(function(){
+    document.getElementById('courses').innerHTML='<div class="zp-empty"><h3>Imeshindikana kupakia kozi</h3><p>Angalia mtandao kisha jaribu tena.</p><button class="zp-btn" type="button" onclick="location.reload()">Jaribu tena</button></div>';
+  });
+})();
+</script>
 </body>
 </html>

@@ -1,352 +1,116 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Health Assistant - LifeisGameTz</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          primary: '#7c3aed', 'primary-dark': '#6d28d9',
-          dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540',
-        },
-        fontFamily: { sans: ['Inter', 'sans-serif'] }
-      }
-    }
-  }
-</script>
-<style>
-  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-track { background: #0f0f1e; }
-  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
-  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
-  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Health Assistant — LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="zoneplay-full.css">
 </head>
-<body class="min-h-screen">
+<body>
+<div class="main">
 
-<!-- TOP BAR (same) -->
-<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
-  <div class="flex items-center justify-between px-4 py-3 gap-4">
-    <a href="index.html" class="flex items-center gap-3 shrink-0">
-      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
+  <header class="zp-page-head">
+    <div class="zp-ph-ic" data-ic="pulse"></div>
+    <div><h1>Health &amp; Community Support</h1><p>Sehemu ya msaada wa taarifa za afya kwa jamii. AI hutoa taarifa za jumla na kuelekeza huduma inapohitajika.</p></div>
+  </header>
+
+  <div class="hl-warn" role="note"><span data-ic="alert"></span><div><b>Muhimu:</b> AI hii si daktari na haitoi diagnosis ya uhakika. Kwa dalili kali au dharura, tafuta huduma ya afya/dharura mara moja.</div></div>
+
+  <div class="cm-layout">
+    <section class="cm-card" aria-label="Msaidizi wa afya">
+      <div class="cm-head"><span class="hl-avatar" data-ic="pulse"></span><h2>Msaidizi wa Afya</h2><button class="zp-btn ghost sm" id="resetBtn" type="button">Anza upya</button></div>
+      <div class="hl-msgs" id="msgs" role="log" aria-live="polite" aria-label="Mazungumzo"></div>
+      <div class="cm-compose">
+        <textarea id="healthInput" maxlength="1000" placeholder="Uliza kuhusu taarifa za jumla za afya, lishe, kinga au jinsi ya kutafuta huduma…" aria-label="Swali lako"></textarea>
+        <div class="cm-actions">
+          <button class="zp-btn ghost sm cm-mic" id="voiceBtn" type="button" aria-pressed="false" hidden></button>
+          <button class="zp-btn ghost sm" id="speakBtn" type="button">🔊 Sikiliza AI</button>
+          <button class="zp-btn ghost sm" id="stopBtn" type="button">⏹️ Stop</button>
+          <button class="zp-btn" id="sendBtn" type="button" style="margin-left:auto"></button>
+        </div>
+        <p class="cm-status" id="status" role="status" aria-live="polite"></p>
+        <p class="hl-note">Usiandike taarifa binafsi nyeti kama jina kamili au namba ya simu.</p>
       </div>
-      <div>
-        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
-        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
+    </section>
+
+    <aside class="cm-side">
+      <div class="cm-box"><h3>Mada za Kuuliza</h3>
+        <div class="hl-prompts" id="prompts"></div>
       </div>
-    </a>
-    <div class="flex-1 max-w-2xl hidden md:block">
-      <div class="relative">
-        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" placeholder="Tafuta game, filamu, kozi, bidhaa..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
+      <div class="cm-box"><h3>Huduma Zaidi</h3>
+        <div class="cm-links">
+          <a href="professionals.html"><span data-ic="pulse"></span>Health Network</a>
+          <a href="recovery.html"><span data-ic="life"></span>Recovery Support</a>
+          <a href="community-fund.html"><span data-ic="heart"></span>Community Fund</a>
+          <a href="community.html"><span data-ic="users"></span>Community Help</a>
+        </div>
       </div>
-    </div>
-    <div class="flex items-center gap-2 shrink-0">
-      <button class="w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
-        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-      </button>
-      <button class="w-10 h-10 rounded-full bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
-        <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-      </button>
-    </div>
+    </aside>
   </div>
-</header>
-
-<div class="flex">
-
-  <aside class="hidden lg:block w-64 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16 overflow-y-auto max-h-[calc(100vh-64px)]">
-    <nav id="sidebar-nav" class="py-4">
-      <div class="px-4 py-2"><div class="skeleton h-10 rounded-lg mb-2"></div></div>
-    </nav>
-  </aside>
-
-  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
-
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-400">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-      <span class="text-white font-semibold">Health Assistant</span>
-    </div>
-
-    <!-- Grid: Chat + Right Panel -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- Chat Area -->
-      <div class="lg:col-span-2 gradient-card rounded-2xl border border-dark-4 overflow-hidden flex flex-col min-h-[600px]">
-        
-        <!-- Hero -->
-        <div class="p-6 border-b border-dark-4 relative overflow-hidden">
-          <div class="flex items-start gap-4">
-            <div class="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center shrink-0">
-              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-            </div>
-            <div class="flex-1">
-              <h1 class="text-xl font-bold text-white">How can I help you today?</h1>
-              <p class="text-sm text-gray-400 mt-1">Ask me anything about your health, wellness and medical advice.</p>
-            </div>
-            <!-- Doctor Image (SVG) -->
-            <div class="hidden md:block w-24 h-24 shrink-0">
-              <svg viewBox="0 0 100 100" fill="none">
-                <circle cx="50" cy="50" r="45" fill="#252540"/>
-                <circle cx="50" cy="40" r="15" fill="#7c3aed" opacity="0.3"/>
-                <path d="M30 70 Q30 55 50 55 Q70 55 70 70 L70 85 L30 85 Z" fill="#7c3aed" opacity="0.2"/>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Quick chips -->
-          <div class="flex flex-wrap gap-2 mt-4">
-            <button class="chip">💊 General Health</button>
-            <button class="chip">🧠 Mental Health</button>
-            <button class="chip">🥗 Nutrition</button>
-            <button class="chip">💪 Fitness & Exercise</button>
-            <button class="chip">⚕️ Medical Advice</button>
-            <button class="chip">🔍 Symptom Checker</button>
-          </div>
-        </div>
-
-        <!-- Messages -->
-        <div id="messages" class="flex-1 overflow-y-auto p-6 space-y-4">
-          <div class="flex gap-3">
-            <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-            </div>
-            <div class="bg-dark-3 rounded-2xl rounded-tl-sm px-4 py-3 max-w-lg">
-              <p class="text-sm text-gray-200">Habari! Mimi ni Health Assistant wako. Naweza kukusaidia na maswali yoyote kuhusu afya yako. Je, una swali gani leo?</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Input -->
-        <div class="p-4 border-t border-dark-4">
-          <div class="relative">
-            <input type="text" id="chat-input" placeholder="Type your message..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-3 pl-4 pr-12 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
-            <button id="send-btn" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full gradient-primary flex items-center justify-center hover:opacity-90 transition">
-              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Right Panel -->
-      <div class="space-y-6">
-
-        <!-- Health Services -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-          <h3 class="text-white font-bold mb-4">Health Services</h3>
-          <div class="space-y-2">
-            <a href="/health/consultation" class="flex items-center gap-3 p-3 rounded-lg hover:bg-dark-3 transition group">
-              <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
-                <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm text-white font-semibold">Medical Consultation</div>
-                <div class="text-xs text-gray-500">Talk to a professional</div>
-              </div>
-              <svg class="w-4 h-4 text-gray-500 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </a>
-            <a href="/health/tips" class="flex items-center gap-3 p-3 rounded-lg hover:bg-dark-3 transition group">
-              <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
-                <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm text-white font-semibold">Health Tips</div>
-                <div class="text-xs text-gray-500">Daily health tips & advice</div>
-              </div>
-              <svg class="w-4 h-4 text-gray-500 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </a>
-            <a href="/health/symptoms" class="flex items-center gap-3 p-3 rounded-lg hover:bg-dark-3 transition group">
-              <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
-                <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm text-white font-semibold">Symptom Checker</div>
-                <div class="text-xs text-gray-500">Check possible conditions</div>
-              </div>
-              <svg class="w-4 h-4 text-gray-500 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </a>
-            <a href="/health/emergency" class="flex items-center gap-3 p-3 rounded-lg hover:bg-dark-3 transition group">
-              <div class="w-9 h-9 rounded-lg bg-red-500/20 flex items-center justify-center">
-                <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm text-white font-semibold">Emergency Help</div>
-                <div class="text-xs text-gray-500">Find nearest emergency care</div>
-              </div>
-              <svg class="w-4 h-4 text-gray-500 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </a>
-          </div>
-        </div>
-
-        <!-- Health Reminders -->
-        <div class="gradient-card rounded-2xl border border-dark-4 p-5">
-          <h3 class="text-white font-bold mb-4">Health Reminders</h3>
-          <div class="flex items-center gap-3 p-3 bg-dark-3 rounded-lg">
-            <div class="w-9 h-9 rounded-lg bg-primary/20 flex items-center justify-center">
-              <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <div class="flex-1">
-              <div class="text-sm text-white font-semibold">Take daily vitamins</div>
-              <div class="text-xs text-gray-500">Today, 8:00 AM</div>
-            </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" checked class="sr-only peer">
-              <div class="w-9 h-5 bg-dark-4 peer-checked:bg-primary rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
-            </label>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-  </main>
 </div>
 
-<style>
-  .chip { @apply text-xs px-3 py-1.5 bg-dark-3 border border-dark-4 rounded-full text-gray-300 hover:border-primary hover:text-primary transition; }
-</style>
-
-<script src="config.js"></script>
+<script src="zoneplay-shell.js"></script>
+<script src="zp-catalog.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
 <script>
-const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+(function(){
+  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
+  var out=document.getElementById('msgs'), input=document.getElementById('healthInput'), sendBtn=document.getElementById('sendBtn'), statusEl=document.getElementById('status');
+  sendBtn.innerHTML=ZP.icon('arrow')+'Tuma Swali';
 
-// Chat
-const messages = document.getElementById('messages');
-const input = document.getElementById('chat-input');
-const sendBtn = document.getElementById('send-btn');
+  var hist=[], lastReply='', busy=false;
+  var GREETING='Habari! Naweza kutoa taarifa za jumla za afya. Nitaelekeza huduma ya kitaalamu pale inapohitajika.';
 
-function addMessage(text, isAI = false) {
-  const msg = document.createElement('div');
-  msg.className = 'flex gap-3';
-  msg.innerHTML = isAI ? `
-    <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center shrink-0">
-      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-    </div>
-    <div class="bg-dark-3 rounded-2xl rounded-tl-sm px-4 py-3 max-w-lg">
-      <p class="text-sm text-gray-200">${text}</p>
-    </div>
-  ` : `
-    <div class="flex-1"></div>
-    <div class="bg-primary rounded-2xl rounded-tr-sm px-4 py-3 max-w-lg">
-      <p class="text-sm text-white">${text}</p>
-    </div>
-    <div class="w-8 h-8 rounded-full bg-dark-3 flex items-center justify-center shrink-0 text-xs text-white font-bold">U</div>
-  `;
-  messages.appendChild(msg);
-  messages.scrollTop = messages.scrollHeight;
-}
+  function say(m,ok){ statusEl.textContent=m||''; statusEl.className='cm-status'+(ok?' ok':''); }
+  function add(text,who,cls){
+    var row=document.createElement('div'); row.className='hl-row '+who;
+    if (who==='bot'){ var a=document.createElement('span'); a.className='hl-avatar'; a.innerHTML=ZP.icon('pulse'); row.appendChild(a); }
+    var b=document.createElement('div'); b.className='cr-msg '+who+(cls?' '+cls:''); b.textContent=text; row.appendChild(b);
+    out.appendChild(row); out.scrollTop=out.scrollHeight; return b;
+  }
+  function reset(){ out.innerHTML=''; hist=[]; lastReply=''; if('speechSynthesis' in window) speechSynthesis.cancel(); add(GREETING,'bot'); say(''); }
+  reset();
 
-async function sendMessage() {
-  const text = input.value.trim();
-  if (!text) return;
-  
-  addMessage(text, false);
-  input.value = '';
+  function ask(){
+    var q=input.value.trim(); if(!q||busy) return;
+    busy=true; sendBtn.disabled=true; say('');
+    input.value=''; add(q,'user'); hist.push({role:'user',text:q});
+    var wait=add('Ninafikiria…','bot','wait');
+    fetch('/api/ai/health',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:ZP.aiMessage(q),history:hist.slice(-8)})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ var ans=d.reply||d.error||'Samahani, jaribu tena.'; wait.className='cr-msg bot'; wait.textContent=ans; lastReply=ans; hist.push({role:'assistant',text:ans}); })
+      .catch(function(){ wait.className='cr-msg bot'; wait.textContent='Hitilafu ya mtandao. Jaribu tena.'; })
+      .then(function(){ busy=false; sendBtn.disabled=false; out.scrollTop=out.scrollHeight; input.focus({preventScroll:true}); });
+  }
+  sendBtn.addEventListener('click',ask);
+  input.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); ask(); } });
+  document.getElementById('resetBtn').addEventListener('click',reset);
+  document.getElementById('speakBtn').addEventListener('click',function(){ if(lastReply&&'speechSynthesis' in window){ speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(lastReply)); } });
+  document.getElementById('stopBtn').addEventListener('click',function(){ if('speechSynthesis' in window) speechSynthesis.cancel(); });
 
-  // Get AI response (placeholder - baadaye utaunganisha AI)
-  setTimeout(() => {
-    addMessage('Asante kwa swali lako. Kwa sasa mfumo wa AI haujaunganishwa. Admin ataiweka API key kupitia Admin Dashboard.', true);
-  }, 800);
-}
+  /* suggested questions */
+  var P=[['pulse','Lishe bora kwa mtu anayekaa muda mrefu kucheza games?'],['shield','Nawezaje kujikinga na malaria?'],['search','Nitafute wapi huduma ya afya iliyo karibu nami?'],['heart','Vidokezo vya kupata usingizi mzuri?']];
+  var pr=document.getElementById('prompts');
+  pr.innerHTML=P.map(function(p,i){ return '<button type="button" data-i="'+i+'">'+ZP.icon(p[0])+'<span></span></button>'; }).join('');
+  pr.querySelectorAll('button').forEach(function(b){ b.querySelector('span').textContent=P[b.dataset.i][1]; });
+  pr.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; input.value=P[b.dataset.i][1]; input.focus(); });
 
-sendBtn.addEventListener('click', sendMessage);
-input.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') sendMessage();
-});
-
-// Quick chips
-document.querySelectorAll('.chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    input.value = chip.textContent.replace(/[^\w\s]/g, '').trim();
-    input.focus();
-  });
-});
-
-// Load sidebar (same function)
-async function loadSidebar() {
-  const { data } = await db.from('sidebar_menu').select('*').eq('is_active', true).order('display_order');
-  if (!data) return;
-  const groups = {};
-  data.forEach(item => {
-    if (!groups[item.group_name]) groups[item.group_name] = [];
-    groups[item.group_name].push(item);
-  });
-  const nav = document.getElementById('sidebar-nav');
-  nav.innerHTML = '';
-  const iconMap = { health: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>' };
-  Object.keys(groups).forEach(groupName => {
-    const groupEl = document.createElement('div');
-    groupEl.className = 'mb-4';
-    const title = document.createElement('div');
-    title.className = 'px-4 py-2 text-[10px] uppercase tracking-wider text-gray-500 font-bold';
-    title.textContent = groupName;
-    groupEl.appendChild(title);
-    groups[groupName].forEach(item => {
-      const link = document.createElement('a');
-      link.href = item.link || '#';
-      link.className = 'flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition';
-      link.innerHTML = `<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">${iconMap[item.icon] || '<circle cx="12" cy="12" r="10"/>'}</svg><span>${item.label}</span>`;
-      groupEl.appendChild(link);
-    });
-    nav.appendChild(groupEl);
-  });
-}
-
-document.addEventListener('DOMContentLoaded', loadSidebar);
-</script>
-
-
-<script id="lifeisgametz-navigation-repair">
-(function () {
-  function initNavigationRepair() {
-    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
-    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
-              document.querySelector('nav');
-    toggles.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!nav) {
-          window.location.href = 'index.html';
-          return;
-        }
-        nav.classList.toggle('lifeisgametz-mobile-nav-open');
-        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
-        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
-        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
-        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
-        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
-        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
-        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
-        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav) {
-        nav.classList.remove('lifeisgametz-mobile-nav-open');
-        nav.style.display = '';
-        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
-        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
-      }
+  /* voice input: recognised text is sent automatically, like before */
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition, mic=document.getElementById('voiceBtn');
+  if (SR){
+    mic.hidden=false; mic.innerHTML='🎙️ Ongea';
+    mic.addEventListener('click',function(){
+      if (mic.getAttribute('aria-pressed')==='true') return;
+      var r=new SR(); r.lang='sw-TZ'; r.interimResults=false;
+      r.onstart=function(){ mic.setAttribute('aria-pressed','true'); say('🎙️ Sikiliza… ongea sasa.',true); };
+      r.onresult=function(e){ input.value=e.results[0][0].transcript; say('Nimetambua sauti. Inatuma…',true); ask(); };
+      r.onerror=function(){ say('Sauti haikupatikana. Jaribu tena.'); };
+      r.onend=function(){ mic.setAttribute('aria-pressed','false'); if(statusEl.textContent.indexOf('Sikiliza')>-1) say(''); };
+      try{ r.start(); }catch(e){ say('Voice haikuweza kuanza.'); }
     });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
-  else initNavigationRepair();
 })();
 </script>
-
 </body>
 </html>
