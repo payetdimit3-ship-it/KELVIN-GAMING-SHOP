@@ -1,0 +1,1360 @@
+-- ============================================
+-- LIFEISGAMETZ - DATABASE SCHEMA
+-- ============================================
+-- Supabase SQL Editor
+-- Run this ONCE to create all tables
+-- ============================================
+
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- ============================================
+-- 1. PROFILES (Watumiaji)
+-- ============================================
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  username TEXT UNIQUE,
+  full_name TEXT,
+  email TEXT UNIQUE,
+  phone TEXT,
+  avatar_url TEXT,
+  role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin', 'seller')),
+  wallet_balance NUMERIC DEFAULT 0,
+  is_premium BOOLEAN DEFAULT false,
+  is_blocked BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 2. CATEGORIES (Aina za games)
+-- ============================================
+CREATE TABLE categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  image_url TEXT,
+  icon TEXT,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 3. GAMES (Michezo)
+-- ============================================
+CREATE TABLE games (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  price NUMERIC DEFAULT 0,
+  discount_price NUMERIC,
+  discount_percent INTEGER DEFAULT 0,
+  category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
+  platforms TEXT[] DEFAULT '{}',
+  image_url TEXT,
+  gallery_images TEXT[] DEFAULT '{}',
+  rating NUMERIC DEFAULT 0,
+  reviews_count INTEGER DEFAULT 0,
+  stock INTEGER DEFAULT 0,
+  is_trending BOOLEAN DEFAULT false,
+  is_featured BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 4. GAME_LINKS (Links nyingi kwa game moja) ⭐
+-- ============================================
+CREATE TABLE game_links (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  game_id UUID REFERENCES games(id) ON DELETE CASCADE,
+  link_type TEXT DEFAULT 'other' CHECK (link_type IN ('download', 'official', 'trailer', 'guide', 'other')),
+  link_url TEXT NOT NULL,
+  label TEXT,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 5. BANNERS (Hero banners)
+-- ============================================
+CREATE TABLE banners (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT,
+  subtitle TEXT,
+  description TEXT,
+  image_url TEXT,
+  button_text TEXT DEFAULT 'Buy Now',
+  button_link TEXT,
+  price NUMERIC,
+  discount_price NUMERIC,
+  discount_percent INTEGER DEFAULT 0,
+  platform TEXT,
+  is_active BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 6. SPECIAL_OFFERS
+-- ============================================
+CREATE TABLE special_offers (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT,
+  price NUMERIC,
+  discount_price NUMERIC,
+  discount_percent INTEGER DEFAULT 0,
+  button_text TEXT DEFAULT 'View Deal',
+  button_link TEXT,
+  is_active BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 7. CART_ITEMS (Kikapu)
+-- ============================================
+CREATE TABLE cart_items (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  game_id UUID REFERENCES games(id) ON DELETE CASCADE,
+  quantity INTEGER DEFAULT 1,
+  added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, game_id)
+);
+
+-- ============================================
+-- 8. WISHLISTS (Vitu mtu anapenda)
+-- ============================================
+CREATE TABLE wishlists (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  game_id UUID REFERENCES games(id) ON DELETE CASCADE,
+  added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, game_id)
+);
+
+-- ============================================
+-- 9. ORDERS (Oda)
+-- ============================================
+CREATE TABLE orders (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  order_number TEXT UNIQUE,
+  total_amount NUMERIC NOT NULL,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'completed', 'cancelled', 'refunded')),
+  payment_method TEXT,
+  payment_ref TEXT,
+  payment_details JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 10. ORDER_ITEMS (Vitu vya oda)
+-- ============================================
+CREATE TABLE order_items (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+  game_id UUID REFERENCES games(id) ON DELETE SET NULL,
+  title TEXT,
+  quantity INTEGER DEFAULT 1,
+  price NUMERIC NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 11. WALLET_TRANSACTIONS (Pesa)
+-- ============================================
+CREATE TABLE wallet_transactions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  amount NUMERIC NOT NULL,
+  type TEXT CHECK (type IN ('deposit', 'withdraw', 'purchase', 'refund', 'bonus')),
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'failed')),
+  reference TEXT,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 12. NOTIFICATIONS (Taarifa)
+-- ============================================
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  message TEXT,
+  type TEXT DEFAULT 'info',
+  link TEXT,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 13. COURSES (Kozi)
+-- ============================================
+CREATE TABLE courses (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT,
+  price NUMERIC DEFAULT 0,
+  discount_price NUMERIC,
+  rating NUMERIC DEFAULT 0,
+  reviews_count INTEGER DEFAULT 0,
+  students_count INTEGER DEFAULT 0,
+  instructor TEXT,
+  duration TEXT,
+  level TEXT,
+  is_active BOOLEAN DEFAULT true,
+  is_popular BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 14. COURSE_ENROLLMENTS (Wanafunzi)
+-- ============================================
+CREATE TABLE course_enrollments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
+  progress INTEGER DEFAULT 0,
+  enrolled_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, course_id)
+);
+
+-- ============================================
+-- 15. LIVE_MATCHES (Live Football)
+-- ============================================
+CREATE TABLE live_matches (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  home_team TEXT NOT NULL,
+  away_team TEXT NOT NULL,
+  home_score INTEGER DEFAULT 0,
+  away_score INTEGER DEFAULT 0,
+  home_logo TEXT,
+  away_logo TEXT,
+  match_time TEXT,
+  match_date DATE,
+  status TEXT DEFAULT 'upcoming' CHECK (status IN ('live', 'upcoming', 'finished')),
+  is_active BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 16. CHAT_MESSAGES (Ujumbe wa chat)
+-- ============================================
+CREATE TABLE chat_messages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  room_id TEXT NOT NULL DEFAULT 'community',
+  message TEXT NOT NULL,
+  is_ai BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 17. AI_CONVERSATIONS (Mazungumzo ya AI)
+-- ============================================
+CREATE TABLE ai_conversations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  context TEXT DEFAULT 'community',
+  context_id UUID,
+  title TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 18. AI_MESSAGES (Ujumbe wa AI)
+-- ============================================
+CREATE TABLE ai_messages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  conversation_id UUID REFERENCES ai_conversations(id) ON DELETE CASCADE,
+  role TEXT CHECK (role IN ('user', 'assistant', 'system')),
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 19. BUSINESSES (Biashara zinazotangazwa)
+-- ============================================
+CREATE TABLE businesses (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  logo_url TEXT,
+  category TEXT,
+  contact TEXT,
+  location TEXT,
+  is_active BOOLEAN DEFAULT true,
+  is_featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 20. EFOOTBALL_SQUADS (Squad za eFootball)
+-- ============================================
+CREATE TABLE efootball_squads (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  price NUMERIC NOT NULL,
+  image_url TEXT,
+  account_email TEXT,
+  account_password TEXT,
+  is_sold BOOLEAN DEFAULT false,
+  buyer_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  sold_at TIMESTAMP WITH TIME ZONE,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 21. SETTINGS (API keys na settings zote)
+-- ============================================
+CREATE TABLE settings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  key TEXT UNIQUE NOT NULL,
+  value TEXT,
+  category TEXT DEFAULT 'general',
+  is_secret BOOLEAN DEFAULT false,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_by UUID REFERENCES profiles(id) ON DELETE SET NULL
+);
+
+-- ============================================
+-- 22. SIDEBAR_MENU (Menu ya sidebar)
+-- ============================================
+CREATE TABLE sidebar_menu (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  group_name TEXT NOT NULL,
+  label TEXT NOT NULL,
+  icon TEXT,
+  link TEXT,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 23. AUDIT_LOGS (Kila admin anachofanya)
+-- ============================================
+CREATE TABLE audit_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  admin_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  action TEXT NOT NULL,
+  table_name TEXT,
+  record_id UUID,
+  old_data JSONB,
+  new_data JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 24. REVIEWS (Maoni ya wateja)
+-- ============================================
+CREATE TABLE reviews (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  game_id UUID REFERENCES games(id) ON DELETE CASCADE,
+  rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT,
+  is_approved BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- 25. MY_GAMES (Games za mtumiaji - library)
+-- ============================================
+CREATE TABLE my_games (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  game_id UUID REFERENCES games(id) ON DELETE CASCADE,
+  hours_played NUMERIC DEFAULT 0,
+  last_played TIMESTAMP WITH TIME ZONE,
+  purchased_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, game_id)
+);
+
+-- ============================================
+-- INDEXES (Kwa performance)
+-- ============================================
+CREATE INDEX idx_games_category ON games(category_id);
+CREATE INDEX idx_games_trending ON games(is_trending) WHERE is_trending = true;
+CREATE INDEX idx_games_active ON games(is_active) WHERE is_active = true;
+CREATE INDEX idx_game_links_game ON game_links(game_id);
+CREATE INDEX idx_cart_user ON cart_items(user_id);
+CREATE INDEX idx_wishlist_user ON wishlists(user_id);
+CREATE INDEX idx_orders_user ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_notifications_user ON notifications(user_id) WHERE is_read = false;
+CREATE INDEX idx_chat_room ON chat_messages(room_id);
+CREATE INDEX idx_ai_conv_user ON ai_conversations(user_id);
+CREATE INDEX idx_efootball_sold ON efootball_squads(is_sold);
+CREATE INDEX idx_reviews_game ON reviews(game_id);
+
+-- ============================================
+-- TRIGGER: Auto-create profile on signup
+-- ============================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, username, full_name)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    COALESCE(NEW.raw_user_meta_data->>'full_name', '')
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ============================================
+-- TRIGGER: Update updated_at
+-- ============================================
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_games_updated_at BEFORE UPDATE ON games
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================
+-- ROW LEVEL SECURITY (RLS)
+-- ============================================
+
+-- Enable RLS on all tables
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE games ENABLE ROW LEVEL SECURITY;
+ALTER TABLE game_links ENABLE ROW LEVEL SECURITY;
+ALTER TABLE banners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE special_offers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE wishlists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE wallet_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE course_enrollments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE live_matches ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE businesses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE efootball_squads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sidebar_menu ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE my_games ENABLE ROW LEVEL SECURITY;
+
+-- ============================================
+-- PUBLIC READ POLICIES (Kwa wageni)
+-- ============================================
+
+CREATE POLICY "Public can view active categories" ON categories
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Public can view active games" ON games
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Public can view game links" ON game_links
+  FOR SELECT USING (true);
+
+CREATE POLICY "Public can view active banners" ON banners
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Public can view active offers" ON special_offers
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Public can view active courses" ON courses
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Public can view live matches" ON live_matches
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Public can view approved reviews" ON reviews
+  FOR SELECT USING (is_approved = true);
+
+CREATE POLICY "Public can view sidebar menu" ON sidebar_menu
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Public can view eFootball squads" ON efootball_squads
+  FOR SELECT USING (is_active = true);
+
+-- ============================================
+-- USER POLICIES (Watumiaji walioingia)
+-- ============================================
+
+CREATE POLICY "Users can view own profile" ON profiles
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile" ON profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+CREATE POLICY "Users can manage own cart" ON cart_items
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can manage own wishlist" ON wishlists
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own orders" ON orders
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own order items" ON order_items
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM orders WHERE orders.id = order_items.order_id AND orders.user_id = auth.uid())
+  );
+
+CREATE POLICY "Users can view own wallet" ON wallet_transactions
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own notifications" ON notifications
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own chat" ON chat_messages
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can insert chat" ON chat_messages
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own AI conversations" ON ai_conversations
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own AI messages" ON ai_messages
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM ai_conversations WHERE ai_conversations.id = ai_messages.conversation_id AND ai_conversations.user_id = auth.uid())
+  );
+
+CREATE POLICY "Users can view own enrollments" ON course_enrollments
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view own games" ON my_games
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert reviews" ON reviews
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- ============================================
+-- ADMIN POLICIES (Admins wanaweza kila kitu)
+-- ============================================
+
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Admin policies for all tables
+CREATE POLICY "Admin full access profiles" ON profiles FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access categories" ON categories FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access games" ON games FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access game_links" ON game_links FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access banners" ON banners FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access offers" ON special_offers FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access cart" ON cart_items FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access wishlists" ON wishlists FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access orders" ON orders FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access order_items" ON order_items FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access wallet" ON wallet_transactions FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access notifications" ON notifications FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access courses" ON courses FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access enrollments" ON course_enrollments FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access matches" ON live_matches FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access chat" ON chat_messages FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access ai_conv" ON ai_conversations FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access ai_msg" ON ai_messages FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access businesses" ON businesses FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access efootball" ON efootball_squads FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access settings" ON settings FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access sidebar" ON sidebar_menu FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access audit" ON audit_logs FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access reviews" ON reviews FOR ALL USING (is_admin());
+CREATE POLICY "Admin full access my_games" ON my_games FOR ALL USING (is_admin());
+
+-- ============================================
+-- SEED DATA: Sidebar Menu (Kama ilivyo kwenye screenshot)
+-- ============================================
+
+INSERT INTO sidebar_menu (group_name, label, icon, link, display_order) VALUES
+-- Kundi la 1: Home & Store
+('Home & Store', 'Home', 'home', '/', 1),
+('Home & Store', 'Store', 'store', '/store', 2),
+('Home & Store', 'Games', 'games', '/games', 3),
+('Home & Store', 'PSP Gaming', 'psp', '/category/psp', 4),
+('Home & Store', 'PS2 Gaming', 'ps2', '/category/ps2', 5),
+('Home & Store', 'PS3 Gaming', 'ps3', '/category/ps3', 6),
+('Home & Store', 'Nintendo Switch', 'nintendo', '/category/nintendo', 7),
+('Home & Store', 'Android Gaming', 'android', '/category/android', 8),
+('Home & Store', 'PC Gaming', 'pc', '/category/pc', 9),
+
+-- Kundi la 2: Media & Learning
+('Media & Learning', 'Movies', 'movies', '/movies', 10),
+('Media & Learning', 'Live TV / Sports', 'tv', '/live-tv', 11),
+('Media & Learning', 'Live Scores', 'scores', '/live-scores', 12),
+('Media & Learning', 'Academy / Courses', 'academy', '/courses', 13),
+('Media & Learning', 'Cloud Gaming', 'cloud', '/cloud-gaming', 14),
+('Media & Learning', 'eFootball & Top Up', 'efootball', '/efootball', 15),
+('Media & Learning', 'Gift Cards', 'gift', '/gift-cards', 16),
+('Media & Learning', 'Community / Chat', 'community', '/community', 17),
+('Media & Learning', 'Health Assistant', 'health', '/health', 18),
+('Media & Learning', 'AI Assistant', 'ai', '/ai', 19),
+('Media & Learning', 'Marketplace', 'marketplace', '/marketplace', 20),
+
+-- Kundi la 3: Personal
+('Personal', 'Wishlist', 'wishlist', '/wishlist', 21),
+('Personal', 'Cart', 'cart', '/cart', 22),
+('Personal', 'My Games / Library', 'library', '/my-games', 23),
+('Personal', 'Profile', 'profile', '/profile', 24);
+
+-- ============================================
+-- SEED DATA: Categories (Kama ilivyo kwenye screenshot)
+-- ============================================
+
+INSERT INTO categories (name, slug, display_order) VALUES
+('Action & Adventure', 'action-adventure', 1),
+('Racing', 'racing', 2),
+('Sports', 'sports', 3),
+('RPG', 'rpg', 4),
+('Strategy', 'strategy', 5),
+('Shooting', 'shooting', 6);
+
+-- ============================================
+-- SEED DATA: Default Settings
+-- ============================================
+
+INSERT INTO settings (key, value, category, is_secret) VALUES
+('site_name', 'LifeisGameTz', 'site', false),
+('site_tagline', 'Play • Learn • Earn', 'site', false),
+('site_currency', 'TSh', 'site', false),
+('site_language', 'sw', 'site', false),
+('primary_color', '#7c3aed', 'site', false),
+('secondary_color', '#0f0f1e', 'site', false),
+('ai_provider', 'gemini', 'ai', false),
+('ai_gemini_key', '', 'ai', true),
+('ai_openai_key', '', 'ai', true),
+('ai_groq_key', '', 'ai', true),
+('clickpesa_client_id', '', 'payment', true),
+('clickpesa_api_key', '', 'payment', true),
+('clickpesa_webhook_url', '', 'payment', false);
+
+-- ============================================
+-- DONE! ✅
+-- ============================================
+-- Tables 25 zimetengenezwa
+-- RLS imewekwa
+-- Seed data imewekwa
+-- ============================================
+
+ALTER TABLE games 
+ADD COLUMN IF NOT EXISTS developer TEXT,
+ADD COLUMN IF NOT EXISTS release_date TEXT,
+ADD COLUMN IF NOT EXISTS languages TEXT[],
+ADD COLUMN IF NOT EXISTS features TEXT[];
+
+-- ============================================
+-- TOURNAMENTS
+-- ============================================
+CREATE TABLE tournaments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT,
+  game_name TEXT,
+  platform TEXT,
+  format TEXT, -- '1v1', 'Squad (4v4)'
+  prize_pool NUMERIC DEFAULT 0,
+  entry_fee NUMERIC DEFAULT 0,
+  max_players INTEGER DEFAULT 0,
+  current_players INTEGER DEFAULT 0,
+  starts_at TIMESTAMP WITH TIME ZONE,
+  ends_at TIMESTAMP WITH TIME ZONE,
+  status TEXT DEFAULT 'upcoming' CHECK (status IN ('live', 'upcoming', 'completed')),
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- TOURNAMENT_REGISTRATIONS
+-- ============================================
+CREATE TABLE tournament_registrations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  registered_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(tournament_id, user_id)
+);
+
+-- ============================================
+-- SPORTS_MATCHES (Live + Upcoming)
+-- ============================================
+CREATE TABLE sports_matches (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  sport TEXT NOT NULL, -- 'football', 'basketball', etc
+  league TEXT,
+  home_team TEXT NOT NULL,
+  away_team TEXT NOT NULL,
+  home_logo TEXT,
+  away_logo TEXT,
+  home_score INTEGER DEFAULT 0,
+  away_score INTEGER DEFAULT 0,
+  ht_score TEXT,
+  minute INTEGER,
+  status TEXT DEFAULT 'upcoming' CHECK (status IN ('live', 'upcoming', 'completed')),
+  match_time TIMESTAMP WITH TIME ZONE,
+  odds_1 NUMERIC,
+  odds_x NUMERIC,
+  odds_2 NUMERIC,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- BET_SLIPS
+-- ============================================
+CREATE TABLE bet_slips (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  bet_type TEXT DEFAULT 'single' CHECK (bet_type IN ('single', 'multiple', 'system')),
+  stake NUMERIC NOT NULL,
+  potential_win NUMERIC,
+  selections JSONB,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'won', 'lost', 'cancelled')),
+  placed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- Add tournament/betting to sidebar
+-- ============================================
+INSERT INTO sidebar_menu (group_name, label, icon, link, display_order) VALUES
+('Home & Store', 'Tournaments', 'trophy', '/tournaments.html', 10),
+('Media & Learning', 'Live TV / eSports', 'tv', '/live-tv.html', 11),
+('Media & Learning', 'Livecore', 'live', '/livecore.html', 12),
+('Media & Learning', 'Betting', 'betting', '/betting.html', 13),
+('Personal', 'Wallet / Mpila', 'wallet', '/wallet.html', 25);
+
+CREATE TABLE promo_codes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  code TEXT UNIQUE NOT NULL,
+  value NUMERIC NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  is_used BOOLEAN DEFAULT false,
+  used_by UUID REFERENCES profiles(id),
+  expires_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- RLS
+ALTER TABLE promo_codes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Admin full access promo" ON promo_codes FOR ALL USING (is_admin());
+CREATE POLICY "Users can read active codes" ON promo_codes FOR SELECT USING (is_active = true);
+
+ALTER TABLE sports_matches 
+ADD COLUMN IF NOT EXISTS stream_url TEXT,
+ADD COLUMN IF NOT EXISTS stream_status TEXT DEFAULT 'offline' CHECK (stream_status IN ('online', 'offline', 'live')),
+ADD COLUMN IF NOT EXISTS viewers INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS home_possession INTEGER DEFAULT 50,
+ADD COLUMN IF NOT EXISTS away_possession INTEGER DEFAULT 50,
+ADD COLUMN IF NOT EXISTS home_shots_on_target INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS away_shots_on_target INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS home_shots INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS away_shots INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS home_corners INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS away_corners INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS home_fouls INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS away_fouls INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS home_yellow INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS away_yellow INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS home_red INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS away_red INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS broadcaster TEXT;
+
+-- Match events table
+CREATE TABLE IF NOT EXISTS match_events (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  match_id UUID REFERENCES sports_matches(id) ON DELETE CASCADE,
+  minute INTEGER NOT NULL,
+  event_type TEXT CHECK (event_type IN ('goal', 'yellow_card', 'red_card', 'substitution', 'penalty', 'own_goal', 'var')),
+  team TEXT CHECK (team IN ('home', 'away')),
+  player TEXT,
+  player_out TEXT,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Live chat messages (kwa match husika)
+CREATE TABLE IF NOT EXISTS match_chat (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  match_id UUID REFERENCES sports_matches(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  username TEXT,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- RLS
+ALTER TABLE match_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE match_chat ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read events" ON match_events FOR SELECT USING (true);
+CREATE POLICY "Admin full events" ON match_events FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read chat" ON match_chat FOR SELECT USING (true);
+CREATE POLICY "Users insert chat" ON match_chat FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Admin full chat" ON match_chat FOR ALL USING (is_admin());
+
+-- Products (digital products)
+CREATE TABLE IF NOT EXISTS products (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  category TEXT, -- 'Account/Squad', 'Streaming Accounts', etc
+  subcategory TEXT,
+  price NUMERIC DEFAULT 0,
+  discount_price NUMERIC,
+  image_url TEXT,
+  stock INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Trailers
+CREATE TABLE IF NOT EXISTS trailers (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  video_url TEXT NOT NULL,
+  thumbnail_url TEXT,
+  duration TEXT,
+  is_active BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Hero Videos (homepage banner)
+CREATE TABLE IF NOT EXISTS hero_videos (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  video_url TEXT NOT NULL,
+  thumbnail_url TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- RLS
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE trailers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hero_videos ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read products" ON products FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin products" ON products FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read trailers" ON trailers FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin trailers" ON trailers FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read hero_videos" ON hero_videos FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin hero_videos" ON hero_videos FOR ALL USING (is_admin());
+
+-- ============================================
+-- MOVIES
+-- ============================================
+CREATE TABLE IF NOT EXISTS movies (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  genre TEXT,
+  genres TEXT[] DEFAULT '{}',
+  duration TEXT,
+  duration_seconds INTEGER,
+  year INTEGER,
+  rating NUMERIC DEFAULT 0,
+  image_url TEXT,
+  backdrop_url TEXT,
+  trailer_url TEXT,
+  video_url TEXT,
+  is_trending BOOLEAN DEFAULT false,
+  is_featured BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- MOVIE GENRES
+CREATE TABLE IF NOT EXISTS movie_genres (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT UNIQUE NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  icon TEXT,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true
+);
+
+-- WATCHLIST
+CREATE TABLE IF NOT EXISTS watchlists (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  movie_id UUID REFERENCES movies(id) ON DELETE CASCADE,
+  added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, movie_id)
+);
+
+-- RLS
+ALTER TABLE movies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE movie_genres ENABLE ROW LEVEL SECURITY;
+ALTER TABLE watchlists ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read movies" ON movies FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin movies" ON movies FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read genres" ON movie_genres FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin genres" ON movie_genres FOR ALL USING (is_admin());
+
+CREATE POLICY "Users watchlist" ON watchlists FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Admin watchlist" ON watchlists FOR ALL USING (is_admin());
+
+-- SEED GENRES
+INSERT INTO movie_genres (name, slug, icon, display_order) VALUES
+('Action', 'action', '', 1),
+('Comedy', 'comedy', '', 2),
+('Drama', 'drama', '', 3),
+('Horror', 'horror', '', 4),
+('Sci-Fi', 'sci-fi', '', 5),
+('Thriller', 'thriller', '', 6)
+ON CONFLICT (slug) DO NOTHING;
+
+-- ADD MOVIES to sidebar (kama haipo)
+INSERT INTO sidebar_menu (group_name, label, icon, link, display_order) VALUES
+('Media & Learning', 'Movies', 'movies', '/movies.html', 5)
+ON CONFLICT DO NOTHING;
+
+-- ============================================
+-- ACADEMY (COURSES)
+-- ============================================
+-- courses table ipo tayari. Ongeza columns:
+ALTER TABLE courses 
+ADD COLUMN IF NOT EXISTS instructor_id UUID REFERENCES profiles(id),
+ADD COLUMN IF NOT EXISTS category TEXT,
+ADD COLUMN IF NOT EXISTS level TEXT CHECK (level IN ('Beginner', 'Intermediate', 'Advanced')),
+ADD COLUMN IF NOT EXISTS lessons_count INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS is_popular BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS is_top_rated BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS is_new BOOLEAN DEFAULT false;
+
+-- ============================================
+-- SUPPORT TICKETS
+-- ============================================
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ticket_number TEXT UNIQUE,
+  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  user_name TEXT,
+  subject TEXT NOT NULL,
+  category TEXT, -- 'Account', 'Products', 'Payments', 'Technical', 'Orders'
+  priority TEXT DEFAULT 'Medium' CHECK (priority IN ('Low', 'Medium', 'High')),
+  status TEXT DEFAULT 'Open' CHECK (status IN ('Open', 'In Progress', 'Resolved', 'Closed')),
+  message TEXT,
+  assigned_to UUID REFERENCES profiles(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  resolved_at TIMESTAMP WITH TIME ZONE
+);
+
+-- ============================================
+-- SUPPORT MESSAGES
+-- ============================================
+CREATE TABLE IF NOT EXISTS support_messages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ticket_id UUID REFERENCES support_tickets(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id),
+  message TEXT NOT NULL,
+  is_admin BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- FAQ
+-- ============================================
+CREATE TABLE IF NOT EXISTS faqs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  question TEXT NOT NULL,
+  answer TEXT NOT NULL,
+  category TEXT,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true
+);
+
+-- ============================================
+-- SUPPORT CATEGORIES
+-- ============================================
+CREATE TABLE IF NOT EXISTS support_categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  icon TEXT,
+  color TEXT,
+  is_active BOOLEAN DEFAULT true
+);
+
+-- RLS
+ALTER TABLE support_tickets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE support_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE faqs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE support_categories ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users read own tickets" ON support_tickets FOR SELECT USING (auth.uid() = user_id OR is_admin());
+CREATE POLICY "Users create tickets" ON support_tickets FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Admin full tickets" ON support_tickets FOR ALL USING (is_admin());
+
+CREATE POLICY "Users read own messages" ON support_messages FOR SELECT USING (
+  EXISTS (SELECT 1 FROM support_tickets WHERE support_tickets.id = support_messages.ticket_id AND (support_tickets.user_id = auth.uid() OR is_admin()))
+);
+CREATE POLICY "Users create messages" ON support_messages FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Admin full messages" ON support_messages FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read faqs" ON faqs FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin full faqs" ON faqs FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read support cats" ON support_categories FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin full support cats" ON support_categories FOR ALL USING (is_admin());
+
+-- SEED FAQS
+INSERT INTO faqs (question, answer, category, display_order) VALUES
+('How do I buy a game or product?', 'Browse our store, select the game or product, add to cart, and complete payment using M-Pesa, Tigo Pesa, Airtel Money, or card.', 'Orders', 1),
+('How to link my eFootball account?', 'Go to eFootball & Top Up section, choose your platform, and follow the steps to link your account securely.', 'Products', 2),
+('Is the account 100% safe and original?', 'Yes! All our accounts are verified and secure. We use SSL encryption and 100% original digital products.', 'Products', 3),
+('How can I withdraw my earnings?', 'Go to Wallet / Mpila, click "Toa Pesa", enter amount and your mobile number, and we will process within 24 hours.', 'Payments', 4),
+('Do you offer refunds?', 'Yes, we offer refunds within 7 days if the product is not as described. Contact support for details.', 'Orders', 5),
+('How to contact support?', 'You can reach us via Live Chat, Email (support@lifeisgametz.com), or WhatsApp (+255 712 345 678).', 'Account', 6)
+ON CONFLICT DO NOTHING;
+
+-- SEED SUPPORT CATEGORIES
+INSERT INTO support_categories (name, slug, description, icon, color) VALUES
+('Account & Profile', 'account', 'Login, security, profile settings', 'user', 'blue'),
+('Games & Products', 'games', 'Game issues, account buy, codes', 'gamepad', 'purple'),
+('Payments & Withdrawals', 'payments', 'Deposits, withdrawals, payment issues', 'credit-card', 'green'),
+('Technical Support', 'technical', 'Bugs, errors, platform issues', 'wrench', 'orange'),
+('Partnerships', 'partnerships', 'Streamers, resellers, affiliates', 'handshake', 'cyan'),
+('Other', 'other', 'General inquiries', 'question', 'yellow')
+ON CONFLICT (slug) DO NOTHING;
+
+-- Hero Slides (Homepage slider)
+CREATE TABLE IF NOT EXISTS hero_slides (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  subtitle TEXT,
+  description TEXT,
+  image_url TEXT,
+  button1_text TEXT,
+  button1_link TEXT,
+  button2_text TEXT,
+  button2_link TEXT,
+  is_active BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Featured Sections (toggles kwenye homepage)
+CREATE TABLE IF NOT EXISTS featured_sections (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  section_key TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  is_enabled BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0
+);
+
+-- Hero Settings (page builder settings)
+CREATE TABLE IF NOT EXISTS hero_settings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  key TEXT UNIQUE NOT NULL,
+  value TEXT,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE hero_slides ENABLE ROW LEVEL SECURITY;
+ALTER TABLE featured_sections ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hero_settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read hero" ON hero_slides FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin hero" ON hero_slides FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read featured" ON featured_sections FOR SELECT USING (true);
+CREATE POLICY "Admin featured" ON featured_sections FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read hero_set" ON hero_settings FOR SELECT USING (true);
+CREATE POLICY "Admin hero_set" ON hero_settings FOR ALL USING (is_admin());
+
+-- Seed featured sections
+INSERT INTO featured_sections (section_key, title, description, is_enabled, display_order) VALUES
+('hero', 'Hero Section', 'Main banner with video and call to action', true, 1),
+('featured-games', 'Featured Games', 'Latest and popular games', true, 2),
+('featured-products', 'Featured Products', 'Game accounts, gift cards, etc.', true, 3),
+('academy', 'Academy', 'Courses and tutorials', true, 4),
+('live-tv', 'Live TV / eSports', 'Live matches and tournaments', true, 5),
+('recent-products', 'Recent Products', 'Latest uploads', true, 6)
+ON CONFLICT (section_key) DO NOTHING;
+
+-- Seed hero settings
+INSERT INTO hero_settings (key, value) VALUES
+('auto_play', 'true'),
+('show_controls', 'true'),
+('slide_interval', '6'),
+('overlay_color', '#00000066'),
+('main_title', 'Play  Learn  Earn'),
+('subtitle', 'Your Gaming, Streaming & Digital Platform.'),
+('button1_text', 'Explore Games'),
+('button1_link', '/games'),
+('button2_text', 'Watch Trailer'),
+('button2_link', '/trailers')
+ON CONFLICT (key) DO NOTHING;
+
+-- Ongeza columns kwenye products
+ALTER TABLE products
+ADD COLUMN IF NOT EXISTS subtitle TEXT,
+ADD COLUMN IF NOT EXISTS developer TEXT,
+ADD COLUMN IF NOT EXISTS publisher TEXT,
+ADD COLUMN IF NOT EXISTS release_date DATE,
+ADD COLUMN IF NOT EXISTS platforms TEXT[],
+ADD COLUMN IF NOT EXISTS features TEXT[],
+ADD COLUMN IF NOT EXISTS screenshots TEXT[],
+ADD COLUMN IF NOT EXISTS trailer_url TEXT,
+ADD COLUMN IF NOT EXISTS reviews_count INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS sold_count INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS is_best_seller BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS short_description TEXT;
+
+ALTER TABLE games
+ADD COLUMN IF NOT EXISTS developer TEXT,
+ADD COLUMN IF NOT EXISTS publisher TEXT,
+ADD COLUMN IF NOT EXISTS release_date DATE,
+ADD COLUMN IF NOT EXISTS genres TEXT[],
+ADD COLUMN IF NOT EXISTS features TEXT[],
+ADD COLUMN IF NOT EXISTS screenshots TEXT[],
+ADD COLUMN IF NOT EXISTS min_requirements JSONB,
+ADD COLUMN IF NOT EXISTS rec_requirements JSONB,
+ADD COLUMN IF NOT EXISTS editions JSONB,
+ADD COLUMN IF NOT EXISTS is_best_seller BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS reviews_count INTEGER DEFAULT 0;
+
+ALTER TABLE my_games
+ADD COLUMN IF NOT EXISTS is_installed BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS download_progress INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS install_status TEXT DEFAULT 'not_installed' CHECK (install_status IN ('installed', 'downloading', 'not_installed'));
+
+-- Live TV channels table
+CREATE TABLE IF NOT EXISTS live_channels (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  logo_url TEXT,
+  category TEXT,
+  description TEXT,
+  price NUMERIC DEFAULT 0,
+  old_price NUMERIC,
+  discount_percent INTEGER DEFAULT 0,
+  rating NUMERIC DEFAULT 4.8,
+  reviews_count INTEGER DEFAULT 0,
+  channels_list JSONB,
+  features JSONB,
+  supported_devices TEXT[],
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE live_channels ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read channels" ON live_channels FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin channels" ON live_channels FOR ALL USING (is_admin());
+
+-- Update sports_matches na match events
+ALTER TABLE sports_matches
+ADD COLUMN IF NOT EXISTS competition TEXT,
+ADD COLUMN IF NOT EXISTS venue TEXT,
+ADD COLUMN IF NOT EXISTS broadcasters TEXT[],
+ADD COLUMN IF NOT EXISTS stream_url TEXT,
+ADD COLUMN IF NOT EXISTS viewers INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS match_date DATE,
+ADD COLUMN IF NOT EXISTS match_time TEXT,
+ADD COLUMN IF NOT EXISTS home_team_short TEXT,
+ADD COLUMN IF NOT EXISTS away_team_short TEXT,
+ADD COLUMN IF NOT EXISTS commentator TEXT,
+ADD COLUMN IF NOT EXISTS language TEXT[];
+
+-- Match comments (Live Chat)
+CREATE TABLE IF NOT EXISTS match_comments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  match_id UUID REFERENCES sports_matches(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  username TEXT,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Live TV Categories
+CREATE TABLE IF NOT EXISTS live_tv_categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  icon TEXT,
+  count INTEGER DEFAULT 0,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true
+);
+
+-- Live TV Featured Channels
+CREATE TABLE IF NOT EXISTS live_tv_channels (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  logo_url TEXT,
+  category TEXT,
+  country TEXT,
+  language TEXT,
+  stream_url TEXT,
+  quality TEXT,
+  is_live BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0
+);
+
+-- RLS
+ALTER TABLE match_comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE live_tv_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE live_tv_channels ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read match_comments" ON match_comments FOR SELECT USING (true);
+CREATE POLICY "Users insert match_comments" ON match_comments FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Admin full match_comments" ON match_comments FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read ltv_cat" ON live_tv_categories FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin ltv_cat" ON live_tv_categories FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read ltv_ch" ON live_tv_channels FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin ltv_ch" ON live_tv_channels FOR ALL USING (is_admin());
+
+-- Seed Live TV Categories
+INSERT INTO live_tv_categories (name, slug, icon, count, display_order) VALUES
+('Football (Live Matches)', 'football', '', 48, 1),
+('Basketball (Live)', 'basketball', '', 12, 2),
+('Tennis (Live)', 'tennis', '', 8, 3),
+('UFC & Boxing', 'ufc-boxing', '', 6, 4),
+('WWE', 'wwe', '', 4, 5),
+('Cricket', 'cricket', '', 10, 6),
+('Other Sports', 'other', '', 7, 7),
+('TV Channels', 'tv', '', 20, 8)
+ON CONFLICT (slug) DO NOTHING;
+
+-- Seed Live TV Featured Channels
+INSERT INTO live_tv_channels (name, category, quality, is_live, display_order) VALUES
+('beIN Sports', 'Sports', 'HD', true, 1),
+('ESPN', 'Sports', 'HD', true, 2),
+('Sky Sports', 'Sports', 'HD', true, 3),
+('DAZN', 'Sports', 'HD', true, 4),
+('TNT Sports', 'Sports', 'HD', true, 5)
+ON CONFLICT DO NOTHING;
+
+-- Ongeza columns kwenye sports_matches
+ALTER TABLE sports_matches
+ADD COLUMN IF NOT EXISTS competition TEXT,
+ADD COLUMN IF NOT EXISTS venue TEXT,
+ADD COLUMN IF NOT EXISTS broadcasters TEXT[],
+ADD COLUMN IF NOT EXISTS stream_url TEXT,
+ADD COLUMN IF NOT EXISTS viewers INTEGER DEFAULT 0,
+ADD COLUMN IF NOT EXISTS match_date DATE,
+ADD COLUMN IF NOT EXISTS match_time TEXT,
+ADD COLUMN IF NOT EXISTS home_team_short TEXT,
+ADD COLUMN IF NOT EXISTS away_team_short TEXT;
+
+-- match_comments table
+CREATE TABLE IF NOT EXISTS match_comments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  match_id UUID REFERENCES sports_matches(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  username TEXT,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- live_tv_categories
+CREATE TABLE IF NOT EXISTS live_tv_categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  icon TEXT,
+  count INTEGER DEFAULT 0,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true
+);
+
+-- live_tv_channels
+CREATE TABLE IF NOT EXISTS live_tv_channels (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  logo_url TEXT,
+  category TEXT,
+  quality TEXT,
+  is_live BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 0
+);
+
+-- RLS
+ALTER TABLE match_comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE live_tv_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE live_tv_channels ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read match_comments" ON match_comments FOR SELECT USING (true);
+CREATE POLICY "Users insert match_comments" ON match_comments FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Admin full match_comments" ON match_comments FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read ltv_cat" ON live_tv_categories FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin ltv_cat" ON live_tv_categories FOR ALL USING (is_admin());
+
+CREATE POLICY "Public read ltv_ch" ON live_tv_channels FOR SELECT USING (is_active = true);
+CREATE POLICY "Admin ltv_ch" ON live_tv_channels FOR ALL USING (is_admin());
+
+-- Seed categories
+INSERT INTO live_tv_categories (name, slug, icon, count, display_order) VALUES
+('Football (Live Matches)', 'football', '', 48, 1),
+('Basketball (Live)', 'basketball', '', 12, 2),
+('Tennis (Live)', 'tennis', '', 8, 3),
+('UFC & Boxing', 'ufc-boxing', '', 6, 4),
+('WWE', 'wwe', '', 4, 5),
+('Cricket', 'cricket', '', 10, 6),
+('Other Sports', 'other', '', 7, 7),
+('TV Channels', 'tv', '', 20, 8)
+ON CONFLICT (slug) DO NOTHING;
+
+-- Seed channels
+INSERT INTO live_tv_channels (name, category, quality, is_live, display_order) VALUES
+('beIN Sports', 'Sports', 'HD', true, 1),
+('ESPN', 'Sports', 'HD', true, 2),
+('Sky Sports', 'Sports', 'HD', true, 3),
+('DAZN', 'Sports', 'HD', true, 4),
+('TNT Sports', 'Sports', 'HD', true, 5)
+ON CONFLICT DO NOTHING;
