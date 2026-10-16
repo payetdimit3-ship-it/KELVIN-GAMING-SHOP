@@ -295,8 +295,17 @@
             </div>
 
             <div>
-              <label class="block text-[11px] text-gray-400 mb-1">Price (Optional)</label>
-              <input type="number" id="game-price" step="0.01" placeholder="e.g. 25.00" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary">
+              <label class="block text-[11px] text-gray-400 mb-1">Game Type</label>
+              <select id="game-type" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
+                <option value="paid">Paid Game</option>
+                <option value="free">Free Game</option>
+              </select>
+              <p class="text-[10px] text-gray-500 mt-1">Free Game itawekewa bei TSh 0 na haitahitaji malipo.</p>
+            </div>
+
+            <div>
+              <label class="block text-[11px] text-gray-400 mb-1">Price (TSh)</label>
+              <input type="number" id="game-price" min="0" step="1" placeholder="e.g. 25000" class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary">
             </div>
 
             <div>
@@ -305,6 +314,15 @@
                 <option value="true">Active</option>
                 <option value="false">Inactive</option>
               </select>
+            </div>
+
+            <!-- NEW: optional full game-file upload; existing download-link fields elsewhere remain unchanged -->
+            <div class="md:col-span-2 rounded-xl border border-dark-4 bg-dark-3/60 p-4">
+              <label for="game-file-input" class="block text-sm font-semibold text-white mb-1">Upload Game File (Optional)</label>
+              <p class="text-[11px] text-gray-400 mb-3">Pakia faili la mchezo moja kwa moja. Sehemu za download links hazijabadilishwa.</p>
+              <input type="file" id="game-file-input" class="block w-full text-xs text-gray-300 file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:font-semibold file:text-white hover:file:opacity-90" accept=".zip,.7z,.rar,.iso,.pkg,.apk,.obb,.xapk,.exe,.msi,.bin,.cue,.chd,.pbp,.torrent">
+              <div id="game-file-status" class="text-[11px] text-gray-400 mt-2">Hakuna game file iliyochaguliwa.</div>
+              <p class="text-[10px] text-gray-500 mt-1">Faili litahifadhiwa kwenye Supabase Storage bucket ya faragha <code>game-files</code>.</p>
             </div>
 
             <div class="md:col-span-2">
@@ -517,6 +535,31 @@ coverInput.addEventListener('change', (e) => {
   if (file) handleFile(file);
 });
 
+const gameFileInput = document.getElementById('game-file-input');
+const gameFileStatus = document.getElementById('game-file-status');
+const MAX_GAME_FILE_BYTES = 500 * 1024 * 1024; // 500 MB browser upload limit; adjust to storage plan.
+const allowedGameExtensions = new Set(['zip','7z','rar','iso','pkg','apk','obb','xapk','exe','msi','bin','cue','chd','pbp','torrent']);
+function formatFileSize(bytes) {
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+gameFileInput.addEventListener('change', () => {
+  const file = gameFileInput.files && gameFileInput.files[0];
+  if (!file) { gameFileStatus.textContent = 'Hakuna game file iliyochaguliwa.'; return; }
+  const ext = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : '';
+  if (!allowedGameExtensions.has(ext)) {
+    gameFileInput.value = '';
+    gameFileStatus.textContent = 'Aina hii ya faili haijaruhusiwa. Chagua game archive/file inayotumika.';
+    return;
+  }
+  if (file.size > MAX_GAME_FILE_BYTES) {
+    gameFileInput.value = '';
+    gameFileStatus.textContent = 'Faili limezidi 500 MB. Punguza ukubwa au tumia upload ya resumable/server-side.';
+    return;
+  }
+  gameFileStatus.textContent = `Imechaguliwa: ${file.name} (${formatFileSize(file.size)})`;
+});
+
 function handleFile(file) {
   if (file.size > 5 * 1024 * 1024) {
     alert('Picha ni kubwa mno. Max 5MB');
@@ -562,13 +605,35 @@ document.getElementById('upload-game-form').addEventListener('submit', async (e)
   const title = document.getElementById('game-title').value.trim();
   const platform = document.getElementById('game-platform').value;
   const categoryId = document.getElementById('game-category').value;
-  const price = parseFloat(document.getElementById('game-price').value) || 0;
+  const gameType = document.getElementById('game-type')?.value || 'paid';
+  const priceInput = document.getElementById('game-price');
+  const price = gameType === 'free' ? 0 : Math.max(0, parseFloat(priceInput.value) || 0);
+  if (gameType === 'paid' && price <= 0) { alert('Weka bei halali kwa game ya kulipia, au chagua Free Game.'); priceInput.focus(); return; }
   const status = document.getElementById('game-status').value === 'true';
   const description = document.getElementById('game-description').value.trim();
   const coverUrl = document.getElementById('cover-url').value.trim() || dropZone.dataset.imageData || '';
   const platforms = platform ? [platform] : [];
+  const selectedGameFile = gameFileInput.files && gameFileInput.files[0];
+  let gameFilePath = null;
 
-  const { error } = await db.from('games').insert({
+  // Upload the optional game file to a private Supabase Storage bucket.
+  // Download-link inputs elsewhere in the dashboard are intentionally untouched.
+  if (selectedGameFile) {
+    const ext = selectedGameFile.name.includes('.') ? selectedGameFile.name.split('.').pop().toLowerCase() : 'bin';
+    const safeName = selectedGameFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    gameFilePath = `${session.user.id}/${crypto.randomUUID()}-${safeName}`;
+    gameFileStatus.textContent = 'Inapakia game file...';
+    const { error: uploadError } = await db.storage.from('game-files').upload(gameFilePath, selectedGameFile, {
+      cacheControl: '3600', upsert: false, contentType: selectedGameFile.type || 'application/octet-stream'
+    });
+    if (uploadError) {
+      gameFileStatus.textContent = 'Upload imeshindikana.';
+      alert('Imeshindikana kupakia game file. Hakikisha bucket ya faragha "game-files" imeundwa na Storage policies zimeruhusu admin upload. Maelezo: ' + uploadError.message);
+      return;
+    }
+  }
+
+  const gameRecord = {
     title: title,
     description: description,
     price: price,
@@ -577,15 +642,20 @@ document.getElementById('upload-game-form').addEventListener('submit', async (e)
     image_url: coverUrl,
     stock: 100,
     is_active: status
-  });
+  };
+  if (gameFilePath) gameRecord.game_file_path = gameFilePath;
+
+  const { error } = await db.from('games').insert(gameRecord);
 
   if (error) {
-    alert('Kosa: ' + error.message);
+    if (gameFilePath) await db.storage.from('game-files').remove([gameFilePath]);
+    alert('Kosa: ' + error.message + (gameFilePath ? '\nAngalia kama column ya games.game_file_path imeongezwa kwa SQL setup iliyopo kwenye ZIP.' : ''));
     return;
   }
 
-  alert('✅ Game imeongezwa!');
+  alert('✅ Game imeongezwa!' + (gameFilePath ? '\nGame file limehifadhiwa kwenye private storage.' : ''));
   document.getElementById('upload-game-form').reset();
+  gameFileStatus.textContent = 'Hakuna game file iliyochaguliwa.';
   dropZone.innerHTML = `<svg class="w-10 h-10 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg><div class="text-xs text-white font-semibold mb-1">Upload Game Cover</div><div class="text-[10px] text-gray-500">Click to upload or drag and drop</div><div class="text-[10px] text-gray-500 mt-1">JPG, PNG (Max 5MB)</div>`;
   dropZone.dataset.imageData = '';
   loadDashboard();

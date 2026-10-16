@@ -1,55 +1,47 @@
-<!DOCTYPE html>
-<html lang="sw">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Games — LIFEISGAMETZ</title>
-  <link rel="stylesheet" href="zoneplay-full.css">
-</head>
-<body>
-<div class="main">
-
-  <header class="zp-page-head">
-    <div class="zp-ph-ic" data-ic="grid"></div>
-    <div><h1>Games</h1><p>Chagua platform unayotumia — PSP, PS2, PS3, Nintendo Switch, Android au PC.</p></div>
-    <div class="zp-ph-side opt"><a class="zp-btn" href="shop.html"><span data-ic="bag"></span>Store Yote</a></div>
-  </header>
-
-  <div class="zp-cat-big" id="platGrid"></div>
-
-  <div class="zp-sec"><h2>Bidhaa Mpya</h2><a href="shop.html">Angalia Zote <span data-ic="chevr"></span></a></div>
-  <section class="zp-grid c5 hscroll" id="latest"><div class="zp-empty"><p>Inapakia...</p></div></section>
-
-  <section class="zp-ai" style="margin-top:34px">
-    <div>
-      <h2 style="font-size:26px">Hujui game inayofaa device yako?</h2>
-      <p style="margin:0">Tumia AI Recommendations — inakuchagulia game kulingana na simu, PC au console uliyonayo.</p>
-    </div>
-    <a class="zp-btn" href="recommendations.html"><span data-ic="bot"></span>Uliza AI</a>
-  </section>
-</div>
-
-<script src="zoneplay-shell.js"></script>
-<script src="zp-catalog.js"></script>
-<script src="app.js"></script>
-<script src="chat.js"></script>
-<script>
-(function(){
-  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
-  var SUB={android:'Games na top-up za simu'};
-  function tiles(counts){
-    document.getElementById('platGrid').innerHTML=ZP.PLATFORMS.map(function(p){
-      var n=counts[p.key]||0;
-      return '<a class="zp-plat" href="shop.html?cat='+p.key+'" style="--art:'+p.art+'"><span class="zp-pi">'+p.emoji+'</span><h3>'+ZP.esc(p.title)+'</h3><span>'+ZP.esc(SUB[p.key]||p.sub)+'</span><b>'+(n?n+' bidhaa':'Angalia')+'</b></a>';
-    }).join('');
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Categories.Html</title><meta http-equiv="refresh" content="0;url=category.html">
+<script>location.replace('category.html' + location.search + location.hash);</script>
+<style>body{font-family:system-ui;background:#0b1020;color:#e8ecff;display:grid;place-items:center;min-height:100vh}a{color:#7dd3fc}</style></head>
+<body><p>Opening <a href="category.html">Categories.Html</a>…</p>
+<script id="lifeisgametz-navigation-repair">
+(function () {
+  function initNavigationRepair() {
+    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
+    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
+              document.querySelector('nav');
+    toggles.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!nav) {
+          window.location.href = 'index.html';
+          return;
+        }
+        nav.classList.toggle('lifeisgametz-mobile-nav-open');
+        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
+        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
+        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
+        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
+        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
+        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
+        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
+        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
+        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
+      });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && nav) {
+        nav.classList.remove('lifeisgametz-mobile-nav-open');
+        nav.style.display = '';
+        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
+        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
+      }
+    });
   }
-  tiles({});
-  ZP.loadProducts().then(function(list){
-    var c={}; list.forEach(function(p){ if(p.platform) c[p.platform]=(c[p.platform]||0)+1; });
-    tiles(c);
-    document.getElementById('latest').innerHTML=list.slice(0,10).map(ZP.card).join('');
-  });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
+  else initNavigationRepair();
 })();
 </script>
-</body>
-</html>
+
+</body></html>
