@@ -1,47 +1,106 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tournaments.Html</title><meta http-equiv="refresh" content="0;url=tournament.html">
-<script>location.replace('tournament.html' + location.search + location.hash);</script>
-<style>body{font-family:system-ui;background:#0b1020;color:#e8ecff;display:grid;place-items:center;min-height:100vh}a{color:#7dd3fc}</style></head>
-<body><p>Opening <a href="tournament.html">Tournaments.Html</a>…</p>
-<script id="lifeisgametz-navigation-repair">
-(function () {
-  function initNavigationRepair() {
-    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
-    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
-              document.querySelector('nav');
-    toggles.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!nav) {
-          window.location.href = 'index.html';
-          return;
-        }
-        nav.classList.toggle('lifeisgametz-mobile-nav-open');
-        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
-        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
-        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
-        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
-        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
-        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
-        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
-        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav) {
-        nav.classList.remove('lifeisgametz-mobile-nav-open');
-        nav.style.display = '';
-        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
-        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
-      }
-    });
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Tournaments — LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="zoneplay-full.css">
+</head>
+<body>
+<div class="main">
+
+  <section class="ac-hero" style="background:linear-gradient(110deg,#4a0d3a,#1a0a56 60%,#062a5c)">
+    <div>
+      <span class="zp-slide-tag">GAMEHUB TOURNAMENTS</span>
+      <h1>Jiunge na Mashindano</h1>
+      <p>Shindana na wachezaji wengine, jisajili kwa simu yako na fuatilia matokeo — yote GameHub.</p>
+      <div class="ac-cta">
+        <a class="zp-btn" href="#list"><span data-ic="trophy"></span>Angalia Tournaments</a>
+        <a class="zp-btn ghost" href="livescores.html"><span data-ic="ball"></span>Live Scores</a>
+      </div>
+    </div>
+    <div class="ac-stats" id="stats" hidden></div>
+  </section>
+
+  <div class="zp-sec" id="list" style="margin-top:6px"><h2>Tournaments Zilizopo</h2></div>
+  <section class="tn-grid" id="grid" aria-live="polite"><div class="zp-empty" style="grid-column:1/-1"><p>Inapakia...</p></div></section>
+</div>
+
+<div class="gm-modal" id="regModal" role="dialog" aria-modal="true" aria-labelledby="regTitle" hidden>
+  <div class="gm-box">
+    <div class="gm-head"><h2 id="regTitle">Sajili Tournament</h2><p id="regSub"></p><button class="gm-close" id="regClose" type="button" aria-label="Funga"></button></div>
+    <div class="gm-body">
+      <div class="ck-field"><label for="rName">Jina Kamili</label><input type="text" id="rName" placeholder="mfano: Juma Juma" autocomplete="name"></div>
+      <div class="ck-field"><label for="rPhone">Namba ya Simu</label><input type="tel" id="rPhone" placeholder="0786095758" inputmode="numeric" autocomplete="tel"></div>
+      <div class="ck-field"><label for="rGame">Game</label><input type="text" id="rGame" placeholder="mfano: eFootball"></div>
+      <button class="zp-btn ck-pay" id="regSubmit" type="button"></button>
+      <p class="ck-status" id="regStatus" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</div>
+
+<script src="zoneplay-shell.js"></script>
+<script src="zp-catalog.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
+<script>
+(function(){
+  var esc=ZP.esc;
+  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
+  document.getElementById('regClose').innerHTML=ZP.icon('x');
+  document.getElementById('regSubmit').innerHTML=ZP.icon('user')+'Sajili Sasa';
+
+  var list=[];
+  function statusOf(t){ var s=String(t.status||'OPEN').toUpperCase(); return /CLOSE|IMEISHA|FULL/.test(s)?'closed':/LIVE|INAENDELEA/.test(s)?'live':'open'; }
+  function card(t){
+    var st=statusOf(t), closed=st==='closed';
+    return '<article class="tn-card"><div class="tn-top"><span class="tn-ic">'+ZP.icon('trophy')+'</span><div><h3>'+esc(t.name||'GameHub Tournament')+'</h3><span class="meta">'+esc(t.game||'Gaming')+' • '+esc(t.date||'Tarehe itawekwa')+'</span></div></div>'+
+      '<p>'+esc(t.description||'Jiunge na tournament ya GameHub.')+'</p>'+
+      '<div class="tn-foot"><span class="tn-badge '+st+'">'+esc((t.status||'OPEN').toUpperCase())+'</span>'+
+      (closed?'':'<button class="zp-btn sm" type="button" data-join="'+esc(t.id)+'" data-game="'+esc(t.game||'')+'" data-name="'+esc(t.name||'')+'">'+ZP.icon('user')+'Jiunge</button>')+'</div></article>';
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
-  else initNavigationRepair();
+  function render(){
+    var box=document.getElementById('grid');
+    if (list===null){ box.innerHTML='<div class="zp-empty" style="grid-column:1/-1"><h3>Imeshindikana kupakia tournaments</h3><p>Angalia mtandao kisha jaribu tena.</p><button class="zp-btn" type="button" onclick="location.reload()">Jaribu tena</button></div>'; return; }
+    if (!list.length){ box.innerHTML='<div class="zp-empty" style="grid-column:1/-1"><h3>Hakuna tournament bado</h3><p>Admin ataweka mashindano mapya hapa hivi karibuni.</p></div>'; return; }
+    var open=list.filter(function(t){ return statusOf(t)==='open'; }).length;
+    var st=document.getElementById('stats'); st.hidden=false;
+    st.innerHTML='<div class="ac-stat"><b>'+list.length+'</b><span>Tournaments</span></div>'+(open?'<div class="ac-stat"><b>'+open+'</b><span>Zinapokea Usajili</span></div>':'');
+    box.innerHTML=list.map(card).join('');
+  }
+  fetch('/api/tournaments').then(function(r){ return r.json(); }).then(function(d){ list=d.tournaments||[]; render(); }).catch(function(){ list=null; render(); });
+
+  /* ---------- Registration modal ---------- */
+  var modal=document.getElementById('regModal'), statusEl=document.getElementById('regStatus'), submitBtn=document.getElementById('regSubmit'), curId='';
+  function open(id,name,game){
+    curId=id; document.getElementById('regSub').textContent=name?('Kwa: '+name):'';
+    document.getElementById('rGame').value=game||''; document.getElementById('rName').value=''; document.getElementById('rPhone').value='';
+    statusEl.textContent=''; statusEl.className='ck-status'; submitBtn.disabled=false; submitBtn.innerHTML=ZP.icon('user')+'Sajili Sasa';
+    modal.hidden=false; modal.classList.add('on'); document.body.style.overflow='hidden';
+    document.getElementById('rName').focus();
+  }
+  function close(){ modal.classList.remove('on'); modal.hidden=true; document.body.style.overflow=''; }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-join]'); if(b){ open(b.dataset.join,b.dataset.name,b.dataset.game); return; }
+    if (e.target===modal || e.target.closest('#regClose')) close();
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && modal.classList.contains('on')) close(); });
+
+  submitBtn.addEventListener('click',function(){
+    var name=document.getElementById('rName').value.trim(), phone=document.getElementById('rPhone').value.trim(), game=document.getElementById('rGame').value.trim();
+    if (!name||!phone){ statusEl.textContent='Jaza jina na namba ya simu.'; statusEl.className='ck-status'; return; }
+    submitBtn.disabled=true; submitBtn.textContent='⏳ Inatuma...';
+    fetch('/api/tournaments/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tournamentId:curId,name:name,phone:phone,game:game,userToken:localStorage.getItem('gamehubToken')})})
+      .then(function(r){ return r.json().catch(function(){ return {}; }); })
+      .then(function(d){
+        statusEl.textContent=d.message||d.error||'Imekamilika.';
+        statusEl.className='ck-status'+(d.message?' ok':'');
+        if (d.message){ submitBtn.innerHTML=ZP.icon('check')+'Umesajiliwa'; setTimeout(close,1800); }
+        else submitBtn.disabled=false, submitBtn.innerHTML=ZP.icon('user')+'Sajili Sasa';
+      })
+      .catch(function(){ statusEl.textContent='Hitilafu ya mtandao. Jaribu tena.'; statusEl.className='ck-status'; submitBtn.disabled=false; submitBtn.innerHTML=ZP.icon('user')+'Sajili Sasa'; });
+  });
 })();
 </script>
-
-</body></html>
+</body>
+</html>

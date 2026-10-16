@@ -60,10 +60,11 @@
     ['Home','index.html','home'], ['Store','shop.html','bag'], ['Games','categories.html','grid'],
     ['PSP Gaming','shop.html?cat=psp','gamepad'], ['PS2 Gaming','shop.html?cat=ps2','gamepad'], ['PS3 Gaming','shop.html?cat=ps3','gamepad'],
     ['Nintendo Switch','shop.html?cat=switch','gamepad'], ['Android Gaming','shop.html?cat=android','phone'], ['PC Gaming','shop.html?cat=pc','monitor'],
+    ['Winlator & GameHub','winlator-gamehub.html','phone'], ['Free Games','free-games.html','download'],
     ['Movies','movies.html','film'], ['Live TV / Sports','live.html','tv'], ['Live Scores','livescores.html','trophy'],
     ['Academy / Courses','academy.html','cap'], ['Cloud Gaming','cloudgaming.html','cloud'], ['eFootball / Top Up','efootball.html','ball'],
     ['Gift Cards','giftcards.html','gift'], ['Community / Chat','chat.html','chat'], ['Health Assistant','health.html','pulse'],
-    ['AI Assistant','ai.html','bot'], ['Marketplace','marketplace.html','shop'], ['Wishlist','wishlist.html','heart'],
+    ['AI Assistant','ai.html','bot'], ['Game Advisor (AI)','game-advisor.html','bot'], ['Marketplace','marketplace.html','shop'], ['Wishlist','wishlist.html','heart'],
     ['Cart','cart.html','cart'], ['My Games / Library','mygames.html','book'], ['Profile','profile.html','user']
   ];
   var ADMIN_NAV = [
@@ -73,40 +74,17 @@
     ['Marketplace','marketplace','shop'], ['Coupons','coupons','gift'], ['Usalama','security','shield'],
     ['Media & Live','media','tv'], ['AI','ai','bot']
   ];
-  /* All additional user pages are reachable from ZAIDI. Keep the original
-     legacy destinations working while exposing the full 41-page sitemap. */
   var MORE = [
-    ['Winlator & GameHub','winlator-gamehub.html','phone'], ['Steam Accounts','steamaccounts.html','user'],
-    ['eFootball Coins','topup.html','ball'], ['Tournaments','tournament.html','trophy'],
-    ['Cloud Rental','rental.html','cloud'], ['Live Football / Watch Match','live-football-watch.html','tv'],
-    ['Live Movies Player','live-movies-player.html','film'], ['Game Trailer','game-trailer.html','film'],
-    ['Sports TV','sports-tv.html','tv'], ['Sports News','sports-news.html','file'],
-    ['Product Details','product-details.html','bag'], ['Checkout','checkout.html','wallet'],
-    ['Courses','courses.html','cap'], ['My Orders','my-orders.html','box'],
-    ['Requests / Transactions','requests-transactions.html','file'], ['Youth Opportunities','opportunities.html','briefcase'],
-    ['Community Help','community.html','users'], ['Community Fund','community-fund.html','heart'],
-    ['Recovery Support','recovery.html','life'], ['Health Network','professionals.html','pulse'],
-    ['Game Requests','requests.html','file'], ['Recommendations','recommendations.html','star'],
-    ['Contact / Support','contact-support.html','mail'], ['FAQ / Help','faq-help.html','help'],
-    ['Terms & Refund','terms.html','file'], ['Settings','settings.html','settings']
-  ];
-  var ADMIN_PAGES = [
-    ['Admin Dashboard','admin.html'], ['Dashboard','dashboard.html'], ['Games Management','games-management.html'],
-    ['Products Management','products-management.html'], ['Movies Management','movies-management.html'],
-    ['Trailers Management','trailers-management.html'], ['Hero / Homepage Management','hero-homepage-management.html'],
-    ['Live Matches Management','live-matches-management.html'], ['eFootball / Top Up Management','efootball-topup-management.html'],
-    ['Cloud Gaming Management','cloud-gaming-management.html'], ['Gift Cards Management','gift-cards-management.html'],
-    ['Marketplace Management','marketplace-management.html'], ['Users Management','users-management.html'],
-    ['Orders & Sales','orders-sales.html'], ['Coupons & Discounts','coupons-discounts.html'],
-    ['Withdraw Requests','withdraw-requests.html'], ['Support Tickets','support-tickets.html'],
-    ['Courses Management','courses-management.html'], ['Lessons / Videos Management','lessons-videos-management.html'],
-    ['Students Management','students-management.html'], ['Sports TV Management','sports-tv-management.html'],
-    ['Sports News Management','sports-news-management.html'], ['Analytics','analytics.html'],
-    ['Reports','reports.html'], ['Storage & Server','storage-server.html'], ['Settings','settings.html']
+    ['Steam Accounts','steamaccounts.html','user'], ['eFootball Coins','topup.html','ball'], ['Tournaments','tournaments.html','trophy'],
+    ['Cloud Rental','rental.html','cloud'], ['Youth Opportunities','opportunities.html','briefcase'], ['Community Help','community.html','users'],
+    ['Community Fund','community-fund.html','heart'], ['Recovery Support','recovery.html','life'], ['Health Network','professionals.html','pulse'],
+    ['My Orders','myorders.html','box'], ['Game Requests','requests.html','file'], ['Recommendations','recommendations.html','star'],
+    ['Contact','contact.html','mail'], ['FAQ','faq.html','help'], ['Terms & Refund','terms.html','file'], ['Settings','settings.html','settings']
   ];
   /* Pages that belong to a sidebar item without being one */
   var ALIAS = {'product.html':'shop.html','checkout.html':'cart.html','success.html':'mygames.html',
     'courses.html':'academy.html','refund.html':'terms.html'};
+  /*GEN-ALIAS*/Object.assign(ALIAS,{'ai-assistant.html':'ai.html','android-gaming.html':'shop.html','betting.html':'livescores.html','cloud-gaming.html':'cloudgaming.html','community-chat.html':'chat.html','contact-support.html':'contact.html','efootball-topup.html':'efootball.html','faq-help.html':'faq.html','game-trailer.html':'movies.html','games.html':'categories.html','gift-cards.html':'giftcards.html','health-assistant.html':'health.html','home.html':'index.html','live-football-watch.html':'live.html','live-movies-player.html':'movies.html','live-scores.html':'livescores.html','live-tv-esports.html':'live.html','my-games-library.html':'mygames.html','my-orders.html':'myorders.html','nintendo-switch.html':'shop.html','pc-gaming.html':'shop.html','product-details.html':'product.html','ps2-gaming.html':'shop.html','ps3-gaming.html':'shop.html','psp-gaming.html':'shop.html','requests-transactions.html':'myorders.html','sports-news.html':'livescores.html','sports-tv.html':'live.html','store.html':'shop.html','tournament.html':'tournaments.html'});/*END-GEN-ALIAS*/
   var here = (location.pathname.split('/').pop()||'index.html').toLowerCase();
   var qs = new URLSearchParams(location.search);
   function isActive(href, strict){
@@ -171,7 +149,7 @@
       function adminItem(x){ return '<a class="zp-nav-item" data-tab-link="'+x[1]+'" href="#tab-'+x[1]+'">'+ZP.icon(x[2])+'<span>'+x[0]+'</span></a>'; }
       side.innerHTML =
         '<a class="zp-brand" href="admin.html">'+logoSvg()+'<span><b>LIFEIS<span>GAME</span>TZ</b><small>ADMIN OS</small></span></a>'+
-        '<nav class="zp-nav">'+ADMIN_NAV.map(adminItem).join('')+'</nav>'+'<details class="zp-more zp-admin-pages"><summary>Kurasa zote za Admin</summary>'+ADMIN_PAGES.map(function(x){return '<a class="zp-nav-item" href="'+x[1]+'"><span>'+x[0]+'</span></a>';}).join('')+'</details>'+
+        '<nav class="zp-nav">'+ADMIN_NAV.map(adminItem).join('')+'</nav>'+
         '<div class="zp-side-foot"><a href="index.html">'+ZP.icon('chevl')+'Rudi Dukani</a><a href="contact.html">'+ZP.icon('headset')+'Msaada</a></div>';
       function paintAdminActive(){
         var cur=adminHash();

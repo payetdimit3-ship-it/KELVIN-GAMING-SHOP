@@ -1,423 +1,105 @@
 <!DOCTYPE html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marketplace - LifeisGameTz</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = { theme: { extend: { colors: { primary: '#7c3aed', 'primary-dark': '#6d28d9', dark: '#0a0a1a', 'dark-2': '#0f0f1e', 'dark-3': '#1a1a2e', 'dark-4': '#252540' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
-</script>
-<style>
-  body { background: #0a0a1a; color: #e5e7eb; font-family: 'Inter', sans-serif; }
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: #0f0f1e; }
-  ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
-  .gradient-primary { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
-  .gradient-card { background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%); }
-  .cat-tab.active { background: #7c3aed; color: white; }
-  .item-card:hover { transform: translateY(-4px); transition: all 0.3s; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Marketplace — LIFEISGAMETZ</title>
+  <link rel="stylesheet" href="zoneplay-full.css">
 </head>
-<body class="min-h-screen">
+<body>
+<div class="main">
 
-<!-- TOP BAR -->
-<header class="sticky top-0 z-50 bg-dark-2/95 backdrop-blur-lg border-b border-dark-4">
-  <div class="flex items-center justify-between px-4 py-3 gap-4">
-    <button aria-label="Open navigation menu" data-mobile-menu-toggle="true" class="lg:hidden w-9 h-9 rounded-lg bg-dark-3 flex items-center justify-center">
-      <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
-    <a href="index.html" class="flex items-center gap-3 shrink-0">
-      <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center">
-        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5S19.33 12 18.5 12z"/></svg>
-      </div>
-      <div class="hidden md:block">
-        <div class="text-white font-extrabold text-lg leading-none">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></div>
-        <div class="text-[10px] text-gray-400 tracking-widest">PLAY • LEARN • EARN</div>
-      </div>
-    </a>
+  <header class="zp-page-head">
+    <div class="zp-ph-ic" data-ic="shop"></div>
+    <div><h1>Marketplace</h1><p>Biashara nyingine zinazoshirikiana na GameHub — tafuta, wasiliana moja kwa moja.</p></div>
+    <div class="zp-ph-side opt"><a class="zp-btn ghost" id="joinTop" target="_blank" rel="noopener"></a></div>
+  </header>
 
-    <div class="flex-1 max-w-2xl hidden md:block">
-      <div class="relative">
-        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" placeholder="Search marketplace items..." class="w-full bg-dark-3 border border-dark-4 rounded-full py-2.5 pl-12 pr-16 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-primary">
-        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-4 px-1.5 py-0.5 rounded">Ctrl + K</span>
-      </div>
-    </div>
-
-    <div class="flex items-center gap-2 shrink-0">
-      <button class="relative w-9 h-9 rounded-lg bg-dark-3 hover:bg-dark-4 flex items-center justify-center">
-        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">4</span>
-      </button>
-      <div class="flex items-center gap-2 bg-dark-3 rounded-lg pl-1 pr-2 py-1">
-        <div class="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-xs">KF</div>
-        <div class="hidden md:block">
-          <div class="text-xs font-semibold text-gray-200 leading-tight">Kevin Fred</div>
-          <div class="text-[9px] text-green-400 leading-tight flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
-            Super Admin
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="zp-toolbar">
+    <label class="zp-search"><span data-ic="search"></span><input type="search" id="q" placeholder="Tafuta biashara..." autocomplete="off" aria-label="Tafuta biashara"></label>
+    <div class="zp-chips nowrap-m" id="cats" role="group" aria-label="Kategoria"></div>
+    <select id="sortSel" aria-label="Panga" style="height:36px;padding:0 12px;margin-left:auto">
+      <option value="new">Mpya kwanza</option>
+      <option value="az">A – Z</option>
+    </select>
   </div>
-</header>
+  <p class="zp-count" id="count" aria-live="polite"></p>
+  <section class="ac-grid" id="grid" aria-live="polite"><div class="zp-empty"><p>Inapakia...</p></div></section>
 
-<div class="flex">
-
-  <!-- SIDEBAR -->
-  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-dark-2 border-r border-dark-4 min-h-[calc(100vh-64px)] sticky top-16">
-    <div class="flex-1 overflow-y-auto py-4">
-      <a href="index.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        <span>Home</span>
-      </a>
-      <a href="/store.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-        <span>Store</span>
-      </a>
-      <a href="/games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span>Games</span>
-      </a>
-      <a href="/movies.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
-        <span>Movies</span>
-      </a>
-      <a href="/live-tv.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        <span>Live TV / eSports</span>
-      </a>
-      <a href="/community.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
-        <span>Community / Chat</span>
-      </a>
-      <a href="/marketplace.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm bg-primary text-white">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        <span>Marketplace</span>
-      </a>
-      <a href="/wishlist.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-        <span>Wishlist</span>
-      </a>
-      <a href="/cart.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        <span>Cart</span>
-        <span class="ml-auto text-[9px] bg-dark-2 px-1.5 py-0.5 rounded">4</span>
-      </a>
-      <a href="/my-games.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        <span>My Games / Library</span>
-        <span class="ml-auto text-[9px] bg-dark-2 px-1.5 py-0.5 rounded">12</span>
-      </a>
-      <a href="/profile.html" class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm text-gray-300 hover:bg-dark-3 hover:text-white transition">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-        <span>Profile</span>
-      </a>
-
-      <div class="mx-2 mt-6 gradient-primary rounded-xl p-4 text-center">
-        <div class="text-2xl mb-1">👑</div>
-        <div class="text-white font-bold text-sm mb-1">Upgrade to Pro</div>
-        <div class="text-white/80 text-[10px] mb-3">Unlock more features, better control and unlimited uploads.</div>
-        <button class="bg-white text-primary font-bold text-[10px] px-3 py-1.5 rounded-lg w-full">Upgrade Now</button>
-      </div>
+  <section class="zp-ai" style="margin-top:34px">
+    <div>
+      <h2 style="font-size:26px">Una Biashara? Jiunge Nasi</h2>
+      <p style="margin:0">Unataka biashara yako ionekane hapa? Tuandikie na tutakuelekeza hatua zinazofuata.</p>
     </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="flex-1 p-4 md:p-6 space-y-6 min-w-0">
-
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-sm text-gray-400">
-      <a href="index.html" class="hover:text-primary">Home</a>
-      <span>›</span>
-      <span class="text-white font-semibold">Marketplace</span>
-    </div>
-
-    <!-- Header -->
-    <div class="flex items-start justify-between flex-wrap gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-        </div>
-        <div>
-          <h1 class="text-2xl font-bold text-white">Marketplace</h1>
-          <p class="text-sm text-gray-400">Buy, sell and trade games, accounts, digital products and more!</p>
-        </div>
-      </div>
-      <button onclick="openSellModal()" class="gradient-primary text-white text-sm font-bold px-5 py-2.5 rounded-lg flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        Sell Item
-      </button>
-    </div>
-
-    <!-- Category Tabs -->
-    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
-      <button class="cat-tab active px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="all">All</button>
-      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="games">Games</button>
-      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="accounts">Accounts</button>
-      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="digital">Digital Products</button>
-      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="services">Services</button>
-      <button class="cat-tab px-4 py-2 rounded-lg bg-dark-3 text-sm font-semibold text-gray-300 whitespace-nowrap" data-cat="physical">Physical Items</button>
-    </div>
-
-    <!-- Hero Banner -->
-    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-r from-purple-900/60 via-primary/40 to-transparent"></div>
-      <div class="relative p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-        <div class="md:col-span-2 z-10">
-          <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-2">BUY & SELL</h2>
-          <h2 class="text-2xl md:text-4xl font-extrabold text-primary mb-3">GAMES, ACCOUNTS & DIGITAL PRODUCTS</h2>
-          <div class="flex flex-wrap gap-3 text-xs mb-4">
-            <span class="flex items-center gap-1 text-gray-200">
-              <svg class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-              Safe
-            </span>
-            <span class="flex items-center gap-1 text-gray-200">
-              <svg class="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              Fast
-            </span>
-            <span class="flex items-center gap-1 text-gray-200">
-              <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-              Secure
-            </span>
-          </div>
-          <button class="gradient-primary text-white font-bold px-5 py-2.5 rounded-lg">Explore Now →</button>
-        </div>
-        <div class="hidden md:flex items-center justify-end gap-3 z-10">
-          <div class="w-14 h-14 rounded-xl bg-blue-600 flex items-center justify-center text-2xl">🎮</div>
-          <div class="w-14 h-14 rounded-xl bg-green-600 flex items-center justify-center text-2xl">🎯</div>
-          <div class="w-14 h-14 rounded-xl bg-red-600 flex items-center justify-center text-2xl">🎲</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Featured Marketplace Items -->
-    <section>
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-          <span>🔥</span> Featured Marketplace Items
-        </h2>
-        <a href="#" class="text-sm text-primary font-semibold">View All →</a>
-      </div>
-      <div id="featured-items" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="col-span-full text-center py-8 text-gray-500 text-sm">Loading...</div>
-      </div>
-    </section>
-
-    <!-- Trusted Marketplace Banner -->
-    <div class="relative gradient-card rounded-2xl border border-dark-4 overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-r from-green-900/40 via-primary/30 to-transparent"></div>
-      <div class="relative p-6 flex items-center justify-between flex-wrap gap-4">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-2xl bg-green-500/20 flex items-center justify-center">
-            <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-          </div>
-          <div>
-            <h3 class="text-white font-bold text-lg">TRUSTED MARKETPLACE</h3>
-            <p class="text-xs text-gray-400">100% Safe Transactions</p>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            <span class="text-gray-300">Secure Payments</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            <span class="text-gray-300">Verified Sellers</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            <span class="text-gray-300">Instant Delivery</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            <span class="text-gray-300">24/7 Support</span>
-          </div>
-        </div>
-        <button class="gradient-primary text-white font-bold px-5 py-2.5 rounded-lg">Start Buying</button>
-      </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="pt-6 mt-4 border-t border-dark-4 text-xs text-gray-500">
-      <div class="flex items-center justify-between flex-wrap gap-4">
-        <div class="flex items-center gap-2">
-          <div class="w-5 h-5 rounded gradient-primary flex items-center justify-center text-white text-[9px] font-bold">L</div>
-          <span class="text-white font-bold">LIFE<span class="text-primary">IS</span>GAME<span class="text-primary">TZ</span></span>
-          <span class="text-gray-500">Play • Learn • Earn</span>
-        </div>
-        <div>© 2025 LIFEISGAMETZ. All rights reserved.</div>
-        <div class="flex gap-4">
-          <a href="/terms" class="hover:text-primary">Terms</a>
-          <a href="/privacy" class="hover:text-primary">Privacy</a>
-          <a href="/contact" class="hover:text-primary">Contact</a>
-        </div>
-      </div>
-    </footer>
-
-  </main>
+    <a class="zp-btn" id="joinBtn" target="_blank" rel="noopener"></a>
+  </section>
 </div>
 
-<!-- SELL MODAL -->
-<div id="sell-modal" class="hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-dark-2 border border-dark-4 rounded-2xl w-full max-w-lg p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-bold text-white">Sell Item</h3>
-      <button onclick="closeSellModal()" class="text-gray-400 hover:text-white">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-    <form id="sell-form" class="space-y-3">
-      <input type="text" placeholder="Item Title" required class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
-      <textarea placeholder="Description" rows="3" required class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary"></textarea>
-      <select class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
-        <option>Games</option>
-        <option>Accounts</option>
-        <option>Digital Products</option>
-        <option>Services</option>
-        <option>Physical Items</option>
-      </select>
-      <input type="number" placeholder="Price (TZS)" required class="w-full bg-dark-3 border border-dark-4 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-primary">
-      <button type="submit" class="w-full gradient-primary text-white font-bold py-3 rounded-lg">List Item</button>
-    </form>
-  </div>
-</div>
-
-<script src="config.js"></script>
+<script src="zoneplay-shell.js"></script>
+<script src="zp-catalog.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
 <script>
-const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+(function(){
+  var esc=ZP.esc;
+  document.querySelectorAll('[data-ic]').forEach(function(el){ el.insertAdjacentHTML('afterbegin', ZP.icon(el.dataset.ic)); });
 
-let activeCat = 'all';
+  var joinMsg='Habari, nataka kuorodhesha biashara yangu kwenye Marketplace ya LIFEISGAMETZ.';
+  ['joinTop','joinBtn'].forEach(function(id){ var a=document.getElementById(id); a.href=ZP.waLink(joinMsg); a.innerHTML=ZP.icon('chat')+(id==='joinTop'?'Orodhesha Biashara':'WhatsApp'); });
 
-const mockItems = [
-  { id: 1, title: 'eFootball FC 25 Account', desc: 'Ultimate Team | 100M Coins | PS5', price: 85000, category: 'accounts', rating: 4.8, reviews: 124, badge: 'Account', icon: '⚽', seller: 'ProGamer' },
-  { id: 2, title: 'Steam Wallet Gift Card', desc: '$10 USD | Global Region', price: 36000, category: 'digital', rating: 4.7, reviews: 89, badge: 'Digital', icon: '🎮', seller: 'StoreTZ' },
-  { id: 3, title: 'Fortnite Account', desc: 'Rare Skins | Save The World', price: 60000, category: 'accounts', rating: 4.6, reviews: 76, badge: 'Account', icon: '🎯', seller: 'FortnitePro' },
-  { id: 4, title: 'Grand Theft Auto V', desc: 'Rockstar Games | PS5/PS4', price: 65000, category: 'games', rating: 4.9, reviews: 196, badge: 'Game', icon: '🚗', seller: 'GameStore' },
-  { id: 5, title: 'Game Boosting Service', desc: 'Rank Boost | Fast & Safe', price: 25000, category: 'services', rating: 4.6, reviews: 341, badge: 'Service', icon: '⚡', seller: 'BoostMaster' },
-  { id: 6, title: 'Netflix Premium Account', desc: '4 Screens | 4K Ultra HD', price: 40000, category: 'accounts', rating: 4.8, reviews: 229, badge: 'Account', icon: '🎬', seller: 'StreamingTZ' }
-];
+  function safeImg(u){ u=String(u||'').trim(); return /^(https?:\/\/|\/)/i.test(u) ? u : ''; }
+  /* contact -> {href, label, icon}. Phones without country code are treated as Tanzanian numbers. */
+  function contactOf(c){
+    c=String(c||'').trim();
+    if (/^https?:\/\//i.test(c)) return {href:c,label:'Tembelea',icon:'arrow'};
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)) return {href:'mailto:'+c,label:'Barua pepe',icon:'mail'};
+    var d=c.replace(/[^\d]/g,'');
+    if (/^\+?[\d\s\-()]+$/.test(c) && d.length>=9){
+      if (d.charAt(0)==='0') d='255'+d.slice(1);
+      return {href:'https://wa.me/'+d,label:'WhatsApp',icon:'chat'};
+    }
+    return null;
+  }
+  function tsOf(l){ var t=Date.parse(l.date); if(!isNaN(t)) return t; var n=parseInt(String(l.id||'').replace(/\D/g,''),10); return isNaN(n)?0:n; }
 
-document.querySelectorAll('.cat-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeCat = btn.dataset.cat;
-    renderItems();
+  var all=[], cat='', q='', sort='new';
+  function renderCats(){
+    var cs=[]; all.forEach(function(l){ var c=(l.category||'Nyingine').trim(); if(cs.indexOf(c)<0) cs.push(c); });
+    var el=document.getElementById('cats'); el.hidden=cs.length<2;
+    if (cat && cs.indexOf(cat)<0) cat='';
+    el.innerHTML='<button type="button" class="zp-chip'+(cat?'':' active')+'" data-c="">Zote <i>'+all.length+'</i></button>'+cs.map(function(c){
+      var n=all.filter(function(l){ return (l.category||'Nyingine').trim()===c; }).length;
+      return '<button type="button" class="zp-chip'+(c===cat?' active':'')+'" data-c="'+esc(c)+'">'+esc(c)+' <i>'+n+'</i></button>';
+    }).join('');
+  }
+  function card(l){
+    var img=safeImg(l.imageUrl), ct=contactOf(l.contact);
+    return '<article class="ac-card"><div class="ac-thumb" style="--art:'+ZP.art(l.businessName)+'">'+
+      '<span class="ac-emoji" aria-hidden="true">🏪</span>'+(img?'<img src="'+esc(img)+'" alt="" loading="lazy" onerror="this.remove()">':'')+
+      '<span class="ac-tag">'+esc((l.category||'Nyingine').toUpperCase())+'</span></div>'+
+      '<div class="ac-body"><h3>'+esc(l.businessName)+'</h3>'+(l.description?'<p style="-webkit-line-clamp:3">'+esc(l.description)+'</p>':'')+
+      '<div class="ac-foot">'+(ct?'<a class="zp-btn sm" href="'+esc(ct.href)+'" target="_blank" rel="noopener noreferrer">'+ZP.icon(ct.icon)+esc(ct.label)+'</a>':'<span style="font-size:12.5px;color:var(--muted)">'+esc(l.contact)+'</span>')+'</div></div></article>';
+  }
+  function render(){
+    renderCats();
+    var term=q.trim().toLowerCase();
+    var list=all.filter(function(l){ return (!cat||(l.category||'Nyingine').trim()===cat) && (!term||(l.businessName+' '+(l.description||'')+' '+(l.category||'')).toLowerCase().indexOf(term)>-1); });
+    if (sort==='az') list.sort(function(a,b){ return String(a.businessName).localeCompare(String(b.businessName)); });
+    else list.sort(function(a,b){ return tsOf(b)-tsOf(a); });
+    document.getElementById('count').textContent=all.length?list.length+' biashara':'';
+    document.getElementById('grid').innerHTML=list.length?list.map(card).join(''):
+      '<div class="zp-empty"><h3>'+(all.length?'Hakuna kilichopatikana':'Hakuna biashara zilizoorodheshwa bado')+'</h3><p>'+(all.length?'Jaribu neno lingine au kategoria nyingine.':'Biashara zikiongezwa na admin zitaonekana hapa.')+'</p></div>';
+  }
+  document.getElementById('cats').addEventListener('click',function(e){ var b=e.target.closest('[data-c]'); if(b){ cat=b.dataset.c; render(); } });
+  document.getElementById('q').addEventListener('input',function(e){ q=e.target.value; render(); });
+  document.getElementById('sortSel').addEventListener('change',function(e){ sort=e.target.value; render(); });
+
+  fetch('/api/marketplace').then(function(r){ return r.json(); }).then(function(d){
+    all=(d&&d.success&&Array.isArray(d.listings))?d.listings:[]; render();
+  }).catch(function(){
+    document.getElementById('grid').innerHTML='<div class="zp-empty"><h3>Imeshindikana kupakia biashara</h3><p>Angalia mtandao kisha jaribu tena.</p><button class="zp-btn" type="button" onclick="location.reload()">Jaribu tena</button></div>';
   });
-});
-
-function openSellModal() { document.getElementById('sell-modal').classList.remove('hidden'); }
-function closeSellModal() { document.getElementById('sell-modal').classList.add('hidden'); }
-
-function renderItems() {
-  const container = document.getElementById('featured-items');
-  let filtered = mockItems;
-  if (activeCat !== 'all') {
-    filtered = filtered.filter(i => i.category === activeCat);
-  }
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm">Hakuna items kwenye category hii</div>`;
-    return;
-  }
-
-  const badgeColors = {
-    'Account': 'bg-purple-500/20 text-purple-400',
-    'Digital': 'bg-blue-500/20 text-blue-400',
-    'Game': 'bg-green-500/20 text-green-400',
-    'Service': 'bg-orange-500/20 text-orange-400'
-  };
-
-  container.innerHTML = filtered.map(i => `
-    <div class="item-card gradient-card rounded-2xl border border-dark-4 overflow-hidden hover:border-primary transition">
-      <div class="relative aspect-video bg-gradient-to-br from-purple-900/40 to-dark-2 flex items-center justify-center">
-        <div class="text-6xl">${i.icon}</div>
-        <span class="absolute top-2 left-2 text-[9px] ${badgeColors[i.badge] || 'bg-primary/20 text-primary'} px-2 py-0.5 rounded font-bold">${i.badge}</span>
-      </div>
-      <div class="p-4">
-        <h3 class="text-sm text-white font-bold mb-1 line-clamp-1">${i.title}</h3>
-        <p class="text-xs text-gray-500 mb-3 line-clamp-1">${i.desc}</p>
-        <div class="flex items-center gap-2 mb-3">
-          <div class="flex text-yellow-400 text-xs">★★★★★</div>
-          <span class="text-[10px] text-white font-semibold">${i.rating}</span>
-          <span class="text-[10px] text-gray-500">(${i.reviews})</span>
-        </div>
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <div class="text-lg text-primary font-bold">TZS ${i.price.toLocaleString()}</div>
-            <div class="text-[9px] text-gray-500">Seller: ${i.seller}</div>
-          </div>
-        </div>
-        <button onclick="buyItem('${i.title}', ${i.price})" class="w-full gradient-primary text-white text-xs font-bold py-2.5 rounded-lg">Add to Cart</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-async function buyItem(title, price) {
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) { window.location.href = '/login.html'; return; }
-  alert(`✅ ${title} imeongezwa kwenye cart!\nBei: TZS ${price.toLocaleString()}`);
-}
-
-document.getElementById('sell-form').addEventListener('submit', (e) => {
-  e.preventDefault();
-  alert('✅ Item yako imepostiwa kwenye marketplace!');
-  closeSellModal();
-});
-
-document.addEventListener('DOMContentLoaded', renderItems);
-</script>
-
-
-<script id="lifeisgametz-navigation-repair">
-(function () {
-  function initNavigationRepair() {
-    var toggles = document.querySelectorAll('[data-mobile-menu-toggle="true"]');
-    var nav = document.querySelector('aside') || document.querySelector('[role="navigation"]') ||
-              document.querySelector('nav');
-    toggles.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!nav) {
-          window.location.href = 'index.html';
-          return;
-        }
-        nav.classList.toggle('lifeisgametz-mobile-nav-open');
-        nav.style.display = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'flex' : '';
-        nav.style.position = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'fixed' : '';
-        nav.style.zIndex = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '9999' : '';
-        nav.style.top = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.left = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.bottom = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0' : '';
-        nav.style.width = nav.classList.contains('lifeisgametz-mobile-nav-open') ? 'min(85vw, 320px)' : '';
-        nav.style.overflowY = nav.classList.contains('lifeisgametZ-mobile-nav-open') ? 'auto' : '';
-        nav.style.background = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '#0f0f1e' : '';
-        nav.style.paddingTop = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '1rem' : '';
-        nav.style.boxShadow = nav.classList.contains('lifeisgametz-mobile-nav-open') ? '0 0 0 100vmax rgba(0,0,0,.65)' : '';
-      });
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav) {
-        nav.classList.remove('lifeisgametz-mobile-nav-open');
-        nav.style.display = '';
-        nav.style.position = nav.style.zIndex = nav.style.top = nav.style.left = nav.style.bottom = '';
-        nav.style.width = nav.style.overflowY = nav.style.background = nav.style.paddingTop = nav.style.boxShadow = '';
-      }
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initNavigationRepair);
-  else initNavigationRepair();
 })();
 </script>
-
 </body>
 </html>
